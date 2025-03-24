@@ -23,38 +23,4 @@ public class Booking {
         this.endTime = endTime;
         this.quantity = quantity;
     }
-    
-    public String getId() {
-        return id;
-    }
-    public void setId(String id) {
-        this.id = id;
-    }
-    public String getUserId() {
-        return userId;
-    }
-    public String getAreaId() {
-        return areaId;
-    }
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-    public LocalDateTime getEndTime() {
-        return endTime;
-    }
-    public int getQuantity() {
-        return quantity;
-    }
-    public String getStatus() {
-        return status;
-    }
-    public void setStatus(String status) {
-        this.status = status;
-    }
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
 }
