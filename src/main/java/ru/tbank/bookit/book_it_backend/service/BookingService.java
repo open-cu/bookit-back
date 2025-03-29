@@ -2,6 +2,7 @@ package ru.tbank.bookit.book_it_backend.service;
 
 import org.springframework.stereotype.Service;
 import ru.tbank.bookit.book_it_backend.model.Booking;
+import ru.tbank.bookit.book_it_backend.model.BookingStatus;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -22,7 +23,7 @@ public class BookingService {
             throw new RuntimeException("No available slots");
         }
         booking.setId(UUID.randomUUID().toString());
-        booking.setStatus("CONFIRMED");
+        booking.setStatus(BookingStatus.CONFIRMED);
         booking.setCreatedAt(LocalDateTime.now());
         bookings.put(booking.getId(), booking);
         return booking;
