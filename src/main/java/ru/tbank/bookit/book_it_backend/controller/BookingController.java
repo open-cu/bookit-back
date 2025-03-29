@@ -18,6 +18,11 @@ public class BookingController {
         return bookingService.checkAvailability();
     }
 
+    @PostMapping("/availability")
+    public boolean setAvailability(@RequestParam int availability) {
+        return bookingService.setAvailability(availability);
+    }
+
     @PostMapping("/book")
     public Booking createBooking(@RequestBody Booking booking) {
         return bookingService.createBooking(booking);
