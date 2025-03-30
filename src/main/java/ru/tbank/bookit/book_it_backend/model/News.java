@@ -25,7 +25,7 @@ public class News {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = true)
-    private NewsTags tags;
+    private NewsTag tags;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

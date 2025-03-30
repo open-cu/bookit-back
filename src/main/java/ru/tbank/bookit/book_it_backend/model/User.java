@@ -4,36 +4,38 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
-@Table(name = "AREAS")
+@Table(name = "USERS")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Areas {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @Column(nullable = false)
+    private long tg_id;
+
+    @Column(nullable = false)
     private String name;
 
     @Column(nullable = false)
-    private String description;
+    private String email;
 
     @Column(nullable = false)
-    private String type;
+    private String passwordHash;
 
     @Column(nullable = false)
-    private String features;
-
-    @Column(nullable = false)
-    private int capacity;
+    private long phone;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AreasStatus status;
+    private UserStatus status;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 }

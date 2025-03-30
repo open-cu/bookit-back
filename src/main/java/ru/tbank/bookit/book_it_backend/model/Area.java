@@ -3,39 +3,34 @@ package ru.tbank.bookit.book_it_backend.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Entity
-@Table(name = "USERS")
+@Table(name = "AREAS")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Users {
+public class Area {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @Column(nullable = false)
-    private long tg_id;
-
-    @Column(nullable = false)
     private String name;
 
     @Column(nullable = false)
-    private String email;
+    private String description;
 
     @Column(nullable = false)
-    private String passwordHash;
+    private String type;
 
     @Column(nullable = false)
-    private long phone;
+    private String features;
+
+    @Column(nullable = false)
+    private int capacity;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UsersStatus status;
-
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private AreaStatus status;
 }

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Tickets {
+public class Ticket {
 
    @EmbeddedId
    private TicketId id;
