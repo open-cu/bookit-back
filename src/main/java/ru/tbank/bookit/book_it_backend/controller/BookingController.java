@@ -29,7 +29,7 @@ public class BookingController {
     }
 
     @GetMapping("/qr/{bookingId}")
-    public String getQrCode(@PathVariable String bookingId) {
+    public String getQrCode(@PathVariable long bookingId) {
         return bookingService.getQrCode(bookingId);
     }
 }

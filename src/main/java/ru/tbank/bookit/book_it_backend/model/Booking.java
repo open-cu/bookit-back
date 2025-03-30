@@ -12,9 +12,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Booking {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    private long id;
 
     @Column(nullable = false)
     private String userId;
