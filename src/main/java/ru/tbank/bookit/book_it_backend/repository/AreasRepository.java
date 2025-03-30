@@ -1,4 +1,7 @@
 package ru.tbank.bookit.book_it_backend.repository;
 
-public interface AreasRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+import ru.tbank.bookit.book_it_backend.model.Areas;
+
+public interface AreasRepository extends JpaRepository<Areas, Long> {
 }

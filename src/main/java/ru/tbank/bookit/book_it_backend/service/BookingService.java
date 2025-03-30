@@ -8,20 +8,21 @@ import ru.tbank.bookit.book_it_backend.model.BookingStatus;
 import ru.tbank.bookit.book_it_backend.repository.BookingRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class BookingService {
-    private final BookingRepository bookings;
+    private final BookingRepository bookingRepository;
     private final BookingConfig bookingConfig;
 
     @Autowired
     public BookingService(BookingRepository bookings, BookingConfig bookingConfig) {
-        this.bookings = bookings;
+        this.bookingRepository = bookings;
         this.bookingConfig = bookingConfig;
     }
 
     public boolean checkAvailability() {
-        return bookings.count() < bookingConfig.getAvailability();
+        return bookingRepository.count() < bookingConfig.getAvailability();
     }
 
     public boolean setAvailability(int availability) {
@@ -38,14 +39,18 @@ public class BookingService {
         }
         booking.setStatus(BookingStatus.CONFIRMED);
         booking.setCreatedAt(LocalDateTime.now());
-        bookings.save(booking);
+        bookingRepository.save(booking);
         return booking;
     }
 
     public String getQrCode(long bookingId) {
-        if (bookings.findById(bookingId).isEmpty()) {
+        if (bookingRepository.findById(bookingId).isEmpty()) {
             throw new RuntimeException("Booking not found");
         }
         return "QR-CODE-FAKE:" + bookingId;
+    }
+
+    public List<Booking> findAll() {
+        return bookingRepository.findAll();
     }
 }
