@@ -18,14 +18,14 @@ public class Area {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
     private String description;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String type;
+    private AreaType type;
 
-    @Column(nullable = false)
-    private String features;
+    @Enumerated(EnumType.STRING)
+    private AreaFeature features;
 
     @Column(nullable = false)
     private int capacity;

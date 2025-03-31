@@ -1,4 +1,8 @@
 package ru.tbank.bookit.book_it_backend.model;
 
 public enum UserStatus {
+    CREATED,
+    VERIFIED,
+    BANNED,
+    DELETED
 }
