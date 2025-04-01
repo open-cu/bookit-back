@@ -6,35 +6,26 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "BOOKINGS")
+@Table(name = "NEWS")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Booking {
+public class News {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @Column(nullable = false)
-    private String userId;
+    private String title;
 
     @Column(nullable = false)
-    private String areaId;
-
-    @Column(nullable = false)
-    private LocalDateTime startTime;
-
-    @Column(nullable = false)
-    private LocalDateTime endTime;
-
-    @Column(nullable = false)
-    private int quantity;
+    private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private BookingStatus status;
+    @Column(nullable = true)
+    private NewsTag tags;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

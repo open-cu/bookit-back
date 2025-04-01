@@ -6,35 +6,35 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "BOOKINGS")
+@Table(name = "USERS")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Booking {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @Column(nullable = false)
-    private String userId;
+    private long tg_id;
 
     @Column(nullable = false)
-    private String areaId;
+    private String name;
+
+    @Column(unique = true)
+    private String email;
 
     @Column(nullable = false)
-    private LocalDateTime startTime;
+    private String passwordHash;
 
-    @Column(nullable = false)
-    private LocalDateTime endTime;
-
-    @Column(nullable = false)
-    private int quantity;
+    @Column(unique = true)
+    private long phone;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private BookingStatus status;
+    private UserStatus status;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

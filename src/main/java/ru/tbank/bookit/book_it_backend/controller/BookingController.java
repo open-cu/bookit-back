@@ -1,14 +1,18 @@
 package ru.tbank.bookit.book_it_backend.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.tbank.bookit.book_it_backend.model.Booking;
 import ru.tbank.bookit.book_it_backend.service.BookingService;
+import java.util.List;
 
 @RestController
 @RequestMapping("/booking")
 public class BookingController {
     private final BookingService bookingService;
 
+    @Autowired
     public BookingController(BookingService bookingService) {
         this.bookingService = bookingService;
     }
@@ -29,7 +33,13 @@ public class BookingController {
     }
 
     @GetMapping("/qr/{bookingId}")
-    public String getQrCode(@PathVariable String bookingId) {
+    public String getQrCode(@PathVariable long bookingId) {
         return bookingService.getQrCode(bookingId);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Booking>> getAllBookings() {
+        List<Booking> bookings = bookingService.findAll();
+        return ResponseEntity.ok(bookings);
     }
 }

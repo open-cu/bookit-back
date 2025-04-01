@@ -5,23 +5,24 @@ import org.springframework.stereotype.Service;
 import ru.tbank.bookit.book_it_backend.config.BookingConfig;
 import ru.tbank.bookit.book_it_backend.model.Booking;
 import ru.tbank.bookit.book_it_backend.model.BookingStatus;
+import ru.tbank.bookit.book_it_backend.repository.BookingRepository;
 
 import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.List;
 
 @Service
 public class BookingService {
-    private final Map<String, Booking> bookings = new ConcurrentHashMap<>();
+    private final BookingRepository bookingRepository;
     private final BookingConfig bookingConfig;
 
     @Autowired
-    public BookingService(BookingConfig bookingConfig) {
+    public BookingService(BookingRepository bookings, BookingConfig bookingConfig) {
+        this.bookingRepository = bookings;
         this.bookingConfig = bookingConfig;
     }
 
     public boolean checkAvailability() {
-        return bookings.size() < bookingConfig.getAvailability();
+        return bookingRepository.count() < bookingConfig.getAvailability();
     }
 
     public boolean setAvailability(int availability) {
@@ -38,14 +39,18 @@ public class BookingService {
         }
         booking.setStatus(BookingStatus.CONFIRMED);
         booking.setCreatedAt(LocalDateTime.now());
-        bookings.put(booking.getId(), booking);
+        bookingRepository.save(booking);
         return booking;
     }
 
-    public String getQrCode(String bookingId) {
-        if (!bookings.containsKey(bookingId)) {
+    public String getQrCode(long bookingId) {
+        if (bookingRepository.findById(bookingId).isEmpty()) {
             throw new RuntimeException("Booking not found");
         }
         return "QR-CODE-FAKE:" + bookingId;
+    }
+
+    public List<Booking> findAll() {
+        return bookingRepository.findAll();
     }
 }
