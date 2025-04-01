@@ -9,6 +9,7 @@ import ru.tbank.bookit.book_it_backend.repository.BookingRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class BookingService {
@@ -43,11 +44,38 @@ public class BookingService {
         return booking;
     }
 
-    public String getQrCode(long bookingId) {
-        if (bookingRepository.findById(bookingId).isEmpty()) {
-            throw new RuntimeException("Booking not found");
+    public void cancelBooking(long bookingId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found with id: " + bookingId));
+
+        if (booking.getStatus() == BookingStatus.CANCELED) {
+            throw new IllegalStateException("Booking already cancelled");
         }
-        return "QR-CODE-FAKE:" + bookingId;
+
+        booking.setStatus(BookingStatus.CANCELED);
+        bookingRepository.save(booking);
+    }
+
+    public List<Booking> getCurrentBookings() {
+        LocalDateTime now = LocalDateTime.now();
+        return bookingRepository.findAll().stream()
+                .filter(booking -> booking.getStartTime().isBefore(now)
+                        && booking.getEndTime().isAfter(now))
+                .collect(Collectors.toList());
+    }
+
+    public List<Booking> getFutureBookings() {
+        LocalDateTime now = LocalDateTime.now();
+        return bookingRepository.findAll().stream()
+                .filter(booking -> booking.getStartTime().isAfter(now))
+                .collect(Collectors.toList());
+    }
+
+    public List<Booking> getPastBookings() {
+        LocalDateTime now = LocalDateTime.now();
+        return bookingRepository.findAll().stream()
+                .filter(booking -> booking.getEndTime().isBefore(now))
+                .collect(Collectors.toList());
     }
 
     public List<Booking> findAll() {
