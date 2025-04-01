@@ -8,19 +8,19 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.tbank.bookit.book_it_backend.model.Booking;
 import ru.tbank.bookit.book_it_backend.model.User;
 import ru.tbank.bookit.book_it_backend.repository.UserRepository;
-import ru.tbank.bookit.book_it_backend.service.HomepageService;
+import ru.tbank.bookit.book_it_backend.service.HomeService;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/homepage")
-public class HomepageController {
-    private final HomepageService homepageService;
+@RequestMapping("/home")
+public class HomeController {
+    private final HomeService homeService;
     private final UserRepository userRepository;
 
     @Autowired
-    public HomepageController(HomepageService homepageService, UserRepository userRepository) {
-        this.homepageService = homepageService;
+    public HomeController(HomeService homeService, UserRepository userRepository) {
+        this.homeService = homeService;
         this.userRepository = userRepository;
     }
 
@@ -30,7 +30,7 @@ public class HomepageController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         try {
-            String qrContent = homepageService.generateUserQrCode(user);
+            String qrContent = homeService.generateUserQrCode(user);
             return ResponseEntity.ok(qrContent);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to generate QR code", e);
@@ -39,25 +39,25 @@ public class HomepageController {
 
     @GetMapping("/bookings/current")
     public ResponseEntity<List<Booking>> getCurrentBookings() {
-        List<Booking> bookings = homepageService.getCurrentBookings();
+        List<Booking> bookings = homeService.getCurrentBookings();
         return ResponseEntity.ok(bookings);
     }
 
     @GetMapping("/bookings/future")
     public ResponseEntity<List<Booking>> getFutureBookings() {
-        List<Booking> bookings = homepageService.getFutureBookings();
+        List<Booking> bookings = homeService.getFutureBookings();
         return ResponseEntity.ok(bookings);
     }
 
     @GetMapping("/bookings/past")
     public ResponseEntity<List<Booking>> getPastBookings() {
-        List<Booking> bookings = homepageService.getPastBookings();
+        List<Booking> bookings = homeService.getPastBookings();
         return ResponseEntity.ok(bookings);
     }
 
     @DeleteMapping("/cancel-booking/{bookingId}")
     public ResponseEntity<String> cancelBooking(@PathVariable long bookingId) {
-        homepageService.cancelBooking(bookingId);
+        homeService.cancelBooking(bookingId);
         return ResponseEntity.ok("Booking cancelled successfully");
     }
 }

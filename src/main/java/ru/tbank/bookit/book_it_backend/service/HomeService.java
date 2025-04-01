@@ -14,11 +14,11 @@ import java.util.Base64;
 import java.util.List;
 
 @Service
-public class HomepageService {
+public class HomeService {
     private final BookingService bookingService;
 
     @Autowired
-    public HomepageService(BookingService bookingService) {
+    public HomeService(BookingService bookingService) {
         this.bookingService = bookingService;
     }
 
