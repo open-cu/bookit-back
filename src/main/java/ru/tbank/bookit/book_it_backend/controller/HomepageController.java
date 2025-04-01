@@ -24,11 +24,6 @@ public class HomepageController {
         this.userRepository = userRepository;
     }
 
-    @PostMapping("/create-booking")
-    public Booking createBooking(@RequestBody Booking booking) {
-        return homepageService.createBooking(booking);
-    }
-
     @GetMapping("/qr")
     public ResponseEntity<?> getUserQrCode(@RequestParam Long userId) {
         User user = userRepository.findById(userId)

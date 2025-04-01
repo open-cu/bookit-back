@@ -22,10 +22,6 @@ public class HomepageService {
         this.bookingService = bookingService;
     }
 
-    public Booking createBooking(Booking booking) {
-        return bookingService.createBooking(booking);
-    }
-
     public String generateUserQrCode(User user) {
         String userData = String.format(
                 "USER:%d:%s:%s",
