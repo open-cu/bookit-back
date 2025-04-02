@@ -114,13 +114,6 @@ public class BookingMenuService {
         return booking;
     }
 
-    public String getQrCode(long bookingId) {
-        if (bookingRepository.findById(bookingId).isEmpty()) {
-            throw new RuntimeException("Booking not found");
-        }
-        return "QR-CODE-FAKE:" + bookingId;
-    }
-
     public List<Booking> findAll() {
         return bookingRepository.findAll();
     }
