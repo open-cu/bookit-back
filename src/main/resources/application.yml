@@ -19,5 +19,13 @@ spring:
       settings:
         trace: true
         web-allow-others: true
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+  default-produces-media-type: application/json
+
 booking:
   availability: 10
