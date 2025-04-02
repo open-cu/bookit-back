@@ -47,16 +47,16 @@ public class HomeService {
         }
     }
 
-    public List<Booking> getCurrentBookings() {
-        return bookingService.getCurrentBookings();
+    public List<Booking> getCurrentBookings(Long userId) {
+        return bookingService.getCurrentBookings(userId);
     }
 
-    public List<Booking> getFutureBookings() {
-        return bookingService.getFutureBookings();
+    public List<Booking> getFutureBookings(Long userId) {
+        return bookingService.getFutureBookings(userId);
     }
 
-    public List<Booking> getPastBookings() {
-        return bookingService.getPastBookings();
+    public List<Booking> getPastBookings(Long userId) {
+        return bookingService.getPastBookings(userId);
     }
 
     public void cancelBooking(long bookingId) {
