@@ -17,7 +17,4 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("SELECT b FROM Booking b WHERE b.userId = :userId AND b.endTime < :now")
     List<Booking> findPastBookingsByUser(@Param("userId") Long userId, @Param("now") LocalDateTime now);
-
-    @Query("SELECT b FROM Booking b WHERE b.userId = :userId")
-    List<Booking> findAllByUser(@Param("userId") Long userId);
 }
