@@ -1,6 +1,7 @@
 package ru.tbank.bookit.book_it_backend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import ru.tbank.bookit.book_it_backend.config.BookingConfig;
 import ru.tbank.bookit.book_it_backend.model.Booking;
@@ -33,8 +34,8 @@ public class BookingMenuService {
     }
 
 
-    public List<LocalDateTime> findAvailableTime(LocalDate date, Optional<String> areaId) {
-        List<LocalDateTime> availableTime = List.of();
+    public List<Pair<LocalDateTime, LocalDateTime>> findAvailableTime(LocalDate date, Optional<String> areaId) {
+        List<Pair<LocalDateTime, LocalDateTime>> availableTime = List.of();
         return availableTime;
     }
 

@@ -1,6 +1,7 @@
 package ru.tbank.bookit.book_it_backend.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,10 +37,16 @@ public class BookingMenuController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam Optional<String> areaId) {
 
-        List<LocalDateTime> times = bookingMenuService.findAvailableTime(date, areaId);
-        List<String> formattedTimes = times.stream()
-                                           .map(time -> time.format(DateTimeFormatter.ofPattern("HH:mm")))
-                                           .toList();
+        List<Pair<LocalDateTime, LocalDateTime>> times = bookingMenuService.findAvailableTime(date, areaId);
+        List<String> formattedTimes =
+                times.stream()
+                     .map(timePair -> {
+                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+                         String startTime = timePair.getFirst().format(formatter);
+                         String endTime = timePair.getSecond().format(formatter);
+                         return startTime + "-" + endTime;
+                     })
+                     .toList();
         return ResponseEntity.ok(formattedTimes);
     }
 
