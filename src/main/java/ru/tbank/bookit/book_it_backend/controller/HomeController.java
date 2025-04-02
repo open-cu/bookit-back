@@ -55,7 +55,7 @@ public class HomeController {
         return ResponseEntity.ok(bookings);
     }
 
-    @DeleteMapping("/cancel-booking/{bookingId}")
+    @DeleteMapping("/booking/{bookingId}")
     public ResponseEntity<String> cancelBooking(@PathVariable long bookingId) {
         homeService.cancelBooking(bookingId);
         return ResponseEntity.ok("Booking cancelled successfully");
