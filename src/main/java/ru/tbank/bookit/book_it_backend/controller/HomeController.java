@@ -38,20 +38,20 @@ public class HomeController {
     }
 
     @GetMapping("/bookings/current")
-    public ResponseEntity<List<Booking>> getCurrentBookings() {
-        List<Booking> bookings = homeService.getCurrentBookings();
+    public ResponseEntity<List<Booking>> getCurrentBookings(@RequestParam Long userId) {
+        List<Booking> bookings = homeService.getCurrentBookings(userId);
         return ResponseEntity.ok(bookings);
     }
 
     @GetMapping("/bookings/future")
-    public ResponseEntity<List<Booking>> getFutureBookings() {
-        List<Booking> bookings = homeService.getFutureBookings();
+    public ResponseEntity<List<Booking>> getFutureBookings(@RequestParam Long userId) {
+        List<Booking> bookings = homeService.getFutureBookings(userId);
         return ResponseEntity.ok(bookings);
     }
 
     @GetMapping("/bookings/past")
-    public ResponseEntity<List<Booking>> getPastBookings() {
-        List<Booking> bookings = homeService.getPastBookings();
+    public ResponseEntity<List<Booking>> getPastBookings(@RequestParam Long userId) {
+        List<Booking> bookings = homeService.getPastBookings(userId);
         return ResponseEntity.ok(bookings);
     }
 
