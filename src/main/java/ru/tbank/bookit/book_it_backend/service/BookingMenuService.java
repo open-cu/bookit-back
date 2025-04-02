@@ -7,36 +7,43 @@ import ru.tbank.bookit.book_it_backend.model.Booking;
 import ru.tbank.bookit.book_it_backend.model.BookingStatus;
 import ru.tbank.bookit.book_it_backend.repository.BookingRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
-public class BookingService {
+public class BookingMenuService {
     private final BookingRepository bookingRepository;
     private final BookingConfig bookingConfig;
 
     @Autowired
-    public BookingService(BookingRepository bookings, BookingConfig bookingConfig) {
+    public BookingMenuService(BookingRepository bookings, BookingConfig bookingConfig) {
         this.bookingRepository = bookings;
         this.bookingConfig = bookingConfig;
     }
 
-    public boolean checkAvailability() {
-        return bookingRepository.count() < bookingConfig.getAvailability();
+    public Booking findBooking(long bookingId) {
+        return new Booking();
     }
 
-    public boolean setAvailability(int availability) {
-        if (availability < 0) {
-            throw new IllegalArgumentException("Availability must be non-negative");
-        }
-        bookingConfig.setAvailability(availability);
-        return true;
+    public List<LocalDate> findAvailableDate() {
+        List<LocalDate> availableDates = List.of();
+        return availableDates;
+    }
+
+
+    public List<LocalDateTime> findAvailableTime(LocalDate date, Optional<String> areaId) {
+        List<LocalDateTime> availableTime = List.of();
+        return availableTime;
+    }
+
+    public List<String> findAvailableArea(LocalDateTime time) {
+        List<String> availableArea = List.of();
+        return availableArea;
     }
 
     public Booking createBooking(Booking booking) {
-        if (!checkAvailability()) {
-            throw new RuntimeException("No available slots");
-        }
         booking.setStatus(BookingStatus.CONFIRMED);
         booking.setCreatedAt(LocalDateTime.now());
         bookingRepository.save(booking);
@@ -53,4 +60,7 @@ public class BookingService {
     public List<Booking> findAll() {
         return bookingRepository.findAll();
     }
+
+
+
 }
