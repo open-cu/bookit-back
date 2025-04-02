@@ -8,6 +8,7 @@ import ru.tbank.bookit.book_it_backend.model.Booking;
 import ru.tbank.bookit.book_it_backend.model.BookingStatus;
 import ru.tbank.bookit.book_it_backend.repository.BookingRepository;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,12 +26,30 @@ public class BookingMenuService {
     }
 
     public Booking findBooking(long bookingId) {
-        Booking booking = bookingRepository.findBookingById(bookingId);
-        return booking;
+        return bookingRepository.findBookingById(bookingId);
     }
 
-    public List<LocalDate> findAvailableDate() {
+    public List<LocalDate> findAvailableDates() {
         List<LocalDate> availableDates = List.of();
+        List<Booking> bookings = bookingRepository.findBookings();
+
+        for (int i = 0; i <= bookingConfig.getMaxDaysForward(); ++i) {
+            LocalDate date = LocalDate.now().plusDays(i);
+            Duration duration = Duration.ZERO;
+            List<Booking> bookingsInThatDay = bookings
+                    .stream()
+                    .filter((b) -> date.equals(b.getStartTime().toLocalDate()))
+                    .toList();
+
+            for (Booking booking : bookingsInThatDay) {
+                duration = duration.plus(Duration.between(booking.getStartTime(), booking.getEndTime()));
+            }
+
+            if (duration.compareTo(Duration.ofHours(bookingConfig.getEndWork() - bookingConfig.getStartWork())) >= 0) {
+                availableDates.addLast(date);
+            }
+        }
+
         return availableDates;
     }
 

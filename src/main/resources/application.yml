@@ -20,4 +20,6 @@ spring:
         trace: true
         web-allow-others: true
 booking:
-  availability: 10
+  max-days-forward: 30
+  start-work: 8
+  end-work: 21

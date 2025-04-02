@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(prefix = "booking")
 public class BookingConfig {
-    private int availability;
-
+    private int maxDaysForward;
+    private long startWork;
+    private long endWork;
 }

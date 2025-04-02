@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/booking-menu")
@@ -27,8 +26,8 @@ public class BookingMenuController {
     }
 
     @GetMapping("/available-date")
-    public List<LocalDate> findAvailableDate(@RequestParam Optional<String> areaId) {
-        return bookingMenuService.findAvailableDate();
+    public List<LocalDate> findAvailableDates(@RequestParam Optional<String> areaId) {
+        return bookingMenuService.findAvailableDates();
     }
 
     @GetMapping("/available-time/{date}")
