@@ -38,7 +38,7 @@ public class BookingMenuService {
             Duration duration = Duration.ZERO;
             List<Booking> bookingsInThatDay = bookings
                     .stream()
-                    .filter((b) -> date.equals(b.getStartTime().toLocalDate()))
+                    .filter(b -> date.equals(b.getStartTime().toLocalDate()))
                     .toList();
 
             for (Booking booking : bookingsInThatDay) {
@@ -55,11 +55,41 @@ public class BookingMenuService {
 
     public List<Pair<LocalDateTime, LocalDateTime>> findAvailableTime(LocalDate date, Optional<String> areaId) {
         List<Pair<LocalDateTime, LocalDateTime>> availableTime = List.of();
+        List<Booking> bookings = List.of();
+
+        if (areaId.isEmpty()) {
+            bookings = bookingRepository.findBookingsInDate(date);
+        }
+        else {
+            bookings = bookingRepository.findBookingsInDateAndArea(date, Long.valueOf(areaId.get()));
+        }
+
+        LocalDateTime start = LocalDateTime.MIN;
+        LocalDateTime end = LocalDateTime.MIN;
+
+        for (long i = bookingConfig.getStartWork() + 1; i < bookingConfig.getEndWork(); ++i)
+        {
+            LocalDateTime currHour = LocalDateTime.now().toLocalDate().atTime((int)i, 0);
+
+            if (bookings.stream().anyMatch(b -> currHour.equals(b.getEndTime())) &&
+                    bookings.stream().noneMatch(b -> currHour.equals(b.getStartTime())))
+            {
+                start = currHour;
+            }
+            else if (bookings.stream().anyMatch(b -> currHour.equals(b.getStartTime())) &&
+                bookings.stream().noneMatch(b -> currHour.equals(b.getEndTime())))
+            {
+                end = currHour;
+                availableTime.addLast(Pair.of(start, end));
+            }
+        }
+
         return availableTime;
     }
 
     public List<String> findAvailableArea(LocalDateTime time) {
         List<String> availableArea = List.of();
+
         return availableArea;
     }
 
@@ -80,7 +110,4 @@ public class BookingMenuService {
     public List<Booking> findAll() {
         return bookingRepository.findAll();
     }
-
-
-
 }
