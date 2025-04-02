@@ -59,9 +59,9 @@ public class BookingMenuService {
         List<Booking> bookings = List.of();
 
         if (areaId.isEmpty()) {
-            bookings = bookingRepository.findBookingsInDate(date);
+            bookings = bookingRepository.findBookingsByDate(date);
         } else {
-            bookings = bookingRepository.findBookingsInDateAndArea(date, Long.valueOf(areaId.get()));
+            bookings = bookingRepository.findBookingsByDateAndArea(date, Long.valueOf(areaId.get()));
         }
 
         LocalDateTime start = LocalDateTime.MIN;

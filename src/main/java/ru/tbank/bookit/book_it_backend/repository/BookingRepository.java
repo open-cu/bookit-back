@@ -17,10 +17,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findBookings();
 
     @Query("SELECT b FROM Booking b WHERE b.startTime BETWEEN ?1 AND DATEADD(day, 1, ?1)")
-    List<Booking> findBookingsInDate(LocalDate date);
+    List<Booking> findBookingsByDate(LocalDate date);
 
     @Query("SELECT b FROM Booking b WHERE b.startTime BETWEEN ?1 AND DATEADD(day, 1, ?1) AND b.areaId = :areaId")
-    List<Booking> findBookingsInDateAndArea(LocalDate date, @Param("areaId") Long areaId);
+    List<Booking> findBookingsByDateAndArea(LocalDate date, @Param("areaId") Long areaId);
 
     @Query("SELECT a FROM Area a")
     List<Area> findAreas();
