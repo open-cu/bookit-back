@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import ru.tbank.bookit.book_it_backend.config.BookingConfig;
+import ru.tbank.bookit.book_it_backend.model.Area;
 import ru.tbank.bookit.book_it_backend.model.Booking;
 import ru.tbank.bookit.book_it_backend.model.BookingStatus;
 import ru.tbank.bookit.book_it_backend.repository.BookingRepository;
@@ -59,26 +60,21 @@ public class BookingMenuService {
 
         if (areaId.isEmpty()) {
             bookings = bookingRepository.findBookingsInDate(date);
-        }
-        else {
+        } else {
             bookings = bookingRepository.findBookingsInDateAndArea(date, Long.valueOf(areaId.get()));
         }
 
         LocalDateTime start = LocalDateTime.MIN;
         LocalDateTime end = LocalDateTime.MIN;
 
-        for (long i = bookingConfig.getStartWork() + 1; i < bookingConfig.getEndWork(); ++i)
-        {
+        for (long i = bookingConfig.getStartWork() + 1; i < bookingConfig.getEndWork(); ++i) {
             LocalDateTime currHour = LocalDateTime.now().toLocalDate().atTime((int)i, 0);
 
             if (bookings.stream().anyMatch(b -> currHour.equals(b.getEndTime())) &&
-                    bookings.stream().noneMatch(b -> currHour.equals(b.getStartTime())))
-            {
+                    bookings.stream().noneMatch(b -> currHour.equals(b.getStartTime()))) {
                 start = currHour;
-            }
-            else if (bookings.stream().anyMatch(b -> currHour.equals(b.getStartTime())) &&
-                bookings.stream().noneMatch(b -> currHour.equals(b.getEndTime())))
-            {
+            } else if (bookings.stream().anyMatch(b -> currHour.equals(b.getStartTime())) &&
+                bookings.stream().noneMatch(b -> currHour.equals(b.getEndTime()))) {
                 end = currHour;
                 availableTime.addLast(Pair.of(start, end));
             }
@@ -89,6 +85,24 @@ public class BookingMenuService {
 
     public List<String> findAvailableArea(LocalDateTime time) {
         List<String> availableArea = List.of();
+        List<Area> areas = bookingRepository.findAreas();
+        List<Booking> bookings = bookingRepository.findBookings();
+
+        for (Area a : areas) {
+            List<Booking> areaBookings = bookings.stream().filter(b -> a.getId() == Long.valueOf(b.getAreaId())).toList();
+            boolean isFree = true;
+
+            for (Booking b : areaBookings) {
+                if (time.isBefore(b.getEndTime()) && time.isAfter(b.getStartTime())) {
+                    isFree = false;
+                    break;
+                }
+            }
+
+            if (isFree) {
+                availableArea.addLast(a.toString());
+            }
+        }
 
         return availableArea;
     }

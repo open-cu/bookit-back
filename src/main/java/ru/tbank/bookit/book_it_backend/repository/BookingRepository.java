@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.tbank.bookit.book_it_backend.model.Booking;
+import ru.tbank.bookit.book_it_backend.model.Area;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,4 +21,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("SELECT b FROM Booking b WHERE b.startTime BETWEEN ?1 AND DATEADD(day, 1, ?1) AND b.areaId = :areaId")
     List<Booking> findBookingsInDateAndArea(LocalDate date, @Param("areaId") Long areaId);
+
+    @Query("SELECT a FROM Area a")
+    List<Area> findAreas();
 }
