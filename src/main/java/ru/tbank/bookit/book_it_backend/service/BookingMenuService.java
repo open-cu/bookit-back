@@ -25,14 +25,14 @@ public class BookingMenuService {
     }
 
     public Booking findBooking(long bookingId) {
-        return new Booking();
+        Booking booking = bookingRepository.findBookingById(bookingId);
+        return booking;
     }
 
     public List<LocalDate> findAvailableDate() {
         List<LocalDate> availableDates = List.of();
         return availableDates;
     }
-
 
     public List<Pair<LocalDateTime, LocalDateTime>> findAvailableTime(LocalDate date, Optional<String> areaId) {
         List<Pair<LocalDateTime, LocalDateTime>> availableTime = List.of();
