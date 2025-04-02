@@ -56,26 +56,16 @@ public class BookingService {
         bookingRepository.save(booking);
     }
 
-    public List<Booking> getCurrentBookings() {
-        LocalDateTime now = LocalDateTime.now();
-        return bookingRepository.findAll().stream()
-                .filter(booking -> booking.getStartTime().isBefore(now)
-                        && booking.getEndTime().isAfter(now))
-                .collect(Collectors.toList());
+    public List<Booking> getCurrentBookings(Long userId) {
+        return bookingRepository.findCurrentBookingsByUser(userId, LocalDateTime.now());
     }
 
-    public List<Booking> getFutureBookings() {
-        LocalDateTime now = LocalDateTime.now();
-        return bookingRepository.findAll().stream()
-                .filter(booking -> booking.getStartTime().isAfter(now))
-                .collect(Collectors.toList());
+    public List<Booking> getFutureBookings(Long userId) {
+        return bookingRepository.findFutureBookingsByUser(userId, LocalDateTime.now());
     }
 
-    public List<Booking> getPastBookings() {
-        LocalDateTime now = LocalDateTime.now();
-        return bookingRepository.findAll().stream()
-                .filter(booking -> booking.getEndTime().isBefore(now))
-                .collect(Collectors.toList());
+    public List<Booking> getPastBookings(Long userId) {
+        return bookingRepository.findPastBookingsByUser(userId, LocalDateTime.now());
     }
 
     public List<Booking> findAll() {
