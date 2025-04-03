@@ -17,6 +17,8 @@ ALTER TABLE
 COMMENT
 ON COLUMN
     "Users"."status" IS 'Статус привилегий: user, admin, support (CS)';
+
+
 CREATE TABLE "Areas"(
                         "id" UUID NOT NULL,
                         "name" VARCHAR(255) NOT NULL,
@@ -24,17 +26,19 @@ CREATE TABLE "Areas"(
                         "type" VARCHAR(255) NOT NULL DEFAULT 'переговорка',
                         "features" VARCHAR(255) NOT NULL,
                         "capacity" INTEGER NOT NULL,
-                        "Status" VARCHAR(255) NOT NULL DEFAULT 'in progress'
+                        "status" VARCHAR(255) NOT NULL DEFAULT 'in progress'
 );
 ALTER TABLE
     "Areas" ADD PRIMARY KEY("id");
 COMMENT
 ON COLUMN
     "Areas"."features" IS 'Уточнение к типу переговорки по фичам';
+
+
 CREATE TABLE "Bookings"(
-                           "id" UUID NOT NULL,
-                           "user_id" BIGINT NOT NULL,
-                           "area_id" BIGINT NOT NULL,
+                           "id" BIGINT NOT NULL,
+                           "user_id" UUID NOT NULL,
+                           "area_id" UUID NOT NULL,
                            "start_time" TIME(0) WITHOUT TIME ZONE NOT NULL,
                            "end_time" TIME(0) WITHOUT TIME ZONE NOT NULL,
                            "quantity" INTEGER NOT NULL,
@@ -47,9 +51,12 @@ CREATE INDEX "bookings_user_id_index" ON
     "Bookings"("user_id");
 CREATE INDEX "bookings_area_id_index" ON
     "Bookings"("area_id");
+
+
+
 CREATE TABLE "Reviews"(
                           "id" UUID NOT NULL,
-                          "user_id" BIGINT NOT NULL,
+                          "user_id" UUID NOT NULL,
                           "rating" SMALLINT NOT NULL,
                           "comment" TEXT NULL,
                           "created_at" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
@@ -65,9 +72,7 @@ CREATE TABLE "Tickets"(
                           "created_at" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
 );
 ALTER TABLE
-    "Tickets" ADD PRIMARY KEY("user_id");
-ALTER TABLE
-    "Tickets" ADD PRIMARY KEY("area_id");
+    "Tickets" ADD PRIMARY KEY("user_id", "area_id");
 CREATE TABLE "News"(
                        "id" UUID NOT NULL,
                        "title" VARCHAR(255) NOT NULL,

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import ru.tbank.bookit.book_it_backend.config.BookingConfig;
+import ru.tbank.bookit.book_it_backend.model.Area;
 import ru.tbank.bookit.book_it_backend.model.Booking;
 import ru.tbank.bookit.book_it_backend.model.BookingStatus;
 import ru.tbank.bookit.book_it_backend.repository.AreaRepository;
@@ -82,7 +83,7 @@ public class BookingMenuService {
 
     public List<String> findAvailableArea(LocalDateTime time) {
         List<String> availableAreas = areaRepository.findAll().stream()
-                                                       .map(b -> Long.toString(b.getId()))
+                                                       .map(Area::getId)
                                                        .toList();
         List<Booking> bookings = bookingRepository.findByDatetime(time);
 
