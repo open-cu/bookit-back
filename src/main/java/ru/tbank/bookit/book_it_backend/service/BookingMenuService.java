@@ -84,27 +84,14 @@ public class BookingMenuService {
     }
 
     public List<String> findAvailableArea(LocalDateTime time) {
-        List<String> availableArea = List.of();
-        List<Area> areas = bookingRepository.findAreas();
-        List<Booking> bookings = bookingRepository.findAll();
+        List<String> availableAreas = bookingRepository.findAreas().stream().map(b -> Long.toString(b.getId())).toList();
+        List<Booking> bookings = bookingRepository.findBookingsByDatetime(time);
 
-        for (Area a : areas) {
-            List<Booking> areaBookings = bookings.stream().filter(b -> a.getId() == Long.valueOf(b.getAreaId())).toList();
-            boolean isFree = true;
-
-            for (Booking b : areaBookings) {
-                if (time.isBefore(b.getEndTime()) && time.isAfter(b.getStartTime())) {
-                    isFree = false;
-                    break;
-                }
-            }
-
-            if (isFree) {
-                availableArea.addLast(a.toString());
-            }
+        for (Booking b : bookings) {
+            availableAreas.remove(b.getAreaId());
         }
 
-        return availableArea;
+        return availableAreas;
     }
 
     public Booking createBooking(Booking booking) {
