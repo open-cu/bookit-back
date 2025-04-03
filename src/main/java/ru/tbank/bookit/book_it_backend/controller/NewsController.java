@@ -30,10 +30,10 @@ public class NewsController {
         return ResponseEntity.ok(news);
     }
 
-    @GetMapping("/all/ByTags")
-    public ResponseEntity<List<News>> findAvailableTimeByDate(
+    @GetMapping("/by-tags")
+    public ResponseEntity<List<News>> getAllNewsByTags(
             @PathVariable
-            @RequestParam Set<NewsTag> tags) {
+            @RequestParam(required = true) Set<NewsTag> tags) {
         List<News> news = bookingService.findByTags(tags);
         return ResponseEntity.ok(news);
     }
