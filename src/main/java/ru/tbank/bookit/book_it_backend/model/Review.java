@@ -23,7 +23,7 @@ public class Review {
     @Column(nullable = false)
     private byte rating;
 
-    @Column(nullable = true)
+    @Column()
     private String comment;
 
     @Column(nullable = false, updatable = false)

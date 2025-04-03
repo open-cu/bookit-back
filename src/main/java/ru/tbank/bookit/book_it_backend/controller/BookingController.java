@@ -1,6 +1,6 @@
 package ru.tbank.bookit.book_it_backend.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.tbank.bookit.book_it_backend.model.Booking;
@@ -12,7 +12,6 @@ import java.util.List;
 public class BookingController {
     private final BookingService bookingService;
 
-    @Autowired
     public BookingController(BookingService bookingService) {
         this.bookingService = bookingService;
     }
