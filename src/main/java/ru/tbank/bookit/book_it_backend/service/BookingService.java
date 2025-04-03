@@ -21,22 +21,7 @@ public class BookingService {
         this.bookingConfig = bookingConfig;
     }
 
-    public boolean checkAvailability() {
-        return bookingRepository.count() < bookingConfig.getAvailability();
-    }
-
-    public boolean setAvailability(int availability) {
-        if (availability < 0) {
-            throw new IllegalArgumentException("Availability must be non-negative");
-        }
-        bookingConfig.setAvailability(availability);
-        return true;
-    }
-
     public Booking createBooking(Booking booking) {
-        if (!checkAvailability()) {
-            throw new RuntimeException("No available slots");
-        }
         booking.setStatus(BookingStatus.CONFIRMED);
         booking.setCreatedAt(LocalDateTime.now());
         bookingRepository.save(booking);
