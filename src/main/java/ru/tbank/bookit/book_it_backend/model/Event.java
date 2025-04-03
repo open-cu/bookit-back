@@ -29,4 +29,7 @@ public class Event {
 
     @Column(nullable = false)
     private LocalDateTime date;
+
+    @Column(nullable = false)
+    private int capacity;
 }

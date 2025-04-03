@@ -10,6 +10,6 @@ import java.util.List;
 import java.util.Set;
 
 public interface EventRepository extends JpaRepository<Event, Long> {
-    @Query("SELECT n FROM Event n WHERE n.tags IN :tags ORDER BY n.createdAt DESC")
+    @Query("SELECT n FROM Event n WHERE n.tags IN :tags ORDER BY n.date DESC")
     List<Event> findByTagsIn(@Param("tags") Set<NewsTag> tags);
 }
