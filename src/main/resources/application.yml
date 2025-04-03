@@ -1,7 +1,7 @@
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/mydatabase
-    username: myuser
+    username: postgres
     password: 123
     driver-class-name: org.postgresql.Driver
 
@@ -10,5 +10,11 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: false
+    validate-on-migrate: false
+    driver-class-name: org.postgresql.Driver
 booking:
   availability: 10
