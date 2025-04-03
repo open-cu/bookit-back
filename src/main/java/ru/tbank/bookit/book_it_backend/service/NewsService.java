@@ -7,6 +7,7 @@ import ru.tbank.bookit.book_it_backend.model.NewsTag;
 import ru.tbank.bookit.book_it_backend.repository.NewsRepository;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class NewsService {
@@ -18,6 +19,10 @@ public class NewsService {
 
     public List<News> findAll() {
         return (List<News>) newsRepository.findAll();
+    }
+
+    public List<News> findByTags(Set<NewsTag> tags){
+        return newsRepository.findByTagsIn(tags);
     }
 
 }
