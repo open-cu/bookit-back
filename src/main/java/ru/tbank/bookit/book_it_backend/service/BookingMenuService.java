@@ -3,6 +3,7 @@ package ru.tbank.bookit.book_it_backend.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 import ru.tbank.bookit.book_it_backend.config.BookingConfig;
 import ru.tbank.bookit.book_it_backend.model.Booking;
 import ru.tbank.bookit.book_it_backend.model.BookingStatus;
@@ -33,7 +34,7 @@ public class BookingMenuService {
         return bookingRepository.findByUserId(bookingId);
     }
 
-    public List<LocalDate> findAvailableDates() {
+    public List<LocalDate> findAvailableDates(Optional<String> areaId) {
         List<LocalDate> availableDates = new ArrayList<>();
         List<Booking> bookings = bookingRepository.findAll();
         for (int i = 0; i <= bookingConfig.getMaxDaysForward(); ++i) {
