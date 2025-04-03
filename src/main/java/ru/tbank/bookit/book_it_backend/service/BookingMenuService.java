@@ -32,7 +32,7 @@ public class BookingMenuService {
 
     public List<LocalDate> findAvailableDates() {
         List<LocalDate> availableDates = List.of();
-        List<Booking> bookings = bookingRepository.findBookings();
+        List<Booking> bookings = bookingRepository.findAll();
 
         for (int i = 0; i <= bookingConfig.getMaxDaysForward(); ++i) {
             LocalDate date = LocalDate.now().plusDays(i);
@@ -86,7 +86,7 @@ public class BookingMenuService {
     public List<String> findAvailableArea(LocalDateTime time) {
         List<String> availableArea = List.of();
         List<Area> areas = bookingRepository.findAreas();
-        List<Booking> bookings = bookingRepository.findBookings();
+        List<Booking> bookings = bookingRepository.findAll();
 
         for (Area a : areas) {
             List<Booking> areaBookings = bookings.stream().filter(b -> a.getId() == Long.valueOf(b.getAreaId())).toList();
