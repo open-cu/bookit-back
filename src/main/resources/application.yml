@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: prod
   datasource:
     url: jdbc:postgresql://localhost:5432/mydatabase
     username: postgres
