@@ -43,11 +43,28 @@ public class BookingService {
         return booking;
     }
 
-    public String getQrCode(long bookingId) {
-        if (bookingRepository.findById(bookingId).isEmpty()) {
-            throw new RuntimeException("Booking not found");
+    public void cancelBooking(long bookingId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found with id: " + bookingId));
+
+        if (booking.getStatus() == BookingStatus.CANCELED) {
+            throw new IllegalStateException("Booking already cancelled");
         }
-        return "QR-CODE-FAKE:" + bookingId;
+
+        booking.setStatus(BookingStatus.CANCELED);
+        bookingRepository.save(booking);
+    }
+
+    public List<Booking> getCurrentBookings(Long userId) {
+        return bookingRepository.findCurrentBookingsByUser(userId, LocalDateTime.now());
+    }
+
+    public List<Booking> getFutureBookings(Long userId) {
+        return bookingRepository.findFutureBookingsByUser(userId, LocalDateTime.now());
+    }
+
+    public List<Booking> getPastBookings(Long userId) {
+        return bookingRepository.findPastBookingsByUser(userId, LocalDateTime.now());
     }
 
     public List<Booking> findAll() {
