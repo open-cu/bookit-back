@@ -14,17 +14,18 @@ import java.time.LocalDateTime;
 public class News {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private long id;
 
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
+    @Lob
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = true)
+    @Column()
     private NewsTag tags;
 
     @Column(nullable = false, updatable = false)
