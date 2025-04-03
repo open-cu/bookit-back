@@ -31,11 +31,6 @@ public class BookingController {
         return bookingService.createBooking(booking);
     }
 
-    @GetMapping("/qr/{bookingId}")
-    public String getQrCode(@PathVariable long bookingId) {
-        return bookingService.getQrCode(bookingId);
-    }
-
     @GetMapping("/all")
     public ResponseEntity<List<Booking>> getAllBookings() {
         List<Booking> bookings = bookingService.findAll();

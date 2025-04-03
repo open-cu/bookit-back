@@ -1,6 +1,4 @@
 spring:
-  profiles:
-    active: prod
   datasource:
     url: jdbc:postgresql://localhost:5432/mydatabase
     username: postgres
@@ -18,5 +16,13 @@ spring:
     baseline-on-migrate: false
     validate-on-migrate: false
     driver-class-name: org.postgresql.Driver
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+  default-produces-media-type: application/json
+
 booking:
   availability: 10
