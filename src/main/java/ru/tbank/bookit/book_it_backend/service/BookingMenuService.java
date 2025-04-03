@@ -4,36 +4,38 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import ru.tbank.bookit.book_it_backend.config.BookingConfig;
-import ru.tbank.bookit.book_it_backend.model.Area;
 import ru.tbank.bookit.book_it_backend.model.Booking;
 import ru.tbank.bookit.book_it_backend.model.BookingStatus;
+import ru.tbank.bookit.book_it_backend.repository.AreaRepository;
 import ru.tbank.bookit.book_it_backend.repository.BookingRepository;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class BookingMenuService {
     private final BookingRepository bookingRepository;
+    private final AreaRepository areaRepository;
     private final BookingConfig bookingConfig;
 
     @Autowired
-    public BookingMenuService(BookingRepository bookings, BookingConfig bookingConfig) {
+    public BookingMenuService(BookingRepository bookings, AreaRepository areaRepository, BookingConfig bookingConfig) {
         this.bookingRepository = bookings;
+        this.areaRepository = areaRepository;
         this.bookingConfig = bookingConfig;
     }
 
     public Booking findBooking(long bookingId) {
-        return bookingRepository.findBookingById(bookingId);
+        return bookingRepository.findByUserId(bookingId);
     }
 
     public List<LocalDate> findAvailableDates() {
-        List<LocalDate> availableDates = List.of();
+        List<LocalDate> availableDates = new ArrayList<>();
         List<Booking> bookings = bookingRepository.findAll();
-
         for (int i = 0; i <= bookingConfig.getMaxDaysForward(); ++i) {
             LocalDate date = LocalDate.now().plusDays(i);
             Duration duration = Duration.ZERO;
@@ -55,21 +57,16 @@ public class BookingMenuService {
     }
 
     public List<Pair<LocalDateTime, LocalDateTime>> findAvailableTime(LocalDate date, Optional<String> areaId) {
-        List<Pair<LocalDateTime, LocalDateTime>> availableTime = List.of();
-        List<Booking> bookings = List.of();
-
-        if (areaId.isEmpty()) {
-            bookings = bookingRepository.findBookingsByDate(date);
-        } else {
-            bookings = bookingRepository.findBookingsByDateAndArea(date, Long.valueOf(areaId.get()));
-        }
+        List<Booking> bookings = areaId.isEmpty() ?
+                bookingRepository.findByDate(date) :
+                bookingRepository.findByDateAndArea(date, Long.valueOf(areaId.get()));
 
         LocalDateTime start = LocalDateTime.MIN;
         LocalDateTime end = LocalDateTime.MIN;
 
+        List<Pair<LocalDateTime, LocalDateTime>> availableTime = new ArrayList<>();
         for (long i = bookingConfig.getStartWork() + 1; i < bookingConfig.getEndWork(); ++i) {
             LocalDateTime currHour = LocalDateTime.now().toLocalDate().atTime((int)i, 0);
-
             if (bookings.stream().anyMatch(b -> currHour.equals(b.getEndTime())) &&
                     bookings.stream().noneMatch(b -> currHour.equals(b.getStartTime()))) {
                 start = currHour;
@@ -84,8 +81,10 @@ public class BookingMenuService {
     }
 
     public List<String> findAvailableArea(LocalDateTime time) {
-        List<String> availableAreas = bookingRepository.findAreas().stream().map(b -> Long.toString(b.getId())).toList();
-        List<Booking> bookings = bookingRepository.findBookingsByDatetime(time);
+        List<String> availableAreas = areaRepository.findAll().stream()
+                                                       .map(b -> Long.toString(b.getId()))
+                                                       .toList();
+        List<Booking> bookings = bookingRepository.findByDatetime(time);
 
         for (Booking b : bookings) {
             availableAreas.remove(b.getAreaId());
