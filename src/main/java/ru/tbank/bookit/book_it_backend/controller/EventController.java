@@ -44,8 +44,16 @@ public class EventController {
         }
     }
 
+    @PutMapping("register/{userId}")
+    public void addUserInList(@PathVariable long userId, Event event){
+        if (!isIdPresent(userId, event.getUser_list()) && event.getAvailable_places() > 0) {
+            event.setUser_list(event.getUser_list() + "\n" + userId);
+            event.setAvailable_places(event.getAvailable_places() - 1);
+        }
+    }
+
     public boolean isIdPresent(@PathVariable long userId, String users){
-        String[] lines = users.split("\n"); // Разделяем по переносам строк
+        String[] lines = users.split("\n");
         for (String line : lines) {
                 long num = Long.parseLong(line.trim());
                 if (num == userId) {
@@ -54,6 +62,7 @@ public class EventController {
         }
         return false;
     }
+
 
 
 
