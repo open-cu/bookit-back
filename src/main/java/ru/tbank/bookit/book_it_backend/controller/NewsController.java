@@ -1,18 +1,12 @@
 package ru.tbank.bookit.book_it_backend.controller;
 
-import org.springframework.data.util.Pair;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.tbank.bookit.book_it_backend.model.News;
 import ru.tbank.bookit.book_it_backend.model.NewsTag;
 import ru.tbank.bookit.book_it_backend.service.NewsService;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @RestController

@@ -24,5 +24,4 @@ public class NewsService {
     public List<News> findByTags(Set<NewsTag> tags){
         return newsRepository.findByTagsIn(tags);
     }
-
 }

@@ -20,7 +20,6 @@ import java.util.Optional;
 public class BookingMenuController {
     private final BookingMenuService bookingMenuService;
 
-    @Autowired
     public BookingMenuController(BookingMenuService bookingMenuService) {
         this.bookingMenuService = bookingMenuService;
     }
@@ -62,16 +61,13 @@ public class BookingMenuController {
         if (bookingId <= 0) {
             return ResponseEntity.badRequest().build();
         }
-        Booking booking = bookingMenuService.findBooking(bookingId);
-        if (booking == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(booking);
+        Optional<Booking> booking = bookingMenuService.findBooking(bookingId);
+        return booking.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping("/booking")
     public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
-        if ((booking.getStartTime() == null || booking.getEndTime() == null) ||
+        if (booking.getStartTime() == null || booking.getEndTime() == null ||
                 booking.getStartTime().isAfter(booking.getEndTime())) {
             return ResponseEntity.badRequest().build();
         }

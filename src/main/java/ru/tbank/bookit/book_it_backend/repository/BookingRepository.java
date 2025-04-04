@@ -8,10 +8,11 @@ import ru.tbank.bookit.book_it_backend.model.Booking;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT b FROM Booking b WHERE b.userId = :userId")
-    Booking findByUserId(@Param("userId") Long userId);
+    Optional<Booking> findByUserId(@Param("userId") Long userId);
 
     @Query("SELECT b FROM Booking b WHERE b.startTime BETWEEN ?1 AND DATEADD(day, 1, ?1)")
     List<Booking> findByDate(LocalDate date);

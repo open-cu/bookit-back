@@ -16,17 +16,14 @@ import java.util.List;
 @RequestMapping("/home")
 public class HomeController {
     private final HomeService homeService;
-    private final UserRepository userRepository;
 
-    @Autowired
-    public HomeController(HomeService homeService, UserRepository userRepository) {
+    public HomeController(HomeService homeService) {
         this.homeService = homeService;
-        this.userRepository = userRepository;
     }
 
     @GetMapping("/qr")
     public ResponseEntity<?> getUserQrCode(@RequestParam Long userId) {
-        User user = userRepository.findById(userId)
+        User user = homeService.findUserById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         try {
