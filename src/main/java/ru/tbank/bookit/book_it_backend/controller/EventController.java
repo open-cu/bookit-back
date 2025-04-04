@@ -3,6 +3,7 @@ package ru.tbank.bookit.book_it_backend.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.tbank.bookit.book_it_backend.model.Event;
+import ru.tbank.bookit.book_it_backend.model.EventStatus;
 import ru.tbank.bookit.book_it_backend.model.NewsTag;
 import ru.tbank.bookit.book_it_backend.service.EventService;
 import java.util.List;
@@ -30,4 +31,30 @@ public class EventController {
         List<Event> event = eventService.findByTags(tags);
         return ResponseEntity.ok(event);
     }
+
+    @GetMapping("/status/{userId}")
+    public EventStatus getStatusById(@PathVariable long userId, Event event){
+        String filePath = "src/main/resources/data.json";
+        if (isIdPresent(userId, event.getUser_list())) {
+            return EventStatus.PARTICIPATE;
+        } else if (event.getAvailable_places() > 0) {
+            return EventStatus.REGISTER;
+        } else {
+            return EventStatus.FULL;
+        }
+    }
+
+    public boolean isIdPresent(@PathVariable long userId, String users){
+        String[] lines = users.split("\n"); // Разделяем по переносам строк
+        for (String line : lines) {
+                long num = Long.parseLong(line.trim());
+                if (num == userId) {
+                    return true;
+                }
+        }
+        return false;
+    }
+
+
+
 }

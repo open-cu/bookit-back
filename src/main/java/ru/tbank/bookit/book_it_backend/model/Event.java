@@ -31,5 +31,9 @@ public class Event {
     private LocalDateTime date;
 
     @Column(nullable = false)
-    private int capacity;
+    private int available_places;
+
+    @Column
+    private String user_list;
+
 }
