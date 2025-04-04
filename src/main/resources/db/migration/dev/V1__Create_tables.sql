@@ -17,8 +17,6 @@ ALTER TABLE
 COMMENT
 ON COLUMN
     "Users"."status" IS 'Статус привилегий: user, admin, support (CS)';
-
-
 CREATE TABLE "Areas"(
                         "id" UUID NOT NULL,
                         "name" VARCHAR(255) NOT NULL,
@@ -33,10 +31,8 @@ ALTER TABLE
 COMMENT
 ON COLUMN
     "Areas"."features" IS 'Уточнение к типу переговорки по фичам';
-
-
 CREATE TABLE "Bookings"(
-                           "id" BIGINT NOT NULL,
+                           "id" UUID NOT NULL,
                            "user_id" UUID NOT NULL,
                            "area_id" UUID NOT NULL,
                            "start_time" TIME(0) WITHOUT TIME ZONE NOT NULL,
@@ -51,9 +47,6 @@ CREATE INDEX "bookings_user_id_index" ON
     "Bookings"("user_id");
 CREATE INDEX "bookings_area_id_index" ON
     "Bookings"("area_id");
-
-
-
 CREATE TABLE "Reviews"(
                           "id" UUID NOT NULL,
                           "user_id" UUID NOT NULL,
@@ -87,7 +80,9 @@ CREATE TABLE "Events"(
                          "id" UUID NOT NULL,
                          "name" VARCHAR(255) NOT NULL,
                          "description" TEXT NOT NULL,
-                         "date" DATE NOT NULL
+                         "date" DATE NOT NULL,
+                         "available_places" INTEGER NOT NULL,
+                         "user_list" JSON NOT NULL
 );
 ALTER TABLE
     "Events" ADD PRIMARY KEY("id");
