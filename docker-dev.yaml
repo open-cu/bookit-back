@@ -14,3 +14,6 @@ services:
       - SPRING_H2_CONSOLE_PATH=/h2-console
     volumes:
       - ~/.m2:/root/.m2
+
+  front:
+    image: dennymantyper/bookit-front:1.0
