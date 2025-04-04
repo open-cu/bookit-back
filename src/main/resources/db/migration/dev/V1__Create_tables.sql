@@ -70,8 +70,7 @@ CREATE TABLE "News"(
                        "id" UUID NOT NULL,
                        "title" VARCHAR(255) NOT NULL,
                        "description" TEXT NOT NULL,
-                       "tags" VARCHAR(255) CHECK
-                           ("tags" IN('')) NULL,
+                       "tags" VARCHAR(255) ARRAY,  -- Массив строк в H2
                        "created_at" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
 );
 ALTER TABLE
