@@ -109,7 +109,7 @@ public class BookingService {
         return bookingRepository.findAll();
     }
 
-    public List<Booking> findByDatetime(LocalDateTime time) {
-        return bookingRepository.findByDatetime(time);
+    public List<Booking> findByStartDatetime(LocalDateTime time) {
+        return bookingRepository.findByStartDatetime(time);
     }
 }

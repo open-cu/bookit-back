@@ -17,8 +17,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT b FROM Booking b WHERE b.startTime BETWEEN ?1 AND DATEADD(day, 1, ?1)")
     List<Booking> findByDate(LocalDate date);
 
-    @Query("SELECT b FROM Booking b WHERE ?1 BETWEEN b.startTime and b.endTime")
-    List<Booking> findByDatetime(LocalDateTime date);
+    @Query("SELECT b FROM Booking b WHERE b.startTime = ?1")
+    List<Booking> findByStartDatetime(LocalDateTime date);
 
     @Query("SELECT b FROM Booking b WHERE b.startTime BETWEEN ?1 AND DATEADD(day, 1, ?1) AND b.areaId = :areaId")
     List<Booking> findByDateAndArea(LocalDate date, @Param("areaId") Long areaId);

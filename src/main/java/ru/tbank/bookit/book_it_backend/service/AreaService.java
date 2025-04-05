@@ -22,7 +22,7 @@ public class AreaService {
         List<String> availableAreas = areaRepository.findAll().stream()
                                                     .map(b -> Long.toString(b.getId()))
                                                     .toList();
-        List<Booking> bookings = bookingService.findByDatetime(time);
+        List<Booking> bookings = bookingService.findByStartDatetime(time);
 
         for (Booking b : bookings) {
             availableAreas.remove(b.getAreaId());
