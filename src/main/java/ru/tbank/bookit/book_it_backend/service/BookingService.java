@@ -1,6 +1,6 @@
 package ru.tbank.bookit.book_it_backend.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import ru.tbank.bookit.book_it_backend.config.BookingConfig;
@@ -19,10 +19,12 @@ import java.util.Optional;
 public class BookingService {
     private final BookingRepository bookingRepository;
     private final BookingConfig bookingConfig;
+    private final AreaService areaService;
 
-    public BookingService(BookingRepository bookings, BookingConfig bookingConfig) {
+    public BookingService(BookingRepository bookings, BookingConfig bookingConfig, @Lazy AreaService areaService) {
         this.bookingRepository = bookings;
         this.bookingConfig = bookingConfig;
+        this.areaService = areaService;
     }
 
     public Booking createBooking(Booking booking) {
@@ -58,24 +60,33 @@ public class BookingService {
         return availableDates;
     }
 
+    private void addFreeTimes(List<Pair<LocalDateTime, LocalDateTime>> availableTime, List<Booking> bookings)
+    {
+        for (long i = bookingConfig.getStartWork(); i <= bookingConfig.getEndWork(); ++i) {
+            LocalDateTime currHour = LocalDateTime.now().toLocalDate().atTime((int) i, 0);
+            if (bookings.stream().noneMatch(b -> currHour.compareTo(b.getStartTime()) >= 0 &&
+                    currHour.compareTo(b.getEndTime()) < 0))
+            {
+                Pair<LocalDateTime, LocalDateTime> pair = Pair.of(currHour, currHour.plusHours(1));
+                if (!availableTime.contains(pair)) {
+                    availableTime.addLast(pair);
+                }
+            }
+        }
+    }
+
     public List<Pair<LocalDateTime, LocalDateTime>> findAvailableTime(LocalDate date, Optional<String> areaId) {
-        List<Booking> bookings = areaId.isEmpty() ?
-                bookingRepository.findByDate(date) :
-                bookingRepository.findByDateAndArea(date, Long.valueOf(areaId.get()));
-
-        LocalDateTime start = LocalDateTime.MIN;
-        LocalDateTime end = LocalDateTime.MIN;
-
         List<Pair<LocalDateTime, LocalDateTime>> availableTime = new ArrayList<>();
-        for (long i = bookingConfig.getStartWork() + 1; i < bookingConfig.getEndWork(); ++i) {
-            LocalDateTime currHour = LocalDateTime.now().toLocalDate().atTime((int)i, 0);
-            if (bookings.stream().anyMatch(b -> currHour.equals(b.getEndTime())) &&
-                    bookings.stream().noneMatch(b -> currHour.equals(b.getStartTime()))) {
-                start = currHour;
-            } else if (bookings.stream().anyMatch(b -> currHour.equals(b.getStartTime())) &&
-                    bookings.stream().noneMatch(b -> currHour.equals(b.getEndTime()))) {
-                end = currHour;
-                availableTime.addLast(Pair.of(start, end));
+        if (!areaId.isEmpty()) {
+            List<Booking> bookings = bookingRepository.findByDateAndArea(date, Long.valueOf(areaId.get()));
+            addFreeTimes(availableTime, bookings);
+        } else {
+            List<String> availableAreas = areaService.findAll().stream()
+                    .map(b -> Long.toString(b.getId()))
+                    .toList();
+            for (String a : availableAreas) {
+                List<Booking> bookings = bookingRepository.findByDateAndArea(date, Long.valueOf(areaId.get()));
+                addFreeTimes(availableTime, bookings);
             }
         }
         return availableTime;

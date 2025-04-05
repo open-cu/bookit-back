@@ -1,7 +1,7 @@
 package ru.tbank.bookit.book_it_backend.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.tbank.bookit.book_it_backend.model.Area;
 import ru.tbank.bookit.book_it_backend.model.Booking;
 import ru.tbank.bookit.book_it_backend.repository.AreaRepository;
 
@@ -18,6 +18,10 @@ public class AreaService {
         this.bookingService = bookingService;
     }
 
+    public List<Area> findAll() {
+        return areaRepository.findAll();
+    }
+
     public List<String> findAvailableArea(LocalDateTime time) {
         List<String> availableAreas = areaRepository.findAll().stream()
                                                     .map(b -> Long.toString(b.getId()))
@@ -27,6 +31,7 @@ public class AreaService {
         for (Booking b : bookings) {
             availableAreas.remove(b.getAreaId());
         }
+
         return availableAreas;
     }
 }

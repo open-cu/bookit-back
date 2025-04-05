@@ -1,6 +1,5 @@
 package ru.tbank.bookit.book_it_backend.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import ru.tbank.bookit.book_it_backend.config.BookingConfig;
@@ -42,6 +41,7 @@ public class BookingMenuService {
     public List<Booking> findAll() {
         return bookingService.findAll();
     }
+    
     public List<String> findAvailableArea(LocalDateTime time) {
         return areaService.findAvailableArea(time);
     }
