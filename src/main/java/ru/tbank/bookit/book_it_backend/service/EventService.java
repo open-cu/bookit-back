@@ -1,7 +1,11 @@
 package ru.tbank.bookit.book_it_backend.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import ru.tbank.bookit.book_it_backend.model.Event;
+import ru.tbank.bookit.book_it_backend.model.EventStatus;
 import ru.tbank.bookit.book_it_backend.model.NewsTag;
 import ru.tbank.bookit.book_it_backend.repository.EventRepository;
 
@@ -22,6 +26,34 @@ public class EventService {
 
     public List<Event> findByTags(Set<NewsTag> tags){
         return eventRepository.findByTagsIn(tags);
+    }
+
+    public EventStatus findStatusById(long userId, Event event){
+        if (isIdPresent(userId, event.getUser_list())) {
+            return EventStatus.AVALIABLE;
+        } else if (event.getAvailable_places() > 0) {
+            return EventStatus.REGISTERED;
+        } else {
+            return EventStatus.FULL;
+        }
+    }
+
+    public void addUser(long userId, Event event){
+        if (!isIdPresent(userId, event.getUser_list()) && event.getAvailable_places() > 0) {
+            event.setUser_list(event.getUser_list() + "\n" + userId);
+            event.setAvailable_places(event.getAvailable_places() - 1);
+        }
+    }
+
+    public boolean isIdPresent(long userId, String users){
+        String[] lines = users.split("\n");
+        for (String line : lines) {
+            long num = Long.parseLong(line.trim());
+            if (num == userId) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

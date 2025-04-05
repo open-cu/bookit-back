@@ -33,37 +33,13 @@ public class EventController {
     }
 
     @GetMapping("/status/{userId}")
-    public EventStatus getStatusById(@PathVariable long userId, Event event){
-        String filePath = "src/main/resources/data.json";
-        if (isIdPresent(userId, event.getUser_list())) {
-            return EventStatus.PARTICIPATE;
-        } else if (event.getAvailable_places() > 0) {
-            return EventStatus.REGISTER;
-        } else {
-            return EventStatus.FULL;
-        }
+    public ResponseEntity<EventStatus> getStatusById(@PathVariable long userId, @RequestBody Event event){
+        return ResponseEntity.ok(eventService.findStatusById(userId, event));
     }
 
     @PutMapping("register/{userId}")
-    public void addUserInList(@PathVariable long userId, Event event){
-        if (!isIdPresent(userId, event.getUser_list()) && event.getAvailable_places() > 0) {
-            event.setUser_list(event.getUser_list() + "\n" + userId);
-            event.setAvailable_places(event.getAvailable_places() - 1);
-        }
+    public ResponseEntity<?> addUserInList(@PathVariable long userId, @RequestBody Event event){
+        eventService.addUser(userId, event);
+        return ResponseEntity.ok(userId);
     }
-
-    public boolean isIdPresent(@PathVariable long userId, String users){
-        String[] lines = users.split("\n");
-        for (String line : lines) {
-                long num = Long.parseLong(line.trim());
-                if (num == userId) {
-                    return true;
-                }
-        }
-        return false;
-    }
-
-
-
-
 }
