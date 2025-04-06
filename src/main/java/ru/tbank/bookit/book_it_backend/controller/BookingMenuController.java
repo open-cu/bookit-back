@@ -5,7 +5,10 @@ import org.springframework.data.util.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.tbank.bookit.book_it_backend.model.Area;
+import ru.tbank.bookit.book_it_backend.model.AreaStatus;
 import ru.tbank.bookit.book_it_backend.model.Booking;
+import ru.tbank.bookit.book_it_backend.repository.AreaRepository;
 import ru.tbank.bookit.book_it_backend.service.BookingMenuService;
 
 import java.net.URI;
@@ -19,9 +22,11 @@ import java.util.Optional;
 @RequestMapping("/booking-menu")
 public class BookingMenuController {
     private final BookingMenuService bookingMenuService;
+    private final AreaRepository areaRepository;
 
-    public BookingMenuController(BookingMenuService bookingMenuService) {
+    public BookingMenuController(BookingMenuService bookingMenuService, AreaRepository areaRepository) {
         this.bookingMenuService = bookingMenuService;
+        this.areaRepository = areaRepository;
     }
 
     @GetMapping("/available-date")
@@ -81,5 +86,13 @@ public class BookingMenuController {
     public ResponseEntity<List<Booking>> getAllBookings() {
         List<Booking> bookings = bookingMenuService.findAll();
         return ResponseEntity.ok(bookings);
+    }
+
+    @PostMapping("/area")
+    public ResponseEntity<Area> createArea(@RequestBody Area area) {
+        area.setStatus(AreaStatus.AVAILABLE);
+        areaRepository.save(area);
+        URI uri = URI.create("/booking-menu/area/" + area.getId());
+        return ResponseEntity.created(uri).body(area);
     }
 }

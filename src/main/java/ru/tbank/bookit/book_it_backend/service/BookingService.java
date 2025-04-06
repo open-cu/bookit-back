@@ -85,7 +85,7 @@ public class BookingService {
                     .map(b -> Long.toString(b.getId()))
                     .toList();
             for (String a : availableAreas) {
-                List<Booking> bookings = bookingRepository.findByDateAndArea(date, Long.valueOf(areaId.get()));
+                List<Booking> bookings = bookingRepository.findByDateAndArea(date, Long.valueOf(a));
                 addFreeTimes(availableTime, bookings);
             }
         }
