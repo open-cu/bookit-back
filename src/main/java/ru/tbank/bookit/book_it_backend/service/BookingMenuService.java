@@ -30,7 +30,7 @@ public class BookingMenuService {
         this.bookingConfig = bookingConfig;
     }
 
-    public Booking findBooking(long bookingId) {
+    public Booking findBooking(String bookingId) {
         return bookingRepository.findByUserId(bookingId);
     }
 
@@ -60,7 +60,7 @@ public class BookingMenuService {
     public List<Pair<LocalDateTime, LocalDateTime>> findAvailableTime(LocalDate date, Optional<String> areaId) {
         List<Booking> bookings = areaId.isEmpty() ?
                 bookingRepository.findByDate(date) :
-                bookingRepository.findByDateAndArea(date, Long.valueOf(areaId.get()));
+                bookingRepository.findByDateAndArea(date, areaId.get());
 
         LocalDateTime start = LocalDateTime.MIN;
         LocalDateTime end = LocalDateTime.MIN;

@@ -28,7 +28,7 @@ public class BookingService {
         return booking;
     }
 
-    public void cancelBooking(long bookingId) {
+    public void cancelBooking(String bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found with id: " + bookingId));
 
@@ -40,15 +40,15 @@ public class BookingService {
         bookingRepository.save(booking);
     }
 
-    public List<Booking> getCurrentBookings(Long userId) {
+    public List<Booking> getCurrentBookings(String userId) {
         return bookingRepository.findCurrentBookingsByUser(userId, LocalDateTime.now());
     }
 
-    public List<Booking> getFutureBookings(Long userId) {
+    public List<Booking> getFutureBookings(String userId) {
         return bookingRepository.findFutureBookingsByUser(userId, LocalDateTime.now());
     }
 
-    public List<Booking> getPastBookings(Long userId) {
+    public List<Booking> getPastBookings(String userId) {
         return bookingRepository.findPastBookingsByUser(userId, LocalDateTime.now());
     }
 

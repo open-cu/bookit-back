@@ -5,8 +5,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import ru.tbank.bookit.book_it_backend.model.Area;
 import ru.tbank.bookit.book_it_backend.model.Booking;
 import ru.tbank.bookit.book_it_backend.model.User;
+import ru.tbank.bookit.book_it_backend.repository.AreaRepository;
 import ru.tbank.bookit.book_it_backend.repository.UserRepository;
 import ru.tbank.bookit.book_it_backend.service.HomeService;
 
@@ -17,15 +19,17 @@ import java.util.List;
 public class HomeController {
     private final HomeService homeService;
     private final UserRepository userRepository;
+    private final AreaRepository areaRepository;
 
     @Autowired
-    public HomeController(HomeService homeService, UserRepository userRepository) {
+    public HomeController(HomeService homeService, UserRepository userRepository, AreaRepository areaRepository) {
         this.homeService = homeService;
         this.userRepository = userRepository;
+        this.areaRepository = areaRepository;
     }
 
     @GetMapping("/qr")
-    public ResponseEntity<?> getUserQrCode(@RequestParam Long userId) {
+    public ResponseEntity<?> getUserQrCode(@RequestParam String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
@@ -38,26 +42,36 @@ public class HomeController {
     }
 
     @GetMapping("/bookings/current")
-    public ResponseEntity<List<Booking>> getCurrentBookings(@RequestParam Long userId) {
+    public ResponseEntity<List<Booking>> getCurrentBookings(@RequestParam String userId) {
         List<Booking> bookings = homeService.getCurrentBookings(userId);
         return ResponseEntity.ok(bookings);
     }
 
     @GetMapping("/bookings/future")
-    public ResponseEntity<List<Booking>> getFutureBookings(@RequestParam Long userId) {
+    public ResponseEntity<List<Booking>> getFutureBookings(@RequestParam String userId) {
         List<Booking> bookings = homeService.getFutureBookings(userId);
         return ResponseEntity.ok(bookings);
     }
 
     @GetMapping("/bookings/past")
-    public ResponseEntity<List<Booking>> getPastBookings(@RequestParam Long userId) {
+    public ResponseEntity<List<Booking>> getPastBookings(@RequestParam String userId) {
         List<Booking> bookings = homeService.getPastBookings(userId);
         return ResponseEntity.ok(bookings);
     }
 
     @DeleteMapping("/booking/{bookingId}")
-    public ResponseEntity<String> cancelBooking(@PathVariable long bookingId) {
+    public ResponseEntity<String> cancelBooking(@PathVariable String bookingId) {
         homeService.cancelBooking(bookingId);
         return ResponseEntity.ok("Booking cancelled successfully");
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<List<User>> findAllUsers() {
+        return ResponseEntity.ok(userRepository.findAll());
+    }
+
+    @GetMapping("/areas")
+    public ResponseEntity<List<Area>> findAllArea() {
+        return ResponseEntity.ok(areaRepository.findAll());
     }
 }
