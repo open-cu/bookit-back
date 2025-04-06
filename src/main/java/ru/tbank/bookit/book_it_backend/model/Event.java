@@ -29,4 +29,11 @@ public class Event {
 
     @Column(nullable = false)
     private LocalDateTime date;
+
+    @Column(nullable = false)
+    private int available_places;
+
+    @Column
+    private String user_list;
+
 }

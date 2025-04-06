@@ -27,7 +27,7 @@ public class BookingMenuController {
 
     @GetMapping("/available-date")
     public List<LocalDate> findAvailableDates(@RequestParam Optional<String> areaId) {
-        return bookingMenuService.findAvailableDates();
+        return bookingMenuService.findAvailableDates(areaId);
     }
 
     @GetMapping("/available-time/{date}")
