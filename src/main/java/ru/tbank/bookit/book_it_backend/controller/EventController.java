@@ -37,14 +37,16 @@ public class EventController {
     }
 
     @GetMapping("/status")
-    public ResponseEntity<EventStatus> getStatusById(@RequestParam long userId, @RequestParam long eventId){
-        Event event = eventService.findById(eventId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
+    public ResponseEntity<EventStatus> getStatusById(@RequestParam String userId, @RequestParam String eventId){
+        Event event = eventService.findById(eventId).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
         return ResponseEntity.ok(eventService.findStatusById(userId, event));
     }
 
     @PutMapping("/register")
-    public ResponseEntity<Event> addUserInList(@RequestParam long userId, @RequestParam long eventId){
-        Event event = eventService.findById(eventId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
+    public ResponseEntity<Event> addUserInList(@RequestParam String userId, @RequestParam String eventId){
+        Event event = eventService.findById(eventId).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
         eventService.addUser(userId, event);
         return ResponseEntity.ok(event);
     }

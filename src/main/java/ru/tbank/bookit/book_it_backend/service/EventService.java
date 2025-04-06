@@ -18,7 +18,7 @@ public class EventService {
         this.eventRepository = eventRepository;
     }
 
-    public Optional<Event> findById(long eventId) {
+    public Optional<Event> findById(String eventId) {
         return eventRepository.findById(eventId);
     }
 
@@ -30,7 +30,7 @@ public class EventService {
         return eventRepository.findByTagsIn(tags);
     }
 
-    public EventStatus findStatusById(long userId, Event event){
+    public EventStatus findStatusById(String userId, Event event){
         if (isIdPresent(userId, event.getUser_list())) {
             return EventStatus.REGISTERED;
         } else if (event.getAvailable_places() > 0) {
@@ -40,22 +40,20 @@ public class EventService {
         }
     }
 
-    public void addUser(long userId, Event event){
+    public void addUser(String userId, Event event){
         if (!isIdPresent(userId, event.getUser_list()) && event.getAvailable_places() > 0) {
             event.setUser_list(event.getUser_list() + " " + userId);
             event.setAvailable_places(event.getAvailable_places() - 1);
+            eventRepository.save(event);
         }
     }
 
-    public boolean isIdPresent(long userId, String users){
+    public boolean isIdPresent(String userId, String users){
         String[] lines = users.split(" ");
         for (String line : lines) {
-            String trim = line.trim();
-            if (!trim.isEmpty()) {
-                long num = Long.parseLong(trim);
-                if (num == userId) {
-                    return true;
-                }
+            String registeredId = line.trim();
+            if (!registeredId.isEmpty() && registeredId.equals(userId)) {
+                return true;
             }
         }
         return false;

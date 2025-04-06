@@ -9,7 +9,7 @@ import ru.tbank.bookit.book_it_backend.model.NewsTag;
 import java.util.List;
 import java.util.Set;
 
-public interface EventRepository extends JpaRepository<Event, Long> {
+public interface EventRepository extends JpaRepository<Event, String> {
     @Query("SELECT n FROM Event n WHERE n.tags IN :tags ORDER BY n.date DESC")
     List<Event> findByTagsIn(@Param("tags") Set<NewsTag> tags);
 }
