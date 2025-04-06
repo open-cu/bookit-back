@@ -32,9 +32,9 @@ public class EventService {
 
     public EventStatus findStatusById(long userId, Event event){
         if (isIdPresent(userId, event.getUser_list())) {
-            return EventStatus.AVALIABLE;
-        } else if (event.getAvailable_places() > 0) {
             return EventStatus.REGISTERED;
+        } else if (event.getAvailable_places() > 0) {
+            return EventStatus.AVALIABLE;
         } else {
             return EventStatus.FULL;
         }
@@ -42,20 +42,22 @@ public class EventService {
 
     public void addUser(long userId, Event event){
         if (!isIdPresent(userId, event.getUser_list()) && event.getAvailable_places() > 0) {
-            event.setUser_list(event.getUser_list() + "\n" + userId);
+            event.setUser_list(event.getUser_list() + " " + userId);
             event.setAvailable_places(event.getAvailable_places() - 1);
         }
     }
 
     public boolean isIdPresent(long userId, String users){
-        String[] lines = users.split("\n");
+        String[] lines = users.split(" ");
         for (String line : lines) {
-            long num = Long.parseLong(line.trim());
-            if (num == userId) {
-                return true;
+            String trim = line.trim();
+            if (!trim.isEmpty()) {
+                long num = Long.parseLong(trim);
+                if (num == userId) {
+                    return true;
+                }
             }
         }
         return false;
     }
-
 }
