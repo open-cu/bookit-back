@@ -1,15 +1,13 @@
 package ru.tbank.bookit.book_it_backend.service;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
 import ru.tbank.bookit.book_it_backend.model.Event;
 import ru.tbank.bookit.book_it_backend.model.EventStatus;
 import ru.tbank.bookit.book_it_backend.model.NewsTag;
 import ru.tbank.bookit.book_it_backend.repository.EventRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -18,6 +16,10 @@ public class EventService {
 
     public EventService(EventRepository eventRepository) {
         this.eventRepository = eventRepository;
+    }
+
+    public Optional<Event> findById(long eventId) {
+        return eventRepository.findById(eventId);
     }
 
     public List<Event> findAll() {

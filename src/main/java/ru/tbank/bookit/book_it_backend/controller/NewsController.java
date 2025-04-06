@@ -25,7 +25,6 @@ public class NewsController {
 
     @GetMapping("/by-tags")
     public ResponseEntity<List<News>> getAllNewsByTags(
-            @PathVariable
             @RequestParam(required = true) Set<NewsTag> tags) {
         List<News> news = newsService.findByTags(tags);
         return ResponseEntity.ok(news);
