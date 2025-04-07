@@ -2,6 +2,7 @@ package ru.tbank.bookit.book_it_backend.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -17,5 +18,5 @@ public class HallOccupancy {
     private LocalDateTime dateTime;
 
     @Column(name = "reserved places", nullable = false)
-    private Long reservedPlaces;
+    private int reservedPlaces;
 }
