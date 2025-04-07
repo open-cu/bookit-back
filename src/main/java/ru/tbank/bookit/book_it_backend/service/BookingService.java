@@ -1,12 +1,16 @@
 package ru.tbank.bookit.book_it_backend.service;
 
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import ru.tbank.bookit.book_it_backend.config.BookingConfig;
+import ru.tbank.bookit.book_it_backend.model.Area;
+import ru.tbank.bookit.book_it_backend.model.AreaType;
 import ru.tbank.bookit.book_it_backend.model.Booking;
 import ru.tbank.bookit.book_it_backend.model.BookingStatus;
+import ru.tbank.bookit.book_it_backend.repository.AreaRepository;
 import ru.tbank.bookit.book_it_backend.repository.BookingRepository;
+import ru.tbank.bookit.book_it_backend.repository.HallOccupancyRepository;
+import ru.tbank.bookit.book_it_backend.repository.ScheduleRepository;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -18,13 +22,20 @@ import java.util.Optional;
 @Service
 public class BookingService {
     private final BookingRepository bookingRepository;
-    private final BookingConfig bookingConfig;
-    private final AreaService areaService;
+    private final HallOccupancyRepository hallOccupancyRepository;
+    private final ScheduleRepository scheduleRepository;
+    private final AreaRepository areaRepository;
 
-    public BookingService(BookingRepository bookings, BookingConfig bookingConfig, @Lazy AreaService areaService) {
+    private final BookingConfig bookingConfig;
+
+    public BookingService(BookingRepository bookings, HallOccupancyRepository hallOccupancyRepository,
+                          ScheduleRepository scheduleRepository, BookingConfig bookingConfig,
+                          AreaRepository areaRepository) {
         this.bookingRepository = bookings;
+        this.hallOccupancyRepository = hallOccupancyRepository;
+        this.scheduleRepository = scheduleRepository;
         this.bookingConfig = bookingConfig;
-        this.areaService = areaService;
+        this.areaRepository = areaRepository;
     }
 
     public Booking createBooking(Booking booking) {
@@ -39,22 +50,57 @@ public class BookingService {
     }
 
     public List<LocalDate> findAvailableDates(Optional<String> areaId) {
-        List<LocalDate> availableDates = new ArrayList<>();
-        List<Booking> bookings = bookingRepository.findAll();
-        for (int i = 0; i <= bookingConfig.getMaxDaysForward(); ++i) {
-            LocalDate date = LocalDate.now().plusDays(i);
-            Duration duration = Duration.ZERO;
-            List<Booking> bookingsInThatDay = bookings
-                    .stream()
-                    .filter(b -> date.equals(b.getStartTime().toLocalDate()))
-                    .toList();
+        if (areaId.isPresent()) {
+            Optional<Area> area = areaRepository.findById(Long.valueOf(areaId.get()));
+            if(area.isPresent() && area.get().getType().equals(AreaType.WORKPLACE)) {
+                return findHallAvailableDates();
+            }
+            return findAreaAvailableDates(areaId);
+        } else {
+            return findHallAvailableDates();
+        }
+    }
 
-            for (Booking booking : bookingsInThatDay) {
-                duration = duration.plus(Duration.between(booking.getStartTime(), booking.getEndTime()));
+    private List<LocalDate> findAreaAvailableDates(Optional<String> areaId) {
+        List<LocalDate> availableDates = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+        List<Booking> relevantBookings = bookingRepository.findByAreaId(areaId.get()); //todo проверить что area существует
+
+        for (int i = 0; i <= bookingConfig.getMaxDaysForward(); ++i) {
+            LocalDate date = today.plusDays(i);
+
+            if (scheduleRepository.isNonWorkingDay(date)) {
+                continue;
             }
 
-            if (duration.compareTo(Duration.ofHours(bookingConfig.getEndWork() - bookingConfig.getStartWork())) >= 0) {
-                availableDates.addLast(date);
+            Duration bookedDuration = relevantBookings.stream()
+                    .filter(b -> date.equals(b.getStartTime().toLocalDate()))
+                    .map(b -> Duration.between(b.getStartTime(), b.getEndTime()))
+                    .reduce(Duration.ZERO, Duration::plus);
+
+            Duration totalWorkDuration = Duration.ofHours(
+                    bookingConfig.getEndWork() - bookingConfig.getStartWork());
+
+            if (bookedDuration.compareTo(totalWorkDuration) < 0) {
+                availableDates.add(date);
+            }
+        }
+        return availableDates;
+    }
+
+    private List<LocalDate> findHallAvailableDates() {
+        List<LocalDate> availableDates = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+        for (int i = 0; i <= 4; ++i) {
+            LocalDate date = today.plusDays(i);
+
+            if (scheduleRepository.isNonWorkingDay(date)) {
+                continue;
+            }
+
+            Optional<Integer> countReservedPlaces = hallOccupancyRepository.countReservedPlacesByDate(date);
+            if (countReservedPlaces.isPresent() && countReservedPlaces.get() < bookingConfig.getHallMaxCapacity()) {
+                availableDates.add(date);
             }
         }
         return availableDates;
@@ -81,7 +127,7 @@ public class BookingService {
             List<Booking> bookings = bookingRepository.findByDateAndArea(date, Long.valueOf(areaId.get()));
             addFreeTimes(availableTime, bookings);
         } else {
-            List<String> availableAreas = areaService.findAll().stream()
+            List<String> availableAreas = areaRepository.findAll().stream()
                     .map(b -> Long.toString(b.getId()))
                     .toList();
             for (String a : availableAreas) {
