@@ -99,7 +99,7 @@ public class BookingService {
             }
 
             Optional<Integer> countReservedPlaces = hallOccupancyRepository.countReservedPlacesByDate(date);
-            if (countReservedPlaces.get() < bookingConfig.getHallMaxCapacity() * 13) {
+            if (countReservedPlaces.get() < bookingConfig.getHallMaxCapacity() * (bookingConfig.getEndWork() - bookingConfig.getStartWork())) {
                 availableDates.add(date);
             }
         }
