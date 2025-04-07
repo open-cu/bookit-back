@@ -1,6 +1,5 @@
 package ru.tbank.bookit.book_it_backend.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +28,7 @@ public class BookingMenuController {
         this.areaRepository = areaRepository;
     }
 
-    @GetMapping("/available-date")
+    @GetMapping("/available-dates")
     public List<LocalDate> findAvailableDates(@RequestParam Optional<String> areaId) {
         return bookingMenuService.findAvailableDates(areaId);
     }
@@ -53,11 +52,11 @@ public class BookingMenuController {
         return ResponseEntity.ok(formattedTimes);
     }
 
-    @GetMapping("/available-area")
-    public ResponseEntity<List<String>> findAvailableArea(
+    @GetMapping("/available-areas")
+    public ResponseEntity<List<String>> findAvailableAreas(
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime time) {
-        List<String> availableArea = bookingMenuService.findAvailableArea(time);
+        List<String> availableArea = bookingMenuService.findAvailableAreas(time);
         return ResponseEntity.ok(availableArea);
     }
 

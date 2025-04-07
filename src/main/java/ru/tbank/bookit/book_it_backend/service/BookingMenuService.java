@@ -42,7 +42,7 @@ public class BookingMenuService {
         return bookingService.findAll();
     }
     
-    public List<String> findAvailableArea(LocalDateTime time) {
-        return areaService.findAvailableArea(time);
+    public List<String> findAvailableAreas(LocalDateTime time) {
+        return areaService.findAvailableAreas(time);
     }
 }

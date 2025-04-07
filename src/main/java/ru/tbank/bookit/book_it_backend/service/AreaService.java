@@ -22,7 +22,7 @@ public class AreaService {
         return areaRepository.findAll();
     }
 
-    public List<String> findAvailableArea(LocalDateTime time) {
+    public List<String> findAvailableAreas(LocalDateTime time) {
         List<String> availableAreas = areaRepository.findAll().stream()
                                                     .map(b -> Long.toString(b.getId()))
                                                     .toList();
