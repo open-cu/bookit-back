@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum DayStatus {
-    WORKING_DAY("Рабочий день"),
     WEEKEND("Выходной день"),
     HOLIDAY("Государственный праздник"),
 
