@@ -79,6 +79,7 @@ CREATE TABLE "Events"(
                          "id" UUID NOT NULL,
                          "name" VARCHAR(255) NOT NULL,
                          "description" TEXT NOT NULL,
+                         "tags" VARCHAR(255) NULL,
                          "date" DATE NOT NULL,
                          "available_places" INTEGER NOT NULL,
                          "user_list" JSON NOT NULL
