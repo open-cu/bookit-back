@@ -14,13 +14,16 @@ import java.time.LocalTime;
 @AllArgsConstructor
 public class Schedule {
     @Id
-    @Column(name = "day", nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     private LocalDate day;
 
     @Column
     private String description;
 
+    @Column
     private LocalTime start;
+
+    @Column
     private LocalTime stop;
 
     @Enumerated(EnumType.STRING)
