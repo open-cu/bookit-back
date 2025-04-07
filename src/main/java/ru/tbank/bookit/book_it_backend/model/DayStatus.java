@@ -15,7 +15,9 @@ public enum DayStatus {
 
     WEATHER_EMERGENCY("Чрезвычайная погодная ситуация"),
     QUARANTINE("Карантинные мероприятия"),
-    ELECTRICITY_OUTAGE("Отключение электроэнергии");
+    ELECTRICITY_OUTAGE("Отключение электроэнергии"),
+
+    UNDEFINED_REASON("Неопределенная ситуация");
 
     private final String description;
 }
