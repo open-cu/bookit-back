@@ -14,6 +14,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT b FROM Booking b WHERE b.userId = :userId")
     Optional<Booking> findByUserId(@Param("userId") Long userId);
 
+    @Query("SELECT b FROM Booking b WHERE b.areaId = :areaId")
+    List<Booking> findByAreaId(@Param("areaId") String areaId);
+
     @Query("SELECT b FROM Booking b WHERE b.startTime BETWEEN ?1 AND DATEADD(day, 1, ?1)")
     List<Booking> findByDate(LocalDate date);
 
