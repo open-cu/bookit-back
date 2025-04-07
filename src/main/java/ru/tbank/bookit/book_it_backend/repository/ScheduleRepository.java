@@ -9,9 +9,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, LocalDate> {
-    default boolean isNonWorkingDay(LocalDate date) {
-        return existsById(date);
-    }
+    @Query("SELECT s FROM Schedule s WHERE s.day_off = :date")
+    Optional<Schedule> findByDate(LocalDate date);
 
     default Optional<String> getNonWorkingReason(LocalDate date) {
         return findById(date)
@@ -20,6 +19,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule, LocalDate> {
                                 ". " + schedule.getDescription() : ""));
     }
 
-    @Query("SELECT s FROM Schedule s WHERE s.day BETWEEN :start AND :end")
+    @Query("SELECT s FROM Schedule s WHERE s.day_off BETWEEN :start AND :end")
     List<Schedule> findByDate(LocalDate start, LocalDate end);
 }

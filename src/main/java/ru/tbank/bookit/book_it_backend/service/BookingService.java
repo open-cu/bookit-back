@@ -55,13 +55,13 @@ public class BookingService {
             if(area.isPresent() && area.get().getType().equals(AreaType.WORKPLACE)) {
                 return findHallAvailableDates();
             }
-            return findAreaAvailableDates(areaId);
+            return findAvailableDatesByArea(areaId);
         } else {
             return findHallAvailableDates();
         }
     }
 
-    private List<LocalDate> findAreaAvailableDates(Optional<String> areaId) {
+    private List<LocalDate> findAvailableDatesByArea(Optional<String> areaId) {
         List<LocalDate> availableDates = new ArrayList<>();
         LocalDate today = LocalDate.now();
         List<Booking> relevantBookings = bookingRepository.findByAreaId(areaId.get()); //todo проверить что area существует
@@ -69,7 +69,7 @@ public class BookingService {
         for (int i = 0; i <= bookingConfig.getMaxDaysForward(); ++i) {
             LocalDate date = today.plusDays(i);
 
-            if (scheduleRepository.isNonWorkingDay(date)) {
+            if (scheduleRepository.findByDate(date).isPresent()) {
                 continue;
             }
 
@@ -93,13 +93,13 @@ public class BookingService {
         LocalDate today = LocalDate.now();
         for (int i = 0; i <= 4; ++i) {
             LocalDate date = today.plusDays(i);
-
-            if (scheduleRepository.isNonWorkingDay(date)) {
+            scheduleRepository.findAll();
+            if (scheduleRepository.findByDate(date).isPresent()) {
                 continue;
             }
 
             Optional<Integer> countReservedPlaces = hallOccupancyRepository.countReservedPlacesByDate(date);
-            if (countReservedPlaces.isPresent() && countReservedPlaces.get() < bookingConfig.getHallMaxCapacity()) {
+            if (countReservedPlaces.get() < bookingConfig.getHallMaxCapacity() * 13) {
                 availableDates.add(date);
             }
         }

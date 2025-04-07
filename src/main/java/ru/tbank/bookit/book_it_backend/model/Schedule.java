@@ -6,31 +6,26 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "SCHEDULE",
-        uniqueConstraints = @UniqueConstraint(columnNames = "day"))
+@Table(name = "SCHEDULE")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Schedule {
     @Id
-    @Column(nullable = false, unique = true)
-    private LocalDate day;
+    @Column( nullable = false, unique = true)
+    private LocalDate day_off;
 
     @Column
     private String description;
 
     @Column
-    private LocalTime start;
+    private LocalTime start_time;
 
     @Column
-    private LocalTime stop;
+    private LocalTime stop_time;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private DayStatus tag;
-
-    public boolean isFullDayClosure() {
-        return start == null && stop == null;
-    }
 }

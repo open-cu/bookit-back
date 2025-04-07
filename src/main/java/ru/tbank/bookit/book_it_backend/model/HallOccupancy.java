@@ -6,17 +6,16 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "HALL_OCCUPANCY",
-        uniqueConstraints = @UniqueConstraint(columnNames = "date-time"))
+@Table(name = "HALL_OCCUPANCY")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class HallOccupancy {
     @Id
-    @Column(name = "date-time", nullable = false, unique = true)
+    @Column(name = "date_time", nullable = false, unique = true)
     private LocalDateTime dateTime;
 
-    @Column(name = "reserved places", nullable = false)
+    @Column(name = "reserved_places", nullable = false)
     private int reservedPlaces;
 }
