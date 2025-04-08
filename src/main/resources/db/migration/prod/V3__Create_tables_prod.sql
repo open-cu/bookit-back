@@ -84,6 +84,22 @@ CREATE TABLE "Events"(
 );
 ALTER TABLE
     "Events" ADD PRIMARY KEY("id");
+CREATE TABLE "Hall_Occupancy"(
+                                 "date_time" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
+                                 "reserved_places" BIGINT NOT NULL
+);
+ALTER TABLE
+    "Hall_Occupancy" ADD PRIMARY KEY("date_time");
+CREATE TABLE "Schedule"(
+                           "day_off" DATE NOT NULL,
+                           "description" TEXT NOT NULL,
+                           "start_time" TIME(0) WITHOUT TIME ZONE NULL,
+                           "stop_time" TIME(0) WITHOUT TIME ZONE NULL,
+                           "tag" VARCHAR(255) CHECK
+                               ("tag" IN('')) NOT NULL
+);
+ALTER TABLE
+    "Schedule" ADD PRIMARY KEY("day_off");
 ALTER TABLE
     "Reviews" ADD CONSTRAINT "reviews_user_id_foreign" FOREIGN KEY("user_id") REFERENCES "Users"("id");
 ALTER TABLE

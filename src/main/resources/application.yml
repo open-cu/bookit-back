@@ -13,3 +13,4 @@ booking:
   max-days-forward: 30
   start-work: 8
   end-work: 21
+  hall-max-capacity: 100
