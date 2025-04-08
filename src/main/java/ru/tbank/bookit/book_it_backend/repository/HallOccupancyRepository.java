@@ -17,6 +17,9 @@ public interface HallOccupancyRepository extends JpaRepository<HallOccupancy, Lo
             "FUNCTION('DAY', h.dateTime) = FUNCTION('DAY', :date)")
     Optional<Integer> countReservedPlacesByDate(@Param("date") LocalDate date);
 
-    @Query("SELECT h FROM HallOccupancy h WHERE DATE(h.dateTime) = :date")
+    @Query("SELECT h FROM HallOccupancy h WHERE " +
+            "FUNCTION('YEAR', h.dateTime) = FUNCTION('YEAR', :date) AND " +
+            "FUNCTION('MONTH', h.dateTime) = FUNCTION('MONTH', :date) AND " +
+            "FUNCTION('DAY', h.dateTime) = FUNCTION('DAY', :date)")
     List<HallOccupancy> findByDate(@Param("date") LocalDate date);
 }

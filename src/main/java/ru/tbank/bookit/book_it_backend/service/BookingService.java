@@ -13,10 +13,7 @@ import ru.tbank.bookit.book_it_backend.repository.*;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class BookingService {
@@ -88,27 +85,32 @@ public class BookingService {
         LocalDate today = LocalDate.now();
         for (int i = 0; i <= 4; ++i) {
             LocalDate date = today.plusDays(i);
-            scheduleRepository.findAll();
             if (scheduleRepository.findByDate(date).isPresent()) {
                 continue;
             }
-
             Optional<Integer> countReservedPlaces = hallOccupancyRepository.countReservedPlacesByDate(date);
-            if (countReservedPlaces.get() < bookingConfig.getHallMaxCapacity() * (bookingConfig.getEndWork() - bookingConfig.getStartWork())) {
+            if (countReservedPlaces.get() < bookingConfig.getHallMaxCapacity() *
+                    (bookingConfig.getEndWork() - bookingConfig.getStartWork())) {
+                availableDates.add(date);
+            }
+        }
+        for (int i = 5; i < 30; i++) {
+            LocalDate date = today.plusDays(i);
+            if (scheduleRepository.findByDate(date).isEmpty()) {
                 availableDates.add(date);
             }
         }
         return availableDates;
     }
 
-    private void addFreeTimes(List<Pair<LocalDateTime, LocalDateTime>> availableTime, List<Booking> bookings)
+    private void addFreeTimes(List<Pair<LocalDateTime, LocalDateTime>> availableTime, LocalDate date, List<Booking> bookings)
     {
-        for (long i = bookingConfig.getStartWork(); i <= bookingConfig.getEndWork(); ++i) {
-            LocalDateTime currHour = LocalDateTime.now().toLocalDate().atTime((int) i, 0);
-            if (bookings.stream().noneMatch(b -> currHour.compareTo(b.getStartTime()) >= 0 &&
-                    currHour.compareTo(b.getEndTime()) < 0))
-            {
-                Pair<LocalDateTime, LocalDateTime> pair = Pair.of(currHour, currHour.plusHours(1));
+        for (long i = bookingConfig.getStartWork(); i < bookingConfig.getEndWork(); ++i) {
+            LocalDateTime currHour = date.atTime((int) i, 0);
+            LocalDateTime nextHour = currHour.plusHours(1);
+            if (bookings.stream().noneMatch(b -> currHour.isBefore(b.getEndTime()) &&
+                    nextHour.isAfter(b.getStartTime()))) {
+                Pair<LocalDateTime, LocalDateTime> pair = Pair.of(currHour, nextHour);
                 if (!availableTime.contains(pair)) {
                     availableTime.addLast(pair);
                 }
@@ -118,18 +120,19 @@ public class BookingService {
 
     public List<Pair<LocalDateTime, LocalDateTime>> findAvailableTime(LocalDate date, Optional<UUID> areaId) {
         List<Pair<LocalDateTime, LocalDateTime>> availableTime = new ArrayList<>();
-        if (!areaId.isEmpty()) {
+        if (areaId.isPresent()) {
             List<Booking> bookings = bookingRepository.findByDateAndArea(date, areaId.get());
-            addFreeTimes(availableTime, bookings);
+            addFreeTimes(availableTime, date, bookings);
         } else {
             List<UUID> availableAreas = areaRepository.findAll().stream()
-                    .map(b -> b.getId())
+                    .map(Area::getId)
                     .toList();
             for (UUID a : availableAreas) {
                 List<Booking> bookings = bookingRepository.findByDateAndArea(date, a);
-                addFreeTimes(availableTime, bookings);
+                addFreeTimes(availableTime, date, bookings);
             }
         }
+        availableTime.sort(Comparator.comparing(Pair::getFirst));
         return availableTime;
     }
 
