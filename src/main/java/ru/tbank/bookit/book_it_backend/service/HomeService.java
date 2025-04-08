@@ -24,7 +24,7 @@ public class HomeService {
 
     public String generateUserQrCode(User user) {
         String userData = String.format(
-                "USER:%d:%s:%s",
+                "USER:%s:%s:%d",
                 user.getId(),
                 user.getName(),
                 user.getTg_id()

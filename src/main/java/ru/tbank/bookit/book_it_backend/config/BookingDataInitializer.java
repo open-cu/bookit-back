@@ -1,4 +1,4 @@
-package ru.tbank.bookit.book_it_backend.init;
+package ru.tbank.bookit.book_it_backend.config;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
