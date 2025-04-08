@@ -2,6 +2,7 @@ package ru.tbank.bookit.book_it_backend.config;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
@@ -21,11 +22,20 @@ import java.util.List;
 
 @Component
 @Order(3)
-@RequiredArgsConstructor
+
 public class BookingDataInitializer implements ApplicationRunner {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final AreaRepository areaRepository;
+
+    @Autowired
+    public BookingDataInitializer(BookingRepository bookingRepository,
+                                  UserRepository userRepository,
+                                  AreaRepository areaRepository) {
+        this.bookingRepository = bookingRepository;
+        this.userRepository = userRepository;
+        this.areaRepository = areaRepository;
+    }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
