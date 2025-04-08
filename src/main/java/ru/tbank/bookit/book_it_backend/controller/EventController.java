@@ -6,11 +6,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.tbank.bookit.book_it_backend.model.Event;
 import ru.tbank.bookit.book_it_backend.model.EventStatus;
-import ru.tbank.bookit.book_it_backend.model.NewsTag;
+import ru.tbank.bookit.book_it_backend.model.ThemeTags;
 import ru.tbank.bookit.book_it_backend.repository.EventRepository;
 import ru.tbank.bookit.book_it_backend.service.EventService;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/events")
@@ -31,20 +32,20 @@ public class EventController {
 
     @GetMapping("/by-tags")
     public ResponseEntity<List<Event>> getAllEventsByTags(
-            @RequestParam(required = true) Set<NewsTag> tags) {
+            @RequestParam(required = true) Set<ThemeTags> tags) {
         List<Event> event = eventService.findByTags(tags);
         return ResponseEntity.ok(event);
     }
 
     @GetMapping("/status")
-    public ResponseEntity<EventStatus> getStatusById(@RequestParam String userId, @RequestParam String eventId){
+    public ResponseEntity<EventStatus> getStatusById(@RequestParam UUID userId, @RequestParam UUID eventId){
         Event event = eventService.findById(eventId).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
         return ResponseEntity.ok(eventService.findStatusById(userId, event));
     }
 
     @PutMapping("/register")
-    public ResponseEntity<Event> addUserInList(@RequestParam String userId, @RequestParam String eventId){
+    public ResponseEntity<Event> addUserInList(@RequestParam UUID userId, @RequestParam UUID eventId){
         Event event = eventService.findById(eventId).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
         eventService.addUser(userId, event);

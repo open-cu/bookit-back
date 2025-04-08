@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "NEWS")
@@ -15,7 +18,7 @@ public class News {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    private UUID id;
 
     @Column(nullable = false)
     private String title;
@@ -24,9 +27,14 @@ public class News {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "news_tags",
+            joinColumns = @JoinColumn(name = "news_id")
+    )
     @Enumerated(EnumType.STRING)
-    @Column()
-    private NewsTag tags;
+    @Column(name = "tag")
+    private Set<ThemeTags> tags = new HashSet<>();
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

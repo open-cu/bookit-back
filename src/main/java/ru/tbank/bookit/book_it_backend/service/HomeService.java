@@ -12,6 +12,7 @@ import ru.tbank.bookit.book_it_backend.model.User;
 import java.io.ByteArrayOutputStream;
 import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class HomeService {
@@ -47,19 +48,19 @@ public class HomeService {
         }
     }
 
-    public List<Booking> getCurrentBookings(String userId) {
+    public List<Booking> getCurrentBookings(UUID userId) {
         return bookingService.getCurrentBookings(userId);
     }
 
-    public List<Booking> getFutureBookings(String userId) {
+    public List<Booking> getFutureBookings(UUID userId) {
         return bookingService.getFutureBookings(userId);
     }
 
-    public List<Booking> getPastBookings(String userId) {
+    public List<Booking> getPastBookings(UUID userId) {
         return bookingService.getPastBookings(userId);
     }
 
-    public void cancelBooking(String bookingId) {
+    public void cancelBooking(UUID bookingId) {
         bookingService.cancelBooking(bookingId);
     }
 }
