@@ -1,6 +1,7 @@
 package ru.tbank.bookit.book_it_backend.controller;
 
 
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.tbank.bookit.book_it_backend.model.Booking;
@@ -16,11 +17,17 @@ public class BookingController {
         this.bookingService = bookingService;
     }
 
+    @Operation(
+            description = "returns information about the created booking"
+    )
     @PostMapping("/book")
     public Booking createBooking(@RequestBody Booking booking) {
         return bookingService.createBooking(booking);
     }
 
+    @Operation(
+            description = "Returns information in the list format about all bookings"
+    )
     @GetMapping("/all")
     public ResponseEntity<List<Booking>> getAllBookings() {
         List<Booking> bookings = bookingService.findAll();
