@@ -46,7 +46,9 @@ public class Booking {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public UUID extractAreaId() {
+    public UUID getAreaId() {
         return area != null ? area.getId() : null;
     }
+
+    public UUID getUserId() {return user != null ? user.getId() : null;}
 }

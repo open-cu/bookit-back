@@ -202,7 +202,7 @@ public class BookingService {
         List<Booking> bookings = findByStartDatetime(time);
 
         for (Booking b : bookings) {
-            availableAreas.remove(b.extractAreaId());
+            availableAreas.remove(b.getAreaId());
         }
 
         return availableAreas;
