@@ -1,16 +1,14 @@
 package ru.tbank.bookit.book_it_backend.service;
 
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.tbank.bookit.book_it_backend.DTO.CreateBookingRequest;
 import ru.tbank.bookit.book_it_backend.config.BookingConfig;
-import ru.tbank.bookit.book_it_backend.model.Area;
-import ru.tbank.bookit.book_it_backend.model.AreaType;
-import ru.tbank.bookit.book_it_backend.model.Booking;
-import ru.tbank.bookit.book_it_backend.model.BookingStatus;
-import ru.tbank.bookit.book_it_backend.repository.AreaRepository;
-import ru.tbank.bookit.book_it_backend.repository.BookingRepository;
-import ru.tbank.bookit.book_it_backend.repository.HallOccupancyRepository;
-import ru.tbank.bookit.book_it_backend.repository.ScheduleRepository;
+import ru.tbank.bookit.book_it_backend.model.*;
+import ru.tbank.bookit.book_it_backend.repository.*;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -18,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class BookingService {
@@ -25,33 +24,29 @@ public class BookingService {
     private final HallOccupancyRepository hallOccupancyRepository;
     private final ScheduleRepository scheduleRepository;
     private final AreaRepository areaRepository;
+    private final UserRepository userRepository;
 
     private final BookingConfig bookingConfig;
 
+    @Autowired
     public BookingService(BookingRepository bookings, HallOccupancyRepository hallOccupancyRepository,
                           ScheduleRepository scheduleRepository, BookingConfig bookingConfig,
-                          AreaRepository areaRepository) {
+                          AreaRepository areaRepository, UserRepository userRepository) {
         this.bookingRepository = bookings;
         this.hallOccupancyRepository = hallOccupancyRepository;
         this.scheduleRepository = scheduleRepository;
         this.bookingConfig = bookingConfig;
         this.areaRepository = areaRepository;
+        this.userRepository = userRepository;
     }
 
-    public Booking createBooking(Booking booking) {
-        booking.setStatus(BookingStatus.CONFIRMED);
-        booking.setCreatedAt(LocalDateTime.now());
-        bookingRepository.save(booking);
-        return booking;
-    }
-
-    public Optional<Booking> findBooking(long bookingId) {
+    public Optional<Booking> findBooking(UUID bookingId) {
         return bookingRepository.findByUserId(bookingId);
     }
 
-    public List<LocalDate> findAvailableDates(Optional<String> areaId) {
+    public List<LocalDate> findAvailableDates(Optional<UUID> areaId) {
         if (areaId.isPresent()) {
-            Optional<Area> area = areaRepository.findById(Long.valueOf(areaId.get()));
+            Optional<Area> area = areaRepository.findById(areaId.get());
             if(area.isPresent() && area.get().getType().equals(AreaType.WORKPLACE)) {
                 return findHallAvailableDates();
             }
@@ -61,7 +56,7 @@ public class BookingService {
         }
     }
 
-    private List<LocalDate> findAvailableDatesByArea(Optional<String> areaId) {
+    private List<LocalDate> findAvailableDatesByArea(Optional<UUID> areaId) {
         List<LocalDate> availableDates = new ArrayList<>();
         LocalDate today = LocalDate.now();
         List<Booking> relevantBookings = bookingRepository.findByAreaId(areaId.get()); //todo проверить что area существует
@@ -121,24 +116,24 @@ public class BookingService {
         }
     }
 
-    public List<Pair<LocalDateTime, LocalDateTime>> findAvailableTime(LocalDate date, Optional<String> areaId) {
+    public List<Pair<LocalDateTime, LocalDateTime>> findAvailableTime(LocalDate date, Optional<UUID> areaId) {
         List<Pair<LocalDateTime, LocalDateTime>> availableTime = new ArrayList<>();
         if (!areaId.isEmpty()) {
-            List<Booking> bookings = bookingRepository.findByDateAndArea(date, Long.valueOf(areaId.get()));
+            List<Booking> bookings = bookingRepository.findByDateAndArea(date, areaId.get());
             addFreeTimes(availableTime, bookings);
         } else {
-            List<String> availableAreas = areaRepository.findAll().stream()
-                    .map(b -> Long.toString(b.getId()))
+            List<UUID> availableAreas = areaRepository.findAll().stream()
+                    .map(b -> b.getId())
                     .toList();
-            for (String a : availableAreas) {
-                List<Booking> bookings = bookingRepository.findByDateAndArea(date, Long.valueOf(a));
+            for (UUID a : availableAreas) {
+                List<Booking> bookings = bookingRepository.findByDateAndArea(date, a);
                 addFreeTimes(availableTime, bookings);
             }
         }
         return availableTime;
     }
 
-    public void cancelBooking(long bookingId) {
+    public void cancelBooking(UUID bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found with id: " + bookingId));
 
@@ -150,15 +145,39 @@ public class BookingService {
         bookingRepository.save(booking);
     }
 
-    public List<Booking> getCurrentBookings(Long userId) {
+    @Transactional
+    public Booking createBooking(CreateBookingRequest request) {
+        User user = userRepository.findById(request.getUserId())
+                                  .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + request.getUserId()));
+
+        Area area = areaRepository.findById(request.getAreaId())
+                                  .orElseThrow(() -> new EntityNotFoundException("Area not found with id: " + request.getAreaId()));
+
+        if (!isAreaAvailable(area, request.getStartTime(), request.getEndTime())) {
+            throw new IllegalStateException("Area is already booked for this time slot");
+        }
+
+        Booking booking = new Booking();
+        booking.setUser(user);
+        booking.setArea(area);
+        booking.setStartTime(request.getStartTime());
+        booking.setEndTime(request.getEndTime());
+        booking.setQuantity(request.getQuantity());
+        booking.setStatus(BookingStatus.CONFIRMED);
+        booking.setCreatedAt(LocalDateTime.now());
+
+        return bookingRepository.save(booking);
+    }
+
+    public List<Booking> getCurrentBookings(UUID userId) {
         return bookingRepository.findCurrentBookingsByUser(userId, LocalDateTime.now());
     }
 
-    public List<Booking> getFutureBookings(Long userId) {
+    public List<Booking> getFutureBookings(UUID userId) {
         return bookingRepository.findFutureBookingsByUser(userId, LocalDateTime.now());
     }
 
-    public List<Booking> getPastBookings(Long userId) {
+    public List<Booking> getPastBookings(UUID userId) {
         return bookingRepository.findPastBookingsByUser(userId, LocalDateTime.now());
     }
 
@@ -168,5 +187,24 @@ public class BookingService {
 
     public List<Booking> findByStartDatetime(LocalDateTime time) {
         return bookingRepository.findByStartDatetime(time);
+    }
+
+    // TO DO
+    private boolean isAreaAvailable(Area area, LocalDateTime startTime, LocalDateTime endTime) {
+        return true;
+    }
+
+
+    public List<UUID> findAvailableAreas(LocalDateTime time) {
+        List<UUID> availableAreas = areaRepository.findAll().stream()
+                                                  .map(b -> b.getId())
+                                                  .toList();
+        List<Booking> bookings = findByStartDatetime(time);
+
+        for (Booking b : bookings) {
+            availableAreas.remove(b.extractAreaId());
+        }
+
+        return availableAreas;
     }
 }

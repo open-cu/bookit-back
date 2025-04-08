@@ -13,6 +13,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class HomeService {
@@ -49,23 +50,23 @@ public class HomeService {
         }
     }
 
-    public List<Booking> getCurrentBookings(Long userId) {
+    public List<Booking> getCurrentBookings(UUID userId) {
         return bookingService.getCurrentBookings(userId);
     }
 
-    public List<Booking> getFutureBookings(Long userId) {
+    public List<Booking> getFutureBookings(UUID userId) {
         return bookingService.getFutureBookings(userId);
     }
 
-    public List<Booking> getPastBookings(Long userId) {
+    public List<Booking> getPastBookings(UUID userId) {
         return bookingService.getPastBookings(userId);
     }
 
-    public void cancelBooking(long bookingId) {
+    public void cancelBooking(UUID bookingId) {
         bookingService.cancelBooking(bookingId);
     }
 
-    public Optional<User> findUserById(Long userId) {
+    public Optional<User> findUserById(UUID userId) {
         return userService.findById(userId);
     }
 }

@@ -11,6 +11,7 @@ import ru.tbank.bookit.book_it_backend.repository.UserRepository;
 import ru.tbank.bookit.book_it_backend.service.HomeService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/home")
@@ -22,7 +23,7 @@ public class HomeController {
     }
 
     @GetMapping("/qr")
-    public ResponseEntity<?> getUserQrCode(@RequestParam Long userId) {
+    public ResponseEntity<?> getUserQrCode(@RequestParam UUID userId) {
         User user = homeService.findUserById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
@@ -35,25 +36,25 @@ public class HomeController {
     }
 
     @GetMapping("/bookings/current")
-    public ResponseEntity<List<Booking>> getCurrentBookings(@RequestParam Long userId) {
+    public ResponseEntity<List<Booking>> getCurrentBookings(@RequestParam UUID userId) {
         List<Booking> bookings = homeService.getCurrentBookings(userId);
         return ResponseEntity.ok(bookings);
     }
 
     @GetMapping("/bookings/future")
-    public ResponseEntity<List<Booking>> getFutureBookings(@RequestParam Long userId) {
+    public ResponseEntity<List<Booking>> getFutureBookings(@RequestParam UUID userId) {
         List<Booking> bookings = homeService.getFutureBookings(userId);
         return ResponseEntity.ok(bookings);
     }
 
     @GetMapping("/bookings/past")
-    public ResponseEntity<List<Booking>> getPastBookings(@RequestParam Long userId) {
+    public ResponseEntity<List<Booking>> getPastBookings(@RequestParam UUID userId) {
         List<Booking> bookings = homeService.getPastBookings(userId);
         return ResponseEntity.ok(bookings);
     }
 
     @DeleteMapping("/booking/{bookingId}")
-    public ResponseEntity<String> cancelBooking(@PathVariable long bookingId) {
+    public ResponseEntity<String> cancelBooking(@PathVariable UUID bookingId) {
         homeService.cancelBooking(bookingId);
         return ResponseEntity.ok("Booking cancelled successfully");
     }
