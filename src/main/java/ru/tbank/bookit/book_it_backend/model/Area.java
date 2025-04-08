@@ -3,6 +3,10 @@ package ru.tbank.bookit.book_it_backend.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.awt.print.Book;
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "\"Areas\"")
 @Getter
@@ -33,4 +37,7 @@ public class Area {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AreaStatus status;
+
+    @OneToMany(mappedBy = "area", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Booking> bookings = new ArrayList<>();
 }

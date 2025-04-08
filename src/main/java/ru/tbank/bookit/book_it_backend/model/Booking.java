@@ -17,11 +17,14 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(nullable = false)
-    private String userId;
 
-    @Column(nullable = false)
-    private String areaId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "area_id", nullable = false)
+    private Area area;
 
     @Column(nullable = false)
     private LocalDateTime startTime;
@@ -38,4 +41,12 @@ public class Booking {
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    public String getAreaId() {
+        return area.getId();
+    }
+
+    public String getUserId() {
+        return user.getId();
+    }
 }

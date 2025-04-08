@@ -3,7 +3,10 @@ package ru.tbank.bookit.book_it_backend.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.awt.print.Book;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "USERS")
@@ -38,4 +41,7 @@ public class User {
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Booking> bookings = new ArrayList<>();
 }

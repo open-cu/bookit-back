@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, String> {
-    @Query("SELECT b FROM Booking b WHERE b.userId = :userId")
+    @Query("SELECT b FROM Booking b WHERE b.user.id = :userId")
     Booking findByUserId(@Param("userId") String userId);
 
     @Query("SELECT b FROM Booking b WHERE b.startTime BETWEEN ?1 AND DATEADD(day, 1, ?1)")
@@ -19,15 +19,15 @@ public interface BookingRepository extends JpaRepository<Booking, String> {
     @Query("SELECT b FROM Booking b WHERE ?1 BETWEEN b.startTime and b.endTime")
     List<Booking> findByDatetime(LocalDateTime date);
 
-    @Query("SELECT b FROM Booking b WHERE b.startTime BETWEEN ?1 AND DATEADD(day, 1, ?1) AND b.areaId = :areaId")
+    @Query("SELECT b FROM Booking b WHERE b.startTime BETWEEN ?1 AND DATEADD(day, 1, ?1) AND b.area.id = :areaId")
     List<Booking> findByDateAndArea(LocalDate date, @Param("areaId") String areaId);
 
-    @Query("SELECT b FROM Booking b WHERE b.userId = :userId AND b.startTime < :now AND b.endTime > :now")
+    @Query("SELECT b FROM Booking b WHERE b.user.id = :userId AND b.startTime < :now AND b.endTime > :now")
     List<Booking> findCurrentBookingsByUser(@Param("userId") String userId, @Param("now") LocalDateTime now);
 
-    @Query("SELECT b FROM Booking b WHERE b.userId = :userId AND b.startTime > :now")
+    @Query("SELECT b FROM Booking b WHERE b.user.id = :userId AND b.startTime > :now")
     List<Booking> findFutureBookingsByUser(@Param("userId") String userId, @Param("now") LocalDateTime now);
 
-    @Query("SELECT b FROM Booking b WHERE b.userId = :userId AND b.endTime < :now")
+    @Query("SELECT b FROM Booking b WHERE b.user.id = :userId AND b.endTime < :now")
     List<Booking> findPastBookingsByUser(@Param("userId") String userId, @Param("now") LocalDateTime now);
 }
