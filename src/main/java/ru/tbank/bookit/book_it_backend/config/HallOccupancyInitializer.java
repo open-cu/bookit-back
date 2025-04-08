@@ -15,7 +15,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 @Order(5)
@@ -39,12 +38,10 @@ public class HallOccupancyInitializer implements ApplicationRunner {
         initializeHallOccupancy();
     }
 
-    @Scheduled(cron = "0 0 0 * * *") // Запуск в полночь каждый день
+    @Scheduled(cron = "0 0 0 * * *")
     public void updateHallOccupancy() {
-        // Найдем последнюю дату, на которую есть данные
         LocalDate lastDate = findLastDate();
 
-        // Создаем записи на следующий день после последней даты
         LocalDate nextDate = lastDate.plusDays(1);
         createEntriesForDate(nextDate);
     }
@@ -53,11 +50,9 @@ public class HallOccupancyInitializer implements ApplicationRunner {
         LocalDate today = LocalDate.now();
         LocalDate endDate = today.plusDays(maxDaysForward);
 
-        // Проходим по всем дням от сегодня до endDate
         for (LocalDate date = today; !date.isAfter(endDate); date = date.plusDays(1)) {
             List<HallOccupancy> existingEntries = hallOccupancyRepository.findByDate(date);
 
-            // Если на этот день нет записей, создаем их
             if (existingEntries.isEmpty()) {
                 createEntriesForDate(date);
             }
@@ -68,25 +63,22 @@ public class HallOccupancyInitializer implements ApplicationRunner {
         for (int hour = startWork; hour <= endWork - 1; hour++) {
             LocalDateTime dateTime = LocalDateTime.of(date, LocalTime.of(hour, 0));
 
-            // Проверяем, существует ли уже запись для этого времени
             if (hallOccupancyRepository.findById(dateTime).isEmpty()) {
                 HallOccupancy occupancy = new HallOccupancy();
                 occupancy.setDateTime(dateTime);
-                occupancy.setReservedPlaces(0); // Изначально мест не забронировано
+                occupancy.setReservedPlaces(0);
                 hallOccupancyRepository.save(occupancy);
             }
         }
     }
 
     private LocalDate findLastDate() {
-        // Хитрый способ найти последнюю дату - запрашиваем все записи,
-        // сортируем по убыванию даты и берем первую
         return hallOccupancyRepository.findAll().stream()
                                       .map(HallOccupancy::getDateTime)
                                       .map(LocalDateTime::toLocalDate)
                                       .distinct()
                                       .sorted((d1, d2) -> d2.compareTo(d1))
                                       .findFirst()
-                                      .orElse(LocalDate.now()); // Если записей нет, используем текущую дату
+                                      .orElse(LocalDate.now());
     }
 }
