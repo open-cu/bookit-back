@@ -5,6 +5,7 @@ import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.tbank.bookit.book_it_backend.config.BookingConfig;
+import ru.tbank.bookit.book_it_backend.model.Area;
 import ru.tbank.bookit.book_it_backend.model.Booking;
 import ru.tbank.bookit.book_it_backend.model.BookingStatus;
 import ru.tbank.bookit.book_it_backend.repository.AreaRepository;
@@ -30,7 +31,7 @@ public class BookingMenuService {
         this.bookingConfig = bookingConfig;
     }
 
-    public Booking findBooking(long bookingId) {
+    public Booking findBooking(String bookingId) {
         return bookingRepository.findByUserId(bookingId);
     }
 
@@ -60,7 +61,7 @@ public class BookingMenuService {
     public List<Pair<LocalDateTime, LocalDateTime>> findAvailableTime(LocalDate date, Optional<String> areaId) {
         List<Booking> bookings = areaId.isEmpty() ?
                 bookingRepository.findByDate(date) :
-                bookingRepository.findByDateAndArea(date, Long.valueOf(areaId.get()));
+                bookingRepository.findByDateAndArea(date, areaId.get());
 
         LocalDateTime start = LocalDateTime.MIN;
         LocalDateTime end = LocalDateTime.MIN;
@@ -83,7 +84,7 @@ public class BookingMenuService {
 
     public List<String> findAvailableArea(LocalDateTime time) {
         List<String> availableAreas = areaRepository.findAll().stream()
-                                                       .map(b -> Long.toString(b.getId()))
+                                                       .map(Area::getId)
                                                        .toList();
         List<Booking> bookings = bookingRepository.findByDatetime(time);
 

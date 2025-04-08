@@ -10,6 +10,6 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TicketId implements java.io.Serializable {
-    private int userId;
-    private int areaId;
+    private String userId;
+    private String areaId;
 }

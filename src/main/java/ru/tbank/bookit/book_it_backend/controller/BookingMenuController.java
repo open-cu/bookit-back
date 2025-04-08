@@ -58,8 +58,8 @@ public class BookingMenuController {
     }
 
     @GetMapping("/booking/{bookingId}")
-    public ResponseEntity<Booking> getBooking(@PathVariable long bookingId) {
-        if (bookingId <= 0) {
+    public ResponseEntity<Booking> getBooking(@PathVariable String bookingId) {
+        if (bookingId.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
         Booking booking = bookingMenuService.findBooking(bookingId);

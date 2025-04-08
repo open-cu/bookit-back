@@ -4,6 +4,9 @@ spring:
     username: postgres
     password: 123
     driver-class-name: org.postgresql.Driver
+    backup:
+      command: pg_dump -U ${spring.datasource.username} -h localhost -p 5432 -d ${spring.datasource.name} -F c -f
+      restore-command: pg_restore -U ${spring.datasource.username} -h localhost -p 5432 -d ${spring.datasource.name} -c
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -12,7 +15,8 @@ spring:
     show-sql: true
   flyway:
     enabled: true
-    locations: classpath:db/migration
-    baseline-on-migrate: false
+    locations: classpath:db/migration/prod
+    baseline-on-migrate: true
     validate-on-migrate: false
     driver-class-name: org.postgresql.Driver
+    baseline-version: 3
