@@ -17,7 +17,7 @@ import java.util.List;
 
 @Configuration
 @Component
-@Order(2)
+@Order(1)
 public class UserDataInitializer implements ApplicationRunner {
     private final UserRepository userRepository;
 

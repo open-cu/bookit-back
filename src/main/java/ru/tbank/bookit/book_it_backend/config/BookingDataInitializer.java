@@ -18,6 +18,8 @@ import ru.tbank.bookit.book_it_backend.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.LocalDate;
+import java.time.Month;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Component
@@ -77,5 +79,35 @@ public class BookingDataInitializer implements ApplicationRunner {
         booking3.setStatus(BookingStatus.CONFIRMED);
         booking3.setCreatedAt(LocalDateTime.of(2025, 4, 3, 22, 39, 25, 746173300));
         bookingRepository.save(booking3);
+
+        Booking booking4 = new Booking();
+        booking4.setUser(userRepository.findByName("Alice Johnson"));
+        booking4.setArea(areas.getFirst());
+        booking4.setStartTime(LocalDateTime.now().truncatedTo(ChronoUnit.HOURS).minusHours(1));
+        booking4.setEndTime(LocalDateTime.now().truncatedTo(ChronoUnit.HOURS).plusHours(1));
+        booking4.setQuantity(1);
+        booking4.setStatus(BookingStatus.CONFIRMED);
+        booking4.setCreatedAt(LocalDateTime.of(2025, 4, 3, 22, 39, 25, 746173300));
+        bookingRepository.save(booking4);
+
+        Booking booking5 = new Booking();
+        booking5.setUser(userRepository.findByName("Alice Johnson"));
+        booking5.setArea(areas.getLast());
+        booking5.setStartTime(LocalDateTime.of(2025, Month.FEBRUARY, 14, 12, 0));
+        booking5.setEndTime(LocalDateTime.of(2025, Month.FEBRUARY, 14, 14, 0));
+        booking5.setQuantity(1);
+        booking5.setStatus(BookingStatus.COMPLETED);
+        booking5.setCreatedAt(LocalDateTime.of(2025, 1, 20, 22, 39, 25, 746173300));
+        bookingRepository.save(booking5);
+
+        Booking booking6 = new Booking();
+        booking6.setUser(userRepository.findByName("Alice Johnson"));
+        booking6.setArea(areas.getLast());
+        booking6.setStartTime(LocalDateTime.of(2025, Month.APRIL, 23, 16, 0));
+        booking6.setEndTime(LocalDateTime.of(2025, Month.APRIL, 23, 17, 0));
+        booking6.setQuantity(1);
+        booking6.setStatus(BookingStatus.COMPLETED);
+        booking6.setCreatedAt(LocalDateTime.of(2025, 1, 20, 22, 39, 25, 746173300));
+        bookingRepository.save(booking6);
     }
 }

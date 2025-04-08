@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 @Configuration
 @Component
-@Order(1)
+@Order(2)
 public class AreaDataInitializer implements ApplicationRunner {
     private final AreaRepository areaRepository;
 
