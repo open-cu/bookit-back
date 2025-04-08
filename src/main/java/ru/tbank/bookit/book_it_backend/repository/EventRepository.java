@@ -14,6 +14,4 @@ public interface EventRepository extends JpaRepository<Event, String> {
     @Query("SELECT n FROM Event n WHERE n.tags IN :tags ORDER BY n.date DESC")
     List<Event> findByTagsIn(@Param("tags") Set<NewsTag> tags);
 
-    @Query(value = "SELECT * FROM \"Events\"", nativeQuery = true)
-    List<Event> findAll();
 }

@@ -7,7 +7,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: none
+      ddl-auto: create-drop
     show-sql: true
     properties:
       hibernate:
@@ -21,10 +21,3 @@ spring:
       settings:
         trace: true
         web-allow-others: true
-
-  flyway:
-    enabled: true
-    locations: classpath:db/migration/dev
-    baseline-on-migrate: true
-    validate-on-migrate: true
-    baseline-version: 1
