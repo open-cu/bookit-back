@@ -12,20 +12,22 @@ import ru.tbank.bookit.book_it_backend.model.User;
 import java.io.ByteArrayOutputStream;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class HomeService {
     private final BookingService bookingService;
+    private final UserService userService;
 
-    @Autowired
-    public HomeService(BookingService bookingService) {
+    public HomeService(BookingService bookingService, UserService userService) {
         this.bookingService = bookingService;
+        this.userService = userService;
     }
 
     public String generateUserQrCode(User user) {
         String userData = String.format(
-                "USER:%s:%s:%d",
+                "USER:%s:%s:%s",
                 user.getId(),
                 user.getName(),
                 user.getTg_id()
@@ -62,5 +64,9 @@ public class HomeService {
 
     public void cancelBooking(UUID bookingId) {
         bookingService.cancelBooking(bookingId);
+    }
+
+    public Optional<User> findUserById(UUID userId) {
+        return userService.findById(userId);
     }
 }

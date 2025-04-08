@@ -47,10 +47,8 @@ public class Booking {
     private LocalDateTime createdAt;
 
     public UUID getAreaId() {
-        return area.getId();
+        return area != null ? area.getId() : null;
     }
 
-    public UUID getUserId() {
-        return user.getId();
-    }
+    public UUID getUserId() {return user != null ? user.getId() : null;}
 }

@@ -2,6 +2,7 @@ package ru.tbank.bookit.book_it_backend.config;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
@@ -21,11 +22,20 @@ import java.util.List;
 
 @Component
 @Order(3)
-@RequiredArgsConstructor
+
 public class BookingDataInitializer implements ApplicationRunner {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final AreaRepository areaRepository;
+
+    @Autowired
+    public BookingDataInitializer(BookingRepository bookingRepository,
+                                  UserRepository userRepository,
+                                  AreaRepository areaRepository) {
+        this.bookingRepository = bookingRepository;
+        this.userRepository = userRepository;
+        this.areaRepository = areaRepository;
+    }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -50,8 +60,8 @@ public class BookingDataInitializer implements ApplicationRunner {
         Booking booking2 = new Booking();
         booking2.setUser(users.get(1));
         booking2.setArea(areas.get(1));
-        booking2.setStartTime(LocalDateTime.of(LocalDate.of(2025, 4, 14), LocalTime.of(10, 0)));
-        booking2.setEndTime(LocalDateTime.of(LocalDate.of(2025, 4, 14), LocalTime.of(12, 0)));
+        booking2.setStartTime(LocalDateTime.of(LocalDate.of(2025, 4, 14), LocalTime.of(12, 0)));
+        booking2.setEndTime(LocalDateTime.of(LocalDate.of(2025, 4, 14), LocalTime.of(13, 0)));
         booking2.setQuantity(1);
         booking2.setStatus(BookingStatus.CONFIRMED);
         booking2.setCreatedAt(LocalDateTime.of(2025, 4, 3, 22, 39, 25, 746173300));
@@ -61,8 +71,8 @@ public class BookingDataInitializer implements ApplicationRunner {
         Booking booking3 = new Booking();
         booking3.setUser(users.getLast());
         booking3.setArea(areas.getLast());
-        booking3.setStartTime(LocalDateTime.of(LocalDate.of(2025, 4, 14), LocalTime.of(10, 0)));
-        booking3.setEndTime(LocalDateTime.of(LocalDate.of(2025, 4, 14), LocalTime.of(12, 0)));
+        booking3.setStartTime(LocalDateTime.of(LocalDate.of(2025, 4, 14), LocalTime.of(8, 0)));
+        booking3.setEndTime(LocalDateTime.of(LocalDate.of(2025, 4, 14), LocalTime.of(21, 0)));
         booking3.setQuantity(1);
         booking3.setStatus(BookingStatus.CONFIRMED);
         booking3.setCreatedAt(LocalDateTime.of(2025, 4, 3, 22, 39, 25, 746173300));

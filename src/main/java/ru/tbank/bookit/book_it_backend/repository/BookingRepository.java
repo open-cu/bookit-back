@@ -8,19 +8,23 @@ import ru.tbank.bookit.book_it_backend.model.Booking;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface BookingRepository extends JpaRepository<Booking, UUID> {
-    @Query("SELECT b FROM Booking b WHERE b.user.id = :userId")
-    Booking findByUserId(@Param("userId") UUID userId);
+    @Query("SELECT b FROM Booking b WHERE b.area.id = :userId")
+    Optional<Booking> findByUserId(@Param("userId") UUID userId);
 
-    @Query("SELECT b FROM Booking b WHERE b.startTime BETWEEN ?1 AND DATEADD(day, 1, ?1)")
+    @Query("SELECT b FROM Booking b WHERE b.area.id = :areaId")
+    List<Booking> findByAreaId(@Param("areaId") UUID areaId);
+
+    @Query("SELECT b FROM Booking b WHERE CAST(b.startTime AS DATE) = ?1")
     List<Booking> findByDate(LocalDate date);
 
-    @Query("SELECT b FROM Booking b WHERE ?1 BETWEEN b.startTime and b.endTime")
-    List<Booking> findByDatetime(LocalDateTime date);
+    @Query("SELECT b FROM Booking b WHERE b.startTime = ?1")
+    List<Booking> findByStartDatetime(LocalDateTime date);
 
-    @Query("SELECT b FROM Booking b WHERE b.startTime BETWEEN ?1 AND DATEADD(day, 1, ?1) AND b.area.id = :areaId")
+    @Query("SELECT b FROM Booking b WHERE CAST(b.startTime AS DATE) = ?1 AND b.area.id = :areaId")
     List<Booking> findByDateAndArea(LocalDate date, @Param("areaId") UUID areaId);
 
     @Query("SELECT b FROM Booking b WHERE b.user.id = :userId AND b.startTime < :now AND b.endTime > :now")

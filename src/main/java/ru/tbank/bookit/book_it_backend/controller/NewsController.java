@@ -13,8 +13,8 @@ import java.util.Set;
 public class NewsController {
     private final NewsService newsService;
 
-    public NewsController(NewsService bookingService) {
-        this.newsService = bookingService;
+    public NewsController(NewsService newsService) {
+        this.newsService = newsService;
     }
 
     @GetMapping("/all")
@@ -25,7 +25,7 @@ public class NewsController {
 
     @GetMapping("/by-tags")
     public ResponseEntity<List<News>> getAllNewsByTags(
-            @RequestParam(required = true) Set<ThemeTags> tags) {
+            @RequestParam Set<ThemeTags> tags) {
         List<News> news = newsService.findByTags(tags);
         return ResponseEntity.ok(news);
     }

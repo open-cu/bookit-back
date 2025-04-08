@@ -6,10 +6,8 @@ import ru.tbank.bookit.book_it_backend.model.EventStatus;
 import ru.tbank.bookit.book_it_backend.model.ThemeTags;
 import ru.tbank.bookit.book_it_backend.repository.EventRepository;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class EventService {
@@ -42,21 +40,22 @@ public class EventService {
     }
 
     public void addUser(UUID userId, Event event){
-        if (!isIdPresent(userId, event.getUser_list()) && event.getAvailable_places() > 0) {
-            event.setUser_list(event.getUser_list() + " " + userId);
+        String userList = event.getUser_list();
+        if (!isIdPresent(userId, userList) && event.getAvailable_places() > 0) {
+            if (userList == null) {
+                userList = "";
+            }
+            event.setUser_list(userList + userId + " ");
             event.setAvailable_places(event.getAvailable_places() - 1);
             eventRepository.save(event);
         }
     }
 
     public boolean isIdPresent(UUID userId, String users){
-        String[] lines = users.split(" ");
-        for (String line : lines) {
-            String registeredId = line.trim();
-            if (!registeredId.isEmpty() && registeredId.equals(userId)) {
-                return true;
-            }
+        if (users == null || users.isEmpty()) {
+            return false;
         }
-        return false;
+        Set<UUID> uuids = Arrays.stream(users.split(" ")).filter(str -> !str.isEmpty()).map(UUID::fromString).collect(Collectors.toSet());
+        return uuids.contains(userId);
     }
 }

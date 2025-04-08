@@ -1,11 +1,14 @@
 package ru.tbank.bookit.book_it_backend.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.tbank.bookit.book_it_backend.DTO.CreateBookingRequest;
+import ru.tbank.bookit.book_it_backend.model.Area;
+import ru.tbank.bookit.book_it_backend.model.AreaStatus;
 import ru.tbank.bookit.book_it_backend.model.Booking;
+import ru.tbank.bookit.book_it_backend.repository.AreaRepository;
 import ru.tbank.bookit.book_it_backend.service.BookingMenuService;
 
 import java.net.URI;
@@ -20,13 +23,14 @@ import java.util.UUID;
 @RequestMapping("/booking-menu")
 public class BookingMenuController {
     private final BookingMenuService bookingMenuService;
+    private final AreaRepository areaRepository;
 
-    @Autowired
-    public BookingMenuController(BookingMenuService bookingMenuService) {
+    public BookingMenuController(BookingMenuService bookingMenuService, AreaRepository areaRepository) {
         this.bookingMenuService = bookingMenuService;
+        this.areaRepository = areaRepository;
     }
 
-    @GetMapping("/available-date")
+    @GetMapping("/available-dates")
     public List<LocalDate> findAvailableDates(@RequestParam Optional<UUID> areaId) {
         return bookingMenuService.findAvailableDates(areaId);
     }
@@ -50,34 +54,29 @@ public class BookingMenuController {
         return ResponseEntity.ok(formattedTimes);
     }
 
-    @GetMapping("/available-area")
-    public ResponseEntity<List<UUID>> findAvailableArea(
+    @GetMapping("/available-areas")
+    public ResponseEntity<List<UUID>> findAvailableAreas(
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime time) {
-        List<UUID> availableArea = bookingMenuService.findAvailableArea(time);
+        List<UUID> availableArea = bookingMenuService.findAvailableAreas(time);
         return ResponseEntity.ok(availableArea);
     }
 
     @GetMapping("/booking/{bookingId}")
     public ResponseEntity<Booking> getBooking(@PathVariable UUID bookingId) {
-        if (bookingId == null) {
-            return ResponseEntity.badRequest().build();
-        }
-        Booking booking = bookingMenuService.findBooking(bookingId);
-        if (booking == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(booking);
+
+        Optional<Booking> booking = bookingMenuService.findBooking(bookingId);
+        return booking.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping("/booking")
-    public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
-        if ((booking.getStartTime() == null || booking.getEndTime() == null) ||
-                booking.getStartTime().isAfter(booking.getEndTime())) {
+    public ResponseEntity<Booking> createBooking(@RequestBody CreateBookingRequest request) {
+        if (request.getStartTime() == null || request.getEndTime() == null ||
+                request.getStartTime().isAfter(request.getEndTime())) {
             return ResponseEntity.badRequest().build();
         }
 
-        Booking createdBooking = bookingMenuService.createBooking(booking);
+        Booking createdBooking = bookingMenuService.createBooking(request);
         URI uri = URI.create("/booking-menu/booking/" + createdBooking.getId());
         return ResponseEntity.created(uri).body(createdBooking);
     }
@@ -86,5 +85,13 @@ public class BookingMenuController {
     public ResponseEntity<List<Booking>> getAllBookings() {
         List<Booking> bookings = bookingMenuService.findAll();
         return ResponseEntity.ok(bookings);
+    }
+
+    @PostMapping("/area")
+    public ResponseEntity<Area> createArea(@RequestBody Area area) {
+        area.setStatus(AreaStatus.AVAILABLE);
+        areaRepository.save(area);
+        URI uri = URI.create("/booking-menu/area/" + area.getId());
+        return ResponseEntity.created(uri).body(area);
     }
 }

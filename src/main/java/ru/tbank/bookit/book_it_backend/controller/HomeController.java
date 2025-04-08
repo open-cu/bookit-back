@@ -5,10 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import ru.tbank.bookit.book_it_backend.model.Area;
 import ru.tbank.bookit.book_it_backend.model.Booking;
 import ru.tbank.bookit.book_it_backend.model.User;
-import ru.tbank.bookit.book_it_backend.repository.AreaRepository;
 import ru.tbank.bookit.book_it_backend.repository.UserRepository;
 import ru.tbank.bookit.book_it_backend.service.HomeService;
 
@@ -19,19 +17,14 @@ import java.util.UUID;
 @RequestMapping("/home")
 public class HomeController {
     private final HomeService homeService;
-    private final UserRepository userRepository;
-    private final AreaRepository areaRepository;
 
-    @Autowired
-    public HomeController(HomeService homeService, UserRepository userRepository, AreaRepository areaRepository) {
+    public HomeController(HomeService homeService) {
         this.homeService = homeService;
-        this.userRepository = userRepository;
-        this.areaRepository = areaRepository;
     }
 
     @GetMapping("/qr")
     public ResponseEntity<?> getUserQrCode(@RequestParam UUID userId) {
-        User user = userRepository.findById(userId)
+        User user = homeService.findUserById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         try {
@@ -64,15 +57,5 @@ public class HomeController {
     public ResponseEntity<String> cancelBooking(@PathVariable UUID bookingId) {
         homeService.cancelBooking(bookingId);
         return ResponseEntity.ok("Booking cancelled successfully");
-    }
-
-    @GetMapping("/users")
-    public ResponseEntity<List<User>> findAllUsers() {
-        return ResponseEntity.ok(userRepository.findAll());
-    }
-
-    @GetMapping("/areas")
-    public ResponseEntity<List<Area>> findAllArea() {
-        return ResponseEntity.ok(areaRepository.findAll());
     }
 }
