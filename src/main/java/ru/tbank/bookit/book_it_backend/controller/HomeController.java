@@ -58,4 +58,10 @@ public class HomeController {
         homeService.cancelBooking(bookingId);
         return ResponseEntity.ok("Booking cancelled successfully");
     }
+
+    @GetMapping("/testUserId")
+    public ResponseEntity<UUID> getTestUserId() {
+        UUID testUserId = homeService.getTestUserId();
+        return ResponseEntity.ok(testUserId);
+    }
 }

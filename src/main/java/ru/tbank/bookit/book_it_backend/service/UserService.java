@@ -18,4 +18,7 @@ public class UserService {
     public Optional<User> findById(UUID id) {
         return userRepository.findById(id);
     }
+    public UUID getTestUserId() {
+        return userRepository.findByName("Alice Johnson").getId();
+    }
 }

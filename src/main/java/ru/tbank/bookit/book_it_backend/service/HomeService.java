@@ -69,4 +69,8 @@ public class HomeService {
     public Optional<User> findUserById(UUID userId) {
         return userService.findById(userId);
     }
+
+    public UUID getTestUserId() {
+        return userService.getTestUserId();
+    }
 }
