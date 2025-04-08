@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "EVENTS")
@@ -23,9 +25,14 @@ public class Event {
     @Column(nullable = false)
     private String description;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "event_tags",
+            joinColumns = @JoinColumn(name = "event_id")
+    )
     @Enumerated(EnumType.STRING)
-    @Column(nullable = true)
-    private NewsTag tags;
+    @Column(name = "tag")
+    private Set<ThemeTags> tags = new HashSet<>();
 
     @Column(nullable = false)
     private LocalDateTime date;

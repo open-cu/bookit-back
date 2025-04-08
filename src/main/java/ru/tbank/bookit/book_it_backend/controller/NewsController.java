@@ -3,7 +3,7 @@ package ru.tbank.bookit.book_it_backend.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.tbank.bookit.book_it_backend.model.News;
-import ru.tbank.bookit.book_it_backend.model.NewsTag;
+import ru.tbank.bookit.book_it_backend.model.ThemeTags;
 import ru.tbank.bookit.book_it_backend.service.NewsService;
 import java.util.List;
 import java.util.Set;
@@ -25,7 +25,7 @@ public class NewsController {
 
     @GetMapping("/by-tags")
     public ResponseEntity<List<News>> getAllNewsByTags(
-            @RequestParam(required = true) Set<NewsTag> tags) {
+            @RequestParam(required = true) Set<ThemeTags> tags) {
         List<News> news = newsService.findByTags(tags);
         return ResponseEntity.ok(news);
     }

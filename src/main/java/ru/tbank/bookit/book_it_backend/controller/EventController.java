@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.tbank.bookit.book_it_backend.model.Event;
 import ru.tbank.bookit.book_it_backend.model.EventStatus;
-import ru.tbank.bookit.book_it_backend.model.NewsTag;
+import ru.tbank.bookit.book_it_backend.model.ThemeTags;
 import ru.tbank.bookit.book_it_backend.repository.EventRepository;
 import ru.tbank.bookit.book_it_backend.service.EventService;
 import java.util.List;
@@ -31,7 +31,7 @@ public class EventController {
 
     @GetMapping("/by-tags")
     public ResponseEntity<List<Event>> getAllEventsByTags(
-            @RequestParam(required = true) Set<NewsTag> tags) {
+            @RequestParam(required = true) Set<ThemeTags> tags) {
         List<Event> event = eventService.findByTags(tags);
         return ResponseEntity.ok(event);
     }

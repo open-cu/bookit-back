@@ -3,7 +3,7 @@ package ru.tbank.bookit.book_it_backend.service;
 import org.springframework.stereotype.Service;
 import ru.tbank.bookit.book_it_backend.model.Event;
 import ru.tbank.bookit.book_it_backend.model.EventStatus;
-import ru.tbank.bookit.book_it_backend.model.NewsTag;
+import ru.tbank.bookit.book_it_backend.model.ThemeTags;
 import ru.tbank.bookit.book_it_backend.repository.EventRepository;
 
 import java.util.List;
@@ -26,7 +26,7 @@ public class EventService {
         return eventRepository.findAll();
     }
 
-    public List<Event> findByTags(Set<NewsTag> tags){
+    public List<Event> findByTags(Set<ThemeTags> tags){
         return eventRepository.findByTagsIn(tags);
     }
 

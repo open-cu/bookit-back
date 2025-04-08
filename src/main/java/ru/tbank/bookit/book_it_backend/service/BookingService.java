@@ -92,6 +92,7 @@ public class BookingService {
         return bookingRepository.findAll();
     }
 
+    // TO DO
     private boolean isAreaAvailable(Area area, LocalDateTime startTime, LocalDateTime endTime) {
         return true;
     }

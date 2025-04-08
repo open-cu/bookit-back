@@ -1,6 +1,6 @@
 package ru.tbank.bookit.book_it_backend.model;
 
-public enum NewsTag {
+public enum ThemeTags {
     PSYCHOLOGY,
     ART,
     MARKETING,
