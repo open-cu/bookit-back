@@ -8,10 +8,11 @@ import ru.tbank.bookit.book_it_backend.model.Booking;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
-public interface BookingRepository extends JpaRepository<Booking, String> {
+public interface BookingRepository extends JpaRepository<Booking, UUID> {
     @Query("SELECT b FROM Booking b WHERE b.user.id = :userId")
-    Booking findByUserId(@Param("userId") String userId);
+    Booking findByUserId(@Param("userId") UUID userId);
 
     @Query("SELECT b FROM Booking b WHERE b.startTime BETWEEN ?1 AND DATEADD(day, 1, ?1)")
     List<Booking> findByDate(LocalDate date);
@@ -20,14 +21,14 @@ public interface BookingRepository extends JpaRepository<Booking, String> {
     List<Booking> findByDatetime(LocalDateTime date);
 
     @Query("SELECT b FROM Booking b WHERE b.startTime BETWEEN ?1 AND DATEADD(day, 1, ?1) AND b.area.id = :areaId")
-    List<Booking> findByDateAndArea(LocalDate date, @Param("areaId") String areaId);
+    List<Booking> findByDateAndArea(LocalDate date, @Param("areaId") UUID areaId);
 
     @Query("SELECT b FROM Booking b WHERE b.user.id = :userId AND b.startTime < :now AND b.endTime > :now")
-    List<Booking> findCurrentBookingsByUser(@Param("userId") String userId, @Param("now") LocalDateTime now);
+    List<Booking> findCurrentBookingsByUser(@Param("userId") UUID userId, @Param("now") LocalDateTime now);
 
     @Query("SELECT b FROM Booking b WHERE b.user.id = :userId AND b.startTime > :now")
-    List<Booking> findFutureBookingsByUser(@Param("userId") String userId, @Param("now") LocalDateTime now);
+    List<Booking> findFutureBookingsByUser(@Param("userId") UUID userId, @Param("now") LocalDateTime now);
 
     @Query("SELECT b FROM Booking b WHERE b.user.id = :userId AND b.endTime < :now")
-    List<Booking> findPastBookingsByUser(@Param("userId") String userId, @Param("now") LocalDateTime now);
+    List<Booking> findPastBookingsByUser(@Param("userId") UUID userId, @Param("now") LocalDateTime now);
 }

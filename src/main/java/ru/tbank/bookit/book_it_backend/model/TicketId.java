@@ -3,6 +3,8 @@ package ru.tbank.bookit.book_it_backend.model;
 import jakarta.persistence.Embeddable;
 import lombok.*;
 
+import java.util.UUID;
+
 @Embeddable
 @Setter
 @Getter
@@ -10,6 +12,6 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TicketId implements java.io.Serializable {
-    private String userId;
-    private String areaId;
+    private UUID userId;
+    private UUID areaId;
 }

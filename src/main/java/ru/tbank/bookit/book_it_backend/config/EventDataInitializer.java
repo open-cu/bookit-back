@@ -11,6 +11,7 @@ import ru.tbank.bookit.book_it_backend.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @Configuration
 public class EventDataInitializer {
@@ -34,8 +35,8 @@ public class EventDataInitializer {
                 aiWorkshop.setDate(LocalDateTime.of(2025, 8, 20, 0, 0, 0));
                 aiWorkshop.setAvailable_places(20);
 
-                String user1 = "ca261095-1578-4aa4-9c8e-1e227d8f9aee";
-                String user2 = "5156943e-61fe-4334-8ced-26ac5c3998c0";
+                UUID user1 = UUID.fromString("ca261095-1578-4aa4-9c8e-1e227d8f9aee");
+                UUID user2 = UUID.fromString("5156943e-61fe-4334-8ced-26ac5c3998c0");
 
                 if (userRepository.existsById(user1) && userRepository.existsById(user2)) {
                     aiWorkshop.setUser_list(String.valueOf(List.of(user1, user2)));

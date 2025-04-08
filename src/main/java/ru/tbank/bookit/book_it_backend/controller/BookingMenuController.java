@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/booking-menu")
@@ -26,7 +27,7 @@ public class BookingMenuController {
     }
 
     @GetMapping("/available-date")
-    public List<LocalDate> findAvailableDates(@RequestParam Optional<String> areaId) {
+    public List<LocalDate> findAvailableDates(@RequestParam Optional<UUID> areaId) {
         return bookingMenuService.findAvailableDates(areaId);
     }
 
@@ -34,7 +35,7 @@ public class BookingMenuController {
     public ResponseEntity<List<String>> findAvailableTimeByDate(
             @PathVariable
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam Optional<String> areaId) {
+            @RequestParam Optional<UUID> areaId) {
 
         List<Pair<LocalDateTime, LocalDateTime>> times = bookingMenuService.findAvailableTime(date, areaId);
         List<String> formattedTimes =
@@ -50,16 +51,16 @@ public class BookingMenuController {
     }
 
     @GetMapping("/available-area")
-    public ResponseEntity<List<String>> findAvailableArea(
+    public ResponseEntity<List<UUID>> findAvailableArea(
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime time) {
-        List<String> availableArea = bookingMenuService.findAvailableArea(time);
+        List<UUID> availableArea = bookingMenuService.findAvailableArea(time);
         return ResponseEntity.ok(availableArea);
     }
 
     @GetMapping("/booking/{bookingId}")
-    public ResponseEntity<Booking> getBooking(@PathVariable String bookingId) {
-        if (bookingId.isEmpty()) {
+    public ResponseEntity<Booking> getBooking(@PathVariable UUID bookingId) {
+        if (bookingId == null) {
             return ResponseEntity.badRequest().build();
         }
         Booking booking = bookingMenuService.findBooking(bookingId);

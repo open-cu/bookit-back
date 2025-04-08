@@ -9,8 +9,9 @@ import ru.tbank.bookit.book_it_backend.model.ThemeTags;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
-public interface NewsRepository extends CrudRepository<News, String> {
+public interface NewsRepository extends CrudRepository<News, UUID> {
     @Query("""
     SELECT DISTINCT e 
     FROM News e 

@@ -16,6 +16,7 @@ import ru.tbank.bookit.book_it_backend.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class BookingService {
@@ -64,7 +65,7 @@ public class BookingService {
         return bookingRepository.save(booking);
     }
 
-    public void cancelBooking(String bookingId) {
+    public void cancelBooking(UUID bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found with id: " + bookingId));
 
@@ -76,15 +77,15 @@ public class BookingService {
         bookingRepository.save(booking);
     }
 
-    public List<Booking> getCurrentBookings(String userId) {
+    public List<Booking> getCurrentBookings(UUID userId) {
         return bookingRepository.findCurrentBookingsByUser(userId, LocalDateTime.now());
     }
 
-    public List<Booking> getFutureBookings(String userId) {
+    public List<Booking> getFutureBookings(UUID userId) {
         return bookingRepository.findFutureBookingsByUser(userId, LocalDateTime.now());
     }
 
-    public List<Booking> getPastBookings(String userId) {
+    public List<Booking> getPastBookings(UUID userId) {
         return bookingRepository.findPastBookingsByUser(userId, LocalDateTime.now());
     }
 

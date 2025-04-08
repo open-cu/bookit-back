@@ -9,6 +9,7 @@ import ru.tbank.bookit.book_it_backend.repository.EventRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class EventService {
@@ -18,7 +19,7 @@ public class EventService {
         this.eventRepository = eventRepository;
     }
 
-    public Optional<Event> findById(String eventId) {
+    public Optional<Event> findById(UUID eventId) {
         return eventRepository.findById(eventId);
     }
 
@@ -30,7 +31,7 @@ public class EventService {
         return eventRepository.findByTagsIn(tags);
     }
 
-    public EventStatus findStatusById(String userId, Event event){
+    public EventStatus findStatusById(UUID userId, Event event){
         if (isIdPresent(userId, event.getUser_list())) {
             return EventStatus.REGISTERED;
         } else if (event.getAvailable_places() > 0) {
@@ -40,7 +41,7 @@ public class EventService {
         }
     }
 
-    public void addUser(String userId, Event event){
+    public void addUser(UUID userId, Event event){
         if (!isIdPresent(userId, event.getUser_list()) && event.getAvailable_places() > 0) {
             event.setUser_list(event.getUser_list() + " " + userId);
             event.setAvailable_places(event.getAvailable_places() - 1);
@@ -48,7 +49,7 @@ public class EventService {
         }
     }
 
-    public boolean isIdPresent(String userId, String users){
+    public boolean isIdPresent(UUID userId, String users){
         String[] lines = users.split(" ");
         for (String line : lines) {
             String registeredId = line.trim();

@@ -8,8 +8,9 @@ import ru.tbank.bookit.book_it_backend.model.ThemeTags;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
-public interface EventRepository extends JpaRepository<Event, String> {
+public interface EventRepository extends JpaRepository<Event, UUID> {
     @Query("""
     SELECT DISTINCT e 
     FROM Event e 

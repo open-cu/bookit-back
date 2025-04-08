@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class BookingMenuService {
@@ -31,11 +32,11 @@ public class BookingMenuService {
         this.bookingConfig = bookingConfig;
     }
 
-    public Booking findBooking(String bookingId) {
+    public Booking findBooking(UUID bookingId) {
         return bookingRepository.findByUserId(bookingId);
     }
 
-    public List<LocalDate> findAvailableDates(Optional<String> areaId) {
+    public List<LocalDate> findAvailableDates(Optional<UUID> areaId) {
         List<LocalDate> availableDates = new ArrayList<>();
         List<Booking> bookings = bookingRepository.findAll();
         for (int i = 0; i <= bookingConfig.getMaxDaysForward(); ++i) {
@@ -58,7 +59,7 @@ public class BookingMenuService {
         return availableDates;
     }
 
-    public List<Pair<LocalDateTime, LocalDateTime>> findAvailableTime(LocalDate date, Optional<String> areaId) {
+    public List<Pair<LocalDateTime, LocalDateTime>> findAvailableTime(LocalDate date, Optional<UUID> areaId) {
         List<Booking> bookings = areaId.isEmpty() ?
                 bookingRepository.findByDate(date) :
                 bookingRepository.findByDateAndArea(date, areaId.get());
@@ -82,8 +83,8 @@ public class BookingMenuService {
         return availableTime;
     }
 
-    public List<String> findAvailableArea(LocalDateTime time) {
-        List<String> availableAreas = areaRepository.findAll().stream()
+    public List<UUID> findAvailableArea(LocalDateTime time) {
+        List<UUID> availableAreas = areaRepository.findAll().stream()
                                                        .map(Area::getId)
                                                        .toList();
         List<Booking> bookings = bookingRepository.findByDatetime(time);

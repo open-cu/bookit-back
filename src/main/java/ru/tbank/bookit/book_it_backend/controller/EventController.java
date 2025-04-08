@@ -11,6 +11,7 @@ import ru.tbank.bookit.book_it_backend.repository.EventRepository;
 import ru.tbank.bookit.book_it_backend.service.EventService;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/events")
@@ -37,14 +38,14 @@ public class EventController {
     }
 
     @GetMapping("/status")
-    public ResponseEntity<EventStatus> getStatusById(@RequestParam String userId, @RequestParam String eventId){
+    public ResponseEntity<EventStatus> getStatusById(@RequestParam UUID userId, @RequestParam UUID eventId){
         Event event = eventService.findById(eventId).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
         return ResponseEntity.ok(eventService.findStatusById(userId, event));
     }
 
     @PutMapping("/register")
-    public ResponseEntity<Event> addUserInList(@RequestParam String userId, @RequestParam String eventId){
+    public ResponseEntity<Event> addUserInList(@RequestParam UUID userId, @RequestParam UUID eventId){
         Event event = eventService.findById(eventId).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
         eventService.addUser(userId, event);

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "BOOKINGS")
@@ -16,7 +17,7 @@ public class Booking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    private UUID id;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -45,11 +46,11 @@ public class Booking {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public String getAreaId() {
+    public UUID getAreaId() {
         return area.getId();
     }
 
-    public String getUserId() {
+    public UUID getUserId() {
         return user.getId();
     }
 }
