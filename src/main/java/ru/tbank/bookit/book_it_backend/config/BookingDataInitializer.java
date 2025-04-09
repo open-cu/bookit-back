@@ -1,7 +1,5 @@
 package ru.tbank.bookit.book_it_backend.config;
 
-import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -49,65 +47,46 @@ public class BookingDataInitializer implements ApplicationRunner {
             return;
         }
 
-        Booking booking1 = new Booking();
-        booking1.setUser(users.getFirst());
-        booking1.setArea(areas.getFirst());
-        booking1.setStartTime(LocalDateTime.of(LocalDate.of(2025, 4, 14), LocalTime.of(10, 0)));
-        booking1.setEndTime(LocalDateTime.of(LocalDate.of(2025, 4, 14), LocalTime.of(12, 0)));
-        booking1.setQuantity(1);
-        booking1.setStatus(BookingStatus.CONFIRMED);
-        booking1.setCreatedAt(LocalDateTime.of(2025, 4, 3, 22, 37, 35, 996095700));
-        bookingRepository.save(booking1);
+        User aliceJohnson = userRepository.findByName("Alice Johnson");
 
-        Booking booking2 = new Booking();
-        booking2.setUser(users.get(1));
-        booking2.setArea(areas.get(1));
-        booking2.setStartTime(LocalDateTime.of(LocalDate.of(2025, 4, 14), LocalTime.of(12, 0)));
-        booking2.setEndTime(LocalDateTime.of(LocalDate.of(2025, 4, 14), LocalTime.of(13, 0)));
-        booking2.setQuantity(1);
-        booking2.setStatus(BookingStatus.CONFIRMED);
-        booking2.setCreatedAt(LocalDateTime.of(2025, 4, 3, 22, 39, 25, 746173300));
-        bookingRepository.save(booking2);
+        Booking booking1 = createBooking(aliceJohnson, areas.getFirst(), Month.APRIL, 14);
+        Booking booking2 = createBooking(aliceJohnson, areas.getLast(), Month.APRIL, 14);
+        Booking booking3 = createBooking(aliceJohnson, areas.get(1), Month.APRIL, 14);
 
 
-        Booking booking3 = new Booking();
-        booking3.setUser(users.getLast());
-        booking3.setArea(areas.getLast());
-        booking3.setStartTime(LocalDateTime.of(LocalDate.of(2025, 4, 14), LocalTime.of(8, 0)));
-        booking3.setEndTime(LocalDateTime.of(LocalDate.of(2025, 4, 14), LocalTime.of(21, 0)));
-        booking3.setQuantity(1);
-        booking3.setStatus(BookingStatus.CONFIRMED);
-        booking3.setCreatedAt(LocalDateTime.of(2025, 4, 3, 22, 39, 25, 746173300));
-        bookingRepository.save(booking3);
+        Booking booking4 = createBooking(aliceJohnson, areas.getFirst(), Month.JANUARY, 23);
+        Booking booking5 = createBooking(aliceJohnson, areas.get(1), Month.JANUARY, 23);
+        Booking booking6 = createBooking(aliceJohnson, areas.getLast(), Month.JANUARY, 23);
 
-        Booking booking4 = new Booking();
-        booking4.setUser(userRepository.findByName("Alice Johnson"));
-        booking4.setArea(areas.getFirst());
-        booking4.setStartTime(LocalDateTime.now().truncatedTo(ChronoUnit.HOURS).minusHours(1));
-        booking4.setEndTime(LocalDateTime.now().truncatedTo(ChronoUnit.HOURS).plusHours(1));
-        booking4.setQuantity(1);
-        booking4.setStatus(BookingStatus.CONFIRMED);
-        booking4.setCreatedAt(LocalDateTime.of(2025, 4, 3, 22, 39, 25, 746173300));
-        bookingRepository.save(booking4);
+        Booking booking7 = createCurrentBooking(aliceJohnson, areas.getLast());
+        Booking booking8 = createCurrentBooking(aliceJohnson, areas.get(1));
+        Booking booking9 = createCurrentBooking(aliceJohnson, areas.getFirst());
 
-        Booking booking5 = new Booking();
-        booking5.setUser(userRepository.findByName("Alice Johnson"));
-        booking5.setArea(areas.getLast());
-        booking5.setStartTime(LocalDateTime.of(2025, Month.FEBRUARY, 14, 12, 0));
-        booking5.setEndTime(LocalDateTime.of(2025, Month.FEBRUARY, 14, 14, 0));
-        booking5.setQuantity(1);
-        booking5.setStatus(BookingStatus.COMPLETED);
-        booking5.setCreatedAt(LocalDateTime.of(2025, 1, 20, 22, 39, 25, 746173300));
-        bookingRepository.save(booking5);
+        bookingRepository.saveAll(List.of(booking1, booking2, booking3, booking4,
+                                          booking5, booking6, booking7, booking8, booking9));
+    }
 
-        Booking booking6 = new Booking();
-        booking6.setUser(userRepository.findByName("Alice Johnson"));
-        booking6.setArea(areas.getLast());
-        booking6.setStartTime(LocalDateTime.of(2025, Month.APRIL, 23, 16, 0));
-        booking6.setEndTime(LocalDateTime.of(2025, Month.APRIL, 23, 17, 0));
-        booking6.setQuantity(1);
-        booking6.setStatus(BookingStatus.COMPLETED);
-        booking6.setCreatedAt(LocalDateTime.of(2025, 1, 20, 22, 39, 25, 746173300));
-        bookingRepository.save(booking6);
+    public Booking createCurrentBooking(User user, Area area) {
+        Booking booking = new Booking();
+        booking.setUser(user);
+        booking.setArea(area);
+        booking.setStartTime(LocalDateTime.now().truncatedTo(ChronoUnit.HOURS).minusHours(1));
+        booking.setEndTime(LocalDateTime.now().truncatedTo(ChronoUnit.HOURS).plusHours(1));
+        booking.setQuantity(1);
+        booking.setStatus(BookingStatus.CONFIRMED);
+        booking.setCreatedAt(LocalDateTime.of(2025, 4, 3, 22, 39, 25, 746173300));
+        return booking;
+    }
+
+    public Booking createBooking(User user, Area area, Month month, int day) {
+        Booking booking = new Booking();
+        booking.setUser(user);
+        booking.setArea(area);
+        booking.setStartTime(LocalDateTime.of(LocalDate.of(2025, month, day), LocalTime.of(10, 0)));
+        booking.setEndTime(LocalDateTime.of(LocalDate.of(2025, month, day), LocalTime.of(12, 0)));
+        booking.setQuantity(1);
+        booking.setStatus(BookingStatus.CONFIRMED);
+        booking.setCreatedAt(LocalDateTime.of(2025, 1, 3, 22, 39, 25, 746173300));
+        return booking;
     }
 }

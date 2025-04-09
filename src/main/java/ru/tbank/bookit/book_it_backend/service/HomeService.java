@@ -4,25 +4,25 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.tbank.bookit.book_it_backend.model.Booking;
 import ru.tbank.bookit.book_it_backend.model.User;
+import ru.tbank.bookit.book_it_backend.repository.AreaRepository;
 
 import java.io.ByteArrayOutputStream;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class HomeService {
     private final BookingService bookingService;
     private final UserService userService;
+    private final AreaService areaService;
 
-    public HomeService(BookingService bookingService, UserService userService) {
+    public HomeService(BookingService bookingService, UserService userService, AreaRepository areaRepository,
+                       AreaService areaService) {
         this.bookingService = bookingService;
         this.userService = userService;
+        this.areaService = areaService;
     }
 
     public String generateUserQrCode(User user) {
@@ -72,5 +72,8 @@ public class HomeService {
 
     public UUID getTestUserId() {
         return userService.getTestUserId();
+    }
+    public String findAreaNameById(UUID areaId) {
+        return areaService.findAreaNameById(areaId);
     }
 }

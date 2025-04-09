@@ -1,13 +1,11 @@
 package ru.tbank.bookit.book_it_backend.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.tbank.bookit.book_it_backend.model.Booking;
 import ru.tbank.bookit.book_it_backend.model.User;
-import ru.tbank.bookit.book_it_backend.repository.UserRepository;
 import ru.tbank.bookit.book_it_backend.service.HomeService;
 
 import java.util.List;
@@ -63,5 +61,11 @@ public class HomeController {
     public ResponseEntity<UUID> getTestUserId() {
         UUID testUserId = homeService.getTestUserId();
         return ResponseEntity.ok(testUserId);
+    }
+
+    @GetMapping("/area-name/{areaId}")
+    public ResponseEntity<String> getAreaName(@PathVariable UUID areaId) {
+        String areaName = homeService.findAreaNameById(areaId);
+        return ResponseEntity.ok(areaName);
     }
 }

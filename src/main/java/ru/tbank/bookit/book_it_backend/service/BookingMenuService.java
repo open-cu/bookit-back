@@ -14,14 +14,10 @@ import java.util.UUID;
 
 @Service
 public class BookingMenuService {
-    private final BookingConfig bookingConfig;
     private final BookingService bookingService;
-    private final AreaService areaService;
 
     public BookingMenuService(BookingService bookingService, BookingConfig bookingConfig, AreaService areaService) {
-        this.bookingConfig = bookingConfig;
         this.bookingService = bookingService;
-        this.areaService = areaService;
     }
 
     public Optional<Booking> findBooking(UUID bookingId) {

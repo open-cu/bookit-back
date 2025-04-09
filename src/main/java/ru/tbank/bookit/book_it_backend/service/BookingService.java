@@ -138,13 +138,18 @@ public class BookingService {
 
     public void cancelBooking(UUID bookingId) {
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new RuntimeException("Booking not found with id: " + bookingId));
+                .orElseThrow(() -> new NoSuchElementException("Booking not found with id: " + bookingId));
 
         if (booking.getStatus() == BookingStatus.CANCELED) {
             throw new IllegalStateException("Booking already cancelled");
         }
 
-        booking.setStatus(BookingStatus.CANCELED);
+        if (booking.getStartTime().isBefore(LocalDateTime.now())) {
+            booking.setStatus(BookingStatus.COMPLETED);
+        }
+        else {
+            booking.setStatus(BookingStatus.CANCELED);
+        }
         bookingRepository.save(booking);
     }
 
@@ -173,15 +178,28 @@ public class BookingService {
     }
 
     public List<Booking> getCurrentBookings(UUID userId) {
-        return bookingRepository.findCurrentBookingsByUser(userId, LocalDateTime.now());
+        return getBookingsByTimeTag(userId, TimeTag.CURRENT);
     }
 
     public List<Booking> getFutureBookings(UUID userId) {
-        return bookingRepository.findFutureBookingsByUser(userId, LocalDateTime.now());
+        return getBookingsByTimeTag(userId, TimeTag.FUTURE);
     }
 
     public List<Booking> getPastBookings(UUID userId) {
-        return bookingRepository.findPastBookingsByUser(userId, LocalDateTime.now());
+        return getBookingsByTimeTag(userId, TimeTag.PAST);
+    }
+
+    public List<Booking> getBookingsByTimeTag(UUID userId, TimeTag timeTag) {
+        final LocalDateTime now = LocalDateTime.now();
+        List<Booking> bookingList = switch (timeTag) {
+            case CURRENT -> bookingRepository.findCurrentBookingsByUser(userId, now)
+                                             .stream()
+                                             .filter(booking -> booking.getStatus() != BookingStatus.COMPLETED)
+                                             .toList();
+            case FUTURE -> bookingRepository.findFutureBookingsByUser(userId, now);
+            case PAST -> bookingRepository.findPastBookingsByUser(userId, now);
+        };
+        return bookingList.stream().filter(booking -> booking.getStatus() != BookingStatus.CANCELED).toList();
     }
 
     public List<Booking> findAll() {
