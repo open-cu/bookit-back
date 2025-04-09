@@ -197,7 +197,16 @@ public class BookingService {
                                              .filter(booking -> booking.getStatus() != BookingStatus.COMPLETED)
                                              .toList();
             case FUTURE -> bookingRepository.findFutureBookingsByUser(userId, now);
-            case PAST -> bookingRepository.findPastBookingsByUser(userId, now);
+            case PAST -> {
+                List<Booking> pastBookings = bookingRepository.findPastBookingsByUser(userId, now);
+                List<Booking> currentCompletedBookings =
+                        bookingRepository.findCurrentBookingsByUser(userId, now)
+                                         .stream()
+                                         .filter(booking -> booking.getStatus() == BookingStatus.COMPLETED)
+                                         .toList();
+                pastBookings.addAll(currentCompletedBookings);
+                yield pastBookings;
+            }
         };
         return bookingList.stream().filter(booking -> booking.getStatus() != BookingStatus.CANCELED).toList();
     }
