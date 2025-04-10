@@ -58,4 +58,16 @@ public class EventService {
         Set<UUID> uuids = Arrays.stream(users.split(" ")).filter(str -> !str.isEmpty()).map(UUID::fromString).collect(Collectors.toSet());
         return uuids.contains(userId);
     }
+
+    public Integer findAvailablePlaces(Event event) {
+        return event.getAvailable_places();
+    }
+
+    public void removeUser(UUID userId, Event event) {
+        String pastString = event.getUser_list();
+        String finalString = Arrays.stream(pastString.split("\\s+"))
+                .filter(part -> !part.equals(userId.toString())).collect(Collectors.joining(" "));
+        event.setUser_list(finalString);
+        event.setAvailable_places(event.getAvailable_places() + 1);
+    }
 }

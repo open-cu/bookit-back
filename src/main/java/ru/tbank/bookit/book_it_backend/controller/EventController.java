@@ -57,4 +57,19 @@ public class EventController {
         eventRepository.save(event);
         return ResponseEntity.status(HttpStatus.CREATED).body(event);
     }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> removeUserInList(@RequestParam UUID userId, @RequestParam UUID eventId) {
+        Event event = eventService.findById(eventId).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
+        eventService.removeUser(userId, event);
+        return ResponseEntity.ok("User removed successfully");
+    }
+
+    @GetMapping("/available-places")
+    public ResponseEntity<Integer> findAvailablePlaces(@RequestParam UUID eventId) {
+        Event event = eventService.findById(eventId).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
+        return ResponseEntity.ok(eventService.findAvailablePlaces(event));
+    }
 }
