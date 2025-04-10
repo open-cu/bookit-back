@@ -1,5 +1,6 @@
 package ru.tbank.bookit.book_it_backend.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,15 +38,15 @@ public class EventController {
         return ResponseEntity.ok(event);
     }
 
-    @GetMapping("/status")
-    public ResponseEntity<EventStatus> getStatusById(@RequestParam UUID userId, @RequestParam UUID eventId){
+    @GetMapping("{eventId}/status/{userId}")
+    public ResponseEntity<EventStatus> getStatusById(@PathVariable UUID eventId, @PathVariable UUID userId){
         Event event = eventService.findById(eventId).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
         return ResponseEntity.ok(eventService.findStatusById(userId, event));
     }
 
-    @PutMapping("/register")
-    public ResponseEntity<Event> addUserInList(@RequestParam UUID userId, @RequestParam UUID eventId){
+    @PutMapping("/{eventId}/registrations/{userId}")
+    public ResponseEntity<Event> addUserInList(@PathVariable UUID eventId, @PathVariable UUID userId){
         Event event = eventService.findById(eventId).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
         eventService.addUser(userId, event);
@@ -58,16 +59,18 @@ public class EventController {
         return ResponseEntity.status(HttpStatus.CREATED).body(event);
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<String> removeUserInList(@RequestParam UUID userId, @RequestParam UUID eventId) {
+    @Operation(description = "Deletes the user from the guest list for the event, returns a string about the success of the deletion")
+    @DeleteMapping("/{eventId}/registrations/{userId}")
+    public ResponseEntity<String> removeUserInList(@PathVariable UUID eventId, @PathVariable UUID userId) {
         Event event = eventService.findById(eventId).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
         eventService.removeUser(userId, event);
         return ResponseEntity.ok("User removed successfully");
     }
 
+    @Operation(description = "returns information about the number of available seats in Integer format")
     @GetMapping("/available-places")
-    public ResponseEntity<Integer> findAvailablePlaces(@RequestParam UUID eventId) {
+    public ResponseEntity<Integer> findAvailablePlaces(@PathVariable UUID eventId) {
         Event event = eventService.findById(eventId).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
         return ResponseEntity.ok(eventService.findAvailablePlaces(event));
