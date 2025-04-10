@@ -17,3 +17,5 @@ services:
 
   front:
     image: dennymantyper/bookit-front:latest
+    ports:
+      - "4200:4200"
