@@ -18,18 +18,14 @@ public class NewsController {
         this.newsService = bookingService;
     }
 
-    @Operation(
-            description = "Returns information in the list format about all news"
-    )
+    @Operation(description = "Returns information in the list format about all news")
     @GetMapping("/all")
     public ResponseEntity<List<News>> getAllNews() {
         List<News> news = newsService.findAll();
         return ResponseEntity.ok(news);
     }
 
-    @Operation(
-            description = "Returns information in list format about all news for a specific tag"
-    )
+    @Operation(description = "Returns information in list format about all news for a specific tag")
     @GetMapping("/by-tags")
     public ResponseEntity<List<News>> getAllNewsByTags(
             @RequestParam(required = true) Set<NewsTag> tags) {

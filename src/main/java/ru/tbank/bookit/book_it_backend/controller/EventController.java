@@ -25,18 +25,14 @@ public class EventController {
         this.eventRepository = eventRepository;
     }
 
-    @Operation(
-            description = "Returns information in the list format about all events"
-    )
+    @Operation(description = "Returns information in the list format about all events")
     @GetMapping("/all")
     public ResponseEntity<List<Event>> getAllEvents() {
         List<Event> event = eventService.findAll();
         return ResponseEntity.ok(event);
     }
 
-    @Operation(
-            description = "Returns information in list format about all events for a specific tag"
-    )
+    @Operation(description = "Returns information in list format about all events for a specific tag")
     @GetMapping("/by-tags")
     public ResponseEntity<List<Event>> getAllEventsByTags(
             @RequestParam(required = true) Set<NewsTag> tags) {
@@ -44,18 +40,14 @@ public class EventController {
         return ResponseEntity.ok(event);
     }
 
-    @Operation(
-            description = "Returns information about the event status by user"
-    )
+    @Operation(description = "Returns information about the event status by user")
     @GetMapping("/status")
     public ResponseEntity<EventStatus> getStatusById(@RequestParam long userId, @RequestParam long eventId){
         Event event = eventService.findById(eventId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
         return ResponseEntity.ok(eventService.findStatusById(userId, event));
     }
 
-    @Operation(
-            description = "Registers (by entering the guest list of the event) the user for this event"
-    )
+    @Operation(description = "Registers (by entering the guest list of the event) the user for this event")
     @PutMapping("/register")
     public ResponseEntity<Event> addUserInList(@RequestParam long userId, @RequestParam long eventId){
         Event event = eventService.findById(eventId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
@@ -63,9 +55,7 @@ public class EventController {
         return ResponseEntity.ok(event);
     }
 
-    @Operation(
-            description = "returns information about the created event"
-    )
+    @Operation(description = "returns information about the created event")
     @PostMapping("/event")
     public ResponseEntity<Event> createEvent(@RequestBody Event event) {
         eventRepository.save(event);

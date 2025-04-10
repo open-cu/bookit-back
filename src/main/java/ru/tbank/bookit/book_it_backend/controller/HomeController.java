@@ -25,9 +25,7 @@ public class HomeController {
         this.userRepository = userRepository;
     }
 
-    @Operation(
-            description = "returns QR code in string format"
-    )
+    @Operation(description = "returns QR code in string format")
     @GetMapping("/qr")
     public ResponseEntity<?> getUserQrCode(@RequestParam Long userId) {
         User user = userRepository.findById(userId)
@@ -41,36 +39,28 @@ public class HomeController {
         }
     }
 
-    @Operation(
-            description = "returns information in the list format about current bookings"
-    )
+    @Operation(description = "returns information in the list format about current bookings")
     @GetMapping("/bookings/current")
     public ResponseEntity<List<Booking>> getCurrentBookings(@RequestParam Long userId) {
         List<Booking> bookings = homeService.getCurrentBookings(userId);
         return ResponseEntity.ok(bookings);
     }
 
-    @Operation(
-            description = "returns information in the list format about future bookings"
-    )
+    @Operation(description = "returns information in the list format about future bookings")
     @GetMapping("/bookings/future")
     public ResponseEntity<List<Booking>> getFutureBookings(@RequestParam Long userId) {
         List<Booking> bookings = homeService.getFutureBookings(userId);
         return ResponseEntity.ok(bookings);
     }
 
-    @Operation(
-            description = "returns information in the list format about past bookings"
-    )
+    @Operation(description = "returns information in the list format about past bookings")
     @GetMapping("/bookings/past")
     public ResponseEntity<List<Booking>> getPastBookings(@RequestParam Long userId) {
         List<Booking> bookings = homeService.getPastBookings(userId);
         return ResponseEntity.ok(bookings);
     }
 
-    @Operation(
-            description = "returns a string about successful remote booking"
-    )
+    @Operation(description = "returns a string about successful remote booking")
     @DeleteMapping("/booking/{bookingId}")
     public ResponseEntity<String> cancelBooking(@PathVariable long bookingId) {
         homeService.cancelBooking(bookingId);
