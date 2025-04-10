@@ -25,4 +25,8 @@ public class AreaService {
                                   .orElseThrow(() -> new NoSuchElementException("Area with Id=" + areaId +" not found"));
         return area.getName();
     }
+
+    public List<String> findAllAreaNames() {
+        return areaRepository.findAll().stream().map(Area::getName).toList();
+    }
 }
