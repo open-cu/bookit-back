@@ -16,4 +16,4 @@ services:
       - ~/.m2:/root/.m2
 
   front:
-    image: dennymantyper/bookit-front:1.0
+    image: dennymantyper/bookit-front:latest
