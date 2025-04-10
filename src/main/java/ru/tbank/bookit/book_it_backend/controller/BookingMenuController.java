@@ -58,7 +58,7 @@ public class BookingMenuController {
     }
 
     @Operation(
-            description = "returns information in the list format of String about available area"
+            description = "returns information in the list format of String about available area on date"
     )
     @GetMapping("/available-area")
     public ResponseEntity<List<String>> findAvailableArea(
@@ -99,7 +99,7 @@ public class BookingMenuController {
     }
 
     @Operation(
-            description = "Returns information in the list format about all bookings"
+            description = "Returns information in the list format in Booking about all bookings"
     )
     @GetMapping("/bookings")
     public ResponseEntity<List<Booking>> getAllBookings() {
