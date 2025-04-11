@@ -89,13 +89,14 @@ public class BookingMenuController {
         return ResponseEntity.created(uri).body(createdBooking);
     }
 
-    @Operation(description = "Returns information in the list format in Booking about all bookings")
+    @Operation(description = "returns information in the list format in Booking about all bookings")
     @GetMapping("/bookings")
     public ResponseEntity<List<Booking>> getAllBookings() {
         List<Booking> bookings = bookingMenuService.findAll();
         return ResponseEntity.ok(bookings);
     }
 
+    @Operation(description = "create area and returns this area")
     @PostMapping("/area")
     public ResponseEntity<Area> createArea(@RequestBody Area area) {
         area.setStatus(AreaStatus.AVAILABLE);

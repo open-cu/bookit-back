@@ -64,12 +64,14 @@ public class HomeController {
         return ResponseEntity.ok("Booking cancelled successfully");
     }
 
+    @Operation(description = "returns in format UUID a userId")
     @GetMapping("/testUserId")
     public ResponseEntity<UUID> getTestUserId() {
         UUID testUserId = homeService.getTestUserId();
         return ResponseEntity.ok(testUserId);
     }
 
+    @Operation(description = "returns in format String a area name")
     @GetMapping("/area-name/{areaId}")
     public ResponseEntity<String> getAreaName(@PathVariable UUID areaId) {
         String areaName = homeService.findAreaNameById(areaId);
