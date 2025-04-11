@@ -13,4 +13,5 @@ public class BookingConfig {
     private int maxDaysForward;
     private long startWork;
     private long endWork;
+    private int hallMaxCapacity;
 }

@@ -1,9 +1,8 @@
 package ru.tbank.bookit.book_it_backend.service;
 
 import org.springframework.stereotype.Service;
-import ru.tbank.bookit.book_it_backend.model.Booking;
 import ru.tbank.bookit.book_it_backend.model.News;
-import ru.tbank.bookit.book_it_backend.model.NewsTag;
+import ru.tbank.bookit.book_it_backend.model.ThemeTags;
 import ru.tbank.bookit.book_it_backend.repository.NewsRepository;
 
 import java.util.List;
@@ -21,8 +20,7 @@ public class NewsService {
         return (List<News>) newsRepository.findAll();
     }
 
-    public List<News> findByTags(Set<NewsTag> tags){
+    public List<News> findByTags(Set<ThemeTags> tags){
         return newsRepository.findByTagsIn(tags);
     }
-
 }

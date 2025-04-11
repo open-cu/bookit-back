@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.tbank.bookit.book_it_backend.model.News;
-import ru.tbank.bookit.book_it_backend.model.NewsTag;
+import ru.tbank.bookit.book_it_backend.model.ThemeTags;
 import ru.tbank.bookit.book_it_backend.service.NewsService;
 import java.util.List;
 import java.util.Set;
@@ -14,8 +14,8 @@ import java.util.Set;
 public class NewsController {
     private final NewsService newsService;
 
-    public NewsController(NewsService bookingService) {
-        this.newsService = bookingService;
+    public NewsController(NewsService newsService) {
+        this.newsService = newsService;
     }
 
     @Operation(description = "Returns information in the list format about all news")
@@ -28,7 +28,7 @@ public class NewsController {
     @Operation(description = "Returns information in list format about all news for a specific tag")
     @GetMapping("/by-tags")
     public ResponseEntity<List<News>> getAllNewsByTags(
-            @RequestParam(required = true) Set<NewsTag> tags) {
+            @RequestParam Set<ThemeTags> tags) {
         List<News> news = newsService.findByTags(tags);
         return ResponseEntity.ok(news);
     }

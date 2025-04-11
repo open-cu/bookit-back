@@ -1,9 +1,11 @@
 package ru.tbank.bookit.book_it_backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "BOOKINGS")
@@ -14,14 +16,19 @@ import java.time.LocalDateTime;
 public class Booking {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-    @Column(nullable = false)
-    private String userId;
 
-    @Column(nullable = false)
-    private String areaId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "area_id", nullable = false)
+    @JsonIgnore
+    private Area area;
 
     @Column(nullable = false)
     private LocalDateTime startTime;
@@ -38,4 +45,10 @@ public class Booking {
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    public UUID getAreaId() {
+        return area != null ? area.getId() : null;
+    }
+
+    public UUID getUserId() {return user != null ? user.getId() : null;}
 }

@@ -3,12 +3,11 @@ package ru.tbank.bookit.book_it_backend.service;
 import org.springframework.stereotype.Service;
 import ru.tbank.bookit.book_it_backend.model.Event;
 import ru.tbank.bookit.book_it_backend.model.EventStatus;
-import ru.tbank.bookit.book_it_backend.model.NewsTag;
+import ru.tbank.bookit.book_it_backend.model.ThemeTags;
 import ru.tbank.bookit.book_it_backend.repository.EventRepository;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class EventService {
@@ -18,7 +17,7 @@ public class EventService {
         this.eventRepository = eventRepository;
     }
 
-    public Optional<Event> findById(long eventId) {
+    public Optional<Event> findById(UUID eventId) {
         return eventRepository.findById(eventId);
     }
 
@@ -26,11 +25,11 @@ public class EventService {
         return eventRepository.findAll();
     }
 
-    public List<Event> findByTags(Set<NewsTag> tags){
+    public List<Event> findByTags(Set<ThemeTags> tags){
         return eventRepository.findByTagsIn(tags);
     }
 
-    public EventStatus findStatusById(long userId, Event event){
+    public EventStatus findStatusById(UUID userId, Event event){
         if (isIdPresent(userId, event.getUser_list())) {
             return EventStatus.REGISTERED;
         } else if (event.getAvailable_places() > 0) {
@@ -40,24 +39,23 @@ public class EventService {
         }
     }
 
-    public void addUser(long userId, Event event){
-        if (!isIdPresent(userId, event.getUser_list()) && event.getAvailable_places() > 0) {
-            event.setUser_list(event.getUser_list() + " " + userId);
+    public void addUser(UUID userId, Event event){
+        String userList = event.getUser_list();
+        if (!isIdPresent(userId, userList) && event.getAvailable_places() > 0) {
+            if (userList == null) {
+                userList = "";
+            }
+            event.setUser_list(userList + userId + " ");
             event.setAvailable_places(event.getAvailable_places() - 1);
+            eventRepository.save(event);
         }
     }
 
-    public boolean isIdPresent(long userId, String users){
-        String[] lines = users.split(" ");
-        for (String line : lines) {
-            String trim = line.trim();
-            if (!trim.isEmpty()) {
-                long num = Long.parseLong(trim);
-                if (num == userId) {
-                    return true;
-                }
-            }
+    public boolean isIdPresent(UUID userId, String users){
+        if (users == null || users.isEmpty()) {
+            return false;
         }
-        return false;
+        Set<UUID> uuids = Arrays.stream(users.split(" ")).filter(str -> !str.isEmpty()).map(UUID::fromString).collect(Collectors.toSet());
+        return uuids.contains(userId);
     }
 }

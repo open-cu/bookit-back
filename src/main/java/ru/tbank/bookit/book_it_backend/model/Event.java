@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "EVENTS")
@@ -14,8 +17,8 @@ import java.time.LocalDateTime;
 public class Event {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(nullable = false)
     private String name;
@@ -23,9 +26,14 @@ public class Event {
     @Column(nullable = false)
     private String description;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "event_tags",
+            joinColumns = @JoinColumn(name = "event_id")
+    )
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private NewsTag tags;
+    @Column(name = "tag")
+    private Set<ThemeTags> tags = new HashSet<>();
 
     @Column(nullable = false)
     private LocalDateTime date;
