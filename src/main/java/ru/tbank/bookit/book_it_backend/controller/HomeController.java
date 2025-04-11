@@ -1,5 +1,7 @@
 package ru.tbank.bookit.book_it_backend.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,7 @@ public class HomeController {
         this.homeService = homeService;
     }
 
+    @Operation(description = "returns QR code in string format")
     @GetMapping("/qr")
     public ResponseEntity<?> getUserQrCode(@RequestParam UUID userId) {
         User user = homeService.findUserById(userId)
@@ -33,36 +36,42 @@ public class HomeController {
         }
     }
 
+    @Operation(description = "returns information in the list format about current bookings")
     @GetMapping("/bookings/current")
     public ResponseEntity<List<Booking>> getCurrentBookings(@RequestParam UUID userId) {
         List<Booking> bookings = homeService.getCurrentBookings(userId);
         return ResponseEntity.ok(bookings);
     }
 
+    @Operation(description = "returns information in the list format about future bookings")
     @GetMapping("/bookings/future")
     public ResponseEntity<List<Booking>> getFutureBookings(@RequestParam UUID userId) {
         List<Booking> bookings = homeService.getFutureBookings(userId);
         return ResponseEntity.ok(bookings);
     }
 
+    @Operation(description = "returns information in the list format about past bookings")
     @GetMapping("/bookings/past")
     public ResponseEntity<List<Booking>> getPastBookings(@RequestParam UUID userId) {
         List<Booking> bookings = homeService.getPastBookings(userId);
         return ResponseEntity.ok(bookings);
     }
 
+    @Operation(description = "returns a string about successful remote booking")
     @DeleteMapping("/booking/{bookingId}")
     public ResponseEntity<String> cancelBooking(@PathVariable UUID bookingId) {
         homeService.cancelBooking(bookingId);
         return ResponseEntity.ok("Booking cancelled successfully");
     }
 
+    @Operation(description = "returns in format UUID a userId")
     @GetMapping("/testUserId")
     public ResponseEntity<UUID> getTestUserId() {
         UUID testUserId = homeService.getTestUserId();
         return ResponseEntity.ok(testUserId);
     }
 
+    @Operation(description = "returns in format String a area name")
     @GetMapping("/area-name/{areaId}")
     public ResponseEntity<String> getAreaName(@PathVariable UUID areaId) {
         String areaName = homeService.findAreaNameById(areaId);
