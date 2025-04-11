@@ -17,7 +17,7 @@ public class NewsController {
         this.newsService = newsService;
     }
 
-    @GetMapping("/all")
+    @GetMapping()
     public ResponseEntity<List<News>> getAllNews() {
         List<News> news = newsService.findAll();
         return ResponseEntity.ok(news);

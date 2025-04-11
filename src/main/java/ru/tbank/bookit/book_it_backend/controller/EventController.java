@@ -25,7 +25,7 @@ public class EventController {
         this.eventRepository = eventRepository;
     }
 
-    @GetMapping("/all")
+    @GetMapping()
     public ResponseEntity<List<Event>> getAllEvents() {
         List<Event> event = eventService.findAll();
         return ResponseEntity.ok(event);
