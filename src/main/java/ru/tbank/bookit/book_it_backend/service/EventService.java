@@ -33,7 +33,7 @@ public class EventService {
         if (isIdPresent(userId, event.getUser_list())) {
             return EventStatus.REGISTERED;
         } else if (event.getAvailable_places() > 0) {
-            return EventStatus.AVALIABLE;
+            return EventStatus.AVAIlABLE;
         } else {
             return EventStatus.FULL;
         }
