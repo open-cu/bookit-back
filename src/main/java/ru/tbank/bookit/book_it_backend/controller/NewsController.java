@@ -19,7 +19,7 @@ public class NewsController {
     }
 
     @Operation(description = "Returns information in the list format about all news")
-    @GetMapping("/all")
+    @GetMapping()
     public ResponseEntity<List<News>> getAllNews() {
         List<News> news = newsService.findAll();
         return ResponseEntity.ok(news);
