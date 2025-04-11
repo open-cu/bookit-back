@@ -1,5 +1,7 @@
 package ru.tbank.bookit.book_it_backend.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -30,11 +32,14 @@ public class BookingMenuController {
         this.areaRepository = areaRepository;
     }
 
-    @GetMapping("/available-dates")
+    @Operation(description = "returns information in the list format about the available dates")
+    @GetMapping("/available-date")
     public List<LocalDate> findAvailableDates(@RequestParam Optional<UUID> areaId) {
         return bookingMenuService.findAvailableDates(areaId);
     }
 
+
+    @Operation(description = "returns information in the list format of String about available time by date")
     @GetMapping("/available-time/{date}")
     public ResponseEntity<List<String>> findAvailableTimeByDate(
             @PathVariable
@@ -54,6 +59,7 @@ public class BookingMenuController {
         return ResponseEntity.ok(formattedTimes);
     }
 
+    @Operation(description = "returns information in the list format of String about available area on date")
     @GetMapping("/available-areas")
     public ResponseEntity<List<UUID>> findAvailableAreas(
             @RequestParam(required = false)
@@ -62,6 +68,7 @@ public class BookingMenuController {
         return ResponseEntity.ok(availableArea);
     }
 
+    @Operation(description = "returns information about booking on his id")
     @GetMapping("/booking/{bookingId}")
     public ResponseEntity<Booking> getBooking(@PathVariable UUID bookingId) {
 
@@ -69,6 +76,7 @@ public class BookingMenuController {
         return booking.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(description = "returns information about the created booking, and the method accepts the booking itself, which must be added.")
     @PostMapping("/booking")
     public ResponseEntity<Booking> createBooking(@RequestBody CreateBookingRequest request) {
         if (request.getStartTime() == null || request.getEndTime() == null ||
@@ -81,12 +89,14 @@ public class BookingMenuController {
         return ResponseEntity.created(uri).body(createdBooking);
     }
 
+    @Operation(description = "returns information in the list format in Booking about all bookings")
     @GetMapping("/bookings")
     public ResponseEntity<List<Booking>> getAllBookings() {
         List<Booking> bookings = bookingMenuService.findAll();
         return ResponseEntity.ok(bookings);
     }
 
+    @Operation(description = "create area and returns this area")
     @PostMapping("/area")
     public ResponseEntity<Area> createArea(@RequestBody Area area) {
         area.setStatus(AreaStatus.AVAILABLE);

@@ -1,6 +1,8 @@
 package ru.tbank.bookit.book_it_backend.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,12 +27,14 @@ public class EventController {
         this.eventRepository = eventRepository;
     }
 
+    @Operation(description = "Returns information in the list format about all events")
     @GetMapping()
     public ResponseEntity<List<Event>> getAllEvents() {
         List<Event> event = eventService.findAll();
         return ResponseEntity.ok(event);
     }
 
+    @Operation(description = "Returns information in list format about all events for a specific tag")
     @GetMapping("/by-tags")
     public ResponseEntity<List<Event>> getAllEventsByTags(
             @RequestParam(required = true) Set<ThemeTags> tags) {
@@ -38,6 +42,7 @@ public class EventController {
         return ResponseEntity.ok(event);
     }
 
+    @Operation(description = "Returns information about the event status by user")
     @GetMapping("{eventId}/status/{userId}")
     public ResponseEntity<EventStatus> getStatusById(@PathVariable UUID eventId, @PathVariable UUID userId){
         Event event = eventService.findById(eventId).orElseThrow(
@@ -45,6 +50,7 @@ public class EventController {
         return ResponseEntity.ok(eventService.findStatusById(userId, event));
     }
 
+    @Operation(description = "Registers (by entering the guest list of the event) the user for this event")
     @PutMapping("/{eventId}/registrations/{userId}")
     public ResponseEntity<Event> addUserInList(@PathVariable UUID eventId, @PathVariable UUID userId){
         Event event = eventService.findById(eventId).orElseThrow(
@@ -53,6 +59,7 @@ public class EventController {
         return ResponseEntity.ok(event);
     }
 
+    @Operation(description = "returns information about the created event")
     @PostMapping("/event")
     public ResponseEntity<Event> createEvent(@RequestBody Event event) {
         eventRepository.save(event);
