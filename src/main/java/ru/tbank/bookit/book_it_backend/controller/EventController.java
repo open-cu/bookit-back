@@ -76,7 +76,7 @@ public class EventController {
     }
 
     @Operation(description = "returns information about the number of available seats in Integer format")
-    @GetMapping("/available-places")
+    @GetMapping("/{eventId}/available-places")
     public ResponseEntity<Integer> findAvailablePlaces(@PathVariable UUID eventId) {
         Event event = eventService.findById(eventId).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
