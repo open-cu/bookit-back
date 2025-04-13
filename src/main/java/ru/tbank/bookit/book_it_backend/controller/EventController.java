@@ -37,7 +37,7 @@ public class EventController {
     @Operation(description = "Returns information in list format about all events for a specific tag")
     @GetMapping("/by-tags")
     public ResponseEntity<List<Event>> getAllEventsByTags(
-            @RequestParam(required = true) Set<ThemeTags> tags) {
+            @RequestParam Set<ThemeTags> tags) {
         List<Event> event = eventService.findByTags(tags);
         return ResponseEntity.ok(event);
     }
@@ -73,13 +73,5 @@ public class EventController {
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
         eventService.removeUser(userId, event);
         return ResponseEntity.ok("User removed successfully");
-    }
-
-    @Operation(description = "returns information about the number of available seats in Integer format")
-    @GetMapping("/available-places")
-    public ResponseEntity<Integer> findAvailablePlaces(@PathVariable UUID eventId) {
-        Event event = eventService.findById(eventId).orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
-        return ResponseEntity.ok(eventService.findAvailablePlaces(event));
     }
 }
