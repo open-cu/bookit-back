@@ -1,6 +1,17 @@
 spring:
   profiles:
     active: dev
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+    consumer:
+      group-id: my-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
 springdoc:
   api-docs:
     enabled: true
@@ -9,6 +20,10 @@ springdoc:
     operations-sorter: method
   default-produces-media-type: application/json
 
+logging:
+  level:
+    org.springframework.kafka: DEBUG
+    org.apache.kafka: INFO
 booking:
   max-days-forward: 30
   start-work: 8
