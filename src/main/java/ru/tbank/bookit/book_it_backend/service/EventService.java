@@ -40,31 +40,25 @@ public class EventService {
     }
 
     public void addUser(UUID userId, Event event){
-        String userList = event.getUser_list();
-        if (!isIdPresent(userId, userList) && event.getAvailable_places() > 0) {
-            if (userList == null) {
-                userList = "";
-            }
-            event.setUser_list(userList + userId + " ");
+        if (!isIdPresent(userId, event.getUser_list()) && event.getAvailable_places() > 0) {
+            event.getUser_list().add(userId);
             event.setAvailable_places(event.getAvailable_places() - 1);
             eventRepository.save(event);
         }
     }
 
-    public boolean isIdPresent(UUID userId, String users){
+    public boolean isIdPresent(UUID userId, List<UUID> users){
         if (users == null || users.isEmpty()) {
             return false;
         }
-        Set<UUID> uuids = Arrays.stream(users.split(" ")).filter(str -> !str.isEmpty()).map(UUID::fromString).collect(Collectors.toSet());
-        return uuids.contains(userId);
+        return users.stream().anyMatch(userId::equals);
     }
 
     public void removeUser(UUID userId, Event event) {
-        String pastString = event.getUser_list();
-        String finalString = Arrays.stream(pastString.split("\\s+"))
-                .filter(part -> !part.equals(userId.toString())).collect(Collectors.joining(" "));
-        event.setUser_list(finalString);
-        event.setAvailable_places(event.getAvailable_places() + 1);
-        eventRepository.save(event);
+        if (isIdPresent(userId, event.getUser_list())) {
+            event.getUser_list().remove(userId);
+            event.setAvailable_places(event.getAvailable_places() + 1);
+            eventRepository.save(event);
+        }
     }
 }

@@ -3,6 +3,7 @@ package ru.tbank.bookit.book_it_backend.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -38,4 +39,7 @@ public class News {
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column
+    private URL link;
 }

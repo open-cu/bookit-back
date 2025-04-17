@@ -3,8 +3,10 @@ package ru.tbank.bookit.book_it_backend.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -41,7 +43,14 @@ public class Event {
     @Column(nullable = false)
     private int available_places;
 
-    @Column
-    private String user_list;
+    @Column(columnDefinition = "TEXT")
+    @Convert(converter = UserListToJsonConverter.class)
+    private List<UUID> user_list;
 
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column
+    private URL link;
 }
+
