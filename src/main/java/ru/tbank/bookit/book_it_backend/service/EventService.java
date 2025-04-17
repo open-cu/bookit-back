@@ -5,6 +5,7 @@ import ru.tbank.bookit.book_it_backend.model.Event;
 import ru.tbank.bookit.book_it_backend.model.EventStatus;
 import ru.tbank.bookit.book_it_backend.model.ThemeTags;
 import ru.tbank.bookit.book_it_backend.repository.EventRepository;
+import ru.tbank.bookit.book_it_backend.repository.UserRepository;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -12,9 +13,11 @@ import java.util.stream.Collectors;
 @Service
 public class EventService {
     private final EventRepository eventRepository;
+    private final UserRepository userRepository;
 
-    public EventService(EventRepository eventRepository) {
+    public EventService(EventRepository eventRepository, UserRepository userRepository) {
         this.eventRepository = eventRepository;
+        this.userRepository = userRepository;
     }
 
     public Optional<Event> findById(UUID eventId) {
@@ -40,7 +43,7 @@ public class EventService {
     }
 
     public void addUser(UUID userId, Event event){
-        if (!isIdPresent(userId, event.getUser_list()) && event.getAvailable_places() > 0) {
+        if (!isIdPresent(userId, event.getUser_list()) && userRepository.existsById(userId) && event.getAvailable_places() > 0) {
             event.getUser_list().add(userId);
             event.setAvailable_places(event.getAvailable_places() - 1);
             eventRepository.save(event);
