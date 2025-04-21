@@ -33,7 +33,7 @@ public class EventService {
         if (isIdPresent(userId, event.getUser_list())) {
             return EventStatus.REGISTERED;
         } else if (event.getAvailable_places() > 0) {
-            return EventStatus.AVALIABLE;
+            return EventStatus.AVAILABLE;
         } else {
             return EventStatus.FULL;
         }
@@ -57,5 +57,14 @@ public class EventService {
         }
         Set<UUID> uuids = Arrays.stream(users.split(" ")).filter(str -> !str.isEmpty()).map(UUID::fromString).collect(Collectors.toSet());
         return uuids.contains(userId);
+    }
+
+    public void removeUser(UUID userId, Event event) {
+        String pastString = event.getUser_list();
+        String finalString = Arrays.stream(pastString.split("\\s+"))
+                .filter(part -> !part.equals(userId.toString())).collect(Collectors.joining(" "));
+        event.setUser_list(finalString);
+        event.setAvailable_places(event.getAvailable_places() + 1);
+        eventRepository.save(event);
     }
 }

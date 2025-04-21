@@ -1,6 +1,7 @@
 package ru.tbank.bookit.book_it_backend.service;
 
 import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
@@ -30,17 +31,19 @@ public class HomeService {
                 "USER:%s:%s:%s",
                 user.getId(),
                 user.getName(),
-                user.getTg_id()
-        );
+                user.getTg_id());
 
         try {
             QRCodeWriter qrCodeWriter = new QRCodeWriter();
+
+            Map<EncodeHintType, Object> hints = new HashMap<>();
+            hints.put(EncodeHintType.MARGIN, 0);
+
             BitMatrix bitMatrix = qrCodeWriter.encode(
                     userData,
                     BarcodeFormat.QR_CODE,
-                    200, 200
-            );
-
+                    200, 200,
+                    hints);
             ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream();
             MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream);
             byte[] pngData = pngOutputStream.toByteArray();
