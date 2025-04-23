@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Ticket {
 
-   @EmbeddedId
-   private TicketId id;
+    @EmbeddedId
+    private TicketId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
@@ -29,9 +29,12 @@ public class Ticket {
     @JsonIgnore
     private Area area;
 
-
     @Column(nullable = false)
-    private long type;
+    private TicketType type;
+
+    @Lob
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String description;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

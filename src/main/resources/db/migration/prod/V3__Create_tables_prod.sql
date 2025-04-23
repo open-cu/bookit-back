@@ -61,7 +61,8 @@ CREATE INDEX "reviews_user_id_index" ON
 CREATE TABLE "Tickets"(
                           "user_id" BIGINT NOT NULL,
                           "area_id" BIGINT NOT NULL,
-                          "type" BIGINT NOT NULL,
+                          "type" VARCHAR(255) NOT NULL,
+                          "description" TEXT NOT NULL,
                           "created_at" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
 );
 ALTER TABLE
