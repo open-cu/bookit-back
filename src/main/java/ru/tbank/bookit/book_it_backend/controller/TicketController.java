@@ -1,7 +1,11 @@
 package ru.tbank.bookit.book_it_backend.controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import ru.tbank.bookit.book_it_backend.DTO.TicketCreateDTO;
+import ru.tbank.bookit.book_it_backend.model.Event;
+import ru.tbank.bookit.book_it_backend.model.Ticket;
 import ru.tbank.bookit.book_it_backend.service.TicketService;
 
 import java.util.List;
@@ -15,8 +19,14 @@ public class TicketController {
         this.ticketService = ticketService;
     }
 
-    @GetMapping("/area-names")
-    public List<String> findAllNames() {
-        return ticketService.findAllAreaNames();
+    @Operation(description = "Create new ticket")
+    @PostMapping
+    public ResponseEntity<Ticket> createTicket(@RequestBody TicketCreateDTO ticketDTO) {
+        Ticket createdTicket = ticketService.createTicket(
+                ticketDTO.getUserId(),
+                ticketDTO.getAreaId(),
+                ticketDTO.getType(),
+                ticketDTO.getDescription());
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdTicket);
     }
 }
