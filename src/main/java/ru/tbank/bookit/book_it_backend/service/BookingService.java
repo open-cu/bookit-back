@@ -161,6 +161,10 @@ public class BookingService {
         Area area = areaRepository.findById(request.getAreaId())
                                   .orElseThrow(() -> new EntityNotFoundException("Area not found with id: " + request.getAreaId()));
 
+        if (request.getTimePeriods().isEmpty()) {
+            throw new IllegalStateException("There are no chosen time periods");
+        }
+
         for (Pair<LocalDateTime, LocalDateTime> t : request.getTimePeriods()) {
             if (!isAreaAvailable(area, t.getFirst(), t.getSecond())) {
                 throw new IllegalStateException("Area is already booked for this time slot");
@@ -170,8 +174,12 @@ public class BookingService {
         Booking booking = new Booking();
         booking.setUser(user);
         booking.setArea(area);
-        booking.setStartTime(request.getTimePeriods().stream().min((a, b) -> a.getFirst().compareTo(b.getFirst())).get().getFirst());
-        booking.setEndTime(request.getTimePeriods().stream().min((a, b) -> a.getFirst().compareTo(b.getFirst())).get().getFirst());
+
+        Optional<Pair<LocalDateTime, LocalDateTime>> startTime = request.getTimePeriods().stream().min((a, b) -> a.getFirst().compareTo(b.getFirst()));
+        Optional<Pair<LocalDateTime, LocalDateTime>> endTime = request.getTimePeriods().stream().max((a, b) -> a.getSecond().compareTo(b.getSecond()));
+        booking.setStartTime(startTime.get().getFirst());
+        booking.setEndTime(end.get().getSecond());
+
         booking.setQuantity(request.getQuantity());
         booking.setStatus(BookingStatus.CONFIRMED);
         booking.setCreatedAt(LocalDateTime.now());
