@@ -79,8 +79,9 @@ public class BookingMenuController {
     @Operation(description = "returns information about the created booking, and the method accepts the booking itself, which must be added.")
     @PostMapping("/booking")
     public ResponseEntity<Booking> createBooking(@RequestBody CreateBookingRequest request) {
-        if (request.getStartTime() == null || request.getEndTime() == null ||
-                request.getStartTime().isAfter(request.getEndTime())) {
+        for (Pair<LocalDateTime, LocalDateTime> t : request.getTimePeriods())
+        if (t.getFirst() == null || t.getSecond() == null ||
+                t.getFirst().isAfter(t.getSecond())) {
             return ResponseEntity.badRequest().build();
         }
 
