@@ -178,7 +178,7 @@ public class BookingService {
         Optional<Pair<LocalDateTime, LocalDateTime>> startTime = request.getTimePeriods().stream().min((a, b) -> a.getFirst().compareTo(b.getFirst()));
         Optional<Pair<LocalDateTime, LocalDateTime>> endTime = request.getTimePeriods().stream().max((a, b) -> a.getSecond().compareTo(b.getSecond()));
         booking.setStartTime(startTime.get().getFirst());
-        booking.setEndTime(end.get().getSecond());
+        booking.setEndTime(endTime.get().getSecond());
 
         booking.setQuantity(request.getQuantity());
         booking.setStatus(BookingStatus.CONFIRMED);
