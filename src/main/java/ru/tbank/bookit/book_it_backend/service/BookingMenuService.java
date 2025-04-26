@@ -32,6 +32,10 @@ public class BookingMenuService {
         return bookingService.createBooking(request);
     }
 
+    public Booking updateBooking(UUID bookingId, UUID areaId, LocalDateTime startTime, LocalDateTime endTime) {
+        return bookingService.updateBooking(bookingId, areaId, startTime, endTime);
+    }
+
     public List<Pair<LocalDateTime, LocalDateTime>> findAvailableTime(LocalDate date, Optional<UUID> areaId) {
         return bookingService.findAvailableTime(date, areaId);
     }

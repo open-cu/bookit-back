@@ -1,12 +1,13 @@
 package ru.tbank.bookit.book_it_backend.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.util.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.tbank.bookit.book_it_backend.DTO.CreateBookingRequest;
+import ru.tbank.bookit.book_it_backend.DTO.UpdateBookingRequest;
 import ru.tbank.bookit.book_it_backend.model.Area;
 import ru.tbank.bookit.book_it_backend.model.AreaStatus;
 import ru.tbank.bookit.book_it_backend.model.Booking;
@@ -87,6 +88,36 @@ public class BookingMenuController {
         Booking createdBooking = bookingMenuService.createBooking(request);
         URI uri = URI.create("/booking-menu/booking/" + createdBooking.getId());
         return ResponseEntity.created(uri).body(createdBooking);
+    }
+
+    @Operation(description = "changes existing Booking and returns this Booking")
+    @PutMapping("/booking/{bookingId}")
+    public ResponseEntity<Booking> updateBooking(
+            @PathVariable UUID bookingId,
+            @RequestBody UpdateBookingRequest request) {
+        try {
+            Optional<Booking> existingBooking = bookingMenuService.findBooking(bookingId);
+            if (existingBooking.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            Booking booking = existingBooking.get();
+
+            UUID areaId = request.areaId() != null ? request.areaId() : booking.getAreaId();
+            LocalDateTime startTime = request.startTime() != null ? request.startTime() : booking.getStartTime();
+            LocalDateTime endTime = request.endTime() != null ? request.endTime() : booking.getEndTime();
+
+            if (startTime.isAfter(endTime)) {
+                return ResponseEntity.badRequest().build();
+            }
+
+            Booking updatedBooking = bookingMenuService.updateBooking(bookingId, areaId, startTime, endTime);
+            return ResponseEntity.ok(updatedBooking);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @Operation(description = "returns information in the list format in Booking about all bookings")
