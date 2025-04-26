@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import ru.tbank.bookit.book_it_backend.exception.ResourceNotFoundException;
 import ru.tbank.bookit.book_it_backend.model.Event;
 import ru.tbank.bookit.book_it_backend.model.EventStatus;
 import ru.tbank.bookit.book_it_backend.model.ThemeTags;
@@ -46,7 +47,7 @@ public class EventController {
     @GetMapping("{eventId}/status/{userId}")
     public ResponseEntity<EventStatus> getStatusById(@PathVariable UUID eventId, @PathVariable UUID userId){
         Event event = eventService.findById(eventId).orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
+                () -> new ResourceNotFoundException("Event not found"));
         return ResponseEntity.ok(eventService.findStatusById(userId, event));
     }
 
@@ -70,7 +71,7 @@ public class EventController {
     @DeleteMapping("/{eventId}/registrations/{userId}")
     public ResponseEntity<String> removeUserInList(@PathVariable UUID eventId, @PathVariable UUID userId) {
         Event event = eventService.findById(eventId).orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
+                () -> new ResourceNotFoundException("Event not found"));
         eventService.removeUser(userId, event);
         return ResponseEntity.ok("User removed successfully");
     }
