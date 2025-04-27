@@ -16,7 +16,7 @@ import java.util.UUID;
 public class BookingMenuService {
     private final BookingService bookingService;
 
-    public BookingMenuService(BookingService bookingService, BookingConfig bookingConfig, AreaService areaService) {
+    public BookingMenuService(BookingService bookingService) {
         this.bookingService = bookingService;
     }
 

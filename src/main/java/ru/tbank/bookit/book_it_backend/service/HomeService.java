@@ -26,7 +26,7 @@ public class HomeService {
         this.areaService = areaService;
     }
 
-    public String generateUserQrCode(User user) {
+    public byte[] generateUserQrCode(User user) {
         String userData = String.format(
                 "USER:%s:%s:%s",
                 user.getId(),
@@ -46,8 +46,7 @@ public class HomeService {
                     hints);
             ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream();
             MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream);
-            byte[] pngData = pngOutputStream.toByteArray();
-            return "data:image/png;base64," + Base64.getEncoder().encodeToString(pngData);
+            return pngOutputStream.toByteArray();
         } catch (Exception e) {
             throw new RuntimeException("Failed to generate QR code", e);
         }
