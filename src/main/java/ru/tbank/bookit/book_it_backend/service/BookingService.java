@@ -154,7 +154,7 @@ public class BookingService {
     }
 
     @Transactional
-    public Booking createBooking(CreateBookingRequest request) {
+    public Set<Booking> createBooking(CreateBookingRequest request) {
         User user = userRepository.findById(request.getUserId())
                                   .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + request.getUserId()));
 
@@ -171,20 +171,43 @@ public class BookingService {
             }
         }
 
-        Booking booking = new Booking();
-        booking.setUser(user);
-        booking.setArea(area);
+        ArrayList<Pair<LocalDateTime, LocalDateTime>> times =
+                (ArrayList<Pair<LocalDateTime, LocalDateTime>>)request.getTimePeriods().stream().toList();
 
-        Optional<Pair<LocalDateTime, LocalDateTime>> startTime = request.getTimePeriods().stream().min((a, b) -> a.getFirst().compareTo(b.getFirst()));
-        Optional<Pair<LocalDateTime, LocalDateTime>> endTime = request.getTimePeriods().stream().max((a, b) -> a.getSecond().compareTo(b.getSecond()));
-        booking.setStartTime(startTime.get().getFirst());
-        booking.setEndTime(endTime.get().getSecond());
+        times.sort(Comparator.comparing(Pair::getFirst));
+        Stack<Pair<LocalDateTime, LocalDateTime>> stack = new Stack<>();
 
-        booking.setQuantity(request.getQuantity());
-        booking.setStatus(BookingStatus.CONFIRMED);
-        booking.setCreatedAt(LocalDateTime.now());
+        for (Pair<LocalDateTime, LocalDateTime> curr : times) {
+            if (stack.empty() || curr.getFirst().isEqual(stack.peek().getSecond())) {
+                stack.push(curr);
+            }
 
-        return bookingRepository.save(booking);
+            if (stack.peek().getSecond().isBefore(curr.getSecond())) {
+                Pair<LocalDateTime, LocalDateTime> last = stack.pop();
+                stack.push(Pair.of(last.getFirst(), curr.getSecond()));
+            }
+        }
+
+        Set<Booking> result = new HashSet<>(Set.of());
+
+        while (!stack.empty()) {
+            Booking booking = new Booking();
+            booking.setUser(user);
+            booking.setArea(area);
+
+            Pair<LocalDateTime, LocalDateTime> time = stack.pop();
+
+            booking.setStartTime(time.getFirst());
+            booking.setEndTime(time.getSecond());
+
+            booking.setQuantity(request.getQuantity());
+            booking.setStatus(BookingStatus.CONFIRMED);
+            booking.setCreatedAt(LocalDateTime.now());
+
+            result.add(booking);
+        }
+
+        return result;
     }
 
     public List<Booking> getCurrentBookings(UUID userId) {

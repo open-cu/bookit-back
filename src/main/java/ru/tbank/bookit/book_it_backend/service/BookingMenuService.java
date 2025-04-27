@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -28,7 +29,7 @@ public class BookingMenuService {
         return bookingService.findAvailableDates(areaId);
     }
 
-    public Booking createBooking(CreateBookingRequest request) {
+    public Set<Booking> createBooking(CreateBookingRequest request) {
         return bookingService.createBooking(request);
     }
 

@@ -1,7 +1,6 @@
 package ru.tbank.bookit.book_it_backend.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +19,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.Set;
+import java.util.HashSet;
 
 @RestController
 @RequestMapping("/booking-menu")
@@ -78,16 +79,24 @@ public class BookingMenuController {
 
     @Operation(description = "returns information about the created booking, and the method accepts the booking itself, which must be added.")
     @PostMapping("/booking")
-    public ResponseEntity<Booking> createBooking(@RequestBody CreateBookingRequest request) {
-        for (Pair<LocalDateTime, LocalDateTime> t : request.getTimePeriods())
-        if (t.getFirst() == null || t.getSecond() == null ||
-                t.getFirst().isAfter(t.getSecond())) {
-            return ResponseEntity.badRequest().build();
+    public Set<ResponseEntity<Booking>> createBooking(@RequestBody CreateBookingRequest request) {
+        for (Pair<LocalDateTime, LocalDateTime> t : request.getTimePeriods()) {
+            if (t.getFirst().isAfter(t.getSecond())) {
+                HashSet<ResponseEntity<Booking>> res = new HashSet<>();
+                res.add(ResponseEntity.badRequest().build());
+                return res;
+            }
         }
 
-        Booking createdBooking = bookingMenuService.createBooking(request);
-        URI uri = URI.create("/booking-menu/booking/" + createdBooking.getId());
-        return ResponseEntity.created(uri).body(createdBooking);
+        Set<Booking> createdBooking = bookingMenuService.createBooking(request);
+        Set<ResponseEntity<Booking>> result = new HashSet<>();
+
+        for (Booking b : createdBooking) {
+            URI uri = URI.create("/booking-menu/booking/" + b.getId());
+            result.add(ResponseEntity.created(uri).body(b));
+        }
+
+        return result;
     }
 
     @Operation(description = "returns information in the list format in Booking about all bookings")
