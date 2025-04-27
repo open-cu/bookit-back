@@ -33,7 +33,7 @@ public class BookingMenuService {
         return bookingService.createBooking(request);
     }
 
-    public List<Pair<LocalDateTime, LocalDateTime>> findAvailableTime(LocalDate date, Optional<UUID> areaId) {
+    public List<List<Pair<LocalDateTime, LocalDateTime>>> findAvailableTime(LocalDate date, Optional<UUID> areaId) {
         return bookingService.findAvailableTime(date, areaId);
     }
 

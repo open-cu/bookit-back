@@ -42,22 +42,28 @@ public class BookingMenuController {
 
     @Operation(description = "returns information in the list format of String about available time by date")
     @GetMapping("/available-time/{date}")
-    public ResponseEntity<List<String>> findAvailableTimeByDate(
+    public List<ResponseEntity<List<String>>> findAvailableTimeByDate(
             @PathVariable
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam Optional<UUID> areaId) {
 
-        List<Pair<LocalDateTime, LocalDateTime>> times = bookingMenuService.findAvailableTime(date, areaId);
-        List<String> formattedTimes =
-                times.stream()
-                     .map(timePair -> {
-                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-                         String startTime = timePair.getFirst().format(formatter);
-                         String endTime = timePair.getSecond().format(formatter);
-                         return startTime + "-" + endTime;
-                     })
-                     .toList();
-        return ResponseEntity.ok(formattedTimes);
+        List<List<Pair<LocalDateTime, LocalDateTime>>> times = bookingMenuService.findAvailableTime(date, areaId);
+        List<ResponseEntity<List<String>>> result = new ArrayList<>();
+
+        for (List<Pair<LocalDateTime, LocalDateTime>> l : times) {
+            List<String> formattedTimes =
+                    l.stream()
+                            .map(timePair -> {
+                                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+                                String startTime = timePair.getFirst().format(formatter);
+                                String endTime = timePair.getSecond().format(formatter);
+                                return startTime + "-" + endTime;
+                            })
+                            .toList();
+            result.addLast(ResponseEntity.ok(formattedTimes));
+        }
+
+        return result;
     }
 
     @Operation(description = "returns information in the list format of String about available area on date")

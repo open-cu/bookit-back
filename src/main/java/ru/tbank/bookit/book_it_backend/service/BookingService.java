@@ -103,7 +103,7 @@ public class BookingService {
         return availableDates;
     }
 
-    private void addFreeTimes(List<Pair<LocalDateTime, LocalDateTime>> availableTime, LocalDate date, List<Booking> bookings)
+    private void addFreeTimes(List<List<Pair<LocalDateTime, LocalDateTime>>> availableTime, LocalDate date, List<Booking> bookings)
     {
         for (long i = bookingConfig.getStartWork(); i < bookingConfig.getEndWork(); ++i) {
             LocalDateTime currHour = date.atTime((int) i, 0);
@@ -111,15 +111,20 @@ public class BookingService {
             if (bookings.stream().noneMatch(b -> currHour.isBefore(b.getEndTime()) &&
                     nextHour.isAfter(b.getStartTime()))) {
                 Pair<LocalDateTime, LocalDateTime> pair = Pair.of(currHour, nextHour);
-                if (!availableTime.contains(pair)) {
-                    availableTime.addLast(pair);
+                List<Pair<LocalDateTime, LocalDateTime>> addList = pair.getFirst().getHour() < 12 ? availableTime.get(0) : pair.getFirst().getHour() < 18 ? availableTime.get(1) : availableTime.get(2);
+                if (!addList.contains(pair)) {
+                    addList.addLast(pair);
                 }
             }
         }
     }
 
-    public List<Pair<LocalDateTime, LocalDateTime>> findAvailableTime(LocalDate date, Optional<UUID> areaId) {
-        List<Pair<LocalDateTime, LocalDateTime>> availableTime = new ArrayList<>();
+    public List<List<Pair<LocalDateTime, LocalDateTime>>> findAvailableTime(LocalDate date, Optional<UUID> areaId) {
+        List<List<Pair<LocalDateTime, LocalDateTime>>> availableTime = new ArrayList<>();
+        availableTime.addLast(new ArrayList<>());
+        availableTime.addLast(new ArrayList<>());
+        availableTime.addLast(new ArrayList<>());
+
         if (areaId.isPresent()) {
             List<Booking> bookings = bookingRepository.findByDateAndArea(date, areaId.get());
             addFreeTimes(availableTime, date, bookings);
@@ -132,7 +137,11 @@ public class BookingService {
                 addFreeTimes(availableTime, date, bookings);
             }
         }
-        availableTime.sort(Comparator.comparing(Pair::getFirst));
+
+        for (List<Pair<LocalDateTime, LocalDateTime>> l : availableTime) {
+            l.sort(Comparator.comparing(Pair::getFirst));
+        }
+
         return availableTime;
     }
 
