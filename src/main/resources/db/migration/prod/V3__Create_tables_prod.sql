@@ -85,6 +85,15 @@ CREATE TABLE "Events"(
 );
 ALTER TABLE
     "Events" ADD PRIMARY KEY("id");
+CREATE TABLE "Event_Users" (
+                               "event_id" BIGINT NOT NULL,
+                               "user_id" BIGINT NOT NULL,
+                               PRIMARY KEY ("event_id", "user_id"),
+                               CONSTRAINT "event_users_event_id_fkey" FOREIGN KEY ("event_id") REFERENCES "Events"("id") ON DELETE CASCADE,
+                               CONSTRAINT "event_users_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "Users"("id") ON DELETE CASCADE
+);
+CREATE INDEX "event_users_event_id_idx" ON "Event_Users"("event_id");
+CREATE INDEX "event_users_user_id_idx" ON "Event_Users"("user_id");
 CREATE TABLE "Hall_Occupancy"(
                                  "date_time" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
                                  "reserved_places" BIGINT NOT NULL
