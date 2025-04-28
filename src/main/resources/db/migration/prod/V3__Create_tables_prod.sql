@@ -81,7 +81,10 @@ CREATE TABLE "Events"(
                          "id" BIGINT NOT NULL,
                          "name" VARCHAR(255) NOT NULL,
                          "description" TEXT NOT NULL,
-                         "date" DATE NOT NULL
+                         "date" DATE NOT NULL,
+                         "tags" VARCHAR(255) CHECK
+                             ("tags" IN('')) NULL,
+                         "available_places" INT NOT NULL
 );
 ALTER TABLE
     "Events" ADD PRIMARY KEY("id");
