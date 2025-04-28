@@ -155,22 +155,22 @@ public class BookingService {
 
     @Transactional
     public Booking createBooking(CreateBookingRequest request) {
-        User user = userRepository.findById(request.getUserId())
-                                  .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + request.getUserId()));
+        User user = userRepository.findById(request.userId())
+                                  .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + request.userId()));
 
-        Area area = areaRepository.findById(request.getAreaId())
-                                  .orElseThrow(() -> new EntityNotFoundException("Area not found with id: " + request.getAreaId()));
+        Area area = areaRepository.findById(request.areaId())
+                                  .orElseThrow(() -> new EntityNotFoundException("Area not found with id: " + request.areaId()));
 
-        if (!isAreaAvailable(area, request.getStartTime(), request.getEndTime())) {
+        if (!isAreaAvailable(area, request.startTime(), request.endTime())) {
             throw new IllegalStateException("Area is already booked for this time slot");
         }
 
         Booking booking = new Booking();
         booking.setUser(user);
         booking.setArea(area);
-        booking.setStartTime(request.getStartTime());
-        booking.setEndTime(request.getEndTime());
-        booking.setQuantity(request.getQuantity());
+        booking.setStartTime(request.startTime());
+        booking.setEndTime(request.endTime());
+        booking.setQuantity(request.quantity());
         booking.setStatus(BookingStatus.CONFIRMED);
         booking.setCreatedAt(LocalDateTime.now());
 
