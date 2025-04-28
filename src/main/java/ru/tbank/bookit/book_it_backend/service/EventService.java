@@ -2,6 +2,8 @@ package ru.tbank.bookit.book_it_backend.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+import ru.tbank.bookit.book_it_backend.DTO.EventResponse;
+import ru.tbank.bookit.book_it_backend.mapper.EventMapper;
 import ru.tbank.bookit.book_it_backend.model.Event;
 import ru.tbank.bookit.book_it_backend.model.EventStatus;
 import ru.tbank.bookit.book_it_backend.model.ThemeTags;
@@ -16,22 +18,24 @@ import java.util.stream.Collectors;
 public class EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
+    private final EventMapper eventMapper;
 
-    public EventService(EventRepository eventRepository, UserRepository userRepository) {
+    public EventService(EventRepository eventRepository, UserRepository userRepository, EventMapper eventMapper) {
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
+        this.eventMapper = eventMapper;
     }
 
     public Optional<Event> findById(UUID eventId) {
         return eventRepository.findById(eventId);
     }
 
-    public List<Event> findAll() {
-        return eventRepository.findAll();
+    public List<EventResponse> findAll() {
+        return eventMapper.toEventResponseList(eventRepository.findAll());
     }
 
-    public List<Event> findByTags(Set<ThemeTags> tags){
-        return eventRepository.findByTagsIn(tags);
+    public List<EventResponse> findByTags(Set<ThemeTags> tags){
+        return eventMapper.toEventResponseList(eventRepository.findByTagsIn(tags));
     }
 
     public EventStatus findStatusById(UUID userId, Event event){
