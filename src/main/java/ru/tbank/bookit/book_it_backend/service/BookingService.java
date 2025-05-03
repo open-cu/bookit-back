@@ -38,7 +38,7 @@ public class BookingService {
     }
 
     public Optional<Booking> findBooking(UUID bookingId) {
-        return bookingRepository.findByUserId(bookingId);
+        return bookingRepository.findById(bookingId);
     }
 
     public List<LocalDate> findAvailableDates(Optional<UUID> areaId) {
@@ -251,6 +251,38 @@ public class BookingService {
             }
         };
         return bookingList.stream().filter(booking -> booking.getStatus() != BookingStatus.CANCELED).toList();
+    }
+
+    @Transactional
+    public Booking updateBooking(UUID bookingId, UUID areaId, LocalDateTime startTime, LocalDateTime endTime) {
+        Booking booking = bookingRepository.findById(bookingId)
+                                           .orElseThrow(() -> new EntityNotFoundException("Booking not found with id: " + bookingId));
+
+        if (booking.getStatus() == BookingStatus.CANCELED || booking.getStatus() == BookingStatus.COMPLETED) {
+            throw new IllegalStateException("Unable to update " + booking.getStatus() + " booking");
+        }
+
+        boolean sameArea = booking.getAreaId().equals(areaId);
+        boolean sameTime = booking.getStartTime().equals(startTime) && booking.getEndTime().equals(endTime);
+
+        if (sameArea && sameTime) {
+            return booking;
+        }
+
+        Area area = !sameArea
+                ? areaRepository.findById(areaId)
+                                .orElseThrow(() -> new EntityNotFoundException("Area not found id: " + areaId))
+                : booking.getArea();
+
+        if (!sameArea) {
+            booking.setArea(area);
+        }
+        if (!sameTime) {
+            booking.setStartTime(startTime);
+            booking.setEndTime(endTime);
+        }
+
+        return bookingRepository.save(booking);
     }
 
     public List<Booking> findAll() {

@@ -49,9 +49,9 @@ public class BookingDataInitializer implements ApplicationRunner {
 
         User aliceJohnson = userRepository.findByName("Alice Johnson");
 
-        Booking booking1 = createBooking(aliceJohnson, areas.getFirst(), Month.APRIL, 14);
-        Booking booking2 = createBooking(aliceJohnson, areas.getLast(), Month.APRIL, 14);
-        Booking booking3 = createBooking(aliceJohnson, areas.get(1), Month.APRIL, 14);
+        Booking booking1 = createBooking(aliceJohnson, areas.getFirst(), Month.MAY, 14);
+        Booking booking2 = createBooking(aliceJohnson, areas.getLast(), Month.MAY, 14);
+        Booking booking3 = createBooking(aliceJohnson, areas.get(1), Month.MAY, 14);
 
 
         Booking booking4 = createBooking(aliceJohnson, areas.getFirst(), Month.JANUARY, 23);
