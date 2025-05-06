@@ -311,4 +311,26 @@ public class BookingService {
 
         return availableAreas;
     }
+
+    public Set<Pair<LocalDateTime, LocalDateTime>> findClosestAvailableDates(UUID areaId) {
+        Optional<LocalDate> closestDate = findAvailableDates(Optional.ofNullable(areaId)).stream().min(LocalDate::compareTo);
+        if (closestDate.isEmpty()) {
+            return Set.of();
+        }
+        List<Booking> bookings = bookingRepository.findByDate(closestDate.get());
+        bookings.sort(Comparator.comparing(Booking::getStartTime));
+        LocalDateTime searchTime =
+                closestDate.get().isEqual(LocalDate.now()) ?
+                        LocalDate.now().atTime(LocalDateTime.now().getHour(), 0) :
+                        LocalDate.now().atTime((int)bookingConfig.getStartWork(), 0);
+        int i = 0;
+        while (!bookings.get(i).getStartTime().isAfter(searchTime)) {
+            i++;
+        }
+        Set<Pair<LocalDateTime, LocalDateTime>> result = new HashSet<>();
+        while (result.size() < 4 && i < bookings.size() - 1) {
+            result.add(Pair.of(bookings.get(i).getEndTime(), bookings.get(i + 1).getStartTime()));
+        }
+        return result;
+    }
 }
