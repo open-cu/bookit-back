@@ -24,6 +24,9 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
     @Query("SELECT b FROM Booking b WHERE b.startTime = ?1")
     List<Booking> findByStartDatetime(LocalDateTime date);
 
+    @Query("SELECT b FROM Booking b WHERE b.startTime <= ?1 AND ?1 < b.endTime")
+    List<Booking> findByDatetime(LocalDateTime date);
+
     @Query("SELECT b FROM Booking b WHERE CAST(b.startTime AS DATE) = ?1 AND b.area.id = :areaId")
     List<Booking> findByDateAndArea(LocalDate date, @Param("areaId") UUID areaId);
 

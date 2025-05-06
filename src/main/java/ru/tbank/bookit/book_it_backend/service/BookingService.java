@@ -303,7 +303,7 @@ public class BookingService {
         List<UUID> availableAreas = areaRepository.findAll().stream()
                                                   .map(b -> b.getId())
                                                   .toList();
-        List<Booking> bookings = findByStartDatetime(time);
+        List<Booking> bookings = bookingRepository.findByDatetime(time);
 
         for (Booking b : bookings) {
             availableAreas.remove(b.getAreaId());
