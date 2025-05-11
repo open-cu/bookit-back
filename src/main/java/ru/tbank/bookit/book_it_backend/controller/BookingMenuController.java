@@ -62,6 +62,15 @@ public class BookingMenuController {
         return result;
     }
 
+    @Operation(description = "returns information in the list format of String about available time by date")
+    @GetMapping("/closest-available-time/{areaId}")
+    public Set<Pair<LocalDateTime, LocalDateTime>> findAvailableTimeByDate(
+            @PathVariable
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam UUID areaId) {
+        return bookingMenuService.findClosestAvailableTimes(areaId);
+    }
+
     @Operation(description = "returns information in the list format of String about available area on date")
     @GetMapping("/available-areas")
     public ResponseEntity<List<UUID>> findAvailableAreas(

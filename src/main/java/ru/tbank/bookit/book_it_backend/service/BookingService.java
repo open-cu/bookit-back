@@ -326,7 +326,7 @@ public class BookingService {
         return true;
     }
 
-    public Set<Pair<LocalDateTime, LocalDateTime>> findClosestAvailableDates(UUID areaId) {
+    public Set<Pair<LocalDateTime, LocalDateTime>> findClosestAvailableTimes(UUID areaId) {
         Optional<LocalDate> closestDate = findAvailableDates(Optional.ofNullable(areaId)).stream().min(LocalDate::compareTo);
         if (closestDate.isEmpty()) {
             return Set.of();
