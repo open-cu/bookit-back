@@ -2,6 +2,7 @@ package ru.tbank.bookit.book_it_backend.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -312,6 +313,19 @@ public class BookingService {
         return availableAreas;
     }
 
+    private boolean contains(Pair<LocalDateTime, LocalDateTime> period, LocalDateTime value) {
+        return !value.isBefore(period.getFirst()) && value.isBefore(period.getSecond());
+    }
+
+    private boolean isFree(List<Booking> bookings, LocalDateTime value) {
+        for (Booking b : bookings) {
+            if (contains(Pair.of(b.getStartTime(), b.getEndTime()), value)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public Set<Pair<LocalDateTime, LocalDateTime>> findClosestAvailableDates(UUID areaId) {
         Optional<LocalDate> closestDate = findAvailableDates(Optional.ofNullable(areaId)).stream().min(LocalDate::compareTo);
         if (closestDate.isEmpty()) {
@@ -321,15 +335,13 @@ public class BookingService {
         bookings.sort(Comparator.comparing(Booking::getStartTime));
         LocalDateTime searchTime =
                 closestDate.get().isEqual(LocalDate.now()) ?
-                        LocalDate.now().atTime(LocalDateTime.now().getHour(), 0) :
+                        LocalDate.now().atTime(LocalDateTime.now().getHour() + 1, 0) :
                         LocalDate.now().atTime((int)bookingConfig.getStartWork(), 0);
-        int i = 0;
-        while (!bookings.get(i).getStartTime().isAfter(searchTime)) {
-            i++;
-        }
         Set<Pair<LocalDateTime, LocalDateTime>> result = new HashSet<>();
-        while (result.size() < 4 && i < bookings.size() - 1) {
-            result.add(Pair.of(bookings.get(i).getEndTime(), bookings.get(i + 1).getStartTime()));
+        for (LocalDateTime s = searchTime; s.getHour() < (int)bookingConfig.getEndWork(); s = s.plusHours(1)) {
+            if (isFree(bookings, s)) {
+                result.add(Pair.of(s, s.plusHours(1)));
+            }
         }
         return result;
     }
