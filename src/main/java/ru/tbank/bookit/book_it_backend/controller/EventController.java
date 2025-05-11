@@ -7,12 +7,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import ru.tbank.bookit.book_it_backend.DTO.CreateEventRequest;
 import ru.tbank.bookit.book_it_backend.exception.ResourceNotFoundException;
 import ru.tbank.bookit.book_it_backend.model.Event;
 import ru.tbank.bookit.book_it_backend.model.EventStatus;
 import ru.tbank.bookit.book_it_backend.model.ThemeTags;
 import ru.tbank.bookit.book_it_backend.repository.EventRepository;
 import ru.tbank.bookit.book_it_backend.service.EventService;
+
+import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -60,11 +64,40 @@ public class EventController {
         return ResponseEntity.ok(event);
     }
 
-    @Operation(description = "returns information about the created event")
+//    @Operation(description = "returns information about the created event")
+//    @PostMapping("/event")
+//    public ResponseEntity<Event> createEvent(@RequestBody Event event) {
+//        eventRepository.save(event);
+//        return ResponseEntity.status(HttpStatus.CREATED).body(event);
+//    }
+
+    @Operation(description = "Creates a new event and returns its details")
     @PostMapping("/event")
-    public ResponseEntity<Event> createEvent(@RequestBody Event event) {
-        eventRepository.save(event);
-        return ResponseEntity.status(HttpStatus.CREATED).body(event);
+    public ResponseEntity<Event> createEvent(@RequestBody CreateEventRequest request) {
+
+        if (request.getName() == null || request.getDescription() == null ||
+                request.getDate() == null || request.getAvailable_places() <= 0) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        if (request.getDate().isBefore(LocalDateTime.now())) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        try {
+            Event createdEvent = eventService.createEvent(request);
+            URI uri = URI.create("/events/" + createdEvent.getId());
+            return ResponseEntity.created(uri).body(createdEvent);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @Operation(description = "returns information about the deleted event on String")
+    @DeleteMapping("/event/{eventId}")
+    public ResponseEntity<String> deleteEvent(@PathVariable UUID bookingId) {
+        eventService.deleteEvent(bookingId);
+        return ResponseEntity.ok("Event canceled successfully");
     }
 
     @Operation(description = "Deletes the user from the guest list for the event, returns a string about the success of the deletion")

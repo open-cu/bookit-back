@@ -1,11 +1,16 @@
 package ru.tbank.bookit.book_it_backend.service;
-
+import java.util.function.Consumer;
+import java.util.Objects;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.tbank.bookit.book_it_backend.DTO.CreateEventRequest;
 import ru.tbank.bookit.book_it_backend.model.Event;
 import ru.tbank.bookit.book_it_backend.model.EventStatus;
 import ru.tbank.bookit.book_it_backend.model.ThemeTags;
 import ru.tbank.bookit.book_it_backend.repository.EventRepository;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,6 +32,10 @@ public class EventService {
 
     public List<Event> findByTags(Set<ThemeTags> tags){
         return eventRepository.findByTagsIn(tags);
+    }
+
+    public void deleteEvent(UUID eventId) {
+        eventRepository.deleteById(eventId);
     }
 
     public EventStatus findStatusById(UUID userId, Event event){
@@ -67,4 +76,59 @@ public class EventService {
         event.setAvailable_places(event.getAvailable_places() + 1);
         eventRepository.save(event);
     }
+
+    @Transactional
+    public Event createEvent(CreateEventRequest request) {
+        if (request.getDate().isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("Event date must be in the future");
+        }
+
+        if (request.getAvailable_places() <= 0) {
+            throw new IllegalStateException("Available places must be greater than 0");
+        }
+
+        Event event = new Event();
+        event.setName(request.getName());
+        event.setDescription(request.getDescription());
+        event.setTags(request.getTags());
+        event.setDate(request.getDate());
+        event.setAvailable_places(request.getAvailable_places());
+        event.setUser_list("");
+
+        return eventRepository.save(event);
+    }
+
+    @Transactional
+    public Event updateEvent(UUID eventId, String name, String description,
+                             Set<ThemeTags> tags, LocalDateTime date,
+                             int availablePlaces) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
+
+        validateEventUpdate(event, date);
+
+        updateIfChanged(event::setName, event.getName(), name);
+        updateIfChanged(event::setDescription, event.getDescription(), description);
+        updateIfChanged(event::setTags, event.getTags(), tags);
+        updateIfChanged(event::setDate, event.getDate(), date);
+        updateIfChanged(event::setAvailable_places, event.getAvailable_places(), availablePlaces);
+
+        return eventRepository.save(event);
+    }
+
+    private <T> void updateIfChanged(Consumer<T> setter, T oldValue, T newValue) {
+        if (!Objects.equals(oldValue, newValue)) {
+            setter.accept(newValue);
+        }
+    }
+
+    private void validateEventUpdate(Event event, LocalDateTime newDate) {
+        if (event.getDate().isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("Cannot update past event");
+        }
+        if (newDate.isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("New event date must be in the future");
+        }
+    }
+
 }
