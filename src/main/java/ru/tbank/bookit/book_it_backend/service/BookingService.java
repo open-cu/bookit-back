@@ -127,6 +127,10 @@ public class BookingService {
         availableTime.addLast(new ArrayList<>());
         availableTime.addLast(new ArrayList<>());
 
+        if (date.isBefore(LocalDate.now())) {
+            return availableTime;
+        }
+
         if (areaId.isPresent()) {
             List<Booking> bookings = bookingRepository.findByDateAndArea(date, areaId.get());
             addFreeTimes(availableTime, date, bookings);
@@ -315,7 +319,7 @@ public class BookingService {
     }
 
     public Set<Pair<LocalDateTime, LocalDateTime>> findClosestAvailableTimes(UUID areaId) {
-        LocalDate currDate = LocalDateTime.now().toLocalDate();
+        LocalDate currDate = LocalDate.now();
         List<List<Pair<LocalDateTime, LocalDateTime>>> times = List.of();
         while (times.isEmpty()) {
             times = findAvailableTime(currDate, Optional.ofNullable(areaId));
