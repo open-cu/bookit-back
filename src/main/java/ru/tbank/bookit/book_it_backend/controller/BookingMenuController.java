@@ -137,6 +137,13 @@ public class BookingMenuController {
         return ResponseEntity.ok(bookings);
     }
 
+    @Operation(description = "cancellation of the booking, returns a string about the success of the deletion")
+    @DeleteMapping("/booking/{bookingId}")
+    public ResponseEntity<String> deleteBooking(@PathVariable UUID bookingId) {
+        bookingMenuService.deleteBooking(bookingId);
+        return ResponseEntity.ok("Booking canceled successfully");
+    }
+
     @Operation(description = "create area and returns this area")
     @PostMapping("/area")
     public ResponseEntity<Area> createArea(@RequestBody Area area) {

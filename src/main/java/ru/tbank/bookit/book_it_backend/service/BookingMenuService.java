@@ -40,6 +40,10 @@ public class BookingMenuService {
         return bookingService.findAvailableTime(date, areaId);
     }
 
+    public void deleteBooking(UUID bookingId) {
+        bookingService.cancelBooking(bookingId);
+    }
+
     public List<Booking> findAll() {
         return bookingService.findAll();
     }
