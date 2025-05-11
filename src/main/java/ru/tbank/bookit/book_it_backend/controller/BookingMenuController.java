@@ -36,38 +36,33 @@ public class BookingMenuController {
     }
 
 
-    @Operation(description = "returns information in the list format of String about available time by date")
+    @Operation(description = "returns list of available time by date separated by ; (start_time;end_time)")
     @GetMapping("/available-time/{date}")
-    public List<ResponseEntity<List<String>>> findAvailableTimeByDate(
+    public ResponseEntity<List<List<String>>> findAvailableTimeByDate(
             @PathVariable
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam Optional<UUID> areaId) {
 
         List<List<Pair<LocalDateTime, LocalDateTime>>> times = bookingMenuService.findAvailableTime(date, areaId);
-        List<ResponseEntity<List<String>>> result = new ArrayList<>();
+        List<List<String>> result = new ArrayList<>();
 
         for (List<Pair<LocalDateTime, LocalDateTime>> l : times) {
             List<String> formattedTimes =
                     l.stream()
                             .map(timePair -> {
-                                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-                                String startTime = timePair.getFirst().format(formatter);
-                                String endTime = timePair.getSecond().format(formatter);
-                                return startTime + "-" + endTime;
+                                return timePair.getFirst() + ";" + timePair.getSecond();
                             })
                             .toList();
-            result.addLast(ResponseEntity.ok(formattedTimes));
+            result.addLast(formattedTimes);
         }
 
-        return result;
+        return ResponseEntity.ok(result);
     }
 
     @Operation(description = "returns information in the list format of String about available time by date")
     @GetMapping("/closest-available-time/{areaId}")
     public Set<Pair<LocalDateTime, LocalDateTime>> findAvailableTimeByDate(
-            @PathVariable
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam UUID areaId) {
+            @PathVariable UUID areaId) {
         return bookingMenuService.findClosestAvailableTimes(areaId);
     }
 
