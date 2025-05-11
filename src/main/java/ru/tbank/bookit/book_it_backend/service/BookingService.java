@@ -113,7 +113,8 @@ public class BookingService {
                     nextHour.isAfter(b.getStartTime()))) {
                 Pair<LocalDateTime, LocalDateTime> pair = Pair.of(currHour, nextHour);
                 List<Pair<LocalDateTime, LocalDateTime>> addList = pair.getFirst().getHour() < 12 ? availableTime.get(0) : pair.getFirst().getHour() < 18 ? availableTime.get(1) : availableTime.get(2);
-                if (!addList.contains(pair)) {
+                LocalDateTime now = LocalDateTime.now();
+                if (!addList.contains(pair) && now.getHour() <= pair.getFirst().getHour()) {
                     addList.addLast(pair);
                 }
             }
@@ -313,34 +314,20 @@ public class BookingService {
         return availableAreas;
     }
 
-    private boolean contains(Pair<LocalDateTime, LocalDateTime> period, LocalDateTime value) {
-        return !value.isBefore(period.getFirst()) && value.isBefore(period.getSecond());
-    }
-
-    private boolean isFree(List<Booking> bookings, LocalDateTime value) {
-        for (Booking b : bookings) {
-            if (contains(Pair.of(b.getStartTime(), b.getEndTime()), value)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     public Set<Pair<LocalDateTime, LocalDateTime>> findClosestAvailableTimes(UUID areaId) {
-        Optional<LocalDate> closestDate = findAvailableDates(Optional.ofNullable(areaId)).stream().min(LocalDate::compareTo);
-        if (closestDate.isEmpty()) {
-            return Set.of();
+        LocalDate currDate = LocalDateTime.now().toLocalDate();
+        List<List<Pair<LocalDateTime, LocalDateTime>>> times = List.of();
+        while (times.isEmpty()) {
+            times = findAvailableTime(currDate, Optional.ofNullable(areaId));
+            currDate.plusDays(1);
         }
-        List<Booking> bookings = bookingRepository.findByDate(closestDate.get());
-        bookings.sort(Comparator.comparing(Booking::getStartTime));
-        LocalDateTime searchTime =
-                closestDate.get().isEqual(LocalDate.now()) ?
-                        LocalDate.now().atTime(LocalDateTime.now().getHour() + 1, 0) :
-                        LocalDate.now().atTime((int)bookingConfig.getStartWork(), 0);
         Set<Pair<LocalDateTime, LocalDateTime>> result = new HashSet<>();
-        for (LocalDateTime s = searchTime; s.getHour() < (int)bookingConfig.getEndWork(); s = s.plusHours(1)) {
-            if (isFree(bookings, s)) {
-                result.add(Pair.of(s, s.plusHours(1)));
+        for (List<Pair<LocalDateTime, LocalDateTime>> l : times) {
+            for (Pair<LocalDateTime, LocalDateTime> p : l) {
+                if (result.size() >= 4) {
+                    break;
+                }
+                result.add(p);
             }
         }
         return result;

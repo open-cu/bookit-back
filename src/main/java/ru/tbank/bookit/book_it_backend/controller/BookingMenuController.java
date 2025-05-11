@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/booking-menu")
@@ -61,9 +62,11 @@ public class BookingMenuController {
 
     @Operation(description = "returns information in the list format of String about available time by date")
     @GetMapping("/closest-available-time/{areaId}")
-    public Set<Pair<LocalDateTime, LocalDateTime>> findAvailableTimeByDate(
+    public Set<String> findAvailableTimeByDate(
             @PathVariable UUID areaId) {
-        return bookingMenuService.findClosestAvailableTimes(areaId);
+        return bookingMenuService.findClosestAvailableTimes(areaId).stream().map(timePair -> {
+            return timePair.getFirst() + ";" + timePair.getSecond();
+        }).collect(Collectors.toCollection(TreeSet::new));
     }
 
     @Operation(description = "returns information in the list format of String about available area on date")
