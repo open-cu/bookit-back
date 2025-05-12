@@ -1,6 +1,9 @@
 package ru.tbank.bookit.book_it_backend.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.util.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -8,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.tbank.bookit.book_it_backend.DTO.CreateBookingRequest;
 import ru.tbank.bookit.book_it_backend.DTO.UpdateBookingRequest;
+import ru.tbank.bookit.book_it_backend.exception.ApiError;
 import ru.tbank.bookit.book_it_backend.model.Area;
 import ru.tbank.bookit.book_it_backend.model.AreaStatus;
 import ru.tbank.bookit.book_it_backend.model.Booking;
@@ -71,7 +75,6 @@ public class BookingMenuController {
         }).collect(Collectors.toCollection(TreeSet::new));
     }
 
-    @Operation(description = "returns information in the list format of String about available area on date")
     @GetMapping("/available-areas")
     @io.swagger.v3.oas.annotations.Operation(
             summary = "returns information in the list format of UUID about available area on date",
