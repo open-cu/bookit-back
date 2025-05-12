@@ -37,9 +37,9 @@ public class EventController {
 
     @Operation(description = "Returns information in list format about all events for a specific tag")
     @GetMapping("/by-tags")
-    public ResponseEntity<List<EventResponse>> getAllEventsByTags(
+    public ResponseEntity<List<Event>> getAllEventsByTags(
             @RequestParam Set<ThemeTags> tags) {
-        List<EventResponse> event = eventService.findByTags(tags);
+        List<Event> event = eventService.findByTags(tags);
         return ResponseEntity.ok(event);
     }
 
@@ -47,7 +47,7 @@ public class EventController {
     @GetMapping("{eventId}/status/{userId}")
     public ResponseEntity<EventStatus> getStatusById(@PathVariable UUID eventId, @PathVariable UUID userId){
         Event event = eventService.findById(eventId).orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
+                () -> new ResourceNotFoundException("Event not found"));
         return ResponseEntity.ok(eventService.findStatusById(userId, event));
     }
 
@@ -71,7 +71,7 @@ public class EventController {
     @DeleteMapping("/{eventId}/registrations/{userId}")
     public ResponseEntity<String> removeUserInList(@PathVariable UUID eventId, @PathVariable UUID userId) {
         Event event = eventService.findById(eventId).orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
+                () -> new ResourceNotFoundException("Event not found"));
         eventService.removeUser(userId, event);
         return ResponseEntity.ok("User removed successfully");
     }
