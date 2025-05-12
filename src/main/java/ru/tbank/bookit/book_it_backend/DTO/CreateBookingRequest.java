@@ -9,12 +9,8 @@ import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
-@Getter
-@Setter
-@AllArgsConstructor
-public class CreateBookingRequest {
-    private UUID userId;
-    private UUID areaId;
-    private Set<Pair<LocalDateTime, LocalDateTime>> timePeriods;
-    private int quantity;
-}
+public record CreateBookingRequest(
+        UUID userId,
+        UUID areaId,
+        Set<Pair<LocalDateTime, LocalDateTime>> timePeriods,
+        int quantity) {}

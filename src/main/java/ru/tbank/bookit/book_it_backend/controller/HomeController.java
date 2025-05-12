@@ -2,7 +2,9 @@ package ru.tbank.bookit.book_it_backend.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -24,13 +26,17 @@ public class HomeController {
 
     @Operation(description = "returns QR code in string format")
     @GetMapping("/qr")
-    public ResponseEntity<?> getUserQrCode(@RequestParam UUID userId) {
+    public ResponseEntity<byte[]> getUserQrCode(@RequestParam UUID userId) {
         User user = homeService.findUserById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         try {
-            String qrContent = homeService.generateUserQrCode(user);
-            return ResponseEntity.ok(qrContent);
+            byte[] qrPng = homeService.generateUserQrCode(user);
+            return ResponseEntity.ok()
+                                 .header(HttpHeaders.CONTENT_DISPOSITION,
+                                         "inline; filename=\"user-" + userId + "-qr.png\"")
+                                 .contentType(MediaType.IMAGE_PNG)
+                                 .body(qrPng);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to generate QR code", e);
         }

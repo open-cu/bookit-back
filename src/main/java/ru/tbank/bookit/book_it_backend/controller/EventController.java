@@ -1,12 +1,11 @@
 package ru.tbank.bookit.book_it_backend.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import ru.tbank.bookit.book_it_backend.DTO.EventResponse;
 import ru.tbank.bookit.book_it_backend.exception.ResourceNotFoundException;
 import ru.tbank.bookit.book_it_backend.model.Event;
 import ru.tbank.bookit.book_it_backend.model.EventStatus;
@@ -30,16 +29,16 @@ public class EventController {
 
     @Operation(description = "Returns information in the list format about all events")
     @GetMapping()
-    public ResponseEntity<List<Event>> getAllEvents() {
-        List<Event> event = eventService.findAll();
+    public ResponseEntity<List<EventResponse>> getAllEvents() {
+        List<EventResponse> event = eventService.findAll();
         return ResponseEntity.ok(event);
     }
 
     @Operation(description = "Returns information in list format about all events for a specific tag")
     @GetMapping("/by-tags")
-    public ResponseEntity<List<Event>> getAllEventsByTags(
+    public ResponseEntity<List<EventResponse>> getAllEventsByTags(
             @RequestParam Set<ThemeTags> tags) {
-        List<Event> event = eventService.findByTags(tags);
+        List<EventResponse> event = eventService.findByTags(tags);
         return ResponseEntity.ok(event);
     }
 
