@@ -4,14 +4,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.util.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.tbank.bookit.book_it_backend.DTO.CreateBookingRequest;
-import ru.tbank.bookit.book_it_backend.exception.ApiError;
-import ru.tbank.bookit.book_it_backend.DTO.UpdateBookingRequest;
 import ru.tbank.bookit.book_it_backend.exception.ApiError;
 import ru.tbank.bookit.book_it_backend.model.Area;
 import ru.tbank.bookit.book_it_backend.model.AreaStatus;
@@ -23,9 +20,8 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/booking-menu")
@@ -103,7 +99,7 @@ public class BookingMenuController {
     @Operation(description = "returns information about the created booking, and the method accepts the booking itself, which must be added.")
     @PostMapping("/booking")
     public Set<ResponseEntity<Booking>> createBooking(@RequestBody CreateBookingRequest request) {
-        for (Pair<LocalDateTime, LocalDateTime> t : request.getTimePeriods()) {
+        for (Pair<LocalDateTime, LocalDateTime> t : request.timePeriods()) {
             if (t.getFirst().isAfter(t.getSecond())) {
                 HashSet<ResponseEntity<Booking>> res = new HashSet<>();
                 res.add(ResponseEntity.badRequest().build());

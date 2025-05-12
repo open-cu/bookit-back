@@ -170,24 +170,24 @@ public class BookingService {
 
     @Transactional
     public Set<Booking> createBooking(CreateBookingRequest request) {
-        User user = userRepository.findById(request.getUserId())
-                                  .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + request.getUserId()));
+        User user = userRepository.findById(request.userId())
+                                  .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + request.userId()));
 
-        Area area = areaRepository.findById(request.getAreaId())
-                                  .orElseThrow(() -> new EntityNotFoundException("Area not found with id: " + request.getAreaId()));
+        Area area = areaRepository.findById(request.areaId())
+                                  .orElseThrow(() -> new EntityNotFoundException("Area not found with id: " + request.areaId()));
 
-        if (request.getTimePeriods().isEmpty()) {
+        if (request.timePeriods().isEmpty()) {
             throw new IllegalStateException("There are no chosen time periods");
         }
 
-        for (Pair<LocalDateTime, LocalDateTime> t : request.getTimePeriods()) {
+        for (Pair<LocalDateTime, LocalDateTime> t : request.timePeriods()) {
             if (!isAreaAvailable(area, t.getFirst(), t.getSecond())) {
                 throw new IllegalStateException("Area is already booked for this time slot");
             }
         }
 
         ArrayList<Pair<LocalDateTime, LocalDateTime>> times =
-                (ArrayList<Pair<LocalDateTime, LocalDateTime>>)request.getTimePeriods().stream().toList();
+                (ArrayList<Pair<LocalDateTime, LocalDateTime>>)request.timePeriods().stream().toList();
 
         times.sort(Comparator.comparing(Pair::getFirst));
         Stack<Pair<LocalDateTime, LocalDateTime>> stack = new Stack<>();
@@ -215,7 +215,7 @@ public class BookingService {
             booking.setStartTime(time.getFirst());
             booking.setEndTime(time.getSecond());
 
-            booking.setQuantity(request.getQuantity());
+            booking.setQuantity(request.quantity());
             booking.setStatus(BookingStatus.CONFIRMED);
             booking.setCreatedAt(LocalDateTime.now());
 
