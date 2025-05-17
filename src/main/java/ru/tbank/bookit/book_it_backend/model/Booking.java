@@ -25,6 +25,7 @@ public class Booking {
     @JsonIgnore
     private User user;
 
+    //ORM - object relative model
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "area_id", nullable = false)
     @JsonIgnore
