@@ -31,6 +31,7 @@ public class AreaDataInitializer implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         if (areaRepository.count() == 0) {
+
             Area openSpace = new Area();
             openSpace.setName("Open Space");
             openSpace.setDescription("Large open area with shared desks and comfortable seating.");
