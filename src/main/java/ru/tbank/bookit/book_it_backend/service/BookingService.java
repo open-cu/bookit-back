@@ -114,7 +114,7 @@ public class BookingService {
                 Pair<LocalDateTime, LocalDateTime> pair = Pair.of(currHour, nextHour);
                 List<Pair<LocalDateTime, LocalDateTime>> addList = pair.getFirst().getHour() < 12 ? availableTime.get(0) : pair.getFirst().getHour() < 18 ? availableTime.get(1) : availableTime.get(2);
                 LocalDateTime now = LocalDateTime.now();
-                if (!addList.contains(pair) && now.getHour() <= pair.getFirst().getHour()) {
+                if (!addList.contains(pair) && (now.getHour() <= pair.getFirst().getHour() || now.getDayOfYear() < pair.getFirst().getDayOfYear())) {
                     addList.addLast(pair);
                 }
             }
