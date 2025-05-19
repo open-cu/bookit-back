@@ -34,6 +34,14 @@ public class EventService {
         return eventMapper.toEventResponseList(eventRepository.findAll());
     }
 
+    public List<EventResponse> toEventResponseList(List<Event> events) {
+        return eventMapper.toEventResponseList(events);
+    }
+
+    public EventResponse toEventResponse(Event event) {
+        return eventMapper.toEventResponse(event);
+    }
+
     public List<EventResponse> findByTags(Set<ThemeTags> tags){
         return eventMapper.toEventResponseList(eventRepository.findByTagsIn(tags));
     }
