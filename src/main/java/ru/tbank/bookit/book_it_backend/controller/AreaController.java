@@ -7,6 +7,7 @@ import ru.tbank.bookit.book_it_backend.DTO.AreaResponse;
 import ru.tbank.bookit.book_it_backend.exception.ResourceNotFoundException;
 import ru.tbank.bookit.book_it_backend.mapper.AreaMapper;
 import ru.tbank.bookit.book_it_backend.model.Area;
+import ru.tbank.bookit.book_it_backend.model.AreaType;
 import ru.tbank.bookit.book_it_backend.service.AreaService;
 
 import java.util.List;
@@ -42,6 +43,15 @@ public class AreaController {
                 .map(areaMapper::toAreaResponse)
                 .orElseThrow(() -> new ResourceNotFoundException("Area not found with ID: " + areaId));
         return ResponseEntity.ok(areaResponse);
+    }
+
+    @GetMapping("/by-type")
+    @Operation(summary = "Get areas by type")
+    public List<AreaResponse> getAreasByType(@RequestParam AreaType type) {
+        return areaService.findByType(type)
+                          .stream()
+                          .map(areaMapper::toAreaResponse)
+                          .toList();
     }
 
     @Operation(summary = "Get all area names")
