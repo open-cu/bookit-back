@@ -104,13 +104,26 @@ public class BookingService {
         return availableDates;
     }
 
-    private void addFreeTimes(List<List<Pair<LocalDateTime, LocalDateTime>>> availableTime, LocalDate date, List<Booking> bookings)
+    private boolean isAvailable(LocalDateTime currHour, List<Booking> bookings, Area area) {
+        if (area.getType() != AreaType.WORKPLACE) {
+            return bookings.stream().noneMatch(b -> currHour.isBefore(b.getEndTime()) && currHour.plusHours(1).isAfter(b.getStartTime()));
+        } else {
+            List<HallOccupancy> hallOccupancies = hallOccupancyRepository.findByDate(currHour.toLocalDate());
+            for (HallOccupancy h : hallOccupancies) {
+                if (h.getDateTime().equals(currHour)) {
+                    return area.getCapacity() > h.getReservedPlaces();
+                }
+            }
+        }
+        return false;
+    }
+
+    private void addFreeTimes(List<List<Pair<LocalDateTime, LocalDateTime>>> availableTime, LocalDate date, List<Booking> bookings, Area area)
     {
         for (long i = bookingConfig.getStartWork(); i < bookingConfig.getEndWork(); ++i) {
-            LocalDateTime currHour = date.atTime((int) i, 0);
+            LocalDateTime currHour = date.atTime((int)i, 0);
             LocalDateTime nextHour = currHour.plusHours(1);
-            if (bookings.stream().noneMatch(b -> currHour.isBefore(b.getEndTime()) &&
-                    nextHour.isAfter(b.getStartTime()))) {
+            if (isAvailable(currHour, bookings, area)) {
                 Pair<LocalDateTime, LocalDateTime> pair = Pair.of(currHour, nextHour);
                 List<Pair<LocalDateTime, LocalDateTime>> addList = pair.getFirst().getHour() < 12 ? availableTime.get(0) : pair.getFirst().getHour() < 18 ? availableTime.get(1) : availableTime.get(2);
                 LocalDateTime now = LocalDateTime.now();
@@ -133,14 +146,20 @@ public class BookingService {
 
         if (areaId.isPresent()) {
             List<Booking> bookings = bookingRepository.findByDateAndArea(date, areaId.get());
-            addFreeTimes(availableTime, date, bookings);
+            Optional<Area> checkArea = areaRepository.findById(areaId.get());
+
+            if (checkArea.isEmpty()) {
+                throw new RuntimeException("Area with this UUID doesn't exist!");
+            }
+
+            addFreeTimes(availableTime, date, bookings, checkArea.get());
         } else {
             List<UUID> availableAreas = areaRepository.findAll().stream()
                     .map(Area::getId)
                     .toList();
             for (UUID a : availableAreas) {
                 List<Booking> bookings = bookingRepository.findByDateAndArea(date, a);
-                addFreeTimes(availableTime, date, bookings);
+                addFreeTimes(availableTime, date, bookings, areaRepository.findById(a).get());
             }
         }
 
