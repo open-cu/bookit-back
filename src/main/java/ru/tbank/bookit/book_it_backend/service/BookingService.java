@@ -2,7 +2,6 @@ package ru.tbank.bookit.book_it_backend.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -104,15 +103,13 @@ public class BookingService {
         return availableDates;
     }
 
-    private boolean isAvailable(LocalDateTime currHour, List<Booking> bookings, Area area) {
+    private boolean isAreaAvailable(LocalDateTime currHour, List<Booking> bookings, Area area) {
         if (area.getType() != AreaType.WORKPLACE) {
             return bookings.stream().noneMatch(b -> currHour.isBefore(b.getEndTime()) && currHour.plusHours(1).isAfter(b.getStartTime()));
         } else {
-            List<HallOccupancy> hallOccupancies = hallOccupancyRepository.findByDate(currHour.toLocalDate());
-            for (HallOccupancy h : hallOccupancies) {
-                if (h.getDateTime().equals(currHour)) {
-                    return area.getCapacity() > h.getReservedPlaces();
-                }
+            Optional<HallOccupancy> hallOccupancy = hallOccupancyRepository.findById(currHour);
+            if (hallOccupancy.isPresent()) {
+                return hallOccupancy.get().getReservedPlaces() < bookingConfig.getHallMaxCapacity();
             }
         }
         return false;
@@ -123,7 +120,7 @@ public class BookingService {
         for (long i = bookingConfig.getStartWork(); i < bookingConfig.getEndWork(); ++i) {
             LocalDateTime currHour = date.atTime((int)i, 0);
             LocalDateTime nextHour = currHour.plusHours(1);
-            if (isAvailable(currHour, bookings, area)) {
+            if (isAreaAvailable(currHour, bookings, area)) {
                 Pair<LocalDateTime, LocalDateTime> pair = Pair.of(currHour, nextHour);
                 List<Pair<LocalDateTime, LocalDateTime>> addList = pair.getFirst().getHour() < 12 ? availableTime.get(0) : pair.getFirst().getHour() < 18 ? availableTime.get(1) : availableTime.get(2);
                 LocalDateTime now = LocalDateTime.now();
@@ -205,31 +202,30 @@ public class BookingService {
             }
         }
 
-        ArrayList<Pair<LocalDateTime, LocalDateTime>> times =
-                (ArrayList<Pair<LocalDateTime, LocalDateTime>>)request.timePeriods().stream().toList();
+        ArrayList<Pair<LocalDateTime, LocalDateTime>> times = new ArrayList<>(request.timePeriods());
 
         times.sort(Comparator.comparing(Pair::getFirst));
-        Stack<Pair<LocalDateTime, LocalDateTime>> stack = new Stack<>();
 
+        List<Pair<LocalDateTime, LocalDateTime>> merged = new ArrayList<>();
         for (Pair<LocalDateTime, LocalDateTime> curr : times) {
-            if (stack.empty() || curr.getFirst().isEqual(stack.peek().getSecond())) {
-                stack.push(curr);
-            }
-
-            if (stack.peek().getSecond().isBefore(curr.getSecond())) {
-                Pair<LocalDateTime, LocalDateTime> last = stack.pop();
-                stack.push(Pair.of(last.getFirst(), curr.getSecond()));
+            if (merged.isEmpty()) {
+                merged.add(curr);
+            } else {
+                Pair<LocalDateTime, LocalDateTime> last = merged.get(merged.size() - 1);
+                if (last.getSecond().isEqual(curr.getFirst())) {
+                    merged.set(merged.size() - 1, Pair.of(last.getFirst(), curr.getSecond()));
+                } else {
+                    merged.add(curr);
+                }
             }
         }
 
-        Set<Booking> result = new HashSet<>(Set.of());
+        Set<Booking> result = new HashSet<>();
 
-        while (!stack.empty()) {
+        for (Pair<LocalDateTime, LocalDateTime> time : merged) {
             Booking booking = new Booking();
             booking.setUser(user);
             booking.setArea(area);
-
-            Pair<LocalDateTime, LocalDateTime> time = stack.pop();
 
             booking.setStartTime(time.getFirst());
             booking.setEndTime(time.getSecond());
@@ -240,6 +236,17 @@ public class BookingService {
 
             result.add(booking);
         }
+
+        if (area.getType().equals(AreaType.WORKPLACE)) {
+            for (Pair<LocalDateTime, LocalDateTime> t : request.timePeriods()) {
+                for (LocalDateTime time = t.getFirst(); time.isBefore(t.getSecond()); time = time.plusHours(1)) {
+                    HallOccupancy hallOccupancy = hallOccupancyRepository.getById(time);
+                    hallOccupancy.setReservedPlaces(hallOccupancy.getReservedPlaces() + 1);
+                    hallOccupancyRepository.save(hallOccupancy);
+                }
+            }
+        }
+        bookingRepository.saveAll(result);
 
         return result;
     }
