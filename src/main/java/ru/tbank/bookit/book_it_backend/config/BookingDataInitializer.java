@@ -4,21 +4,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
-import ru.tbank.bookit.book_it_backend.model.Area;
-import ru.tbank.bookit.book_it_backend.model.Booking;
-import ru.tbank.bookit.book_it_backend.model.BookingStatus;
-import ru.tbank.bookit.book_it_backend.model.User;
+import ru.tbank.bookit.book_it_backend.DTO.CreateBookingRequest;
+import ru.tbank.bookit.book_it_backend.model.*;
 import ru.tbank.bookit.book_it_backend.repository.AreaRepository;
 import ru.tbank.bookit.book_it_backend.repository.BookingRepository;
 import ru.tbank.bookit.book_it_backend.repository.UserRepository;
+import ru.tbank.bookit.book_it_backend.service.BookingService;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.temporal.ChronoUnit;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
 
 @Component
 @Order(3)
@@ -27,14 +30,19 @@ public class BookingDataInitializer implements ApplicationRunner {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final AreaRepository areaRepository;
+    private final BookingConfig bookingConfig;
+    private final BookingService bookingService;
 
     @Autowired
     public BookingDataInitializer(BookingRepository bookingRepository,
                                   UserRepository userRepository,
-                                  AreaRepository areaRepository) {
+                                  AreaRepository areaRepository, BookingConfig bookingConfig,
+                                  BookingService bookingService) {
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
         this.areaRepository = areaRepository;
+        this.bookingConfig = bookingConfig;
+        this.bookingService = bookingService;
     }
 
     @Override
@@ -52,7 +60,6 @@ public class BookingDataInitializer implements ApplicationRunner {
         Booking booking1 = createBooking(aliceJohnson, areas.getFirst(), Month.MAY, 25);
         Booking booking2 = createBooking(aliceJohnson, areas.getLast(), Month.MAY, 25);
         Booking booking3 = createBooking(aliceJohnson, areas.get(1), Month.MAY, 25);
-
 
         Booking booking4 = createBooking(aliceJohnson, areas.getFirst(), Month.JANUARY, 23);
         Booking booking5 = createBooking(aliceJohnson, areas.get(1), Month.JANUARY, 23);
