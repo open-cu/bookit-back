@@ -10,13 +10,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
 public class BookingMenuService {
     private final BookingService bookingService;
 
-    public BookingMenuService(BookingService bookingService, BookingConfig bookingConfig, AreaService areaService) {
+    public BookingMenuService(BookingService bookingService) {
         this.bookingService = bookingService;
     }
 
@@ -28,11 +29,11 @@ public class BookingMenuService {
         return bookingService.findAvailableDates(areaId);
     }
 
-    public Booking createBooking(CreateBookingRequest request) {
+    public Set<Booking> createBooking(CreateBookingRequest request) {
         return bookingService.createBooking(request);
     }
 
-    public List<Pair<LocalDateTime, LocalDateTime>> findAvailableTime(LocalDate date, Optional<UUID> areaId) {
+    public List<List<Pair<LocalDateTime, LocalDateTime>>> findAvailableTime(LocalDate date, Optional<UUID> areaId) {
         return bookingService.findAvailableTime(date, areaId);
     }
 
@@ -42,5 +43,9 @@ public class BookingMenuService {
     
     public List<UUID> findAvailableAreas(LocalDateTime time) {
         return bookingService.findAvailableAreas(time);
+    }
+
+    public Set<Pair<LocalDateTime, LocalDateTime>> findClosestAvailableTimes(UUID areaId) {
+        return bookingService.findClosestAvailableTimes(areaId);
     }
 }

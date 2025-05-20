@@ -49,9 +49,9 @@ public class BookingDataInitializer implements ApplicationRunner {
 
         User aliceJohnson = userRepository.findByName("Alice Johnson");
 
-        Booking booking1 = createBooking(aliceJohnson, areas.getFirst(), Month.APRIL, 14);
-        Booking booking2 = createBooking(aliceJohnson, areas.getLast(), Month.APRIL, 14);
-        Booking booking3 = createBooking(aliceJohnson, areas.get(1), Month.APRIL, 14);
+        Booking booking1 = createBooking(aliceJohnson, areas.getFirst(), Month.MAY, 25);
+        Booking booking2 = createBooking(aliceJohnson, areas.getLast(), Month.MAY, 25);
+        Booking booking3 = createBooking(aliceJohnson, areas.get(1), Month.MAY, 25);
 
 
         Booking booking4 = createBooking(aliceJohnson, areas.getFirst(), Month.JANUARY, 23);
@@ -82,8 +82,8 @@ public class BookingDataInitializer implements ApplicationRunner {
         Booking booking = new Booking();
         booking.setUser(user);
         booking.setArea(area);
-        booking.setStartTime(LocalDateTime.of(LocalDate.of(2025, month, day), LocalTime.of(10, 0)));
-        booking.setEndTime(LocalDateTime.of(LocalDate.of(2025, month, day), LocalTime.of(12, 0)));
+        booking.setStartTime(LocalDateTime.of(LocalDate.of(2025, month, day), LocalTime.of(16, 0)));
+        booking.setEndTime(LocalDateTime.of(LocalDate.of(2025, month, day), LocalTime.of(18, 0)));
         booking.setQuantity(1);
         booking.setStatus(BookingStatus.CONFIRMED);
         booking.setCreatedAt(LocalDateTime.of(2025, 1, 3, 22, 39, 25, 746173300));

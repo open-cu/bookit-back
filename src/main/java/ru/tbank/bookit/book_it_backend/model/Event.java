@@ -41,7 +41,11 @@ public class Event {
     @Column(nullable = false)
     private int available_places;
 
-    @Column
-    private String user_list;
-
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "Event_Users",
+            joinColumns = @JoinColumn(name = "event_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> users = new HashSet<>();
 }

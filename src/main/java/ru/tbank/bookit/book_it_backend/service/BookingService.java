@@ -2,6 +2,7 @@ package ru.tbank.bookit.book_it_backend.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +39,7 @@ public class BookingService {
     }
 
     public Optional<Booking> findBooking(UUID bookingId) {
-        return bookingRepository.findByUserId(bookingId);
+        return bookingRepository.findById(bookingId);
     }
 
     public List<LocalDate> findAvailableDates(Optional<UUID> areaId) {
@@ -103,7 +104,7 @@ public class BookingService {
         return availableDates;
     }
 
-    private void addFreeTimes(List<Pair<LocalDateTime, LocalDateTime>> availableTime, LocalDate date, List<Booking> bookings)
+    private void addFreeTimes(List<List<Pair<LocalDateTime, LocalDateTime>>> availableTime, LocalDate date, List<Booking> bookings)
     {
         for (long i = bookingConfig.getStartWork(); i < bookingConfig.getEndWork(); ++i) {
             LocalDateTime currHour = date.atTime((int) i, 0);
@@ -111,15 +112,25 @@ public class BookingService {
             if (bookings.stream().noneMatch(b -> currHour.isBefore(b.getEndTime()) &&
                     nextHour.isAfter(b.getStartTime()))) {
                 Pair<LocalDateTime, LocalDateTime> pair = Pair.of(currHour, nextHour);
-                if (!availableTime.contains(pair)) {
-                    availableTime.addLast(pair);
+                List<Pair<LocalDateTime, LocalDateTime>> addList = pair.getFirst().getHour() < 12 ? availableTime.get(0) : pair.getFirst().getHour() < 18 ? availableTime.get(1) : availableTime.get(2);
+                LocalDateTime now = LocalDateTime.now();
+                if (!addList.contains(pair) && (now.getHour() <= pair.getFirst().getHour() || now.getDayOfYear() < pair.getFirst().getDayOfYear())) {
+                    addList.addLast(pair);
                 }
             }
         }
     }
 
-    public List<Pair<LocalDateTime, LocalDateTime>> findAvailableTime(LocalDate date, Optional<UUID> areaId) {
-        List<Pair<LocalDateTime, LocalDateTime>> availableTime = new ArrayList<>();
+    public List<List<Pair<LocalDateTime, LocalDateTime>>> findAvailableTime(LocalDate date, Optional<UUID> areaId) {
+        List<List<Pair<LocalDateTime, LocalDateTime>>> availableTime = new ArrayList<>();
+        availableTime.addLast(new ArrayList<>());
+        availableTime.addLast(new ArrayList<>());
+        availableTime.addLast(new ArrayList<>());
+
+        if (date.isBefore(LocalDate.now())) {
+            return availableTime;
+        }
+
         if (areaId.isPresent()) {
             List<Booking> bookings = bookingRepository.findByDateAndArea(date, areaId.get());
             addFreeTimes(availableTime, date, bookings);
@@ -132,7 +143,11 @@ public class BookingService {
                 addFreeTimes(availableTime, date, bookings);
             }
         }
-        availableTime.sort(Comparator.comparing(Pair::getFirst));
+
+        for (List<Pair<LocalDateTime, LocalDateTime>> l : availableTime) {
+            l.sort(Comparator.comparing(Pair::getFirst));
+        }
+
         return availableTime;
     }
 
@@ -154,27 +169,60 @@ public class BookingService {
     }
 
     @Transactional
-    public Booking createBooking(CreateBookingRequest request) {
-        User user = userRepository.findById(request.getUserId())
-                                  .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + request.getUserId()));
+    public Set<Booking> createBooking(CreateBookingRequest request) {
+        User user = userRepository.findById(request.userId())
+                                  .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + request.userId()));
 
-        Area area = areaRepository.findById(request.getAreaId())
-                                  .orElseThrow(() -> new EntityNotFoundException("Area not found with id: " + request.getAreaId()));
+        Area area = areaRepository.findById(request.areaId())
+                                  .orElseThrow(() -> new EntityNotFoundException("Area not found with id: " + request.areaId()));
 
-        if (!isAreaAvailable(area, request.getStartTime(), request.getEndTime())) {
-            throw new IllegalStateException("Area is already booked for this time slot");
+        if (request.timePeriods().isEmpty()) {
+            throw new IllegalStateException("There are no chosen time periods");
         }
 
-        Booking booking = new Booking();
-        booking.setUser(user);
-        booking.setArea(area);
-        booking.setStartTime(request.getStartTime());
-        booking.setEndTime(request.getEndTime());
-        booking.setQuantity(request.getQuantity());
-        booking.setStatus(BookingStatus.CONFIRMED);
-        booking.setCreatedAt(LocalDateTime.now());
+        for (Pair<LocalDateTime, LocalDateTime> t : request.timePeriods()) {
+            if (!isAreaAvailable(area, t.getFirst(), t.getSecond())) {
+                throw new IllegalStateException("Area is already booked for this time slot");
+            }
+        }
 
-        return bookingRepository.save(booking);
+        ArrayList<Pair<LocalDateTime, LocalDateTime>> times =
+                (ArrayList<Pair<LocalDateTime, LocalDateTime>>)request.timePeriods().stream().toList();
+
+        times.sort(Comparator.comparing(Pair::getFirst));
+        Stack<Pair<LocalDateTime, LocalDateTime>> stack = new Stack<>();
+
+        for (Pair<LocalDateTime, LocalDateTime> curr : times) {
+            if (stack.empty() || curr.getFirst().isEqual(stack.peek().getSecond())) {
+                stack.push(curr);
+            }
+
+            if (stack.peek().getSecond().isBefore(curr.getSecond())) {
+                Pair<LocalDateTime, LocalDateTime> last = stack.pop();
+                stack.push(Pair.of(last.getFirst(), curr.getSecond()));
+            }
+        }
+
+        Set<Booking> result = new HashSet<>(Set.of());
+
+        while (!stack.empty()) {
+            Booking booking = new Booking();
+            booking.setUser(user);
+            booking.setArea(area);
+
+            Pair<LocalDateTime, LocalDateTime> time = stack.pop();
+
+            booking.setStartTime(time.getFirst());
+            booking.setEndTime(time.getSecond());
+
+            booking.setQuantity(request.quantity());
+            booking.setStatus(BookingStatus.CONFIRMED);
+            booking.setCreatedAt(LocalDateTime.now());
+
+            result.add(booking);
+        }
+
+        return result;
     }
 
     public List<Booking> getCurrentBookings(UUID userId) {
@@ -211,6 +259,38 @@ public class BookingService {
         return bookingList.stream().filter(booking -> booking.getStatus() != BookingStatus.CANCELED).toList();
     }
 
+    @Transactional
+    public Booking updateBooking(UUID bookingId, UUID areaId, LocalDateTime startTime, LocalDateTime endTime) {
+        Booking booking = bookingRepository.findById(bookingId)
+                                           .orElseThrow(() -> new EntityNotFoundException("Booking not found with id: " + bookingId));
+
+        if (booking.getStatus() == BookingStatus.CANCELED || booking.getStatus() == BookingStatus.COMPLETED) {
+            throw new IllegalStateException("Unable to update " + booking.getStatus() + " booking");
+        }
+
+        boolean sameArea = booking.getAreaId().equals(areaId);
+        boolean sameTime = booking.getStartTime().equals(startTime) && booking.getEndTime().equals(endTime);
+
+        if (sameArea && sameTime) {
+            return booking;
+        }
+
+        Area area = !sameArea
+                ? areaRepository.findById(areaId)
+                                .orElseThrow(() -> new EntityNotFoundException("Area not found id: " + areaId))
+                : booking.getArea();
+
+        if (!sameArea) {
+            booking.setArea(area);
+        }
+        if (!sameTime) {
+            booking.setStartTime(startTime);
+            booking.setEndTime(endTime);
+        }
+
+        return bookingRepository.save(booking);
+    }
+
     public List<Booking> findAll() {
         return bookingRepository.findAll();
     }
@@ -229,12 +309,31 @@ public class BookingService {
         List<UUID> availableAreas = areaRepository.findAll().stream()
                                                   .map(b -> b.getId())
                                                   .toList();
-        List<Booking> bookings = findByStartDatetime(time);
+        List<Booking> bookings = bookingRepository.findByDatetime(time);
 
         for (Booking b : bookings) {
             availableAreas.remove(b.getAreaId());
         }
 
         return availableAreas;
+    }
+
+    public Set<Pair<LocalDateTime, LocalDateTime>> findClosestAvailableTimes(UUID areaId) {
+        LocalDate currDate = LocalDate.now();
+        List<List<Pair<LocalDateTime, LocalDateTime>>> times = List.of();
+        while (times.isEmpty()) {
+            times = findAvailableTime(currDate, Optional.ofNullable(areaId));
+            currDate.plusDays(1);
+        }
+        Set<Pair<LocalDateTime, LocalDateTime>> result = new HashSet<>();
+        for (List<Pair<LocalDateTime, LocalDateTime>> l : times) {
+            for (Pair<LocalDateTime, LocalDateTime> p : l) {
+                if (result.size() >= 4) {
+                    break;
+                }
+                result.add(p);
+            }
+        }
+        return result;
     }
 }

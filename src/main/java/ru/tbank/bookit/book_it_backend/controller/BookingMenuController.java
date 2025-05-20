@@ -1,10 +1,15 @@
 package ru.tbank.bookit.book_it_backend.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.data.util.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.tbank.bookit.book_it_backend.DTO.CreateBookingRequest;
+import ru.tbank.bookit.book_it_backend.exception.ApiError;
 import ru.tbank.bookit.book_it_backend.model.Area;
 import ru.tbank.bookit.book_it_backend.model.AreaStatus;
 import ru.tbank.bookit.book_it_backend.model.Booking;
@@ -15,9 +20,8 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/booking-menu")
@@ -30,31 +34,53 @@ public class BookingMenuController {
         this.areaRepository = areaRepository;
     }
 
-    @GetMapping("/available-dates")
+    @Operation(description = "returns information in the list format about the available dates")
+    @GetMapping("/available-date")
     public List<LocalDate> findAvailableDates(@RequestParam Optional<UUID> areaId) {
         return bookingMenuService.findAvailableDates(areaId);
     }
 
+
+    @Operation(description = "returns list of available time by date separated by ; (start_time;end_time)")
     @GetMapping("/available-time/{date}")
-    public ResponseEntity<List<String>> findAvailableTimeByDate(
+    public ResponseEntity<List<List<String>>> findAvailableTimeByDate(
             @PathVariable
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam Optional<UUID> areaId) {
 
-        List<Pair<LocalDateTime, LocalDateTime>> times = bookingMenuService.findAvailableTime(date, areaId);
-        List<String> formattedTimes =
-                times.stream()
-                     .map(timePair -> {
-                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-                         String startTime = timePair.getFirst().format(formatter);
-                         String endTime = timePair.getSecond().format(formatter);
-                         return startTime + "-" + endTime;
-                     })
-                     .toList();
-        return ResponseEntity.ok(formattedTimes);
+        List<List<Pair<LocalDateTime, LocalDateTime>>> times = bookingMenuService.findAvailableTime(date, areaId);
+        List<List<String>> result = new ArrayList<>();
+
+        for (List<Pair<LocalDateTime, LocalDateTime>> l : times) {
+            List<String> formattedTimes =
+                    l.stream()
+                            .map(timePair -> {
+                                return timePair.getFirst() + ";" + timePair.getSecond();
+                            })
+                            .toList();
+            result.addLast(formattedTimes);
+        }
+
+        return ResponseEntity.ok(result);
+    }
+
+    @Operation(description = "returns information in the list format of String about available time by date")
+    @GetMapping("/closest-available-time/{areaId}")
+    public Set<String> findAvailableTimeByDate(
+            @PathVariable UUID areaId) {
+        return bookingMenuService.findClosestAvailableTimes(areaId).stream().map(timePair -> {
+            return timePair.getFirst() + ";" + timePair.getSecond();
+        }).collect(Collectors.toCollection(TreeSet::new));
     }
 
     @GetMapping("/available-areas")
+    @io.swagger.v3.oas.annotations.Operation(
+            summary = "returns information in the list format of UUID about available area on date",
+            responses = {
+                    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ApiError.class))),
+                    @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ApiError.class)))
+            }
+    )
     public ResponseEntity<List<UUID>> findAvailableAreas(
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime time) {
@@ -62,6 +88,7 @@ public class BookingMenuController {
         return ResponseEntity.ok(availableArea);
     }
 
+    @Operation(description = "returns information about booking on his id")
     @GetMapping("/booking/{bookingId}")
     public ResponseEntity<Booking> getBooking(@PathVariable UUID bookingId) {
 
@@ -69,24 +96,36 @@ public class BookingMenuController {
         return booking.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(description = "returns information about the created booking, and the method accepts the booking itself, which must be added.")
     @PostMapping("/booking")
-    public ResponseEntity<Booking> createBooking(@RequestBody CreateBookingRequest request) {
-        if (request.getStartTime() == null || request.getEndTime() == null ||
-                request.getStartTime().isAfter(request.getEndTime())) {
-            return ResponseEntity.badRequest().build();
+    public Set<ResponseEntity<Booking>> createBooking(@RequestBody CreateBookingRequest request) {
+        for (Pair<LocalDateTime, LocalDateTime> t : request.timePeriods()) {
+            if (t.getFirst().isAfter(t.getSecond())) {
+                HashSet<ResponseEntity<Booking>> res = new HashSet<>();
+                res.add(ResponseEntity.badRequest().build());
+                return res;
+            }
         }
 
-        Booking createdBooking = bookingMenuService.createBooking(request);
-        URI uri = URI.create("/booking-menu/booking/" + createdBooking.getId());
-        return ResponseEntity.created(uri).body(createdBooking);
+        Set<Booking> createdBooking = bookingMenuService.createBooking(request);
+        Set<ResponseEntity<Booking>> result = new HashSet<>();
+
+        for (Booking b : createdBooking) {
+            URI uri = URI.create("/booking-menu/booking/" + b.getId());
+            result.add(ResponseEntity.created(uri).body(b));
+        }
+
+        return result;
     }
 
+    @Operation(description = "returns information in the list format in Booking about all bookings")
     @GetMapping("/bookings")
     public ResponseEntity<List<Booking>> getAllBookings() {
         List<Booking> bookings = bookingMenuService.findAll();
         return ResponseEntity.ok(bookings);
     }
 
+    @Operation(description = "create area and returns this area")
     @PostMapping("/area")
     public ResponseEntity<Area> createArea(@RequestBody Area area) {
         area.setStatus(AreaStatus.AVAILABLE);

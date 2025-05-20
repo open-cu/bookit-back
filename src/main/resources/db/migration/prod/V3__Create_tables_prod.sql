@@ -61,7 +61,8 @@ CREATE INDEX "reviews_user_id_index" ON
 CREATE TABLE "Tickets"(
                           "user_id" BIGINT NOT NULL,
                           "area_id" BIGINT NOT NULL,
-                          "type" BIGINT NOT NULL,
+                          "type" VARCHAR(255) NOT NULL,
+                          "description" TEXT NOT NULL,
                           "created_at" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL
 );
 ALTER TABLE
@@ -80,10 +81,22 @@ CREATE TABLE "Events"(
                          "id" BIGINT NOT NULL,
                          "name" VARCHAR(255) NOT NULL,
                          "description" TEXT NOT NULL,
-                         "date" DATE NOT NULL
+                         "date" DATE NOT NULL,
+                         "tags" VARCHAR(255) CHECK
+                             ("tags" IN('')) NULL,
+                         "available_places" INT NOT NULL
 );
 ALTER TABLE
     "Events" ADD PRIMARY KEY("id");
+CREATE TABLE "Event_Users" (
+                               "event_id" BIGINT NOT NULL,
+                               "user_id" BIGINT NOT NULL,
+                               PRIMARY KEY ("event_id", "user_id"),
+                               CONSTRAINT "event_users_event_id_fkey" FOREIGN KEY ("event_id") REFERENCES "Events"("id") ON DELETE CASCADE,
+                               CONSTRAINT "event_users_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "Users"("id") ON DELETE CASCADE
+);
+CREATE INDEX "event_users_event_id_idx" ON "Event_Users"("event_id");
+CREATE INDEX "event_users_user_id_idx" ON "Event_Users"("user_id");
 CREATE TABLE "Hall_Occupancy"(
                                  "date_time" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
                                  "reserved_places" BIGINT NOT NULL
