@@ -14,6 +14,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class BookingService {
@@ -331,14 +332,27 @@ public class BookingService {
     }
 
 
-    public List<UUID> findAvailableAreas(LocalDateTime time) {
-        List<UUID> availableAreas = areaRepository.findAll().stream()
-                                                  .map(b -> b.getId())
-                                                  .toList();
-        List<Booking> bookings = bookingRepository.findByDatetime(time);
+    public List<UUID> findAvailableAreas(Set<LocalDateTime> startTimes) {
+        ArrayList<UUID> availableAreas = areaRepository.findAll().stream().filter(area -> area.getType() != AreaType.WORKPLACE)
+                                                  .map(Area::getId)
+                                                  .collect(Collectors.toCollection(ArrayList::new));
+        Area workplace = areaRepository.findByType(AreaType.WORKPLACE).getFirst();
+        boolean isWorkplaceAvailable = true;
 
-        for (Booking b : bookings) {
-            availableAreas.remove(b.getAreaId());
+        for (LocalDateTime time : startTimes) {
+            List<Booking> bookings = bookingRepository.findByDatetime(time);
+            Set<UUID> bookedAreaIds = bookings.stream()
+                                              .map(Booking::getAreaId)
+                                              .collect(Collectors.toSet());
+            availableAreas = availableAreas.stream()
+                                           .filter(id -> !bookedAreaIds.contains(id))
+                                           .collect(Collectors.toCollection(ArrayList::new));
+            if (hallOccupancyRepository.getById(time).getReservedPlaces() >= bookingConfig.getHallMaxCapacity()) {
+                isWorkplaceAvailable = false;
+            }
+        }
+        if (isWorkplaceAvailable) {
+            availableAreas.add(workplace.getId());
         }
 
         return availableAreas;

@@ -83,9 +83,12 @@ public class BookingMenuController {
     )
     public ResponseEntity<List<UUID>> findAvailableAreas(
             @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime time) {
-        List<UUID> availableArea = bookingMenuService.findAvailableAreas(time);
-        return ResponseEntity.ok(availableArea);
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Set<LocalDateTime> startTimes) {
+        if (startTimes == null) {
+            startTimes = new HashSet<>();
+        }
+        List<UUID> availableAreas = bookingMenuService.findAvailableAreas(startTimes);
+        return ResponseEntity.ok(availableAreas);
     }
 
     @Operation(description = "returns information about booking on his id")

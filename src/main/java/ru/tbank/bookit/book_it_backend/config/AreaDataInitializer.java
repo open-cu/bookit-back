@@ -23,9 +23,11 @@ import java.util.stream.Collectors;
 @Order(2)
 public class AreaDataInitializer implements ApplicationRunner {
     private final AreaRepository areaRepository;
+    private final BookingConfig bookingConfig;
 
-    public AreaDataInitializer(AreaRepository areaRepository) {
+    public AreaDataInitializer(AreaRepository areaRepository, BookingConfig bookingConfig) {
         this.areaRepository = areaRepository;
+        this.bookingConfig = bookingConfig;
     }
 
     @Override
@@ -35,7 +37,7 @@ public class AreaDataInitializer implements ApplicationRunner {
             openSpace.setName("Open Space");
             openSpace.setDescription("Large open area with shared desks and comfortable seating.");
             openSpace.setType(AreaType.WORKPLACE);
-            openSpace.setCapacity(30);
+            openSpace.setCapacity(bookingConfig.getHallMaxCapacity());
             openSpace.setStatus(AreaStatus.AVAILABLE);
 
             Area meetingRoom = new Area();

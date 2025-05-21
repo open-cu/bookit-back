@@ -41,8 +41,8 @@ public class BookingMenuService {
         return bookingService.findAll();
     }
     
-    public List<UUID> findAvailableAreas(LocalDateTime time) {
-        return bookingService.findAvailableAreas(time);
+    public List<UUID> findAvailableAreas(Set<LocalDateTime> startTimes) {
+        return bookingService.findAvailableAreas(startTimes);
     }
 
     public Set<Pair<LocalDateTime, LocalDateTime>> findClosestAvailableTimes(UUID areaId) {
