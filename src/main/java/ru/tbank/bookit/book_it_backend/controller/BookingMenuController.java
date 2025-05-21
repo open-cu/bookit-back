@@ -4,11 +4,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.util.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.tbank.bookit.book_it_backend.DTO.CreateBookingRequest;
+import ru.tbank.bookit.book_it_backend.DTO.UpdateBookingRequest;
 import ru.tbank.bookit.book_it_backend.exception.ApiError;
 import ru.tbank.bookit.book_it_backend.model.Area;
 import ru.tbank.bookit.book_it_backend.model.AreaStatus;
@@ -39,7 +41,6 @@ public class BookingMenuController {
     public List<LocalDate> findAvailableDates(@RequestParam Optional<UUID> areaId) {
         return bookingMenuService.findAvailableDates(areaId);
     }
-
 
     @Operation(description = "returns list of available time by date separated by ; (start_time;end_time)")
     @GetMapping("/available-time/{date}")
@@ -119,6 +120,21 @@ public class BookingMenuController {
         }
 
         return result;
+    }
+
+    @Operation(description = "Update booking by id and booking information")
+    @PutMapping("/booking/{bookingId}")
+    public ResponseEntity<Booking> updateBooking(
+            @PathVariable UUID bookingId,
+            @RequestBody UpdateBookingRequest request) {
+        try {
+            Booking updatedBooking = bookingMenuService.updateBooking(bookingId, request);
+            return ResponseEntity.ok(updatedBooking);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     @Operation(description = "returns information in the list format in Booking about all bookings")

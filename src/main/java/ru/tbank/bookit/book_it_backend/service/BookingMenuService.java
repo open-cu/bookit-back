@@ -3,6 +3,7 @@ package ru.tbank.bookit.book_it_backend.service;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import ru.tbank.bookit.book_it_backend.DTO.CreateBookingRequest;
+import ru.tbank.bookit.book_it_backend.DTO.UpdateBookingRequest;
 import ru.tbank.bookit.book_it_backend.config.BookingConfig;
 import ru.tbank.bookit.book_it_backend.model.Booking;
 
@@ -47,5 +48,14 @@ public class BookingMenuService {
 
     public Set<Pair<LocalDateTime, LocalDateTime>> findClosestAvailableTimes(UUID areaId) {
         return bookingService.findClosestAvailableTimes(areaId);
+    }
+
+    public Booking updateBooking(UUID bookingId, UpdateBookingRequest request) {
+        return bookingService.updateBooking(
+                bookingId,
+                request.areaId(),
+                request.startTime(),
+                request.endTime()
+                                           );
     }
 }
