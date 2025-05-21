@@ -29,7 +29,7 @@ public class UserDataInitializer implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         if (userRepository.count() == 0) {
             User alice = new User();
-            alice.setTg_id(1234567890L);
+            alice.setTgId(1234567890L);
             alice.setName("Alice Johnson");
             alice.setEmail("alice@example.com");
             alice.setPasswordHash("$2b$12$abcdefghijklmnopqrstuv");
@@ -38,7 +38,7 @@ public class UserDataInitializer implements ApplicationRunner {
             alice.setStatus(UserStatus.CREATED);
 
             User bob = new User();
-            bob.setTg_id(1987654321L);
+            bob.setTgId(1987654321L);
             bob.setName("Bob Smith");
             bob.setEmail("bob@example.com");
             bob.setPasswordHash("$2b$12$zyxwvutsrqponmlkjihgfedc");
@@ -47,7 +47,7 @@ public class UserDataInitializer implements ApplicationRunner {
             bob.setStatus(UserStatus.CREATED);
 
             User charlie = new User();
-            charlie.setTg_id(8987654325L);
+            charlie.setTgId(8987654325L);
             charlie.setName("Charlie Davis");
             charlie.setEmail("charlie@example.com");
             charlie.setPasswordHash("$2b$12$1234567890abcdefgijklmn");

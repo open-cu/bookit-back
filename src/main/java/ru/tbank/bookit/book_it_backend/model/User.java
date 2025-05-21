@@ -21,8 +21,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
-    private long tg_id;
+    @Column(name = "tg_id", nullable = false)
+    private long tgId;
 
     @Column(nullable = false)
     private String name;

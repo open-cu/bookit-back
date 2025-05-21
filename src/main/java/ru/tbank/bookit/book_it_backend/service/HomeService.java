@@ -31,7 +31,7 @@ public class HomeService {
                 "USER:%s:%s:%s",
                 user.getId(),
                 user.getName(),
-                user.getTg_id());
+                user.getTgId());
 
         try {
             QRCodeWriter qrCodeWriter = new QRCodeWriter();
