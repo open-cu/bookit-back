@@ -12,8 +12,7 @@ import ru.tbank.bookit.book_it_backend.model.Booking;
 import ru.tbank.bookit.book_it_backend.model.User;
 import ru.tbank.bookit.book_it_backend.service.HomeService;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/home")
@@ -45,21 +44,24 @@ public class HomeController {
     @Operation(description = "returns information in the list format about current bookings")
     @GetMapping("/bookings/current")
     public ResponseEntity<List<Booking>> getCurrentBookings(@RequestParam UUID userId) {
-        List<Booking> bookings = homeService.getCurrentBookings(userId);
+        List<Booking> bookings = new ArrayList<Booking>(homeService.getPastBookings(userId));
+        bookings.sort(Comparator.comparing(Booking::getStartTime));
         return ResponseEntity.ok(bookings);
     }
 
     @Operation(description = "returns information in the list format about future bookings")
     @GetMapping("/bookings/future")
     public ResponseEntity<List<Booking>> getFutureBookings(@RequestParam UUID userId) {
-        List<Booking> bookings = homeService.getFutureBookings(userId);
+        List<Booking> bookings = new ArrayList<Booking>(homeService.getFutureBookings(userId));
+        bookings.sort(Comparator.comparing(Booking::getStartTime));
         return ResponseEntity.ok(bookings);
     }
 
     @Operation(description = "returns information in the list format about past bookings")
     @GetMapping("/bookings/past")
     public ResponseEntity<List<Booking>> getPastBookings(@RequestParam UUID userId) {
-        List<Booking> bookings = homeService.getPastBookings(userId);
+        List<Booking> bookings = new ArrayList<Booking>(homeService.getPastBookings(userId));
+        bookings.sort(Comparator.comparing(Booking::getStartTime));
         return ResponseEntity.ok(bookings);
     }
 
