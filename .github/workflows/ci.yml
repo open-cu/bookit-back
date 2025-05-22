@@ -10,7 +10,7 @@ on:
 env:
   SSH_HOST: ${{ secrets.SSH_HOST }}
   SSH_USER: ${{ secrets.SSH_USER }}
-  SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+  SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 jobs:
   build:
     runs-on: self-hosted
@@ -30,7 +30,7 @@ jobs:
       - name: Install SSH key
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: $SSH_KEY
+          ssh-private-key: $SSH_PRIVATE_KEY
 
       - name: Deploy on remote server
         run: |
