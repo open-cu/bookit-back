@@ -28,7 +28,7 @@ jobs:
         run: mvn clean test
 
       - name: Install SSH key
-        uses: webfactory/ssh-agent@0.9.0
+        uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: $SSH_KEY
 
