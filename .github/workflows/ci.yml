@@ -18,6 +18,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Validate SSH Key
+        run: |
+          echo "Key length: ${#TEST_KEY}"
+          echo "$TEST_KEY" | head -n 3
+          echo "$TEST_KEY" | tail -n 3
+        env:
+          TEST_KEY: |
+            ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Install SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: |
+            ${{ secrets.SSH_PRIVATE_KEY }}
+
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
@@ -27,10 +42,7 @@ jobs:
       - name: Test with Maven
         run: mvn clean package
 
-      - name: Install SSH key
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: $SSH_PRIVATE_KEY
+
 
       - name: Deploy on remote server
         run: |
