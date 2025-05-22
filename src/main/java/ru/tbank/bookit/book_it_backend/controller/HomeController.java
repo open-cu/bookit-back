@@ -44,7 +44,7 @@ public class HomeController {
     @Operation(description = "returns information in the list format about current bookings")
     @GetMapping("/bookings/current")
     public ResponseEntity<List<Booking>> getCurrentBookings(@RequestParam UUID userId) {
-        List<Booking> bookings = new ArrayList<Booking>(homeService.getPastBookings(userId));
+        List<Booking> bookings = new ArrayList<Booking>(homeService.getCurrentBookings(userId));
         bookings.sort(Comparator.comparing(Booking::getStartTime));
         return ResponseEntity.ok(bookings);
     }
