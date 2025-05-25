@@ -11,9 +11,7 @@ import ru.tbank.bookit.book_it_backend.model.User;
 
 import java.util.Date;
 
-/**
- * Утилитный класс для работы с JWT токенами
- */
+//Утилитный класс для работы с JWT токенами
 @Component
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
@@ -24,12 +22,7 @@ public class JwtUtils {
     @Value("${bookit.app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
-    /**
-     * Генерирует JWT токен на основе данных аутентификации
-     *
-     * @param authentication объект аутентификации
-     * @return строка JWT токена
-     */
+    //Генерирует JWT токен на основе данных аутентификации
     public String generateJwtToken(Authentication authentication) {
         User userPrincipal = (User) authentication.getPrincipal();
 
@@ -41,22 +34,12 @@ public class JwtUtils {
                 .compact();
     }
 
-    /**
-     * Извлекает имя пользователя из JWT токена
-     *
-     * @param token JWT токен
-     * @return имя пользователя
-     */
+    //Извлекает имя пользователя из JWT токена
     public String getUserNameFromJwtToken(String token) {
         return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
     }
 
-    /**
-     * Проверяет валидность JWT токена
-     *
-     * @param authToken JWT токен для проверки
-     * @return true если токен валиден, иначе false
-     */
+    //Проверяет валидность JWT токена
     public boolean validateJwtToken(String authToken) {
         try {
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);

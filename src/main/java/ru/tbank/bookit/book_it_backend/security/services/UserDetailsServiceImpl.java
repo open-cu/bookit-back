@@ -9,22 +9,13 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.tbank.bookit.book_it_backend.model.User;
 import ru.tbank.bookit.book_it_backend.repository.UserRepository;
 
-/**
- * Реализация UserDetailsService для загрузки пользовательских данных
- * Используется Spring Security для аутентификации пользователей
- */
+//Реализация UserDetailsService для загрузки пользовательских данных
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
     UserRepository userRepository;
 
-    /**
-     * Загружает пользователя по имени пользователя
-     *
-     * @param username имя пользователя
-     * @return объект User, реализующий UserDetails
-     * @throws UsernameNotFoundException если пользователь не найден
-     */
+    //Загружает пользователя по имени
     @Override
     @Transactional
     public User loadUserByUsername(String username) throws UsernameNotFoundException {

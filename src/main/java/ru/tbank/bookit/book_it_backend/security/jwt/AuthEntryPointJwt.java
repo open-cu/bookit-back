@@ -12,19 +12,13 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
-/**
- * Обработчик ошибок аутентификации
- * Вызывается, когда неаутентифицированный пользователь пытается получить доступ к защищенному ресурсу
- */
+//Вызывается, когда неаутентифицированный пользователь пытается получить доступ к защищенному ресурсу
 @Component
 public class AuthEntryPointJwt implements AuthenticationEntryPoint {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthEntryPointJwt.class );
 
-    /**
-     * Метод вызывается, когда происходит ошибка аутентификации
-     * Отправляет клиенту ответ с кодом 401 (Unauthorized)
-     */
+    //Отправляет клиенту ответ с кодом 401 (Unauthorized)
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException, ServletException {

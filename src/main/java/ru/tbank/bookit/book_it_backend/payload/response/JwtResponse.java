@@ -2,9 +2,6 @@ package ru.tbank.bookit.book_it_backend.payload.response;
 
 import java.util.UUID;
 
-/**
- * Класс для ответа с JWT токеном
- */
 public class JwtResponse {
     private String token;
     private String type = "Bearer";
@@ -13,9 +10,6 @@ public class JwtResponse {
     private String email;
     private String name;
 
-    /**
-     * Конструктор для создания ответа с JWT токеном
-     */
     public JwtResponse(String accessToken, UUID id, String username, String email, String name) {
         this.token = accessToken;
         this.id = id;
@@ -23,8 +17,6 @@ public class JwtResponse {
         this.email = email;
         this.name = name;
     }
-
-    // Геттеры и сеттеры
 
     public String getToken() {
         return token;
