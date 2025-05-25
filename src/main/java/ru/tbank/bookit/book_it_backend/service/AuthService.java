@@ -4,7 +4,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.tbank.bookit.book_it_backend.model.User;
@@ -17,7 +16,6 @@ import ru.tbank.bookit.book_it_backend.repository.UserRepository;
 import ru.tbank.bookit.book_it_backend.security.jwt.JwtUtils;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -39,29 +37,28 @@ public class AuthService {
     }
 
     @Transactional
-    public JwtResponse authenticateUser(LoginRequest loginRequest) {
+    public JwtResponse login(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.getUsername(),
                         loginRequest.getPassword()
                 )
         );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        User userDetails = (User) authentication.getPrincipal();
+        User user = (User) authentication.getPrincipal();
         String jwt = jwtUtils.generateJwtToken(authentication);
 
         return new JwtResponse(
                 jwt,
-                userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getEmail(),
-                userDetails.getName()
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getName()
         );
     }
 
     @Transactional
-    public MessageResponse registerUser(SignupRequest signUpRequest) {
+    public MessageResponse register(SignupRequest signUpRequest) {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return new MessageResponse("Ошибка: Имя пользователя уже занято!");
         }

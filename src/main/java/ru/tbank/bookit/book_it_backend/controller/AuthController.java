@@ -22,14 +22,12 @@ public class AuthController {
     @Operation(summary = "User login")
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
-        JwtResponse jwtResponse = authService.authenticateUser(loginRequest);
-        return ResponseEntity.ok(jwtResponse);
+        return ResponseEntity.ok(authService.login(loginRequest));
     }
 
     @Operation(summary = "User registration")
     @PostMapping("/signup")
-    public ResponseEntity<MessageResponse> signup(@Valid @RequestBody SignupRequest signupRequest) {
-        MessageResponse response = authService.registerUser(signupRequest);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<MessageResponse> register(@Valid @RequestBody SignupRequest signupRequest) {
+        return ResponseEntity.ok(authService.register(signupRequest));
     }
 }
