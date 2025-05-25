@@ -23,12 +23,9 @@ public class SignupRequest {
 
     @NotBlank
     private String name;
-
     private long phone;
-
     private long tg_id;
 
-    // Геттеры и сеттеры
 
     public String getUsername() {
         return username;
