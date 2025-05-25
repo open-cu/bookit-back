@@ -32,22 +32,11 @@ jobs:
           ssh-private-key: |
             ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Test with Maven
-        run: mvn clean package
-
-
-
       - name: Deploy on remote server
         run: |
           ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "
           cd ./bookit-back &&
           git checkout main &&
-          git merge &&
-          sudo docker-compose -f docker-dev.yaml up --build -d
+          git pull &&
+          sudo docker-compose -f docker-prod.yaml up --build -d
           "
