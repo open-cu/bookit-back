@@ -18,10 +18,7 @@ import ru.tbank.bookit.book_it_backend.security.jwt.AuthEntryPointJwt;
 import ru.tbank.bookit.book_it_backend.security.jwt.AuthTokenFilter;
 import ru.tbank.bookit.book_it_backend.security.services.UserDetailsServiceImpl;
 
-/**
- * Конфигурация Spring Security
- * Определяет настройки безопасности, фильтры и правила доступа
- */
+//Конфигурация Spring Security Определяет настройки безопасности, фильтры и правила доступа
 @Configuration
 @EnableMethodSecurity
 public class WebSecurityConfig {
@@ -32,18 +29,13 @@ public class WebSecurityConfig {
     @Autowired
     private AuthEntryPointJwt unauthorizedHandler;
 
-    /**
-     * Создает JWT фильтр аутентификации
-     */
+    //Создает JWT фильтр аутентификации
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
         return new AuthTokenFilter();
     }
 
-    /**
-     * Настраивает провайдер аутентификации для работы с нашим UserDetailsService
-     * и PasswordEncoder
-     */
+    //Настраивает провайдер аутентификации для работы с нашим UserDetailsService и PasswordEncoder
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -54,25 +46,19 @@ public class WebSecurityConfig {
         return authProvider;
     }
 
-    /**
-     * Создает AuthenticationManager для аутентификации пользователей
-     */
+    //Создает AuthenticationManager для аутентификации пользователей
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
-    /**
-     * Определяет алгоритм хеширования паролей
-     */
+    //Определяет алгоритм хеширования паролей
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * Настраивает правила безопасности HTTP
-     */
+    //Настраивает правила безопасности HTTP
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
