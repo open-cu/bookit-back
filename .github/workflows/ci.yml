@@ -37,6 +37,6 @@ jobs:
           ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "
           cd ./bookit-back &&
           git checkout main &&
-          git merge &&
-          sudo docker-compose -f docker-dev.yaml up --build -d
+          git pull &&
+          sudo docker-compose -f docker-prod.yaml up --build -d
           "
