@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class BookingService {
+    private final UserService userService;
     private final BookingRepository bookingRepository;
     private final HallOccupancyRepository hallOccupancyRepository;
     private final ScheduleRepository scheduleRepository;
@@ -27,9 +28,10 @@ public class BookingService {
     private final BookingConfig bookingConfig;
 
     @Autowired
-    public BookingService(BookingRepository bookings, HallOccupancyRepository hallOccupancyRepository,
+    public BookingService(UserService userService, BookingRepository bookings, HallOccupancyRepository hallOccupancyRepository,
                           ScheduleRepository scheduleRepository, BookingConfig bookingConfig,
                           AreaRepository areaRepository, UserRepository userRepository) {
+        this.userService = userService;
         this.bookingRepository = bookings;
         this.hallOccupancyRepository = hallOccupancyRepository;
         this.scheduleRepository = scheduleRepository;
@@ -106,14 +108,20 @@ public class BookingService {
 
     private boolean isAreaAvailable(LocalDateTime currHour, List<Booking> bookings, Area area) {
         if (area.getType() != AreaType.WORKPLACE) {
-            return bookings.stream().noneMatch(b -> currHour.isBefore(b.getEndTime()) && currHour.plusHours(1).isAfter(b.getStartTime()));
+            return bookings.stream().noneMatch(b -> bookingIncludeHour(currHour, b));
         } else {
             Optional<HallOccupancy> hallOccupancy = hallOccupancyRepository.findById(currHour);
-            if (hallOccupancy.isPresent()) {
+            if (hallOccupancy.isPresent() &&
+                    bookings.stream().noneMatch(b -> b.getUserId().equals(userService.getCurrentUser().getId()) &&
+                            bookingIncludeHour(currHour, b))) {
                 return hallOccupancy.get().getReservedPlaces() < bookingConfig.getHallMaxCapacity();
             }
         }
         return false;
+    }
+
+    private boolean bookingIncludeHour(LocalDateTime currHour, Booking b) {
+        return currHour.isBefore(b.getEndTime()) && currHour.plusHours(1).isAfter(b.getStartTime());
     }
 
     private void addFreeTimes(List<List<Pair<LocalDateTime, LocalDateTime>>> availableTime, LocalDate date, List<Booking> bookings, Area area)
@@ -132,7 +140,7 @@ public class BookingService {
         }
     }
 
-    public List<List<Pair<LocalDateTime, LocalDateTime>>> findAvailableTime(LocalDate date, Optional<UUID> areaId) {
+    public List<List<Pair<LocalDateTime, LocalDateTime>>> findAvailableTime(LocalDate date, Optional<UUID> areaId, Optional<UUID> bookingId) {
         List<List<Pair<LocalDateTime, LocalDateTime>>> availableTime = new ArrayList<>();
         availableTime.addLast(new ArrayList<>());
         availableTime.addLast(new ArrayList<>());
@@ -158,6 +166,34 @@ public class BookingService {
             for (UUID a : availableAreas) {
                 List<Booking> bookings = bookingRepository.findByDateAndArea(date, a);
                 addFreeTimes(availableTime, date, bookings, areaRepository.findById(a).get());
+            }
+        }
+
+        if (bookingId.isPresent()) {
+            Booking booking = bookingRepository.findById(bookingId.get())
+                                               .orElseThrow(() -> new EntityNotFoundException("Booking not found with id: " + bookingId.get()));
+            if (booking.getStartTime().toLocalDate().equals(date) && (booking.getAreaId().equals(areaId.orElse(null)) || areaId.isEmpty())) {
+                LocalDateTime start = booking.getStartTime();
+                LocalDateTime end = booking.getEndTime();
+
+                LocalDateTime current = start;
+                while (current.isBefore(end)) {
+                    LocalDateTime nextHour = current.plusHours(1);
+                    if (nextHour.isAfter(end)) {
+                        nextHour = end;
+                    }
+
+                    Pair<LocalDateTime, LocalDateTime> pair = Pair.of(current, nextHour);
+                    List<Pair<LocalDateTime, LocalDateTime>> addList = current.getHour() < 12 ?
+                            availableTime.get(0) : current.getHour() < 18 ?
+                            availableTime.get(1) : availableTime.get(2);
+
+                    if (!addList.contains(pair)) {
+                        addList.addLast(pair);
+                    }
+
+                    current = nextHour;
+                }
             }
         }
 
@@ -347,7 +383,10 @@ public class BookingService {
             availableAreas = availableAreas.stream()
                                            .filter(id -> !bookedAreaIds.contains(id))
                                            .collect(Collectors.toCollection(ArrayList::new));
-            if (hallOccupancyRepository.getById(time).getReservedPlaces() >= bookingConfig.getHallMaxCapacity()) {
+            int reservedPlaces = hallOccupancyRepository.getById(time).getReservedPlaces();
+            if (reservedPlaces >= bookingConfig.getHallMaxCapacity() ||
+                    bookings.stream().anyMatch(b -> b.getUserId().equals(userService.getCurrentUser().getId()) &&
+                    bookingIncludeHour(time, b))) {
                 isWorkplaceAvailable = false;
             }
         }
@@ -362,7 +401,7 @@ public class BookingService {
         LocalDate currDate = LocalDate.now();
         List<List<Pair<LocalDateTime, LocalDateTime>>> times = List.of();
         while (times.isEmpty()) {
-            times = findAvailableTime(currDate, Optional.ofNullable(areaId));
+            times = findAvailableTime(currDate, Optional.ofNullable(areaId), Optional.empty());
             currDate.plusDays(1);
         }
         Set<Pair<LocalDateTime, LocalDateTime>> result = new HashSet<>();

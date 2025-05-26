@@ -52,9 +52,10 @@ public class BookingMenuController {
     public ResponseEntity<List<List<String>>> findAvailableTimeByDate(
             @PathVariable
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam Optional<UUID> areaId) {
+            @RequestParam(required = false) Optional<UUID> areaId,
+            @RequestParam(required = false) Optional<UUID> bookingId) {
 
-        List<List<Pair<LocalDateTime, LocalDateTime>>> times = bookingMenuService.findAvailableTime(date, areaId);
+        List<List<Pair<LocalDateTime, LocalDateTime>>> times = bookingMenuService.findAvailableTime(date, areaId, bookingId);
         List<List<String>> result = new ArrayList<>();
 
         for (List<Pair<LocalDateTime, LocalDateTime>> l : times) {
