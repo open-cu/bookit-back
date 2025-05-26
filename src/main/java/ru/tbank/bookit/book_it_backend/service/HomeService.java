@@ -28,10 +28,12 @@ public class HomeService {
 
     public byte[] generateUserQrCode(User user) {
         String userData = String.format(
-                "USER:%s:%s:%s",
+                "USER:%s:%s %s:%s",
                 user.getId(),
-                user.getName(),
-                user.getTg_id());
+                user.getTgId(),
+                user.getFirstName(),
+                user.getLastName() != null ? user.getLastName() : ""
+        );
 
         try {
             QRCodeWriter qrCodeWriter = new QRCodeWriter();
@@ -75,6 +77,7 @@ public class HomeService {
     public UUID getTestUserId() {
         return userService.getTestUserId();
     }
+
     public String findAreaNameById(UUID areaId) {
         return areaService.findAreaNameById(areaId);
     }

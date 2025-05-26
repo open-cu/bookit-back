@@ -1,7 +1,9 @@
 package ru.tbank.bookit.book_it_backend.mapper;
 
 import org.mapstruct.*;
+
 import ru.tbank.bookit.book_it_backend.DTO.AreaResponse;
+
 import ru.tbank.bookit.book_it_backend.model.Area;
 import ru.tbank.bookit.book_it_backend.model.AreaFeature;
 
@@ -16,7 +18,6 @@ public interface AreaMapper {
     AreaResponse toAreaResponse(Area area);
 
     List<AreaResponse> toAreaResponseList(List<Area> areas);
-
     default Set<String> mapFeatures(AreaFeature features) {
         if (features == null) return null;
         return Set.of(features.name());

@@ -7,21 +7,26 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.util.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import ru.tbank.bookit.book_it_backend.DTO.CreateBookingRequest;
 import ru.tbank.bookit.book_it_backend.DTO.UpdateBookingRequest;
 import ru.tbank.bookit.book_it_backend.exception.ApiError;
+import ru.tbank.bookit.book_it_backend.exception.ProfileNotCompletedException;
 import ru.tbank.bookit.book_it_backend.model.Area;
 import ru.tbank.bookit.book_it_backend.model.AreaStatus;
 import ru.tbank.bookit.book_it_backend.model.Booking;
+import ru.tbank.bookit.book_it_backend.model.User;
+import ru.tbank.bookit.book_it_backend.model.UserStatus;
 import ru.tbank.bookit.book_it_backend.repository.AreaRepository;
 import ru.tbank.bookit.book_it_backend.service.BookingMenuService;
 
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -100,9 +105,23 @@ public class BookingMenuController {
         return booking.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @Operation(description = "returns information about the created booking, and the method accepts the booking itself, which must be added.")
+    @Operation(
+            summary = "Create a new booking",
+            description = "Creates a new booking. Requires a verified user profile.",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Booking created successfully"),
+                    @ApiResponse(responseCode = "400", description = "Invalid request parameters"),
+                    @ApiResponse(responseCode = "403", description = "User profile not verified",
+                            content = @Content(schema = @Schema(implementation = ApiError.class)))
+            }
+    )
     @PostMapping("/booking")
     public Set<ResponseEntity<Booking>> createBooking(@RequestBody CreateBookingRequest request) {
+        User currentUser = getCurrentUser();
+        if (currentUser.getStatus() != UserStatus.VERIFIED) {
+            throw new ProfileNotCompletedException("User profile is not completed. Please complete your profile before creating bookings.");
+        }
+
         for (Pair<LocalDateTime, LocalDateTime> t : request.timePeriods()) {
             if (t.getFirst().isAfter(t.getSecond())) {
                 HashSet<ResponseEntity<Booking>> res = new HashSet<>();
@@ -128,12 +147,19 @@ public class BookingMenuController {
             @PathVariable UUID bookingId,
             @RequestBody UpdateBookingRequest request) {
         try {
+            User currentUser = getCurrentUser();
+            if (currentUser.getStatus() != UserStatus.VERIFIED) {
+                throw new ProfileNotCompletedException("User profile is not completed. Please complete your profile before updating bookings.");
+            }
+
             Booking updatedBooking = bookingMenuService.updateBooking(bookingId, request);
             return ResponseEntity.ok(updatedBooking);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().body(null);
+        } catch (ProfileNotCompletedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
     }
 
@@ -151,5 +177,10 @@ public class BookingMenuController {
         areaRepository.save(area);
         URI uri = URI.create("/booking-menu/area/" + area.getId());
         return ResponseEntity.created(uri).body(area);
+    }
+
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return (User) authentication.getPrincipal();
     }
 }

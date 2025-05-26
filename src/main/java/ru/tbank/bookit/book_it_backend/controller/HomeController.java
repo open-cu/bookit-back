@@ -1,15 +1,18 @@
 package ru.tbank.bookit.book_it_backend.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import ru.tbank.bookit.book_it_backend.exception.ProfileNotCompletedException;
 import ru.tbank.bookit.book_it_backend.model.Booking;
 import ru.tbank.bookit.book_it_backend.model.User;
+import ru.tbank.bookit.book_it_backend.model.UserStatus;
 import ru.tbank.bookit.book_it_backend.service.HomeService;
 
 import java.util.*;
@@ -26,16 +29,26 @@ public class HomeController {
     @Operation(description = "returns QR code in string format")
     @GetMapping("/qr")
     public ResponseEntity<byte[]> getUserQrCode(@RequestParam UUID userId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof User)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        User currentUser = (User) authentication.getPrincipal();
+        if (currentUser.getStatus() != UserStatus.VERIFIED) {
+            throw new ProfileNotCompletedException("User profile is not completed. Please complete your profile before accessing QR code.");
+        }
+
         User user = homeService.findUserById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         try {
             byte[] qrPng = homeService.generateUserQrCode(user);
             return ResponseEntity.ok()
-                                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                                         "inline; filename=\"user-" + userId + "-qr.png\"")
-                                 .contentType(MediaType.IMAGE_PNG)
-                                 .body(qrPng);
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "inline; filename=\"user-" + userId + "-qr.png\"")
+                    .contentType(MediaType.IMAGE_PNG)
+                    .body(qrPng);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to generate QR code", e);
         }

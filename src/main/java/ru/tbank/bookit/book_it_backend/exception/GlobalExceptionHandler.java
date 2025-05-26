@@ -70,4 +70,16 @@ public class GlobalExceptionHandler {
                                       );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiError);
     }
+
+    @ExceptionHandler(ProfileNotCompletedException.class)
+    public ResponseEntity<ApiError> handleProfileNotCompletedException(ProfileNotCompletedException ex, WebRequest request) {
+        logger.warn("Profile not completed: {}", ex.getMessage());
+        ApiError apiError = buildError(
+                HttpStatus.FORBIDDEN,
+                ex.getMessage(),
+                request.getDescription(false).replace("uri=", ""),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(apiError);
+    }
 }

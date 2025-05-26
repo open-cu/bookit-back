@@ -13,7 +13,6 @@ spring:
       hibernate:
         format_sql: true
 
-
   h2:
     console:
       enabled: true
@@ -21,3 +20,8 @@ spring:
       settings:
         trace: true
         web-allow-others: true
+
+bookit:
+  app:
+    jwtSecret: bookItSecretKey123456789012345678901234567890123456789012345678901234567890
+    jwtExpirationMs: 18000000

@@ -3,13 +3,13 @@ package ru.tbank.bookit.book_it_backend.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.tbank.bookit.book_it_backend.DTO.EventResponse;
 import ru.tbank.bookit.book_it_backend.exception.ResourceNotFoundException;
-import ru.tbank.bookit.book_it_backend.model.Event;
-import ru.tbank.bookit.book_it_backend.model.EventStatus;
-import ru.tbank.bookit.book_it_backend.model.ThemeTags;
+import ru.tbank.bookit.book_it_backend.model.*;
 import ru.tbank.bookit.book_it_backend.repository.EventRepository;
 import ru.tbank.bookit.book_it_backend.service.EventService;
 import java.util.List;
@@ -53,6 +53,16 @@ public class EventController {
     @Operation(description = "Registers (by entering the guest list of the event) the user for this event")
     @PutMapping("/{eventId}/registrations/{userId}")
     public ResponseEntity<Event> addUserInList(@PathVariable UUID eventId, @PathVariable UUID userId){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof User)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        User currentUser = (User) authentication.getPrincipal();
+        if (currentUser.getStatus() != UserStatus.VERIFIED) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(null);
+        }
+
         Event event = eventService.findById(eventId).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
         eventService.addUser(userId, event);
@@ -69,6 +79,17 @@ public class EventController {
     @Operation(description = "Deletes the user from the guest list for the event, returns a string about the success of the deletion")
     @DeleteMapping("/{eventId}/registrations/{userId}")
     public ResponseEntity<String> removeUserInList(@PathVariable UUID eventId, @PathVariable UUID userId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof User)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        User currentUser = (User) authentication.getPrincipal();
+        if (currentUser.getStatus() != UserStatus.VERIFIED) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Only verified users can perform this action");
+        }
+
         Event event = eventService.findById(eventId).orElseThrow(
                 () -> new ResourceNotFoundException("Event not found"));
         eventService.removeUser(userId, event);

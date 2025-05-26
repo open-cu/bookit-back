@@ -1,22 +1,33 @@
-CREATE TABLE "Users"(
-                        "id" BIGINT NOT NULL,
-                        "tg_id" BIGINT NOT NULL,
-                        "name" VARCHAR(255) NOT NULL,
-                        "email" TEXT NOT NULL,
-                        "password_hash" VARCHAR(255) NULL,
-                        "phone" BIGINT NOT NULL,
-                        "created_at" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL,
-                        "status" VARCHAR(255) NOT NULL DEFAULT 'User'
+CREATE TABLE "Users" (
+                         "id" BIGINT NOT NULL PRIMARY KEY,
+                         "tg_id" BIGINT NOT NULL UNIQUE,
+                         "username" VARCHAR(255) NOT NULL UNIQUE,
+                         "first_name" VARCHAR(255) NOT NULL,
+                         "last_name" VARCHAR(255),
+                         "photo_url" TEXT,
+                         "email" TEXT UNIQUE,
+                         "password_hash" VARCHAR(255),
+                         "phone" BIGINT UNIQUE,
+                         "created_at" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+                         "status" VARCHAR(32) NOT NULL DEFAULT 'CREATED'
 );
-ALTER TABLE
-    "Users" ADD PRIMARY KEY("id");
-ALTER TABLE
-    "Users" ADD CONSTRAINT "users_tg_id_unique" UNIQUE("tg_id");
-ALTER TABLE
-    "Users" ADD CONSTRAINT "users_email_unique" UNIQUE("email");
 COMMENT
 ON COLUMN
     "Users"."status" IS 'Статус привилегий: user, admin, support (CS)';
+CREATE TABLE "Roles" (
+                         "id" BIGINT NOT NULL PRIMARY KEY,
+                         "name" VARCHAR(32) NOT NULL UNIQUE, -- user, admin, support
+                         "description" TEXT
+);
+CREATE TABLE "user_roles" (
+                              "user_id" BIGINT NOT NULL,
+                              "role_id" BIGINT NOT NULL,
+                              PRIMARY KEY ("user_id", "role_id"),
+                              FOREIGN KEY ("user_id") REFERENCES "Users"("id") ON DELETE CASCADE,
+                              FOREIGN KEY ("role_id") REFERENCES "Roles"("id") ON DELETE CASCADE
+);
+CREATE INDEX "user_roles_user_id_idx" ON "user_roles"("user_id");
+CREATE INDEX "user_roles_role_id_idx" ON "user_roles"("role_id");
 CREATE TABLE "Areas"(
                         "id" BIGINT NOT NULL,
                         "name" VARCHAR(255) NOT NULL,

@@ -2,8 +2,6 @@ package ru.tbank.bookit.book_it_backend.config;
 
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -12,7 +10,6 @@ import ru.tbank.bookit.book_it_backend.model.UserStatus;
 import ru.tbank.bookit.book_it_backend.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 
 @Configuration
@@ -29,29 +26,35 @@ public class UserDataInitializer implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         if (userRepository.count() == 0) {
             User alice = new User();
-            alice.setTg_id(1234567890L);
-            alice.setName("Alice Johnson");
+            alice.setTgId(1234567890L);
+            alice.setFirstName("Alice");
+            alice.setLastName("Johnson");
+            alice.setUsername("alicejohnson");
             alice.setEmail("alice@example.com");
             alice.setPasswordHash("$2b$12$abcdefghijklmnopqrstuv");
-            alice.setPhone(79123456789L);
+            alice.setPhone("+79123456789");
             alice.setCreatedAt(LocalDateTime.of(2025, 4, 3, 12, 0));
             alice.setStatus(UserStatus.CREATED);
 
             User bob = new User();
-            bob.setTg_id(1987654321L);
-            bob.setName("Bob Smith");
+            bob.setTgId(1987654321L);
+            bob.setFirstName("Bob");
+            bob.setLastName("Smith");
+            bob.setUsername("bobsmith");
             bob.setEmail("bob@example.com");
             bob.setPasswordHash("$2b$12$zyxwvutsrqponmlkjihgfedc");
-            bob.setPhone(79219876543L);
+            bob.setPhone("+79219876543");
             bob.setCreatedAt(LocalDateTime.of(2025, 4, 3, 12, 5));
             bob.setStatus(UserStatus.CREATED);
 
             User charlie = new User();
-            charlie.setTg_id(8987654325L);
-            charlie.setName("Charlie Davis");
+            charlie.setTgId(8987654325L);
+            charlie.setFirstName("Charlie Davis");
+            charlie.setLastName("Davis");
+            charlie.setUsername("charliedavis");
             charlie.setEmail("charlie@example.com");
             charlie.setPasswordHash("$2b$12$1234567890abcdefgijklmn");
-            charlie.setPhone(79219876542L);
+            charlie.setPhone("+79219876542");
             charlie.setCreatedAt(LocalDateTime.of(2025, 4, 3, 12, 10));
             charlie.setStatus(UserStatus.BANNED);
 
