@@ -24,4 +24,4 @@ spring:
 bookit:
   app:
     jwtSecret: bookItSecretKey123456789012345678901234567890123456789012345678901234567890
-    jwtExpirationMs: 5h
+    jwtExpirationMs: 18000000
