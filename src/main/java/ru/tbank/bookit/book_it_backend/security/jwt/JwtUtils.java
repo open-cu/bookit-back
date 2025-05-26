@@ -1,6 +1,8 @@
 package ru.tbank.bookit.book_it_backend.security.jwt;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import ru.tbank.bookit.book_it_backend.model.User;
 
+import javax.crypto.SecretKey;
 import java.util.Date;
 
 //Утилитный класс для работы с JWT токенами
@@ -17,26 +20,38 @@ public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
     @Value("${bookit.app.jwtSecret}")
-    private String jwtSecret;
+    private String jwtSecretString;
 
     @Value("${bookit.app.jwtExpirationMs}")
     private int jwtExpirationMs;
+
+    private SecretKey jwtSecret;
+
+    @PostConstruct
+    public void init() {
+        // Создаем криптографически безопасный ключ для HS512
+        this.jwtSecret = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+    }
 
     //Генерирует JWT токен на основе данных аутентификации
     public String generateJwtToken(Authentication authentication) {
         User userPrincipal = (User) authentication.getPrincipal();
 
         return Jwts.builder()
-                .setSubject((userPrincipal.getUsername()))
-                .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
-                .signWith(SignatureAlgorithm.HS512, jwtSecret)
-                .compact();
+                   .setSubject((userPrincipal.getUsername()))
+                   .setIssuedAt(new Date())
+                   .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                   .signWith(jwtSecret)
+                   .compact();
     }
 
     //Извлекает имя пользователя из JWT токена
     public String getUserNameFromJwtToken(String token) {
-        return Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parser()
+                   .setSigningKey(jwtSecret)
+                   .parseClaimsJws(token)
+                   .getBody()
+                   .getSubject();
     }
 
     //Проверяет валидность JWT токена
