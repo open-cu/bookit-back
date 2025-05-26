@@ -37,9 +37,10 @@ public class UserService {
     }
 
     @Transactional
-    public User updateProfile(String name, String email, Long phone) {
+    public User updateProfile(String firstName, String lastName, String email, Long phone) {
         User user = getCurrentUser();
-        if (name != null) user.setName(name);
+        if (firstName != null) user.setFirstName(firstName);
+        if (lastName != null) user.setLastName(lastName);
         if (email != null) user.setEmail(email);
         if (phone != null) user.setPhone(phone);
         return userRepository.save(user);

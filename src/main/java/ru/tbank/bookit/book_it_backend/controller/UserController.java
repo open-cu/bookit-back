@@ -37,7 +37,12 @@ public class UserController {
     @Operation(summary = "Обновить свои данные")
     @PutMapping("/me")
     public ResponseEntity<User> updateProfile(@RequestBody UpdateProfileRequest request) {
-        User updated = userService.updateProfile(request.getName(), request.getEmail(), request.getPhone());
+        User updated = userService.updateProfile(
+                request.getFirstName(),
+                request.getLastName(),
+                request.getEmail(),
+                request.getPhone()
+        );
         return ResponseEntity.ok(updated);
     }
 }

@@ -8,8 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
-    //поиск по имени
-    @Query("SELECT u FROM User u WHERE u.name = ?1")
+    @Query("SELECT u FROM User u WHERE u.firstName = ?1")
     User findByName(String name);
 
     Optional<User> findByUsername(String username);
@@ -18,9 +17,13 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     Boolean existsByEmail(String email);
 
+    Boolean existsByPhone(Long phone);
+
     Optional<User> findByEmail(String email);
 
     Optional<User> findByPhone(long phone);
 
     Optional<User> findByTgId(long tgId);
+
+    Optional<User> findByFirstNameAndLastName(String firstName, String lastName);
 }

@@ -19,10 +19,15 @@ public class SignupRequest {
     private String password;
 
     @NotBlank
-    private String name;
-    private long phone;
-    private long tg_id;
+    @Size(max = 255)
+    private String firstName;
 
+    @Size(max = 255)
+    private String lastName;
+
+    private Long phone;
+    private Long tg_id;
+    private String photoUrl;
 
     public String getUsername() {
         return username;
@@ -48,27 +53,43 @@ public class SignupRequest {
         this.password = password;
     }
 
-    public String getName() {
-        return name;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public long getPhone() {
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public Long getPhone() {
         return phone;
     }
 
-    public void setPhone(long phone) {
+    public void setPhone(Long phone) {
         this.phone = phone;
     }
 
-    public long getTg_id() {
+    public Long getTg_id() {
         return tg_id;
     }
 
-    public void setTg_id(long tg_id) {
+    public void setTg_id(Long tg_id) {
         this.tg_id = tg_id;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
     }
 }

@@ -4,9 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
-import ru.tbank.bookit.book_it_backend.DTO.CreateBookingRequest;
 import ru.tbank.bookit.book_it_backend.model.*;
 import ru.tbank.bookit.book_it_backend.repository.AreaRepository;
 import ru.tbank.bookit.book_it_backend.repository.BookingRepository;
@@ -18,14 +16,11 @@ import java.time.LocalTime;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.temporal.ChronoUnit;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Stream;
+import java.util.Optional;
 
 @Component
 @Order(3)
-
 public class BookingDataInitializer implements ApplicationRunner {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
@@ -55,7 +50,12 @@ public class BookingDataInitializer implements ApplicationRunner {
             return;
         }
 
-        User aliceJohnson = userRepository.findByName("Alice Johnson");
+        Optional<User> aliceOpt = userRepository.findByFirstNameAndLastName("Alice", "Johnson");
+        if (aliceOpt.isEmpty()) {
+            System.out.println("User Alice Johnson not found! Skipping Booking init.");
+            return;
+        }
+        User aliceJohnson = aliceOpt.get();
 
         Booking booking1 = createBooking(aliceJohnson, areas.getFirst(), Month.MAY, 25);
         Booking booking2 = createBooking(aliceJohnson, areas.getLast(), Month.MAY, 25);
@@ -70,7 +70,7 @@ public class BookingDataInitializer implements ApplicationRunner {
         Booking booking9 = createCurrentBooking(aliceJohnson, areas.getFirst());
 
         bookingRepository.saveAll(List.of(booking1, booking2, booking3, booking4,
-                                          booking5, booking6, booking7, booking8, booking9));
+                booking5, booking6, booking7, booking8, booking9));
     }
 
     public Booking createCurrentBooking(User user, Area area) {

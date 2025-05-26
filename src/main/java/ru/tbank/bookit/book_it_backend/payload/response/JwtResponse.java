@@ -8,14 +8,16 @@ public class JwtResponse {
     private UUID id;
     private String username;
     private String email;
-    private String name;
+    private String firstName;
+    private String lastName;
 
-    public JwtResponse(String accessToken, UUID id, String username, String email, String name) {
+    public JwtResponse(String accessToken, UUID id, String username, String email, String firstName, String lastName) {
         this.token = accessToken;
         this.id = id;
         this.username = username;
         this.email = email;
-        this.name = name;
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 
     public String getToken() {
@@ -58,11 +60,19 @@ public class JwtResponse {
         this.email = email;
     }
 
-    public String getName() {
-        return name;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 }

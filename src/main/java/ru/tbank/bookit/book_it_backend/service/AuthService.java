@@ -53,7 +53,8 @@ public class AuthService {
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getName()
+                user.getFirstName(), // изменено: теперь firstName
+                user.getLastName()   // добавлено: lastName
         );
     }
 
@@ -62,16 +63,21 @@ public class AuthService {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return new MessageResponse("Ошибка: Имя пользователя уже занято!");
         }
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+        if (signUpRequest.getEmail() != null && userRepository.existsByEmail(signUpRequest.getEmail())) {
             return new MessageResponse("Ошибка: Email уже используется!");
+        }
+        if (signUpRequest.getPhone() != null && userRepository.existsByPhone(signUpRequest.getPhone())) {
+            return new MessageResponse("Ошибка: Телефон уже используется!");
         }
 
         User user = new User();
         user.setUsername(signUpRequest.getUsername());
+        user.setFirstName(signUpRequest.getFirstName());
+        user.setLastName(signUpRequest.getLastName());
         user.setEmail(signUpRequest.getEmail());
-        user.setName(signUpRequest.getName());
         user.setPhone(signUpRequest.getPhone());
         user.setTgId(signUpRequest.getTg_id());
+        user.setPhotoUrl(signUpRequest.getPhotoUrl());
         user.setPasswordHash(passwordEncoder.encode(signUpRequest.getPassword()));
         user.setStatus(UserStatus.CREATED);
         user.setCreatedAt(LocalDateTime.now());
