@@ -95,6 +95,13 @@ public class AuthService {
     @Transactional
     public MessageResponse completeUserProfile(UserProfileUpdateRequest profileRequest) {
         User currentUser = getCurrentUser();
+        if (currentUser.getStatus() != UserStatus.CREATED) {
+            return new MessageResponse("User profile is already verified!");
+        }
+        if (profileRequest.getFirstName() == null || profileRequest.getLastName() == null ||
+                profileRequest.getEmail() == null || profileRequest.getPhone() == null) {
+            throw new IllegalArgumentException("All fields are required to complete the profile!");
+        }
 
         currentUser.setFirstName(profileRequest.getFirstName());
         currentUser.setLastName(profileRequest.getLastName());
