@@ -20,8 +20,8 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "tg_id", nullable = false)
-    private long tgId;
+    @Column(name = "tg_id")
+    private Long tgId;
 
     @Column(nullable = false)
     private String firstName;
@@ -37,7 +37,7 @@ public class User implements UserDetails {
     private String passwordHash;
 
     @Column(unique = true)
-    private long phone;
+    private String phone;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -45,6 +45,9 @@ public class User implements UserDetails {
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column
+    private LocalDateTime updatedAt;
 
     @Column(unique = true, nullable = false)
     private String username;

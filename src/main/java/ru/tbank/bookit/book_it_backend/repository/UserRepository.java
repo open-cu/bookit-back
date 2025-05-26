@@ -17,13 +17,13 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     Boolean existsByEmail(String email);
 
-    Boolean existsByPhone(Long phone);
+    Boolean existsByPhone(String phone);
 
     Optional<User> findByEmail(String email);
 
-    Optional<User> findByPhone(long phone);
+    Optional<User> findByPhone(String phone);
 
-    Optional<User> findByTgId(long tgId);
+    Optional<User> findByTgId(Long tgId);
 
     Optional<User> findByFirstNameAndLastName(String firstName, String lastName);
 }

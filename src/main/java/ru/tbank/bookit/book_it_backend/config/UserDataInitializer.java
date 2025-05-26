@@ -32,7 +32,7 @@ public class UserDataInitializer implements ApplicationRunner {
             alice.setUsername("alicejohnson");
             alice.setEmail("alice@example.com");
             alice.setPasswordHash("$2b$12$abcdefghijklmnopqrstuv");
-            alice.setPhone(79123456789L);
+            alice.setPhone("+79123456789");
             alice.setCreatedAt(LocalDateTime.of(2025, 4, 3, 12, 0));
             alice.setStatus(UserStatus.CREATED);
 
@@ -43,7 +43,7 @@ public class UserDataInitializer implements ApplicationRunner {
             bob.setUsername("bobsmith");
             bob.setEmail("bob@example.com");
             bob.setPasswordHash("$2b$12$zyxwvutsrqponmlkjihgfedc");
-            bob.setPhone(79219876543L);
+            bob.setPhone("+79219876543");
             bob.setCreatedAt(LocalDateTime.of(2025, 4, 3, 12, 5));
             bob.setStatus(UserStatus.CREATED);
 
@@ -54,7 +54,7 @@ public class UserDataInitializer implements ApplicationRunner {
             charlie.setUsername("charliedavis");
             charlie.setEmail("charlie@example.com");
             charlie.setPasswordHash("$2b$12$1234567890abcdefgijklmn");
-            charlie.setPhone(79219876542L);
+            charlie.setPhone("+79219876542");
             charlie.setCreatedAt(LocalDateTime.of(2025, 4, 3, 12, 10));
             charlie.setStatus(UserStatus.BANNED);
 

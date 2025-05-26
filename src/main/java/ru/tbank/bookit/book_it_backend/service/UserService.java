@@ -37,7 +37,7 @@ public class UserService {
     }
 
     @Transactional
-    public User updateProfile(String firstName, String lastName, String email, Long phone) {
+    public User updateProfile(String firstName, String lastName, String email, String phone) {
         User user = getCurrentUser();
         if (firstName != null) user.setFirstName(firstName);
         if (lastName != null) user.setLastName(lastName);
