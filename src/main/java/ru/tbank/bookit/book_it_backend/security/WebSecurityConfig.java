@@ -75,10 +75,6 @@ public class WebSecurityConfig {
                                         "/webjars/**"
                                 ).permitAll()
                                 .requestMatchers("/auth/**").permitAll()
-                                .requestMatchers("/public/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/events").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/events/by-tags").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/events/event").permitAll()
                                 .anyRequest().authenticated()
                 );
 
