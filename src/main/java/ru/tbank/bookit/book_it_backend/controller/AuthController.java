@@ -15,7 +15,7 @@ import ru.tbank.bookit.book_it_backend.payload.response.UserProfileResponse;
 import ru.tbank.bookit.book_it_backend.service.AuthService;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthController {
     private final AuthService authService;
 

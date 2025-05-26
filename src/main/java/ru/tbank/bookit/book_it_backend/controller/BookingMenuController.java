@@ -27,7 +27,6 @@ import ru.tbank.bookit.book_it_backend.service.BookingMenuService;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -120,7 +119,7 @@ public class BookingMenuController {
     public Set<ResponseEntity<Booking>> createBooking(@RequestBody CreateBookingRequest request) {
         User currentUser = getCurrentUser();
         if (currentUser.getStatus() != UserStatus.VERIFIED) {
-            throw new ProfileNotCompletedException("Для создания бронирования необходимо заполнить профиль!");
+            throw new ProfileNotCompletedException("User profile is not completed. Please complete your profile before creating bookings.");
         }
 
         for (Pair<LocalDateTime, LocalDateTime> t : request.timePeriods()) {
@@ -150,7 +149,7 @@ public class BookingMenuController {
         try {
             User currentUser = getCurrentUser();
             if (currentUser.getStatus() != UserStatus.VERIFIED) {
-                throw new ProfileNotCompletedException("Для обновления бронирования необходимо заполнить профиль!");
+                throw new ProfileNotCompletedException("User profile is not completed. Please complete your profile before updating bookings.");
             }
 
             Booking updatedBooking = bookingMenuService.updateBooking(bookingId, request);

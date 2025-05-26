@@ -11,7 +11,7 @@ import ru.tbank.bookit.book_it_backend.service.UserService;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/user")
 public class UserController {
     private final UserService userService;
 
