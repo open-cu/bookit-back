@@ -3,6 +3,7 @@ package ru.tbank.bookit.book_it_backend.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -75,6 +76,9 @@ public class WebSecurityConfig {
                                 ).permitAll()
                                 .requestMatchers("/auth/**").permitAll()
                                 .requestMatchers("/public/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/events").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/events/by-tags").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/events/event").permitAll()
                                 .anyRequest().authenticated()
                 );
 
