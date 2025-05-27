@@ -10,20 +10,33 @@ env:
   SSH_HOST: ${{ secrets.SSH_HOST }}
   SSH_USER: ${{ secrets.SSH_USER }}
 jobs:
-  build:
+  validate-ssh-key:
     runs-on: self-hosted
-
+    outputs:
+      key-valid: ${{ steps.validate.outputs.valid }}
     steps:
-      - uses: actions/checkout@v4
-
       - name: Validate SSH Key
+        id: validate
         run: |
+          if [ -z "$TEST_KEY" ]; then
+            echo "::error::SSH key is empty"
+            echo "valid=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          
           echo "Key length: ${#TEST_KEY}"
           echo "$TEST_KEY" | head -n 3
           echo "$TEST_KEY" | tail -n 3
+          echo "valid=true" >> $GITHUB_OUTPUT
         env:
           TEST_KEY: |
             ${{ secrets.SSH_PRIVATE_KEY }}
+
+  setup-ssh:
+    runs-on: self-hosted
+    needs: validate-ssh-key
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Install SSH key
         uses: webfactory/ssh-agent@v0.9.0
@@ -31,11 +44,17 @@ jobs:
           ssh-private-key: |
             ${{ secrets.SSH_PRIVATE_KEY }}
 
+  deploy:
+    runs-on: self-hosted
+    needs: setup-ssh
+    steps:
+      - uses: actions/checkout@v4
+
       - name: Deploy on remote server
         run: |
           ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "
-          cd ./bookit-back &&
-          git checkout release &&
-          git pull &&
-          sudo docker-compose -f docker-prod.yaml up --build -d
+            cd ./bookit-back &&
+            git checkout main &&
+            git pull &&
+            sudo docker-compose -f docker-prod.yaml up --build -d
           "
