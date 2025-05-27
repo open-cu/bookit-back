@@ -330,6 +330,9 @@ public class BookingService {
         if (booking.getStatus() == BookingStatus.CANCELED || booking.getStatus() == BookingStatus.COMPLETED) {
             throw new IllegalStateException("Unable to update " + booking.getStatus() + " booking");
         }
+        if (startTime.isAfter(endTime)) {
+            throw new IllegalArgumentException("Start time cannot be after end time");
+        }
 
         boolean sameArea = booking.getAreaId().equals(areaId);
         boolean sameTime = booking.getStartTime().equals(startTime) && booking.getEndTime().equals(endTime);
