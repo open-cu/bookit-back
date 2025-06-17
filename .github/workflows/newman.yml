@@ -1,0 +1,22 @@
+name: Postman Tests
+
+on:
+  push:
+  pull_request:
+    branches:
+      - release
+      - -main
+
+jobs:
+  newman-tests:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Newman
+        run: npm install -g newman
+
+      - name: Run Postman Tests
+        run: newman run https://api.getpostman.com/collections/${{ secrets.COLLECTION_UID }}?apikey=${{ secrets.ACCESS_KEY }}

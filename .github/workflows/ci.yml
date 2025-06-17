@@ -4,8 +4,7 @@ on:
   push:
   pull_request:
     branches:
-      - main
-      - remote_deploy
+      - release
 
 env:
   SSH_HOST: ${{ secrets.SSH_HOST }}

@@ -1,6 +1,10 @@
 spring:
+  jpa:
+    properties:
+      hibernate:
+        generate_statistics: true
   profiles:
-    active: prod
+    active: dev
 springdoc:
   api-docs:
     enabled: true
@@ -9,6 +13,14 @@ springdoc:
     operations-sorter: method
   default-produces-media-type: application/json
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, beans, env, threaddump
+  endpoint:
+    health:
+      show-details: always
 booking:
   max-days-forward: 30
   start-work: 8
