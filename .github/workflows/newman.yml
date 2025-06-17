@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install Newman
-        run: npm install -g newman
+        run: npm install newman
 
       - name: Run Postman Tests
         run: newman run https://api.getpostman.com/collections/${{ secrets.COLLECTION_UID }}?apikey=${{ secrets.ACCESS_KEY }}
