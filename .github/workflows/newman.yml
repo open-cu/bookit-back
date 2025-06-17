@@ -24,6 +24,13 @@ jobs:
       - name: Clear npm cache
         run: npm cache clean --force
 
+      - name: Verify environment variable
+        run: |
+          if [ -z "${{ secrets.ENVIRONMENT }}" ]; then
+            echo "Environment secret is empty!"
+            exit 1
+          fi
+
       - name: Run Postman Tests
         if: always()
         run: npx newman run "https://api.getpostman.com/collections/${{ secrets.COLLECTION_UID }}?access_key=${{ secrets.ACCESS_KEY }}" --environment "${{ secrets.ENVIRONMENT }}"
