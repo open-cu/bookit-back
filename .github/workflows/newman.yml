@@ -19,17 +19,10 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install Newman
-        run: npm install newman
+        run: npm install newman@latest
 
       - name: Clear npm cache
-        run: npm cache clean --force
-
-      - name: Verify environment variable
-        run: |
-          if [ -z "${{ secrets.ENVIRONMENT }}" ]; then
-            echo "Environment secret is empty!"
-            exit 1
-          fi
+        run: npm cache clean
 
       - name: Run Postman Tests
         if: always()
