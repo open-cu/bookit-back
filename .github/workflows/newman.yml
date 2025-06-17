@@ -18,6 +18,10 @@ jobs:
       - name: Install Newman
         run: npm install newman
 
+      - name: Clear npm cache
+        run: npm cache clean --force
+
       - name: Run Postman Tests
+        if: always()
         run: npx newman run https://api.getpostman.com/collections/${{ secrets.COLLECTION_UID }}?access_key=${{ secrets.ACCESS_KEY }} \
           --environment ${{ secrets.ENVIRONMENT }}
