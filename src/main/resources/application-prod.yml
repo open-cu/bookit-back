@@ -42,14 +42,3 @@ logging:
     org.springframework.jdbc.core.StatementCreatorUtils: OFF
     org.flywaydb: OFF
     ru.tbank.bookit: INFO
-#  pattern:
-#    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} [%X{traceId}] - %msg%n"
-  file:
-    name: /var/log/book-it/prod.log
-    max-history: 30
-    max-size: 100MB
-    rotate-on-startup: true
-    logback:
-      rollingpolicy:
-        clean-history-on-start: false
-        file-name-pattern: /var/log/book-it/prod.%d{yyyy-MM-dd}.%i.log

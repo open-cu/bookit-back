@@ -14,12 +14,3 @@ booking:
   start-work: 8
   end-work: 21
   hall-max-capacity: 4
-
-logging:
-  pattern:
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} [%X{traceId}] - %msg%n"
-
-  file:
-    name: logs/application.log
-    max-history: 7
-    max-size: 10MB

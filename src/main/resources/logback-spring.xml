@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <springProperty scope="context" name="springAppName" source="spring.application.name" defaultValue="book-it"/>
+    <springProperty scope="context" name="springProfilesActive" source="spring.profiles.active" defaultValue="dev"/>
+
+    <!-- Конфигурация JSON-логирования с pretty print -->
+    <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp>
+                    <timeZone>UTC</timeZone>
+                    <fieldName>timestamp</fieldName>
+                </timestamp>
+                <version/>
+                <message>
+                    <fieldName>message</fieldName>
+                </message>
+                <loggerName>
+                    <fieldName>logger</fieldName>
+                </loggerName>
+                <threadName>
+                    <fieldName>thread</fieldName>
+                </threadName>
+                <logLevel>
+                    <fieldName>level</fieldName>
+                </logLevel>
+                <stackTrace>
+                    <fieldName>stacktrace</fieldName>
+                </stackTrace>
+                <arguments/>
+                <context/>
+                <logstashMarkers/>
+                <pattern>
+                    <pattern>
+                        {
+                        "app": "${springAppName}",
+                        "env": "${springProfilesActive}"
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+            <jsonGeneratorDecorator class="net.logstash.logback.decorate.PrettyPrintingJsonGeneratorDecorator"/>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="JSON_CONSOLE"/>
+    </root>
+</configuration>

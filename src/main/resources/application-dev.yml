@@ -40,5 +40,3 @@ logging:
     org.springframework.jdbc.core.StatementCreatorUtils: TRACE
     org.flywaydb: DEBUG
     ru.tbank.bookit: DEBUG
-  pattern:
-    console: "%clr(%d{yyyy-MM-dd HH:mm:ss}){faint} %clr([%thread]){blue} %clr(%-5level){green} %clr(%logger{36}){cyan} - %msg%n"
