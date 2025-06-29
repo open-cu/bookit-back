@@ -12,17 +12,14 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
-//Вызывается, когда неаутентифицированный пользователь пытается получить доступ к защищенному ресурсу
 @Component
 public class AuthEntryPointJwt implements AuthenticationEntryPoint {
-
     private static final Logger logger = LoggerFactory.getLogger(AuthEntryPointJwt.class );
 
-    //Отправляет клиенту ответ с кодом 401 (Unauthorized)
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException, ServletException {
-        logger.error("Unauthorized error: {}", authException.getMessage());
+        logger.error("Unauthorized error at {}: {}", request.getRequestURI(), authException.getMessage());
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error: Unauthorized");
     }
 }
