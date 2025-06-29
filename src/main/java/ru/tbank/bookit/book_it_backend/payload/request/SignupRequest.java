@@ -29,7 +29,7 @@ public class SignupRequest {
     @Email
     private String email;
 
-    @Pattern(regexp = "^(\\+7\\d{10}|8\\d{10})$", message = "Incorrect phone number format")
+    @Pattern(regexp = "^(\\+7\\d{10}|8\\d{10})$", message = "Invalid phone")
     private String phone;
 
     @JsonProperty("tg_id")

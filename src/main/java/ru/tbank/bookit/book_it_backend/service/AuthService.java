@@ -102,11 +102,11 @@ public class AuthService {
     public MessageResponse completeUserProfile(UserProfileUpdateRequest profileRequest) {
         User currentUser = getCurrentUser();
         if (currentUser.getStatus() != UserStatus.CREATED) {
-            return new MessageResponse("User profile is already verified!");
+            return new MessageResponse("The profile is verified");
         }
         if (profileRequest.getFirstName() == null || profileRequest.getLastName() == null ||
                 profileRequest.getEmail() == null || profileRequest.getPhone() == null) {
-            throw new IllegalArgumentException("All fields are required to complete the profile!");
+            throw new IllegalArgumentException("All fields must be filled in");
         }
 
         currentUser.setFirstName(profileRequest.getFirstName());
@@ -119,7 +119,7 @@ public class AuthService {
 
         userRepository.save(currentUser);
 
-        return new MessageResponse("Профиль пользователя успешно обновлен!");
+        return new MessageResponse("The profile has been updated");
     }
 
     public UserProfileResponse getCurrentUserProfile() {
@@ -163,13 +163,13 @@ public class AuthService {
     @Transactional
     public MessageResponse register(SignupRequest signUpRequest) {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-            return new MessageResponse("Error: The user name is already in use!");
+            return new MessageResponse("The user name is already in use");
         }
         if (signUpRequest.getEmail() != null && userRepository.existsByEmail(signUpRequest.getEmail())) {
-            return new MessageResponse("Error: The email address is already in use!");
+            return new MessageResponse("The email address is already in use");
         }
         if (signUpRequest.getPhone() != null && userRepository.existsByPhone(signUpRequest.getPhone())) {
-            return new MessageResponse("Error: The telephone is already in use!");
+            return new MessageResponse("The telephone is already in use");
         }
 
         User user = new User();
@@ -186,7 +186,7 @@ public class AuthService {
 
         userRepository.save(user);
 
-        return new MessageResponse("The registration process has been successfully completed!");
+        return new MessageResponse("The registration has been completed");
     }
 
     private User getCurrentUser() {
