@@ -49,9 +49,9 @@ public class AuthService {
                     ? telegramUserRequest.getUsername()
                     : "tg_" + telegramUserRequest.getId();
             user.setUsername(safeUsername);
-            user.setFirstName(telegramUserRequest.getFirst_name());
-            user.setLastName(telegramUserRequest.getLast_name());
-            user.setPhotoUrl(telegramUserRequest.getPhoto_url());
+            user.setFirstName(telegramUserRequest.getFirstName());
+            user.setLastName(telegramUserRequest.getLastName());
+            user.setPhotoUrl(telegramUserRequest.getPhotoUrl());
             user.setStatus(UserStatus.CREATED);
             user.setCreatedAt(LocalDateTime.now());
 
@@ -66,17 +66,17 @@ public class AuthService {
             if (!newUsername.equals(user.getUsername())) {
                 user.setUsername(newUsername);
             }
-            if (telegramUserRequest.getFirst_name() != null &&
-                    !telegramUserRequest.getFirst_name().equals(user.getFirstName())) {
-                user.setFirstName(telegramUserRequest.getFirst_name());
+            if (telegramUserRequest.getFirstName() != null &&
+                    !telegramUserRequest.getFirstName().equals(user.getFirstName())) {
+                user.setFirstName(telegramUserRequest.getFirstName());
             }
-            if (telegramUserRequest.getLast_name() != null &&
-                    !telegramUserRequest.getLast_name().equals(user.getLastName())) {
-                user.setLastName(telegramUserRequest.getLast_name());
+            if (telegramUserRequest.getLastName() != null &&
+                    !telegramUserRequest.getLastName().equals(user.getLastName())) {
+                user.setLastName(telegramUserRequest.getLastName());
             }
-            if (telegramUserRequest.getPhoto_url() != null &&
-                    !telegramUserRequest.getPhoto_url().equals(user.getPhotoUrl())) {
-                user.setPhotoUrl(telegramUserRequest.getPhoto_url());
+            if (telegramUserRequest.getPhotoUrl() != null &&
+                    !telegramUserRequest.getPhotoUrl().equals(user.getPhotoUrl())) {
+                user.setPhotoUrl(telegramUserRequest.getPhotoUrl());
             }
             user.setUpdatedAt(LocalDateTime.now());
             userRepository.save(user);
@@ -178,7 +178,7 @@ public class AuthService {
         user.setLastName(signUpRequest.getLastName());
         user.setEmail(signUpRequest.getEmail());
         user.setPhone(signUpRequest.getPhone());
-        user.setTgId(signUpRequest.getTg_id());
+        user.setTgId(signUpRequest.getTgId());
         user.setPhotoUrl(signUpRequest.getPhotoUrl());
         user.setPasswordHash(passwordEncoder.encode(signUpRequest.getPassword()));
         user.setStatus(UserStatus.CREATED);

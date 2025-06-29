@@ -1,5 +1,6 @@
 package ru.tbank.bookit.book_it_backend.payload.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -28,6 +29,9 @@ public class SignupRequest {
     private String email;
 
     private String phone;
-    private Long tg_id;
+
+    @JsonProperty("tg_id")
+    private Long tgId;
+
     private String photoUrl;
 }

@@ -1,22 +1,28 @@
 package ru.tbank.bookit.book_it_backend.payload.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class TelegramUserRequest {
     @NotNull
-    private Long id; // Telegram ID
+    private Long id;
 
-    private String first_name;
+    @JsonProperty("first_name")
+    private String firstName;
 
-    private String last_name;
+    @JsonProperty("last_name")
+    private String lastName;
 
     private String username;
 
-    private String language_code;
+    @JsonProperty("language_code")
+    private String languageCode;
 
-    private Boolean is_premium;
+    @JsonProperty("is_premium")
+    private Boolean isPremium;
 
-    private String photo_url;
+    @JsonProperty("photo_url")
+    private String photoUrl;
 }
