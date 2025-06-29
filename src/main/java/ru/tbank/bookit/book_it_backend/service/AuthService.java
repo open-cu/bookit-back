@@ -40,14 +40,15 @@ public class AuthService {
 
     @Transactional
     public JwtResponse authenticateTelegramUser(TelegramUserRequest telegramUserRequest) {
-        User user = userRepository.findByTgId(telegramUserRequest.getId())
-                .orElse(null);
+        User user = userRepository.findByTgId(telegramUserRequest.getId()).orElse(null);
 
         if (user == null) {
             user = new User();
             user.setTgId(telegramUserRequest.getId());
-            user.setUsername(telegramUserRequest.getUsername() != null ?
-                    telegramUserRequest.getUsername() : "tg_" + telegramUserRequest.getId());
+            String safeUsername = telegramUserRequest.getUsername() != null
+                    ? telegramUserRequest.getUsername()
+                    : "tg_" + telegramUserRequest.getId();
+            user.setUsername(safeUsername);
             user.setFirstName(telegramUserRequest.getFirst_name());
             user.setLastName(telegramUserRequest.getLast_name());
             user.setPhotoUrl(telegramUserRequest.getPhoto_url());
@@ -59,19 +60,24 @@ public class AuthService {
 
             userRepository.save(user);
         } else {
-            if (telegramUserRequest.getUsername() != null) {
-                user.setUsername(telegramUserRequest.getUsername());
+            String newUsername = telegramUserRequest.getUsername() != null
+                    ? telegramUserRequest.getUsername()
+                    : "tg_" + telegramUserRequest.getId();
+            if (!newUsername.equals(user.getUsername())) {
+                user.setUsername(newUsername);
             }
-            if (telegramUserRequest.getFirst_name() != null) {
+            if (telegramUserRequest.getFirst_name() != null &&
+                    !telegramUserRequest.getFirst_name().equals(user.getFirstName())) {
                 user.setFirstName(telegramUserRequest.getFirst_name());
             }
-            if (telegramUserRequest.getLast_name() != null) {
+            if (telegramUserRequest.getLast_name() != null &&
+                    !telegramUserRequest.getLast_name().equals(user.getLastName())) {
                 user.setLastName(telegramUserRequest.getLast_name());
             }
-            if (telegramUserRequest.getPhoto_url() != null) {
+            if (telegramUserRequest.getPhoto_url() != null &&
+                    !telegramUserRequest.getPhoto_url().equals(user.getPhotoUrl())) {
                 user.setPhotoUrl(telegramUserRequest.getPhoto_url());
             }
-
             user.setUpdatedAt(LocalDateTime.now());
             userRepository.save(user);
         }
@@ -157,13 +163,13 @@ public class AuthService {
     @Transactional
     public MessageResponse register(SignupRequest signUpRequest) {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-            return new MessageResponse("Ошибка: Имя пользователя уже занято!");
+            return new MessageResponse("Error: The user name is already in use!");
         }
         if (signUpRequest.getEmail() != null && userRepository.existsByEmail(signUpRequest.getEmail())) {
-            return new MessageResponse("Ошибка: Email уже используется!");
+            return new MessageResponse("Error: The email address is already in use!");
         }
         if (signUpRequest.getPhone() != null && userRepository.existsByPhone(signUpRequest.getPhone())) {
-            return new MessageResponse("Ошибка: Телефон уже используется!");
+            return new MessageResponse("Error: The telephone is already in use!");
         }
 
         User user = new User();
@@ -180,7 +186,7 @@ public class AuthService {
 
         userRepository.save(user);
 
-        return new MessageResponse("Пользователь успешно зарегистрирован!");
+        return new MessageResponse("The registration process has been successfully completed!");
     }
 
     private User getCurrentUser() {
