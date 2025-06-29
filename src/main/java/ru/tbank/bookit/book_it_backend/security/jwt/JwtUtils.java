@@ -14,7 +14,6 @@ import ru.tbank.bookit.book_it_backend.model.User;
 import javax.crypto.SecretKey;
 import java.util.Date;
 
-//Утилитный класс для работы с JWT токенами
 @Component
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
@@ -29,32 +28,29 @@ public class JwtUtils {
 
     @PostConstruct
     public void init() {
-        // Создаем криптографически безопасный ключ для HS512
         this.jwtSecret = Keys.secretKeyFor(SignatureAlgorithm.HS512);
     }
 
-    //Генерирует JWT токен на основе данных аутентификации
     public String generateJwtToken(Authentication authentication) {
         User userPrincipal = (User) authentication.getPrincipal();
 
         return Jwts.builder()
-                   .setSubject((userPrincipal.getUsername()))
-                   .setIssuedAt(new Date())
-                   .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
-                   .signWith(jwtSecret)
-                   .compact();
+                .setSubject(userPrincipal.getTgId().toString())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .signWith(jwtSecret)
+                .compact();
     }
 
-    //Извлекает имя пользователя из JWT токена
-    public String getUserNameFromJwtToken(String token) {
-        return Jwts.parser()
-                   .setSigningKey(jwtSecret)
-                   .parseClaimsJws(token)
-                   .getBody()
-                   .getSubject();
+    public Long getTgIdFromJwtToken(String token) {
+        String subject = Jwts.parser()
+                .setSigningKey(jwtSecret)
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+        return Long.valueOf(subject);
     }
 
-    //Проверяет валидность JWT токена
     public boolean validateJwtToken(String authToken) {
         try {
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);
