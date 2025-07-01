@@ -7,8 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tbank.bookit.book_it_backend.DTO.CreateBookingRequest;
 import ru.tbank.bookit.book_it_backend.config.BookingConfig;
-import ru.tbank.bookit.book_it_backend.model.*;
-import ru.tbank.bookit.book_it_backend.repository.*;
 
 import java.time.Duration;
 import java.time.LocalDate;

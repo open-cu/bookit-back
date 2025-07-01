@@ -3,7 +3,6 @@ package ru.tbank.bookit.book_it_backend.service;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import ru.tbank.bookit.book_it_backend.model.*;
 import ru.tbank.bookit.book_it_backend.repository.TicketRepository;
 
 import java.time.LocalDateTime;

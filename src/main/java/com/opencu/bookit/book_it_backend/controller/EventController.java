@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.tbank.bookit.book_it_backend.DTO.EventResponse;
 import ru.tbank.bookit.book_it_backend.exception.ResourceNotFoundException;
-import ru.tbank.bookit.book_it_backend.model.*;
 import ru.tbank.bookit.book_it_backend.repository.EventRepository;
 import ru.tbank.bookit.book_it_backend.service.EventService;
 import java.util.List;

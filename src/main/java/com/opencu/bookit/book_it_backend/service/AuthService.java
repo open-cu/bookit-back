@@ -9,7 +9,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.tbank.bookit.book_it_backend.model.User;
 import ru.tbank.bookit.book_it_backend.model.UserStatus;
-import ru.tbank.bookit.book_it_backend.payload.request.*;
 import ru.tbank.bookit.book_it_backend.payload.response.JwtResponse;
 import ru.tbank.bookit.book_it_backend.payload.response.MessageResponse;
 import ru.tbank.bookit.book_it_backend.payload.response.UserProfileResponse;

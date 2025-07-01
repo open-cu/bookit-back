@@ -5,7 +5,6 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-import ru.tbank.bookit.book_it_backend.model.*;
 import ru.tbank.bookit.book_it_backend.repository.AreaRepository;
 import ru.tbank.bookit.book_it_backend.repository.BookingRepository;
 import ru.tbank.bookit.book_it_backend.repository.UserRepository;

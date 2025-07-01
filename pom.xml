@@ -6,11 +6,12 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.4.3</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
-	<groupId>ru.tbank.bookit</groupId>
+	<groupId>com.opencu.bookit</groupId>
 	<artifactId>book-it-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
 	<name>book-it-backend</name>
 	<description>Backend service for the BookIt coworking system.</description>
 	<url/>
@@ -20,6 +21,12 @@
 	<developers>
 		<developer/>
 	</developers>
+	<modules>
+		<module>domain</module>
+		<module>application</module>
+		<module>adapter-in-web</module>
+		<module>bootstrap</module>
+	</modules>
 	<scm>
 		<connection/>
 		<developerConnection/>
