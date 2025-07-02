@@ -1,6 +1,9 @@
 package com.opencu.bookit.application.area.service;
 
+import com.opencu.bookit.application.area.port.out.LoadAreaPort;
 import com.opencu.bookit.application.booking.service.BookingService;
+import com.opencu.bookit.domain.model.area.Area;
+import com.opencu.bookit.domain.model.area.AreaType;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -8,30 +11,30 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class AreaService {
-    private final AreaRepository areaRepository;
+    private final LoadAreaPort loadAreaPort;
 
-    public AreaService(AreaRepository areaRepository, BookingService bookingService) {
-        this.areaRepository = areaRepository;
+    public AreaService(LoadAreaPort loadAreaPort, BookingService bookingService) {
+        this.loadAreaPort = loadAreaPort;
     }
 
     public List<Area> findAll() {
-        return areaRepository.findAll();
+        return loadAreaPort.findAll();
     }
 
     public String findAreaNameById(UUID areaId) {
-        Area area = areaRepository.findById(areaId)
-                                  .orElseThrow(() -> new NoSuchElementException("Area with Id=" + areaId +" not found"));
+        Area area = loadAreaPort.findById(areaId)
+                                .orElseThrow(() -> new NoSuchElementException("Area with Id=" + areaId +" not found"));
         return area.getName();
     }
 
     public List<Area> findByType(AreaType type) {
-        return areaRepository.findByType(type);
+        return loadAreaPort.findByType(type);
     }
 
     public List<String> findAllAreaNames() {
-        return areaRepository.findAll().stream().map(Area::getName).toList();
+        return loadAreaPort.findAll().stream().map(Area::getName).toList();
     }
     public Optional<Area> findById(UUID areaId) {
-        return areaRepository.findById(areaId);
+        return loadAreaPort.findById(areaId);
     }
 }
