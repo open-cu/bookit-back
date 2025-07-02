@@ -18,7 +18,7 @@ public class EventService {
     private final SaveEventPort saveEventPort;
     private final LoadUserPort loadUserPort;
 
-    public EventService(LoadEventPort loadEventPort, SaveEventPort saveEventPort, LoadUserPort loadUserPort, EventMapper eventMapper) {
+    public EventService(LoadEventPort loadEventPort, SaveEventPort saveEventPort, LoadUserPort loadUserPort) {
         this.loadEventPort = loadEventPort;
         this.saveEventPort = saveEventPort;
         this.loadUserPort = loadUserPort;
