@@ -1,12 +1,28 @@
-package ru.tbank.bookit.book_it_backend.service;
+package com.opencu.bookit.application.booking.service;
 
+import com.opencu.bookit.application.area.port.out.LoadAreaPort;
+import com.opencu.bookit.application.booking.port.in.CRUDBookingUseCase;
+import com.opencu.bookit.application.booking.port.out.LoadBookingPort;
+import com.opencu.bookit.application.booking.port.out.SaveBookingPort;
+import com.opencu.bookit.application.config.port.out.LoadBookingConfigurationPort;
+import com.opencu.bookit.application.schedule.port.out.LoadSchedulePort;
+import com.opencu.bookit.application.user.port.out.LoadUserPort;
+import com.opencu.bookit.application.user.port.out.SaveUserPort;
+import com.opencu.bookit.application.user.service.UserService;
+import com.opencu.bookit.application.statistics.port.out.LoadHallOccupancyPort;
+import com.opencu.bookit.application.statistics.port.out.SaveHallOccupancyPort;
+import com.opencu.bookit.domain.model.area.Area;
+import com.opencu.bookit.domain.model.area.AreaType;
+import com.opencu.bookit.domain.model.booking.Booking;
+import com.opencu.bookit.domain.model.booking.BookingStatus;
+import com.opencu.bookit.domain.model.booking.TimeTag;
+import com.opencu.bookit.domain.model.statistics.HallOccupancy;
+import com.opencu.bookit.domain.model.user.User;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.tbank.bookit.book_it_backend.DTO.CreateBookingRequest;
-import ru.tbank.bookit.book_it_backend.config.BookingConfig;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -17,34 +33,39 @@ import java.util.stream.Collectors;
 @Service
 public class BookingService {
     private final UserService userService;
-    private final BookingRepository bookingRepository;
-    private final HallOccupancyRepository hallOccupancyRepository;
-    private final ScheduleRepository scheduleRepository;
-    private final AreaRepository areaRepository;
-    private final UserRepository userRepository;
+    private final LoadBookingPort loadBookingPort;
+    private final SaveBookingPort saveBookingPort;
+    private final LoadHallOccupancyPort loadHallOccupancyPort;
+    private final SaveHallOccupancyPort saveHallOccupancyPort;
+    private final LoadSchedulePort loadSchedulePort;
+    private final LoadAreaPort loadAreaPort;
+    private final LoadUserPort loadUserPort;
 
-    private final BookingConfig bookingConfig;
+    private final LoadBookingConfigurationPort bookingConfig;
 
     @Autowired
-    public BookingService(UserService userService, BookingRepository bookings, HallOccupancyRepository hallOccupancyRepository,
-                          ScheduleRepository scheduleRepository, BookingConfig bookingConfig,
-                          AreaRepository areaRepository, UserRepository userRepository) {
+    public BookingService(UserService userService, LoadBookingPort loadBookingPort, SaveBookingPort saveBookingPort,
+                          LoadHallOccupancyPort loadHallOccupancyPort, SaveHallOccupancyPort saveHallOccupancyPort,
+                          LoadSchedulePort loadSchedulePort, LoadBookingConfigurationPort bookingConfig,
+                          LoadAreaPort loadAreaPort, LoadUserPort loadUserPort) {
         this.userService = userService;
-        this.bookingRepository = bookings;
-        this.hallOccupancyRepository = hallOccupancyRepository;
-        this.scheduleRepository = scheduleRepository;
+        this.loadBookingPort = loadBookingPort;
+        this.saveBookingPort = saveBookingPort;
+        this.loadHallOccupancyPort = loadHallOccupancyPort;
+        this.saveHallOccupancyPort = saveHallOccupancyPort;
+        this.loadSchedulePort = loadSchedulePort;
         this.bookingConfig = bookingConfig;
-        this.areaRepository = areaRepository;
-        this.userRepository = userRepository;
+        this.loadAreaPort = loadAreaPort;
+        this.loadUserPort = loadUserPort;
     }
 
     public Optional<Booking> findBooking(UUID bookingId) {
-        return bookingRepository.findById(bookingId);
+        return loadBookingPort.findById(bookingId);
     }
 
     public List<LocalDate> findAvailableDates(Optional<UUID> areaId) {
         if (areaId.isPresent()) {
-            Optional<Area> area = areaRepository.findById(areaId.get());
+            Optional<Area> area = loadAreaPort.findById(areaId.get());
             if(area.isPresent() && area.get().getType().equals(AreaType.WORKPLACE)) {
                 return findHallAvailableDates();
             }
@@ -57,12 +78,12 @@ public class BookingService {
     private List<LocalDate> findAvailableDatesByArea(Optional<UUID> areaId) {
         List<LocalDate> availableDates = new ArrayList<>();
         LocalDate today = LocalDate.now();
-        List<Booking> relevantBookings = bookingRepository.findByAreaId(areaId.get()); //todo проверить что area существует
+        List<Booking> relevantBookings = loadBookingPort.findByAreaId(areaId.get()); //todo проверить что area существует
 
         for (int i = 0; i <= bookingConfig.getMaxDaysForward(); ++i) {
             LocalDate date = today.plusDays(i);
 
-            if (scheduleRepository.findByDate(date).isPresent()) {
+            if (loadSchedulePort.findByDate(date).isPresent()) {
                 continue;
             }
 
@@ -86,10 +107,10 @@ public class BookingService {
         LocalDate today = LocalDate.now();
         for (int i = 0; i <= 4; ++i) {
             LocalDate date = today.plusDays(i);
-            if (scheduleRepository.findByDate(date).isPresent()) {
+            if (loadSchedulePort.findByDate(date).isPresent()) {
                 continue;
             }
-            Optional<Integer> countReservedPlaces = hallOccupancyRepository.countReservedPlacesByDate(date);
+            Optional<Integer> countReservedPlaces = loadHallOccupancyPort.countReservedPlacesByDate(date);
             if (countReservedPlaces.get() < bookingConfig.getHallMaxCapacity() *
                     (bookingConfig.getEndWork() - bookingConfig.getStartWork())) {
                 availableDates.add(date);
@@ -97,7 +118,7 @@ public class BookingService {
         }
         for (int i = 5; i < 30; i++) {
             LocalDate date = today.plusDays(i);
-            if (scheduleRepository.findByDate(date).isEmpty()) {
+            if (loadSchedulePort.findByDate(date).isEmpty()) {
                 availableDates.add(date);
             }
         }
@@ -108,7 +129,7 @@ public class BookingService {
         if (area.getType() != AreaType.WORKPLACE) {
             return bookings.stream().noneMatch(b -> bookingIncludeHour(currHour, b));
         } else {
-            Optional<HallOccupancy> hallOccupancy = hallOccupancyRepository.findById(currHour);
+            Optional<HallOccupancy> hallOccupancy = loadHallOccupancyPort.findById(currHour);
             if (hallOccupancy.isPresent() &&
                     bookings.stream().noneMatch(b -> b.getUserId().equals(userService.getCurrentUser().getId()) &&
                             bookingIncludeHour(currHour, b))) {
@@ -149,8 +170,8 @@ public class BookingService {
         }
 
         if (areaId.isPresent()) {
-            List<Booking> bookings = bookingRepository.findByDateAndArea(date, areaId.get());
-            Optional<Area> checkArea = areaRepository.findById(areaId.get());
+            List<Booking> bookings = loadBookingPort.findByDateAndArea(date, areaId.get());
+            Optional<Area> checkArea = loadAreaPort.findById(areaId.get());
 
             if (checkArea.isEmpty()) {
                 throw new RuntimeException("Area with this UUID doesn't exist!");
@@ -158,18 +179,18 @@ public class BookingService {
 
             addFreeTimes(availableTime, date, bookings, checkArea.get());
         } else {
-            List<UUID> availableAreas = areaRepository.findAll().stream()
-                    .map(Area::getId)
-                    .toList();
+            List<UUID> availableAreas = loadAreaPort.findAll().stream()
+                                                    .map(Area::getId)
+                                                    .toList();
             for (UUID a : availableAreas) {
-                List<Booking> bookings = bookingRepository.findByDateAndArea(date, a);
-                addFreeTimes(availableTime, date, bookings, areaRepository.findById(a).get());
+                List<Booking> bookings = loadBookingPort.findByDateAndArea(date, a);
+                addFreeTimes(availableTime, date, bookings, loadAreaPort.findById(a).get());
             }
         }
 
         if (bookingId.isPresent()) {
-            Booking booking = bookingRepository.findById(bookingId.get())
-                                               .orElseThrow(() -> new EntityNotFoundException("Booking not found with id: " + bookingId.get()));
+            Booking booking = loadBookingPort.findById(bookingId.get())
+                                             .orElseThrow(() -> new EntityNotFoundException("Booking not found with id: " + bookingId.get()));
             if (booking.getStartTime().toLocalDate().equals(date) && (booking.getAreaId().equals(areaId.orElse(null)) || areaId.isEmpty())) {
                 LocalDateTime start = booking.getStartTime();
                 LocalDateTime end = booking.getEndTime();
@@ -203,8 +224,7 @@ public class BookingService {
     }
 
     public void cancelBooking(UUID bookingId) {
-        Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new NoSuchElementException("Booking not found with id: " + bookingId));
+        Booking booking = loadBookingPort.findById(bookingId).orElseThrow(() -> new NoSuchElementException("Booking not found with id: " + bookingId));
 
         if (booking.getStatus() == BookingStatus.CANCELED) {
             throw new IllegalStateException("Booking already cancelled");
@@ -216,28 +236,28 @@ public class BookingService {
         else {
             booking.setStatus(BookingStatus.CANCELED);
         }
-        bookingRepository.save(booking);
+        saveBookingPort.save(booking);
     }
 
     @Transactional
-    public Set<Booking> createBooking(CreateBookingRequest request) {
-        User user = userRepository.findById(request.userId())
-                                  .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + request.userId()));
+    public Set<Booking> createBooking(CRUDBookingUseCase.CreateBookingCommand createBookingCommand) {
+        User user = loadUserPort.findById(createBookingCommand.userId())
+                                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + createBookingCommand.userId()));
 
-        Area area = areaRepository.findById(request.areaId())
-                                  .orElseThrow(() -> new EntityNotFoundException("Area not found with id: " + request.areaId()));
+        Area area = loadAreaPort.findById(createBookingCommand.areaId())
+                                .orElseThrow(() -> new EntityNotFoundException("Area not found with id: " + createBookingCommand.areaId()));
 
-        if (request.timePeriods().isEmpty()) {
+        if (createBookingCommand.timePeriods().isEmpty()) {
             throw new IllegalStateException("There are no chosen time periods");
         }
 
-        for (Pair<LocalDateTime, LocalDateTime> t : request.timePeriods()) {
+        for (Pair<LocalDateTime, LocalDateTime> t : createBookingCommand.timePeriods()) {
             if (!isAreaAvailable(area, t.getFirst(), t.getSecond())) {
                 throw new IllegalStateException("Area is already booked for this time slot");
             }
         }
 
-        ArrayList<Pair<LocalDateTime, LocalDateTime>> times = new ArrayList<>(request.timePeriods());
+        ArrayList<Pair<LocalDateTime, LocalDateTime>> times = new ArrayList<>(createBookingCommand.timePeriods());
 
         times.sort(Comparator.comparing(Pair::getFirst));
 
@@ -265,7 +285,7 @@ public class BookingService {
             booking.setStartTime(time.getFirst());
             booking.setEndTime(time.getSecond());
 
-            booking.setQuantity(request.quantity());
+            booking.setQuantity(createBookingCommand.quantity());
             booking.setStatus(BookingStatus.CONFIRMED);
             booking.setCreatedAt(LocalDateTime.now());
 
@@ -273,15 +293,15 @@ public class BookingService {
         }
 
         if (area.getType().equals(AreaType.WORKPLACE)) {
-            for (Pair<LocalDateTime, LocalDateTime> t : request.timePeriods()) {
+            for (Pair<LocalDateTime, LocalDateTime> t : createBookingCommand.timePeriods()) {
                 for (LocalDateTime time = t.getFirst(); time.isBefore(t.getSecond()); time = time.plusHours(1)) {
-                    HallOccupancy hallOccupancy = hallOccupancyRepository.getById(time);
+                    HallOccupancy hallOccupancy = loadHallOccupancyPort.getByDateTime(time);
                     hallOccupancy.setReservedPlaces(hallOccupancy.getReservedPlaces() + 1);
-                    hallOccupancyRepository.save(hallOccupancy);
+                    saveHallOccupancyPort.save(hallOccupancy);
                 }
             }
         }
-        bookingRepository.saveAll(result);
+        saveBookingPort.saveAll(result);
 
         return result;
     }
@@ -299,20 +319,19 @@ public class BookingService {
     }
 
     public List<Booking> getBookingsByTimeTag(UUID userId, TimeTag timeTag) {
-        final LocalDateTime now = LocalDateTime.now();
         List<Booking> bookingList = switch (timeTag) {
-            case CURRENT -> bookingRepository.findCurrentBookingsByUser(userId, now)
-                                             .stream()
-                                             .filter(booking -> booking.getStatus() != BookingStatus.COMPLETED)
-                                             .toList();
-            case FUTURE -> bookingRepository.findFutureBookingsByUser(userId, now);
+            case CURRENT -> loadBookingPort.loadBookingsByUser(userId, timeTag)
+                                           .stream()
+                                           .filter(booking -> booking.getStatus() != BookingStatus.COMPLETED)
+                                           .toList();
+            case FUTURE -> loadBookingPort.loadBookingsByUser(userId, timeTag);
             case PAST -> {
-                List<Booking> pastBookings = bookingRepository.findPastBookingsByUser(userId, now);
+                List<Booking> pastBookings = loadBookingPort.loadBookingsByUser(userId, timeTag);
                 List<Booking> currentCompletedBookings =
-                        bookingRepository.findCurrentBookingsByUser(userId, now)
-                                         .stream()
-                                         .filter(booking -> booking.getStatus() == BookingStatus.COMPLETED)
-                                         .toList();
+                        loadBookingPort.loadBookingsByUser(userId, TimeTag.CURRENT)
+                                       .stream()
+                                       .filter(booking -> booking.getStatus() == BookingStatus.COMPLETED)
+                                       .toList();
                 pastBookings.addAll(currentCompletedBookings);
                 yield pastBookings;
             }
@@ -321,9 +340,12 @@ public class BookingService {
     }
 
     @Transactional
-    public Booking updateBooking(UUID bookingId, UUID areaId, LocalDateTime startTime, LocalDateTime endTime) {
-        Booking booking = bookingRepository.findById(bookingId)
-                                           .orElseThrow(() -> new EntityNotFoundException("Booking not found with id: " + bookingId));
+    public Booking updateBooking(UUID bookingId, CRUDBookingUseCase.UpdateBookingQuery request) {
+        UUID areaId = request.areaId();
+        LocalDateTime startTime = request.startTime();
+        LocalDateTime endTime = request.endTime();
+        Booking booking = loadBookingPort.findById(bookingId)
+                                         .orElseThrow(() -> new EntityNotFoundException("Booking not found with id: " + bookingId));
 
         if (booking.getStatus() == BookingStatus.CANCELED || booking.getStatus() == BookingStatus.COMPLETED) {
             throw new IllegalStateException("Unable to update " + booking.getStatus() + " booking");
@@ -340,8 +362,8 @@ public class BookingService {
         }
 
         Area area = !sameArea
-                ? areaRepository.findById(areaId)
-                                .orElseThrow(() -> new EntityNotFoundException("Area not found id: " + areaId))
+                ? loadAreaPort.findById(areaId)
+                              .orElseThrow(() -> new EntityNotFoundException("Area not found id: " + areaId))
                 : booking.getArea();
 
         if (!sameArea) {
@@ -352,39 +374,38 @@ public class BookingService {
             booking.setEndTime(endTime);
         }
 
-        return bookingRepository.save(booking);
+        return saveBookingPort.save(booking);
     }
 
     public List<Booking> findAll() {
-        return bookingRepository.findAll();
+        return loadBookingPort.findAll();
     }
 
     public List<Booking> findByStartDatetime(LocalDateTime time) {
-        return bookingRepository.findByStartDatetime(time);
+        return loadBookingPort.findByStartDatetime(time);
     }
 
-    // TO DO
     private boolean isAreaAvailable(Area area, LocalDateTime startTime, LocalDateTime endTime) {
         return true;
     }
 
 
     public List<UUID> findAvailableAreas(Set<LocalDateTime> startTimes) {
-        ArrayList<UUID> availableAreas = areaRepository.findAll().stream().filter(area -> area.getType() != AreaType.WORKPLACE)
-                                                  .map(Area::getId)
-                                                  .collect(Collectors.toCollection(ArrayList::new));
-        Area workplace = areaRepository.findByType(AreaType.WORKPLACE).getFirst();
+        ArrayList<UUID> availableAreas = loadAreaPort.findAll().stream().filter(area -> area.getType() != AreaType.WORKPLACE)
+                                                     .map(Area::getId)
+                                                     .collect(Collectors.toCollection(ArrayList::new));
+        Area workplace = loadAreaPort.findByType(AreaType.WORKPLACE).getFirst();
         boolean isWorkplaceAvailable = true;
 
         for (LocalDateTime time : startTimes) {
-            List<Booking> bookings = bookingRepository.findByDatetime(time);
+            List<Booking> bookings = loadBookingPort.findByDatetime(time);
             Set<UUID> bookedAreaIds = bookings.stream()
                                               .map(Booking::getAreaId)
                                               .collect(Collectors.toSet());
             availableAreas = availableAreas.stream()
                                            .filter(id -> !bookedAreaIds.contains(id))
                                            .collect(Collectors.toCollection(ArrayList::new));
-            int reservedPlaces = hallOccupancyRepository.getById(time).getReservedPlaces();
+            int reservedPlaces = loadHallOccupancyPort.getByDateTime(time).getReservedPlaces();
             if (reservedPlaces >= bookingConfig.getHallMaxCapacity() ||
                     bookings.stream().anyMatch(b -> b.getUserId().equals(userService.getCurrentUser().getId()) &&
                     bookingIncludeHour(time, b))) {

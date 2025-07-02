@@ -1,6 +1,5 @@
 package com.opencu.bookit.domain.model.booking;
 
-
 import com.opencu.bookit.domain.model.area.Area;
 import com.opencu.bookit.domain.model.user.User;
 import lombok.*;

@@ -1,12 +1,13 @@
-package ru.tbank.bookit.book_it_backend.service;
+package com.opencu.bookit.application.service;
 
+import com.opencu.bookit.application.area.service.AreaService;
+import com.opencu.bookit.application.user.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ru.tbank.bookit.book_it_backend.repository.TicketRepository;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Service

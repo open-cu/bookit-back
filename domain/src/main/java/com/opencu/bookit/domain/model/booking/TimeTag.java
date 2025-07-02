@@ -1,4 +1,4 @@
-package ru.tbank.bookit.book_it_backend.model;
+package com.opencu.bookit.domain.model.booking;
 
 public enum TimeTag {
     CURRENT,

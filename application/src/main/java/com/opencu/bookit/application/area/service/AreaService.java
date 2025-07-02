@@ -1,16 +1,12 @@
-package ru.tbank.bookit.book_it_backend.service;
+package com.opencu.bookit.application.area.service;
 
-import org.springframework.stereotype.Service;
-import ru.tbank.bookit.book_it_backend.model.Area;
-import ru.tbank.bookit.book_it_backend.model.AreaType;
-import ru.tbank.bookit.book_it_backend.repository.AreaRepository;
+import com.opencu.bookit.application.booking.service.BookingService;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
-@Service
 public class AreaService {
     private final AreaRepository areaRepository;
 
