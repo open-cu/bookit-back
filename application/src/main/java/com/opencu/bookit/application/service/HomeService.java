@@ -8,10 +8,9 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import com.opencu.bookit.application.area.service.AreaService;
 import com.opencu.bookit.application.booking.service.BookingService;
 import com.opencu.bookit.application.user.service.UserService;
+import com.opencu.bookit.domain.model.booking.Booking;
+import com.opencu.bookit.domain.model.user.User;
 import org.springframework.stereotype.Service;
-import ru.tbank.bookit.book_it_backend.model.Booking;
-import ru.tbank.bookit.book_it_backend.model.User;
-import ru.tbank.bookit.book_it_backend.repository.AreaRepository;
 
 import java.io.ByteArrayOutputStream;
 import java.util.*;
@@ -22,39 +21,11 @@ public class HomeService {
     private final UserService userService;
     private final AreaService areaService;
 
-    public HomeService(BookingService bookingService, UserService userService, AreaRepository areaRepository,
+    public HomeService(BookingService bookingService, UserService userService,
                        AreaService areaService) {
         this.bookingService = bookingService;
         this.userService = userService;
         this.areaService = areaService;
-    }
-
-    public byte[] generateUserQrCode(User user) {
-        String userData = String.format(
-                "USER:%s:%s %s:%s",
-                user.getId(),
-                user.getTgId(),
-                user.getFirstName(),
-                user.getLastName() != null ? user.getLastName() : ""
-        );
-
-        try {
-            QRCodeWriter qrCodeWriter = new QRCodeWriter();
-
-            Map<EncodeHintType, Object> hints = new HashMap<>();
-            hints.put(EncodeHintType.MARGIN, 0);
-
-            BitMatrix bitMatrix = qrCodeWriter.encode(
-                    userData,
-                    BarcodeFormat.QR_CODE,
-                    200, 200,
-                    hints);
-            ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream();
-            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream);
-            return pngOutputStream.toByteArray();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to generate QR code", e);
-        }
     }
 
     public List<Booking> getCurrentBookings(UUID userId) {

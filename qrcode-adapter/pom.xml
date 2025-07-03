@@ -9,8 +9,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>application</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>qrcode-adapter</artifactId>
 
     <properties>
         <maven.compiler.source>22</maven.compiler.source>
@@ -21,12 +20,9 @@
     <dependencies>
         <dependency>
             <groupId>com.opencu.bookit</groupId>
-            <artifactId>domain</artifactId>
+            <artifactId>application</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
-        <dependency>
-            <groupId>jakarta.transaction</groupId>
-            <artifactId>jakarta.transaction-api</artifactId>
-        </dependency>
     </dependencies>
+
 </project>

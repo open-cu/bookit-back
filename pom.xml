@@ -26,7 +26,8 @@
 		<module>application</module>
 		<module>adapter-in-web</module>
 		<module>bootstrap</module>
-	</modules>
+        <module>qrcode-adapter</module>
+    </modules>
 	<scm>
 		<connection/>
 		<developerConnection/>
