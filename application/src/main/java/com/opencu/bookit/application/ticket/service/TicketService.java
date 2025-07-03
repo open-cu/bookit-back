@@ -1,24 +1,29 @@
-package com.opencu.bookit.application.service;
+package com.opencu.bookit.application.ticket.service;
 
 import com.opencu.bookit.application.area.service.AreaService;
+import com.opencu.bookit.application.ticket.port.out.SaveTicketPort;
 import com.opencu.bookit.application.user.service.UserService;
+import com.opencu.bookit.domain.model.area.Area;
+import com.opencu.bookit.domain.model.ticket.Ticket;
+import com.opencu.bookit.domain.model.ticket.TicketId;
+import com.opencu.bookit.domain.model.ticket.TicketType;
+import com.opencu.bookit.domain.model.user.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import ru.tbank.bookit.book_it_backend.repository.TicketRepository;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
 public class TicketService {
-    private final TicketRepository ticketRepository;
+    private final SaveTicketPort saveTicketPort;
     private final UserService userService;
     private final AreaService areaService;
 
-    public TicketService(TicketRepository ticketRepository, UserService userService,
+    public TicketService(SaveTicketPort saveTicketPort, UserService userService,
                          AreaService areaService) {
-        this.ticketRepository = ticketRepository;
+        this.saveTicketPort = saveTicketPort;
         this.userService = userService;
         this.areaService = areaService;
     }
@@ -39,6 +44,6 @@ public class TicketService {
         ticket.setDescription(description);
         ticket.setCreatedAt(LocalDateTime.now());
 
-        return ticketRepository.save(ticket);
+        return saveTicketPort.save(ticket);
     }
 }
