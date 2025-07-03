@@ -6,21 +6,14 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.4.3</version>
-		<relativePath/>
 	</parent>
+
 	<groupId>com.opencu.bookit</groupId>
 	<artifactId>book-it-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>book-it-backend</name>
 	<description>Backend service for the BookIt coworking system.</description>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
 	<modules>
 		<module>domain</module>
 		<module>application</module>
@@ -28,12 +21,6 @@
 		<module>bootstrap</module>
         <module>qrcode-adapter</module>
     </modules>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
 	<properties>
 		<java.version>21</java.version>
 	</properties>
