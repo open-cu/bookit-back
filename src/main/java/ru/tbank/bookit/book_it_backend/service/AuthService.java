@@ -15,6 +15,7 @@ import ru.tbank.bookit.book_it_backend.payload.response.MessageResponse;
 import ru.tbank.bookit.book_it_backend.payload.response.UserProfileResponse;
 import ru.tbank.bookit.book_it_backend.repository.UserRepository;
 import ru.tbank.bookit.book_it_backend.security.jwt.JwtUtils;
+import ru.tbank.bookit.book_it_backend.security.services.UserDetailsImpl;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -82,8 +83,9 @@ public class AuthService {
             userRepository.save(user);
         }
 
+        UserDetailsImpl userDetails = UserDetailsImpl.build(user);
         Authentication authentication = new UsernamePasswordAuthenticationToken(
-                user, null, user.getAuthorities());
+                userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String jwt = jwtUtils.generateJwtToken(authentication);
@@ -100,7 +102,10 @@ public class AuthService {
 
     @Transactional
     public MessageResponse completeUserProfile(UserProfileUpdateRequest profileRequest) {
-        User currentUser = getCurrentUser();
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User currentUser = userRepository.findByTgId(userDetails.getTgId())
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+
         if (currentUser.getStatus() != UserStatus.CREATED) {
             return new MessageResponse("The profile is verified");
         }
@@ -123,7 +128,9 @@ public class AuthService {
     }
 
     public UserProfileResponse getCurrentUserProfile() {
-        User user = getCurrentUser();
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userRepository.findByTgId(userDetails.getTgId())
+                .orElseThrow(() -> new IllegalStateException("User not found"));
 
         return new UserProfileResponse(
                 user.getId(),
@@ -147,7 +154,10 @@ public class AuthService {
                 )
         );
 
-        User user = (User) authentication.getPrincipal();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User user = userRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+
         String jwt = jwtUtils.generateJwtToken(authentication);
 
         return new JwtResponse(
@@ -187,11 +197,6 @@ public class AuthService {
         userRepository.save(user);
 
         return new MessageResponse("The registration has been completed");
-    }
-
-    private User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return (User) authentication.getPrincipal();
     }
 
     private String generateRandomPassword() {
