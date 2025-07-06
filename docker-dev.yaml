@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   app:
+    container_name: bookit-app-dev
     build: .
     ports:
       - "8081:8080"
@@ -9,6 +10,8 @@ services:
       - ~/.m2:/root/.m2
     networks:
       - bookit-dev
+    environment:
+      - SPRING_PROFILE_ACTIVE=dev
 
 networks:
   bookit-dev:
