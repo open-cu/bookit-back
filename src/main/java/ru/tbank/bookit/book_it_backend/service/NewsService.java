@@ -29,12 +29,10 @@ public class NewsService {
         return newsRepository.findByTagsIn(tags);
     }
 
-    // Новый универсальный метод для публичного фильтра, поиска, пагинации и сортировки
     public Page<News> findWithFilters(Set<ThemeTags> tags, String search, Pageable pageable, Specification<News> spec) {
         return newsRepository.findAll(spec, pageable);
     }
 
-    // Метод для построения спецификации
     public Specification<News> buildSpecification(Set<ThemeTags> tags, String search) {
         Specification<News> spec = Specification.where(null);
         if (tags != null && !tags.isEmpty()) {
@@ -44,7 +42,7 @@ public class NewsService {
             spec = spec.and((root, query, cb) ->
                     cb.or(
                             cb.like(cb.lower(root.get("title")), "%" + search.toLowerCase() + "%"),
-                            cb.like(cb.lower(root.get("description")), "%" + search.toLowerCase() + "%")
+                            cb.like(root.get("description"), "%" + search + "%")
                     )
             );
         }
