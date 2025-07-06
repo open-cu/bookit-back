@@ -7,3 +7,9 @@ services:
       - "8081:8080"
     volumes:
       - ~/.m2:/root/.m2
+    networks:
+      bookit-dev:
+        -
+
+networks:
+  bookit-dev:
