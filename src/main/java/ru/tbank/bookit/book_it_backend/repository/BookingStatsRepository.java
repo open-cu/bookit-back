@@ -24,4 +24,28 @@ public interface BookingStatsRepository extends JpaRepository<Booking, Long> {
     List<Object[]> findBookingStatsBetweenDates(
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end);
+
+    @Query(value = """
+    SELECT 
+        CASE 
+            WHEN EXTRACT(ISODOW FROM b.start_time) = 1 THEN 'Понедельник'
+            WHEN EXTRACT(ISODOW FROM b.start_time) = 2 THEN 'Вторник'
+            WHEN EXTRACT(ISODOW FROM b.start_time) = 3 THEN 'Среда'
+            WHEN EXTRACT(ISODOW FROM b.start_time) = 4 THEN 'Четверг'
+            WHEN EXTRACT(ISODOW FROM b.start_time) = 5 THEN 'Пятница'
+            WHEN EXTRACT(ISODOW FROM b.start_time) = 6 THEN 'Суббота'
+            WHEN EXTRACT(ISODOW FROM b.start_time) = 7 THEN 'Воскресенье'
+        END AS day_of_week,
+        COUNT(*) AS total_bookings,
+        a.name AS area_name
+    FROM bookings b
+    JOIN areas a ON b.area_id = a.id
+    WHERE b.start_time BETWEEN :start AND :end
+    GROUP BY day_of_week, a.name, EXTRACT(ISODOW FROM b.start_time)
+    ORDER BY EXTRACT(ISODOW FROM b.start_time)
+    """, nativeQuery = true)
+    List<Object[]> findBookingStatsByDayOfWeek(
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end);
+
 }

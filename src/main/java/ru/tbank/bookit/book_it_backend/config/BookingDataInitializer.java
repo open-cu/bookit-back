@@ -87,8 +87,16 @@ public class BookingDataInitializer implements ApplicationRunner {
         booking10.setStatus(BookingStatus.COMPLETED);
         booking11.setStatus(BookingStatus.COMPLETED);
 
+        Booking booking13 = createBooking(aliceJohnson, areas.getLast(), Month.JULY, 3);
+        Booking booking14 = createBooking(aliceJohnson, areas.getFirst(), Month.APRIL, 24);
+        Booking booking15 = createBooking(aliceJohnson, areas.getFirst(), Month.JUNE, 3);
+        booking12.setStatus(BookingStatus.CANCELED);
+        booking10.setStatus(BookingStatus.CANCELED);
+        booking11.setStatus(BookingStatus.CANCELED);
+
+
         bookingRepository.saveAll(List.of(booking1, booking2, booking3, booking4,
-                booking5, booking6, booking7, booking8, booking9, booking10, booking11));
+                booking5, booking6, booking7, booking8, booking9, booking10, booking11,booking12, booking13,booking14, booking15));
     }
 
     public Booking createCurrentBooking(User user, Area area) {

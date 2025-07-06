@@ -71,4 +71,21 @@ public class StatsController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to retrieve booking statistics", e);
         }
     }
+
+    @Operation(description = "Returns booking statistics grouped by day of week")
+    @GetMapping("/bookings-by-day-of-week")
+    public ResponseEntity<List<DayOfWeekStatsResponse>> getBookingStatsByDayOfWeek(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+
+        if (startDate.isAfter(endDate)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start date must be before end date");
+        }
+
+        try {
+            return ResponseEntity.ok(statsService.getBookingStatsByDayOfWeek(startDate, endDate));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to retrieve booking statistics", e);
+        }
+    }
 }

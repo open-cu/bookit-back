@@ -15,5 +15,6 @@ public record BookingStatsResponse(
         long totalBookings,
         @JsonProperty("percentageChange")
         Double percentageChange
-) {}
+) {
+}
 

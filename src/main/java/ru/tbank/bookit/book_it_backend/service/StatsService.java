@@ -2,11 +2,8 @@ package ru.tbank.bookit.book_it_backend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.tbank.bookit.book_it_backend.DTO.AreaStats;
-import ru.tbank.bookit.book_it_backend.DTO.StatsSummaryResponse;
-import ru.tbank.bookit.book_it_backend.DTO.UserStatsResponse;
+import ru.tbank.bookit.book_it_backend.DTO.*;
 import ru.tbank.bookit.book_it_backend.repository.BookingStatsRepository;
-import ru.tbank.bookit.book_it_backend.DTO.BookingStatsResponse;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -15,6 +12,7 @@ import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -88,5 +86,20 @@ public class StatsService {
                 peakDay != null ? peakDay.getKey() : null,
                 areaStatsList
         );
+    }
+
+    public List<DayOfWeekStatsResponse> getBookingStatsByDayOfWeek(LocalDate startDate, LocalDate endDate) {
+        List<Object[]> results = bookingStatsRepository.findBookingStatsByDayOfWeek(
+                startDate.atStartOfDay(),
+                endDate.atTime(23, 59, 59)
+        );
+
+        return results.stream()
+                .map(result -> new DayOfWeekStatsResponse(
+                        (String) result[0], // day of week name
+                        ((Number) result[1]).longValue(),
+                        (String) result[2]  // area name
+                ))
+                .collect(Collectors.toList());
     }
 }

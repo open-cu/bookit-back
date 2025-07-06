@@ -14,3 +14,4 @@ public record CreateBookingRequest(
         UUID areaId,
         Set<Pair<LocalDateTime, LocalDateTime>> timePeriods,
         int quantity) {}
+
