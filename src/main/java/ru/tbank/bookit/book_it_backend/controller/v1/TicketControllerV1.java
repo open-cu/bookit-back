@@ -33,7 +33,7 @@ public class TicketControllerV1 {
     @Operation(summary = "Get all tickets")
     @GetMapping
     public ResponseEntity<List<Ticket>> getAllTickets() {
-        // TODO: Реализовать получение тикетов
-        return ResponseEntity.ok(List.of());
+        List<Ticket> tickets = ticketService.getAllTickets();
+        return ResponseEntity.ok(tickets);
     }
 }
