@@ -5,9 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record BookingDayOfWeekStatsResponse(
-        int dayOfWeek,          // 0-6 (0=воскресенье)
-        String dayName,         // "Sunday", "Monday" и т.д.
-        long bookingsCount,     // количество бронирований
+        int dayOfWeek,
+        String dayName,
+        long bookingsCount,
         @JsonProperty("percentageChange")
-        Double percentageChange // процент изменения
+        Double percentageChange
 ) {}

@@ -1,8 +1,5 @@
 package ru.tbank.bookit.book_it_backend.DTO;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.data.util.Pair;
 
 import java.time.LocalDateTime;
