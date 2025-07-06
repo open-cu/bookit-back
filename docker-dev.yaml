@@ -8,8 +8,8 @@ services:
     volumes:
       - ~/.m2:/root/.m2
     networks:
-      bookit-dev:
-        -
+      - bookit-dev
 
 networks:
   bookit-dev:
+    driver: bridge
