@@ -78,4 +78,8 @@ public class EventService {
             eventRepository.save(event);
         }
     }
+
+    public Event saveEvent(Event event) {
+        return eventRepository.save(event);
+    }
 }
