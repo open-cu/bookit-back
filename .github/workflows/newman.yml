@@ -16,7 +16,22 @@ jobs:
         run: rm -rf *
 
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Build Spring Boot application
+        run:  chmod +x ./mvnw && ./mvnw clean package
+
+      - name: Start containers with docker-compose
+        run: |
+          docker-compose down
+          docker-compose -f docker-dev up -d --build
+          sleep 30
 
       - name: Install Newman
         run: npm install newman@latest
