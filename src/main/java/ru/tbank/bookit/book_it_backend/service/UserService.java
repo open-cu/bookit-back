@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Service
 public class UserService {
-    UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -21,6 +21,11 @@ public class UserService {
     public Optional<User> findById(UUID id) {
         return userRepository.findById(id);
     }
+
+    public Optional<User> findByTgId(Long tgId) {
+        return userRepository.findByTgId(tgId);
+    }
+
     public UUID getTestUserId() {
         return userRepository.findByName("Alice Johnson").getId();
     }
