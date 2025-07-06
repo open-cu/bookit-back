@@ -1,6 +1,10 @@
 package ru.tbank.bookit.book_it_backend.controller.v1;
 
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -10,10 +14,8 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.tbank.bookit.book_it_backend.DTO.EventResponse;
 import ru.tbank.bookit.book_it_backend.exception.ResourceNotFoundException;
 import ru.tbank.bookit.book_it_backend.model.*;
-import ru.tbank.bookit.book_it_backend.repository.EventRepository;
 import ru.tbank.bookit.book_it_backend.service.EventService;
 
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -21,29 +23,39 @@ import java.util.UUID;
 @RequestMapping("/api/v1/events")
 public class EventControllerV1 {
     private final EventService eventService;
-    private final EventRepository eventRepository; // TODO
 
-    public EventControllerV1(EventService eventService, EventRepository eventRepository) {
+    public EventControllerV1(EventService eventService) {
         this.eventService = eventService;
-        this.eventRepository = eventRepository;
     }
 
     @Operation(summary = "Get all events with optional filters")
     @GetMapping
-    public ResponseEntity<List<EventResponse>> getAllEvents(
+    public ResponseEntity<Page<EventResponse>> getAllEvents(
             @RequestParam(required = false) Set<ThemeTags> tags,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "startDate,asc") String sort
+            @RequestParam(defaultValue = "date,asc") String sort
     ) {
-        // TODO: реализовать фильтрацию, поиск, сортировку и пагинацию
-        if (tags != null && !tags.isEmpty()) {
-            return ResponseEntity.ok(eventService.findByTags(tags));
-        } else {
-            return ResponseEntity.ok(eventService.findAll());
+        String[] sortParams = sort.split(",");
+        Sort.Direction direction = sortParams.length > 1 && sortParams[1].equalsIgnoreCase("desc")
+                ? Sort.Direction.DESC : Sort.Direction.ASC;
+        String sortBy = sortParams[0];
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+
+        UUID currentUserId = null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof User user) {
+            currentUserId = user.getId();
         }
+
+        if ((("registered".equalsIgnoreCase(status) || "available".equalsIgnoreCase(status)) && currentUserId == null)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Page<EventResponse> events = eventService.findWithFilters(tags, search, status, pageable, currentUserId);
+        return ResponseEntity.ok(events);
     }
 
     @Operation(summary = "Get registration status for current user and event")
