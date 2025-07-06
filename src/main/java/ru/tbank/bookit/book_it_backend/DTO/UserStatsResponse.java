@@ -1,19 +1,14 @@
 package ru.tbank.bookit.book_it_backend.DTO;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
-import java.util.List;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public record BookingStatsResponse(
+public record UserStatsResponse(
         @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDate date,
-        String areaName,
-        long totalBookings,
+        long totalRegistrations,
         @JsonProperty("percentageChange")
         Double percentageChange
 ) {}
-

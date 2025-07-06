@@ -2,6 +2,9 @@ package ru.tbank.bookit.book_it_backend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.tbank.bookit.book_it_backend.DTO.AreaStats;
+import ru.tbank.bookit.book_it_backend.DTO.StatsSummaryResponse;
+import ru.tbank.bookit.book_it_backend.DTO.UserStatsResponse;
 import ru.tbank.bookit.book_it_backend.repository.BookingStatsRepository;
 import ru.tbank.bookit.book_it_backend.DTO.BookingStatsResponse;
 
@@ -9,7 +12,9 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,8 +34,59 @@ public class StatsService {
                 .map(result -> new BookingStatsResponse(
                         ((Date) result[0]).toLocalDate(),
                         (String) result[1],
-                        ((Number) result[2]).longValue()
+                        ((Number) result[2]).longValue(),
+                        null
                 ))
                 .collect(Collectors.toList());
+    }
+
+    public StatsSummaryResponse getStatsSummary(LocalDate startDate,
+                                                LocalDate endDate,
+                                                List<BookingStatsResponse> stats) {
+        if (stats == null || stats.isEmpty()) {
+            return new StatsSummaryResponse(0, null, 0, null, List.of());
+        }
+
+        long totalBookings = stats.stream()
+                .mapToLong(BookingStatsResponse::totalBookings)
+                .sum();
+
+        Map<String, Long> areaBookings = stats.stream()
+                .collect(Collectors.groupingBy(
+                        BookingStatsResponse::areaName,
+                        Collectors.summingLong(BookingStatsResponse::totalBookings)
+                ));
+
+        String mostPopularArea = areaBookings.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(null);
+
+        Map<LocalDate, Long> dailyBookings = stats.stream()
+                .collect(Collectors.groupingBy(
+                        BookingStatsResponse::date,
+                        Collectors.summingLong(BookingStatsResponse::totalBookings)
+                ));
+
+        Map.Entry<LocalDate, Long> peakDay = dailyBookings.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .orElse(null);
+
+        List<AreaStats> areaStatsList = areaBookings.entrySet().stream()
+                .map(entry -> new AreaStats(
+                        entry.getKey(),
+                        entry.getValue(),
+                        totalBookings > 0 ? (double) entry.getValue() / totalBookings * 100 : 0
+                ))
+                .sorted(Comparator.comparingLong(AreaStats::totalBookings).reversed())
+                .collect(Collectors.toList());
+
+        return new StatsSummaryResponse(
+                totalBookings,
+                mostPopularArea,
+                peakDay != null ? peakDay.getValue() : 0,
+                peakDay != null ? peakDay.getKey() : null,
+                areaStatsList
+        );
     }
 }

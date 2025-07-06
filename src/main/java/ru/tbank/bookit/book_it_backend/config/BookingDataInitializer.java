@@ -19,6 +19,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
+import static java.time.Month.MAY;
+
 @Component
 @Order(3)
 public class BookingDataInitializer implements ApplicationRunner {
@@ -57,9 +59,9 @@ public class BookingDataInitializer implements ApplicationRunner {
         }
         User aliceJohnson = aliceOpt.get();
 
-        Booking booking1 = createBooking(aliceJohnson, areas.getFirst(), Month.MAY, 25);
-        Booking booking2 = createBooking(aliceJohnson, areas.getLast(), Month.MAY, 25);
-        Booking booking3 = createBooking(aliceJohnson, areas.get(1), Month.MAY, 25);
+        Booking booking1 = createBooking(aliceJohnson, areas.getFirst(), MAY, 25);
+        Booking booking2 = createBooking(aliceJohnson, areas.getLast(), MAY, 25);
+        Booking booking3 = createBooking(aliceJohnson, areas.get(1), MAY, 25);
 
         Booking booking4 = createBooking(aliceJohnson, areas.getFirst(), Month.JANUARY, 23);
         Booking booking5 = createBooking(aliceJohnson, areas.get(1), Month.JANUARY, 23);
@@ -69,8 +71,24 @@ public class BookingDataInitializer implements ApplicationRunner {
         Booking booking8 = createCurrentBooking(aliceJohnson, areas.get(1));
         Booking booking9 = createCurrentBooking(aliceJohnson, areas.getFirst());
 
+        Booking booking10 = createBooking(aliceJohnson, areas.getLast(), Month.JULY, 2);
+        Booking booking11 = createBooking(aliceJohnson, areas.getFirst(), Month.APRIL, 23);
+        Booking booking12 = createBooking(aliceJohnson, areas.getFirst(), Month.JUNE, 2);
+
+        booking10.setStartTime(LocalDateTime.of(LocalDate.of(2025, Month.JULY, 1), LocalTime.of(13, 0)));
+        booking10.setEndTime(LocalDateTime.of(LocalDate.of(2025, Month.JULY, 1), LocalTime.of(17, 0)));
+
+        booking11.setStartTime(LocalDateTime.of(LocalDate.of(2025, Month.APRIL, 1), LocalTime.of(10, 0)));
+        booking11.setEndTime(LocalDateTime.of(LocalDate.of(2025, Month.APRIL, 1), LocalTime.of(17, 0)));
+
+        booking12.setStartTime(LocalDateTime.of(LocalDate.of(2025, Month.JUNE, 2), LocalTime.of(16, 0)));
+        booking12.setEndTime(LocalDateTime.of(LocalDate.of(2025, Month.JUNE, 2), LocalTime.of(17, 0)));
+        booking12.setStatus(BookingStatus.COMPLETED);
+        booking10.setStatus(BookingStatus.COMPLETED);
+        booking11.setStatus(BookingStatus.COMPLETED);
+
         bookingRepository.saveAll(List.of(booking1, booking2, booking3, booking4,
-                booking5, booking6, booking7, booking8, booking9));
+                booking5, booking6, booking7, booking8, booking9, booking10, booking11));
     }
 
     public Booking createCurrentBooking(User user, Area area) {

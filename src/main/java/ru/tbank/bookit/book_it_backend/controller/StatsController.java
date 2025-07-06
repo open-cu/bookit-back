@@ -1,31 +1,74 @@
 package ru.tbank.bookit.book_it_backend.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+import ru.tbank.bookit.book_it_backend.model.StatsPeriod;
 import ru.tbank.bookit.book_it_backend.service.StatsService;
-import ru.tbank.bookit.book_it_backend.DTO.BookingStatsResponse;
+import ru.tbank.bookit.book_it_backend.DTO.*;
+import ru.tbank.bookit.book_it_backend.service.UserService;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/stats")
 @RequiredArgsConstructor
 public class StatsController {
 
-    private final StatsService bookingStatsService;
+    private final StatsService statsService;
 
+    @Operation(description = "Returns booking statistics for the specified date range")
     @GetMapping("/bookings")
-    public ResponseEntity<List<BookingStatsResponse>> getBookingStats(
+    public ResponseEntity<FullStatsResponse> getBookingStats(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
-    ) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false, defaultValue = "false") Boolean includeSummary) {
 
-        List<BookingStatsResponse> stats = bookingStatsService
-                .getBookingStats(startDate, endDate);
+        if (startDate.isAfter(endDate)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start date must be before end date");
+        }
 
-        return ResponseEntity.ok(stats);
+        try {
+            List<BookingStatsResponse> stats = statsService.getBookingStats(startDate, endDate);
+            StatsSummaryResponse summary = includeSummary
+                    ? statsService.getStatsSummary(startDate, endDate, stats)
+                    : null;
+
+            return ResponseEntity.ok(new FullStatsResponse(stats, summary));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to retrieve booking statistics", e);
+        }
+    }
+
+    @Operation(description = "Returns booking statistics for the specified period (week, fortnight, month, quarter)")
+    @GetMapping("/bookings-period")
+    public ResponseEntity<FullStatsResponse> getBookingStatsByPeriod(
+            @RequestParam String period,
+            @RequestParam(required = false, defaultValue = "false") Boolean includeSummary) {
+
+        try {
+            StatsPeriod statsPeriod = StatsPeriod.fromString(period);
+            LocalDate endDate = LocalDate.now();
+            LocalDate startDate = endDate.minusWeeks(statsPeriod.getWeeksCount());
+
+            List<BookingStatsResponse> stats = statsService.getBookingStats(startDate, endDate);
+            StatsSummaryResponse summary = includeSummary
+                    ? statsService.getStatsSummary(startDate, endDate, stats)
+                    : null;
+
+            return ResponseEntity.ok(new FullStatsResponse(stats, summary));
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Invalid period value. Valid values are: " + Arrays.toString(StatsPeriod.values()));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to retrieve booking statistics", e);
+        }
     }
 }
