@@ -1,5 +1,8 @@
 package ru.tbank.bookit.book_it_backend.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tbank.bookit.book_it_backend.model.News;
@@ -24,5 +27,27 @@ public class NewsService {
     @Transactional(readOnly = true)
     public List<News> findByTags(Set<ThemeTags> tags){
         return newsRepository.findByTagsIn(tags);
+    }
+
+    // Новый универсальный метод для публичного фильтра, поиска, пагинации и сортировки
+    public Page<News> findWithFilters(Set<ThemeTags> tags, String search, Pageable pageable, Specification<News> spec) {
+        return newsRepository.findAll(spec, pageable);
+    }
+
+    // Метод для построения спецификации
+    public Specification<News> buildSpecification(Set<ThemeTags> tags, String search) {
+        Specification<News> spec = Specification.where(null);
+        if (tags != null && !tags.isEmpty()) {
+            spec = spec.and((root, query, cb) -> root.join("tags").in(tags));
+        }
+        if (search != null && !search.isBlank()) {
+            spec = spec.and((root, query, cb) ->
+                    cb.or(
+                            cb.like(cb.lower(root.get("title")), "%" + search.toLowerCase() + "%"),
+                            cb.like(cb.lower(root.get("description")), "%" + search.toLowerCase() + "%")
+                    )
+            );
+        }
+        return spec;
     }
 }
