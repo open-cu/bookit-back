@@ -10,3 +10,4 @@ public record AreaOccupancyRateResponse(
         @JsonProperty("percentageChange")
         Double percentageChange
 ) {}
+

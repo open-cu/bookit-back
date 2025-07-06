@@ -88,4 +88,21 @@ public class StatsController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to retrieve booking statistics", e);
         }
     }
+
+    @Operation(description = "Returns cancellation statistics by area")
+    @GetMapping("/cancellations-by-area")
+    public ResponseEntity<List<CancellationStatsResponse>> getCancellationStatsByArea(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+
+        if (startDate.isAfter(endDate)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start date must be before end date");
+        }
+
+        try {
+            return ResponseEntity.ok(statsService.getCancellationStatsByArea(startDate, endDate));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to retrieve cancellation statistics", e);
+        }
+    }
 }

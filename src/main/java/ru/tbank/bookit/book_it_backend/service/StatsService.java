@@ -102,4 +102,22 @@ public class StatsService {
                 ))
                 .collect(Collectors.toList());
     }
+
+    public List<CancellationStatsResponse> getCancellationStatsByArea(LocalDate startDate, LocalDate endDate) {
+        List<Object[]> results = bookingStatsRepository.findCancellationStatsByArea(
+                startDate.atStartOfDay(),
+                endDate.atTime(23, 59, 59)
+        );
+
+        return results.stream()
+                .map(result -> new CancellationStatsResponse(
+                        (String) result[0], // area name
+                        ((Number) result[1]).longValue(), // total bookings
+                        ((Number) result[2]).longValue(), // cancelled bookings
+                        ((Number) result[1]).longValue() > 0
+                                ? ((Number) result[2]).doubleValue() / ((Number) result[1]).doubleValue() * 100
+                                : 0
+                ))
+                .collect(Collectors.toList());
+    }
 }

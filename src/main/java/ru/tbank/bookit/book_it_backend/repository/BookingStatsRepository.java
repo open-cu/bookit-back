@@ -48,4 +48,18 @@ public interface BookingStatsRepository extends JpaRepository<Booking, Long> {
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end);
 
+    @Query(value = """
+    SELECT 
+        a.name AS area_name,
+        COUNT(*) AS total_bookings,
+        SUM(CASE WHEN b.status = 'CANCELED' THEN 1 ELSE 0 END) AS cancelled_bookings
+    FROM bookings b
+    JOIN areas a ON b.area_id = a.id
+    WHERE b.start_time BETWEEN :start AND :end
+    GROUP BY a.name
+    ORDER BY cancelled_bookings DESC
+    """, nativeQuery = true)
+    List<Object[]> findCancellationStatsByArea(
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end);
 }
