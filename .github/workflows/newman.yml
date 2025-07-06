@@ -20,8 +20,8 @@ jobs:
 
       - name: Start containers with docker-compose
         run: |
-          docker-compose -f docker-dev.yml down
-          docker-compose -f docker-dev.yml up -d --build
+          docker-compose -f docker-dev.yaml down
+          docker-compose -f docker-dev.yaml up -d --build
           sleep 30
 
       - name: Install Newman
