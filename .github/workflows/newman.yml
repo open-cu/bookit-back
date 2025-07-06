@@ -22,7 +22,7 @@ jobs:
         run: |
           docker-compose -f docker-dev.yaml down
           docker-compose -f docker-dev.yaml up -d --build
-          sleep 60
+          sleep 30
 
       - name: Install Newman
         run: npm install newman@latest
