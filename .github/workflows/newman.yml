@@ -21,7 +21,7 @@ jobs:
       - name: Start containers with docker-compose
         run: |
           docker-compose down
-          docker-compose -f docker-dev up -d --build
+          docker-compose -f docker-dev.yml up -d --build
           sleep 30
 
       - name: Install Newman
