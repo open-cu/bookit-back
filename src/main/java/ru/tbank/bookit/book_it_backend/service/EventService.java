@@ -15,6 +15,7 @@ import ru.tbank.bookit.book_it_backend.repository.EventRepository;
 import ru.tbank.bookit.book_it_backend.repository.UserRepository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class EventService {
@@ -115,5 +116,9 @@ public class EventService {
 
         Page<Event> eventsPage = eventRepository.findAll(spec, pageable);
         return eventsPage.map(eventMapper::toEventResponse);
+    }
+
+    public Event saveEvent(Event event) {
+        return eventRepository.save(event);
     }
 }
