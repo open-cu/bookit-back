@@ -24,14 +24,13 @@ public class UserService {
         return userRepository.findByName("Alice Johnson").getId();
     }
 
-    //Получить текущего аутентифицированного пользователя (по JWT)
     public User getCurrentUser() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Пользователь не найден: " + username));
+        String tgIdString = SecurityContextHolder.getContext().getAuthentication().getName();
+        Long tgId = Long.valueOf(tgIdString);
+        return userRepository.findByTgId(tgId)
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден (tgId): " + tgIdString));
     }
 
-    //Получить пользователя по id (например, для админки)
     public Optional<User> getUserById(UUID id) {
         return userRepository.findById(id);
     }
