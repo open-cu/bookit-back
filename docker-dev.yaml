@@ -4,18 +4,12 @@ services:
   app:
     build: .
     ports:
-      - "8080:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - SPRING_DATASOURCE_URL=jdbc:h2:mem:testdb
-      - SPRING_DATASOURCE_USERNAME=sa
-      - SPRING_DATASOURCE_PASSWORD=
-      - SPRING_H2_CONSOLE_ENABLED=true
-      - SPRING_H2_CONSOLE_PATH=/h2-console
+      - "8081:8080"
     volumes:
       - ~/.m2:/root/.m2
+    networks:
+      - bookit-dev
 
-  front:
-    image: dennymantyper/bookit-front:latest
-    ports:
-      - "4200:4200"
+networks:
+  bookit-dev:
+    driver: bridge
