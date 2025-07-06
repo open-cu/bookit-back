@@ -1,5 +1,6 @@
 package ru.tbank.bookit.book_it_backend.repository;
 
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-public interface NewsRepository extends CrudRepository<News, UUID> {
+public interface NewsRepository extends CrudRepository<News, UUID>, JpaSpecificationExecutor<News> {
     @Query("""
     SELECT DISTINCT e 
     FROM News e 

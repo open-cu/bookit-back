@@ -7,6 +7,7 @@ import ru.tbank.bookit.book_it_backend.model.*;
 import ru.tbank.bookit.book_it_backend.repository.TicketRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,5 +41,11 @@ public class TicketService {
         ticket.setCreatedAt(LocalDateTime.now());
 
         return ticketRepository.save(ticket);
+    }
+
+    public List<Ticket> getAllTickets() {
+        List<Ticket> tickets = new ArrayList<>();
+        ticketRepository.findAll().forEach(tickets::add);
+        return tickets;
     }
 }
