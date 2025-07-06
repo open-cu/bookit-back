@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tbank.bookit.book_it_backend.model.User;
 import ru.tbank.bookit.book_it_backend.repository.UserRepository;
+import ru.tbank.bookit.book_it_backend.security.services.UserDetailsImpl;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -25,10 +26,13 @@ public class UserService {
     }
 
     public User getCurrentUser() {
-        String tgIdString = SecurityContextHolder.getContext().getAuthentication().getName();
-        Long tgId = Long.valueOf(tgIdString);
-        return userRepository.findByTgId(tgId)
-                .orElseThrow(() -> new RuntimeException("Пользователь не найден (tgId): " + tgIdString));
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetailsImpl userDetails) {
+            Long tgId = userDetails.getTgId();
+            return userRepository.findByTgId(tgId)
+                    .orElseThrow(() -> new RuntimeException("User not found (tgId): " + tgId));
+        }
+        throw new RuntimeException("Unknown principal: " + principal);
     }
 
     public Optional<User> getUserById(UUID id) {
