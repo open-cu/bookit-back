@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import ru.tbank.bookit.book_it_backend.model.User;
+import ru.tbank.bookit.book_it_backend.security.services.UserDetailsImpl;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -32,7 +32,7 @@ public class JwtUtils {
     }
 
     public String generateJwtToken(Authentication authentication) {
-        User userPrincipal = (User) authentication.getPrincipal();
+        UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
 
         return Jwts.builder()
                 .setSubject(userPrincipal.getTgId().toString())
