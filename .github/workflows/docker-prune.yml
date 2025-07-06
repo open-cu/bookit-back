@@ -1,0 +1,22 @@
+name: Docker Prune
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  docker-prune:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Docker system prune
+        run: |
+          docker container prune -f
+          docker image prune -a -f
+          docker network prune -f
+          docker builder prune -f
+          docker system df
