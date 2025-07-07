@@ -81,4 +81,8 @@ public class HomeService {
     public String findAreaNameById(UUID areaId) {
         return areaService.findAreaNameById(areaId);
     }
+
+    public Optional<User> findUserByTgId(Long tgId) {
+        return userService.findByTgId(tgId);
+    }
 }

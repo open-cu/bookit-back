@@ -1,6 +1,9 @@
 package ru.tbank.bookit.book_it_backend.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import ru.tbank.bookit.book_it_backend.DTO.EventResponse;
 import ru.tbank.bookit.book_it_backend.mapper.EventMapper;
@@ -77,5 +80,45 @@ public class EventService {
             event.setAvailable_places(event.getAvailable_places() + 1);
             eventRepository.save(event);
         }
+    }
+
+    public Page<EventResponse> findWithFilters(
+            Set<ThemeTags> tags, String search, String status, Pageable pageable, UUID currentUserId
+    ) {
+        Specification<Event> spec = Specification.where(null);
+
+        if (tags != null && !tags.isEmpty()) {
+            spec = spec.and((root, query, cb) -> root.join("tags").in(tags));
+        }
+        if (search != null && !search.isBlank()) {
+            spec = spec.and((root, query, cb) ->
+                    cb.or(
+                            cb.like(cb.lower(root.get("name")), "%" + search.toLowerCase() + "%"),
+                            cb.like(cb.lower(root.get("description")), "%" + search.toLowerCase() + "%")
+                    )
+            );
+        }
+
+        if (status != null && currentUserId != null) {
+            Optional<User> userOpt = userRepository.findById(currentUserId);
+            if (userOpt.isPresent()) {
+                User user = userOpt.get();
+                if (status.equalsIgnoreCase("registered")) {
+                    spec = spec.and((root, query, cb) -> cb.isMember(user, root.get("users")));
+                } else if (status.equalsIgnoreCase("available")) {
+                    spec = spec.and((root, query, cb) -> cb.and(
+                            cb.greaterThan(root.get("available_places"), 0),
+                            cb.not(cb.isMember(user, root.get("users")))
+                    ));
+                }
+            }
+        }
+
+        Page<Event> eventsPage = eventRepository.findAll(spec, pageable);
+        return eventsPage.map(eventMapper::toEventResponse);
+    }
+
+    public Event saveEvent(Event event) {
+        return eventRepository.save(event);
     }
 }
