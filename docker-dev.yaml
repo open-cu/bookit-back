@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  app:
+  app-dev:
     container_name: bookit-app-dev
     build: .
     ports:
@@ -11,7 +11,7 @@ services:
     networks:
       - bookit-dev
     environment:
-      - SPRING_PROFILE_ACTIVE=dev
+      - SPRING_PROFILES_ACTIVE=dev
 
 networks:
   bookit-dev:
