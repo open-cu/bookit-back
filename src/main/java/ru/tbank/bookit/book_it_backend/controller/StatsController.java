@@ -2,6 +2,7 @@ package ru.tbank.bookit.book_it_backend.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataAccessException;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,22 +54,39 @@ public class StatsController {
             @RequestParam String period,
             @RequestParam(required = false, defaultValue = "false") Boolean includeSummary) {
 
-        try {
-            StatsPeriod statsPeriod = StatsPeriod.fromString(period);
-            LocalDate endDate = LocalDate.now();
-            LocalDate startDate = endDate.minusWeeks(statsPeriod.getWeeksCount());
+        if (period == null || period.trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Period parameter cannot be null or empty");
+        }
 
+        final StatsPeriod statsPeriod;
+        try {
+            statsPeriod = StatsPeriod.fromString(period.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Invalid period value. Valid values are: " + Arrays.toString(StatsPeriod.values()));
+        }
+
+        final LocalDate endDate = LocalDate.now();
+        final LocalDate startDate = endDate.minusWeeks(statsPeriod.getWeeksCount());
+
+        try {
             List<BookingStatsResponse> stats = statsService.getBookingStats(startDate, endDate);
             StatsSummaryResponse summary = includeSummary
                     ? statsService.getStatsSummary(startDate, endDate, stats)
                     : null;
 
             return ResponseEntity.ok(new FullStatsResponse(stats, summary));
-        } catch (IllegalArgumentException e) {
+
+        } catch (DataAccessException ex) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Database access error");
+        } catch (IllegalArgumentException ex) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Invalid period value. Valid values are: " + Arrays.toString(StatsPeriod.values()));
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to retrieve booking statistics", e);
+                    ex.getMessage());
+        } catch (RuntimeException ex) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Internal server error");
         }
     }
 
@@ -103,6 +121,33 @@ public class StatsController {
             return ResponseEntity.ok(statsService.getCancellationStatsByArea(startDate, endDate));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to retrieve cancellation statistics", e);
+        }
+    }
+
+    @Operation(description = "Returns busiest hours statistics for visualization")
+    @GetMapping("/busiest-hours")
+    public ResponseEntity<List<BusiestHoursResponse>> getBusiestHours(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) String areaName) {
+
+        if (startDate.isAfter(endDate)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Start date must be before end date");
+        }
+
+        try {
+            List<BusiestHoursResponse> stats = statsService.getBusiestHoursStats(
+                    startDate.atStartOfDay(),
+                    endDate.atTime(23, 59, 59),
+                    areaName);
+            return ResponseEntity.ok(stats);
+        } catch (DataAccessException e) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Data service unavailable");
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    e.getMessage());
         }
     }
 }

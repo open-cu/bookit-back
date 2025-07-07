@@ -62,4 +62,21 @@ public interface BookingStatsRepository extends JpaRepository<Booking, Long> {
     List<Object[]> findCancellationStatsByArea(
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end);
+
+    @Query(value = """
+    SELECT 
+        EXTRACT(HOUR FROM b.start_time) AS hour_of_day,
+        COUNT(*) AS bookings_count
+    FROM bookings b
+    JOIN areas a ON b.area_id = a.id
+    WHERE b.start_time BETWEEN :start AND :end
+    AND (:areaName IS NULL OR a.name = :areaName)
+    GROUP BY EXTRACT(HOUR FROM b.start_time)
+    ORDER BY bookings_count DESC
+    LIMIT 24
+    """, nativeQuery = true)
+    List<Object[]> findBusiestHours(
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end,
+            @Param("areaName") String areaName);
 }

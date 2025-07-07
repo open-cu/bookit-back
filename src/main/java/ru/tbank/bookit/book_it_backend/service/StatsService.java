@@ -7,6 +7,7 @@ import ru.tbank.bookit.book_it_backend.repository.BookingStatsRepository;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Comparator;
@@ -96,9 +97,9 @@ public class StatsService {
 
         return results.stream()
                 .map(result -> new DayOfWeekStatsResponse(
-                        (String) result[0], // day of week name
+                        (String) result[0],
                         ((Number) result[1]).longValue(),
-                        (String) result[2]  // area name
+                        (String) result[2]
                 ))
                 .collect(Collectors.toList());
     }
@@ -111,13 +112,30 @@ public class StatsService {
 
         return results.stream()
                 .map(result -> new CancellationStatsResponse(
-                        (String) result[0], // area name
-                        ((Number) result[1]).longValue(), // total bookings
-                        ((Number) result[2]).longValue(), // cancelled bookings
+                        (String) result[0],
+                        ((Number) result[1]).longValue(),
+                        ((Number) result[2]).longValue(),
                         ((Number) result[1]).longValue() > 0
                                 ? ((Number) result[2]).doubleValue() / ((Number) result[1]).doubleValue() * 100
                                 : 0
                 ))
+                .collect(Collectors.toList());
+    }
+
+    public List<BusiestHoursResponse> getBusiestHoursStats(
+            LocalDateTime start,
+            LocalDateTime end,
+            String areaName) {
+
+        List<Object[]> results = bookingStatsRepository.findBusiestHours(
+                start, end, areaName);
+
+        return results.stream()
+                .map(result -> new BusiestHoursResponse(
+                        (Integer) result[0], // hour
+                        ((Number) result[1]).longValue() // bookings count
+                ))
+                .sorted(Comparator.comparing(BusiestHoursResponse::hour))
                 .collect(Collectors.toList());
     }
 }

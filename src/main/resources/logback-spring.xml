@@ -5,7 +5,6 @@
     <springProperty scope="context" name="springAppName" source="spring.application.name" defaultValue="book-it"/>
     <springProperty scope="context" name="springProfilesActive" source="spring.profiles.active" defaultValue="dev"/>
 
-    <!-- Конфигурация JSON-логирования с pretty print -->
     <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
             <providers>

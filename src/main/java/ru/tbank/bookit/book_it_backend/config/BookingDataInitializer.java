@@ -94,7 +94,6 @@ public class BookingDataInitializer implements ApplicationRunner {
         booking14.setStatus(BookingStatus.CANCELED);
         booking15.setStatus(BookingStatus.CANCELED);
 
-
         bookingRepository.saveAll(List.of(booking1, booking2, booking3, booking4,
                 booking5, booking6, booking7, booking8, booking9, booking10, booking11,booking12, booking13,booking14, booking15));
     }
