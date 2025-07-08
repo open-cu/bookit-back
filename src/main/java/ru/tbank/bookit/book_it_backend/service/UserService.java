@@ -5,13 +5,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tbank.bookit.book_it_backend.model.User;
 import ru.tbank.bookit.book_it_backend.repository.UserRepository;
+import ru.tbank.bookit.book_it_backend.security.services.UserDetailsImpl;
 
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class UserService {
-    UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -20,18 +21,25 @@ public class UserService {
     public Optional<User> findById(UUID id) {
         return userRepository.findById(id);
     }
+
+    public Optional<User> findByTgId(Long tgId) {
+        return userRepository.findByTgId(tgId);
+    }
+
     public UUID getTestUserId() {
         return userRepository.findByName("Alice Johnson").getId();
     }
 
-    //Получить текущего аутентифицированного пользователя (по JWT)
     public User getCurrentUser() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Пользователь не найден: " + username));
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetailsImpl userDetails) {
+            Long tgId = userDetails.getTgId();
+            return userRepository.findByTgId(tgId)
+                    .orElseThrow(() -> new RuntimeException("User not found (tgId): " + tgId));
+        }
+        throw new RuntimeException("Unknown principal: " + principal);
     }
 
-    //Получить пользователя по id (например, для админки)
     public Optional<User> getUserById(UUID id) {
         return userRepository.findById(id);
     }
