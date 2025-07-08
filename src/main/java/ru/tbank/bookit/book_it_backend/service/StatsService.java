@@ -134,10 +134,16 @@ public class StatsService {
         List<Object[]> results = bookingStatsRepository.findBusiestHours(
                 start, end, areaName);
 
-        return results.stream()
-                .map(result -> new BusiestHoursResponse(
-                        (Integer) result[0],
-                        ((Number) result[1]).longValue()
+        Map<Integer, Long> hourToCountMap = results.stream()
+                .collect(Collectors.toMap(
+                        result -> (Integer) result[0],
+                        result -> ((Number) result[1]).longValue()
+                ));
+
+        return IntStream.rangeClosed(8, 20)
+                .mapToObj(hour -> new BusiestHoursResponse(
+                        hour,
+                        hourToCountMap.getOrDefault(hour, 0L)
                 ))
                 .sorted(Comparator.comparing(BusiestHoursResponse::hour))
                 .collect(Collectors.toList());
@@ -160,7 +166,6 @@ public class StatsService {
                         Collectors.summingLong(HallOccupancy::getReservedPlaces)
                 ));
 
-        // Заполняем отсутствующие часы нулевыми значениями (8-20)
         return IntStream.rangeClosed(8, 20)
                 .mapToObj(hour -> new BusiestHoursResponse(
                         hour,
