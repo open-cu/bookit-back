@@ -3,7 +3,9 @@ package ru.tbank.bookit.book_it_backend.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.tbank.bookit.book_it_backend.DTO.*;
+import ru.tbank.bookit.book_it_backend.model.HallOccupancy;
 import ru.tbank.bookit.book_it_backend.repository.BookingStatsRepository;
+import ru.tbank.bookit.book_it_backend.repository.HallOccupancyRepository;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -15,12 +17,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
 public class StatsService {
 
     private final BookingStatsRepository bookingStatsRepository;
+    private final HallOccupancyRepository hallOccupancyRepository;
 
     public List<BookingStatsResponse> getBookingStats(LocalDate startDate,
                                                       LocalDate endDate) {
@@ -132,8 +136,35 @@ public class StatsService {
 
         return results.stream()
                 .map(result -> new BusiestHoursResponse(
-                        (Integer) result[0], // hour
-                        ((Number) result[1]).longValue() // bookings count
+                        (Integer) result[0],
+                        ((Number) result[1]).longValue()
+                ))
+                .sorted(Comparator.comparing(BusiestHoursResponse::hour))
+                .collect(Collectors.toList());
+    }
+
+    public List<BusiestHoursResponse> getBusiestHoursForHall(
+            LocalDate startDate,
+            LocalDate endDate) {
+
+        List<LocalDate> datesInRange = startDate.datesUntil(endDate.plusDays(1))
+                .collect(Collectors.toList());
+
+        List<HallOccupancy> allOccupancies = datesInRange.stream()
+                .flatMap(date -> hallOccupancyRepository.findByDate(date).stream())
+                .collect(Collectors.toList());
+
+        Map<Integer, Long> hourToCountMap = allOccupancies.stream()
+                .collect(Collectors.groupingBy(
+                        ho -> ho.getDateTime().getHour(),
+                        Collectors.summingLong(HallOccupancy::getReservedPlaces)
+                ));
+
+        // Заполняем отсутствующие часы нулевыми значениями (8-20)
+        return IntStream.rangeClosed(8, 20)
+                .mapToObj(hour -> new BusiestHoursResponse(
+                        hour,
+                        hourToCountMap.getOrDefault(hour, 0L)
                 ))
                 .sorted(Comparator.comparing(BusiestHoursResponse::hour))
                 .collect(Collectors.toList());

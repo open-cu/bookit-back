@@ -137,10 +137,15 @@ public class StatsController {
         }
 
         try {
-            List<BusiestHoursResponse> stats = statsService.getBusiestHoursStats(
-                    startDate.atStartOfDay(),
-                    endDate.atTime(23, 59, 59),
-                    areaName);
+            List<BusiestHoursResponse> stats;
+            if (areaName == null) {
+                stats = statsService.getBusiestHoursForHall(startDate, endDate);
+            } else {
+                stats = statsService.getBusiestHoursStats(
+                        startDate.atStartOfDay(),
+                        endDate.atTime(23, 59, 59),
+                        areaName);
+            }
             return ResponseEntity.ok(stats);
         } catch (DataAccessException e) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
