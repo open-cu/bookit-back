@@ -34,7 +34,7 @@ public class EventDataInitializer {
                 aiWorkshop.setDescription("Hands-on workshop on building AI-powered applications.");
                 aiWorkshop.setTags(Set.of(ThemeTags.IT, ThemeTags.SCIENCE));
                 aiWorkshop.setDate(LocalDateTime.of(2025, 8, 20, 0, 0, 0));
-                aiWorkshop.setAvailable_places(0);
+                aiWorkshop.setAvailable_places(2);
 
                 Event aiWorkshop2 = new Event();
                 aiWorkshop2.setName("AI Workshop is back");

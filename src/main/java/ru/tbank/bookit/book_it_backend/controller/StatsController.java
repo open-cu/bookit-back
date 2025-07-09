@@ -155,4 +155,14 @@ public class StatsController {
                     e.getMessage());
         }
     }
+
+    @GetMapping("/event-overlaps")
+    public ResponseEntity<List<EventOverlapResponse>> getEventOverlaps() {
+        return ResponseEntity.ok(statsService.eventOverlapStats());
+    }
+
+    @GetMapping("/new-users-by-year-month")
+    public ResponseEntity<List<NewUsersCreatedAtResponse>> getNewUsersByYearMonth() {
+        return ResponseEntity.ok(statsService.newUsersCreatedAtStats());
+    }
 }

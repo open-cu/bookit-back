@@ -71,31 +71,8 @@ public class BookingDataInitializer implements ApplicationRunner {
         Booking booking8 = createCurrentBooking(aliceJohnson, areas.get(1));
         Booking booking9 = createCurrentBooking(aliceJohnson, areas.getFirst());
 
-        Booking booking10 = createBooking(aliceJohnson, areas.getLast(), Month.JULY, 2);
-        Booking booking11 = createBooking(aliceJohnson, areas.getFirst(), Month.APRIL, 23);
-        Booking booking12 = createBooking(aliceJohnson, areas.getFirst(), Month.JUNE, 2);
-
-        booking10.setStartTime(LocalDateTime.of(LocalDate.of(2025, Month.JULY, 1), LocalTime.of(13, 0)));
-        booking10.setEndTime(LocalDateTime.of(LocalDate.of(2025, Month.JULY, 1), LocalTime.of(17, 0)));
-
-        booking11.setStartTime(LocalDateTime.of(LocalDate.of(2025, Month.APRIL, 1), LocalTime.of(10, 0)));
-        booking11.setEndTime(LocalDateTime.of(LocalDate.of(2025, Month.APRIL, 1), LocalTime.of(17, 0)));
-
-        booking12.setStartTime(LocalDateTime.of(LocalDate.of(2025, Month.JUNE, 2), LocalTime.of(16, 0)));
-        booking12.setEndTime(LocalDateTime.of(LocalDate.of(2025, Month.JUNE, 2), LocalTime.of(17, 0)));
-        booking12.setStatus(BookingStatus.COMPLETED);
-        booking10.setStatus(BookingStatus.COMPLETED);
-        booking11.setStatus(BookingStatus.COMPLETED);
-
-        Booking booking13 = createBooking(aliceJohnson, areas.getLast(), Month.JULY, 3);
-        Booking booking14 = createBooking(aliceJohnson, areas.getFirst(), Month.APRIL, 24);
-        Booking booking15 = createBooking(aliceJohnson, areas.getFirst(), Month.JUNE, 3);
-        booking13.setStatus(BookingStatus.CANCELED);
-        booking14.setStatus(BookingStatus.CANCELED);
-        booking15.setStatus(BookingStatus.CANCELED);
-
         bookingRepository.saveAll(List.of(booking1, booking2, booking3, booking4,
-                booking5, booking6, booking7, booking8, booking9, booking10, booking11,booking12, booking13,booking14, booking15));
+                booking5, booking6, booking7, booking8, booking9));
     }
 
     public Booking createCurrentBooking(User user, Area area) {

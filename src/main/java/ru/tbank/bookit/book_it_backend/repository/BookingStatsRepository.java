@@ -65,18 +65,98 @@ public interface BookingStatsRepository extends JpaRepository<Booking, Long> {
 
     @Query(value = """
     SELECT 
-        EXTRACT(HOUR FROM b.start_time) AS hour_of_day,
-        COUNT(*) AS bookings_count
-    FROM bookings b
-    JOIN areas a ON b.area_id = a.id
-    WHERE b.start_time BETWEEN :start AND :end
-    AND (:areaName IS NULL OR a.name = :areaName)
-    GROUP BY EXTRACT(HOUR FROM b.start_time)
-    ORDER BY bookings_count DESC
-    LIMIT 24
+        h.hour AS hour_of_day,
+        COUNT(b.id) AS bookings_count
+    FROM (
+        SELECT 8 AS hour UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL 
+        SELECT 11 UNION ALL SELECT 12 UNION ALL SELECT 13 UNION ALL 
+        SELECT 14 UNION ALL SELECT 15 UNION ALL SELECT 16 UNION ALL 
+        SELECT 17 UNION ALL SELECT 18 UNION ALL SELECT 19 UNION ALL SELECT 20
+    ) h
+    LEFT JOIN bookings b ON 
+        h.hour = EXTRACT(HOUR FROM b.start_time)
+        AND b.start_time BETWEEN CAST(:start AS TIMESTAMP) AND 
+                CAST(:end AS TIMESTAMP)
+        AND (:areaName IS NULL OR b.area_id IN (
+            SELECT id FROM areas WHERE name = :areaName
+        ))
+    GROUP BY h.hour
+    ORDER BY h.hour
     """, nativeQuery = true)
     List<Object[]> findBusiestHours(
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end,
             @Param("areaName") String areaName);
+
+    @Query(value = """
+      WITH event_pairs AS (
+          SELECT
+              e1.id AS event_id1,
+              e1.name AS event_name1,
+              e2.id AS event_id2,
+              e2.name AS event_name2
+          FROM
+              events e1
+          CROSS JOIN
+              events e2
+          WHERE
+              e1.id < e2.id
+      ),
+      
+      common_users AS (
+          SELECT
+              ep.event_id1,
+              ep.event_name1,
+              ep.event_id2,
+              ep.event_name2,
+              COUNT(DISTINCT eu1.user_id) AS common_users_count
+          FROM
+              event_pairs ep
+          JOIN
+              event_users eu1 ON ep.event_id1 = eu1.event_id
+          JOIN
+              event_users eu2 ON ep.event_id2 = eu2.event_id AND eu1.user_id = eu2.user_id
+          GROUP BY
+              ep.event_id1, ep.event_name1, ep.event_id2, ep.event_name2
+      ),
+      
+      event_user_counts AS (
+          SELECT
+              event_id,
+              COUNT(DISTINCT user_id) AS total_users
+          FROM
+              event_users
+          GROUP BY
+              event_id
+      )
+      
+      SELECT
+          cu.event_id1,
+          cu.event_name1,
+          cu.event_id2,
+          cu.event_name2,
+          cu.common_users_count,
+          euc1.total_users AS event1_total_users,
+          euc2.total_users AS event2_total_users,
+              (cu.common_users_count::FLOAT /
+              GREATEST(euc1.total_users, euc2.total_users)) * 100
+           AS overlap_percentage
+      FROM
+          common_users cu
+      JOIN
+          event_user_counts euc1 ON cu.event_id1 = euc1.event_id
+      JOIN
+          event_user_counts euc2 ON cu.event_id2 = euc2.event_id
+      ORDER BY
+          overlap_percentage DESC;  
+
+    """, nativeQuery = true)
+    List<Object[]> findEventOverlapPercentage();
+
+    @Query(value = """
+        SELECT TO_CHAR(created_at, 'YYYY-MM') as created, COUNT(id) as count FROM users
+          GROUP BY TO_CHAR(created_at, 'YYYY-MM');
+    """, nativeQuery = true)
+    List<Object[]> findNewUsersByCreatedAtYearMonth();
+
 }

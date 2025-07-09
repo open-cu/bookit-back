@@ -12,10 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -173,5 +170,30 @@ public class StatsService {
                 ))
                 .sorted(Comparator.comparing(BusiestHoursResponse::hour))
                 .collect(Collectors.toList());
+    }
+
+    public List<EventOverlapResponse> eventOverlapStats() {
+        List<Object[]> overlaps = bookingStatsRepository.findEventOverlapPercentage();
+        return overlaps.stream().map(overlap ->
+                new EventOverlapResponse(
+                        (UUID) overlap[0],
+                        (String) overlap[1],
+                        (UUID) overlap[2],
+                        (String) overlap[3],
+                        (long) overlap[4],
+                        (long) overlap[5],
+                        (long) overlap[6],
+                        (double) overlap[7]
+                        )
+                ).collect(Collectors.toList());
+    }
+
+    public List<NewUsersCreatedAtResponse> newUsersCreatedAtStats() {
+        List<Object[]> newUsers = bookingStatsRepository.findNewUsersByCreatedAtYearMonth();
+        return newUsers.stream().map(newUser ->
+                new NewUsersCreatedAtResponse(
+                (String) newUser[0],
+                (long) newUser[1])
+        ).collect(Collectors.toList());
     }
 }
