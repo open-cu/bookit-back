@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import ru.tbank.bookit.book_it_backend.DTO.AIRequest;
+import ru.tbank.bookit.book_it_backend.DTO.AIRequestBuilder;
 import ru.tbank.bookit.book_it_backend.DTO.AIRequestComponents.MessageDTO;
 import ru.tbank.bookit.book_it_backend.DTO.AIResponse;
 import ru.tbank.bookit.book_it_backend.DTO.RawAIRequest;
@@ -35,16 +36,12 @@ public class AIController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", dotenv.get("AUTHORIZATION"));
-        CompletionOptionsDTO completionOptions = new CompletionOptionsDTO(
-                null,
-                0,
-                null,
-                null
+
+        AIRequest aiRequest = AIRequestBuilder.createAIRequest(
+                dotenv.get("SYSTEM_TEXT"),
+                rawAIRequest.prompt(),
+                dotenv.get("MODEL_URI")
         );
-        List<MessageDTO> messages = new ArrayList<>();
-        messages.add(new MessageDTO("system", dotenv.get("SYSTEM_TEXT")));
-        messages.add(new MessageDTO("user", rawAIRequest.prompt()));
-        AIRequest aiRequest = new AIRequest(dotenv.get("MODEL_URI"), completionOptions, messages);
 
         HttpEntity<AIRequest> aiRequestHttpEntity = new HttpEntity<>(aiRequest, headers);
         ResponseEntity<AIResponse> response = restTemplate.exchange(url, HttpMethod.POST, aiRequestHttpEntity, AIResponse.class);
