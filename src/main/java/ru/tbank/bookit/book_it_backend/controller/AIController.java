@@ -1,5 +1,6 @@
 package ru.tbank.bookit.book_it_backend.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.http.*;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -8,10 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-import ru.tbank.bookit.book_it_backend.DTO.AIRequest;
-import ru.tbank.bookit.book_it_backend.DTO.AIRequestBuilder;
-import ru.tbank.bookit.book_it_backend.DTO.AIResponse;
-import ru.tbank.bookit.book_it_backend.DTO.RawAIRequest;
+import ru.tbank.bookit.book_it_backend.DTO.*;
 
 import java.util.List;
 import java.util.Map;
@@ -27,7 +25,7 @@ public class AIController {
     }
 
     @PostMapping("/get-sql")
-    public ResponseEntity<List<Map<String, Object>>> getSql(
+    public ResponseEntity<String> getSql(
             @RequestBody RawAIRequest rawAIRequest
             ) {
         Dotenv dotenv = Dotenv.configure()
@@ -58,7 +56,26 @@ public class AIController {
                 SQLRequest = SQLRequest.replace("\\", "");
                 SQLRequest = SQLRequest.replace("```", "");
                 List<Map<String, Object>> results = jdbcTemplate.queryForList(SQLRequest);
-                return ResponseEntity.ok(results);
+                SqlResponseDTO sqlResponseDTO = new SqlResponseDTO(results);
+                ObjectMapper objectMapper = new ObjectMapper();
+                try {
+                    String jsonString = objectMapper.writeValueAsString(sqlResponseDTO);
+                    AIRequest analyzeAIRequest = AIRequestBuilder.createAIRequest(
+                            dotenv.get("SYSTEM_TEXT_ANALIZE"),
+                            jsonString,
+                            dotenv.get("MODEL_URI")
+                    );
+                    HttpEntity<AIRequest> aiRequestHttpEntity2 = new HttpEntity<>(analyzeAIRequest, headers);
+                    ResponseEntity<AIResponse> response2 = restTemplate.exchange(url, HttpMethod.POST, aiRequestHttpEntity2, AIResponse.class);
+                    if (response2.getStatusCode() == HttpStatus.OK) {
+                        String answer = response2.getBody() != null ? response2.getBody().result().alternatives().getFirst().message().text() : null;
+                        return ResponseEntity.ok(answer);
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
             }
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
