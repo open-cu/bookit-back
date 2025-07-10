@@ -1,6 +1,6 @@
 package com.opencu.bookit.domain.model.area;
 
-import com.opencu.bookit.domain.model.user.User;
+import com.opencu.bookit.domain.model.user.UserModel;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Review {
     private String id;
-    private User user;
+    private UserModel userModel;
     private byte rating;
     private String comment;
     private LocalDateTime createdAt;

@@ -17,10 +17,10 @@
 	<modules>
 		<module>domain</module>
 		<module>application</module>
-		<module>adapter-in-web</module>
 		<module>bootstrap</module>
         <module>qrcode-adapter</module>
-    </modules>
+		<module>persistence-adapter</module>
+	</modules>
 	<properties>
 		<java.version>21</java.version>
 	</properties>
