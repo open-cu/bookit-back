@@ -1,17 +1,16 @@
-package ru.tbank.bookit.book_it_backend.repository;
+package com.opencu.bookit.adapter.out.persistence.repository;
 
+import com.opencu.bookit.adapter.out.persistence.entity.BookingEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import ru.tbank.bookit.book_it_backend.model.Booking;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.List;
 
 @Repository
-public interface BookingStatsRepository extends JpaRepository<Booking, Long> {
+public interface BookingStatsRepository extends JpaRepository<BookingEntity, Long> {
 
     @Query(value = """
         SELECT 

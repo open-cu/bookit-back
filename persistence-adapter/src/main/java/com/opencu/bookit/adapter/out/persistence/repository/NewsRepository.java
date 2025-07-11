@@ -20,6 +20,4 @@ public interface NewsRepository extends JpaRepository<NewsEntity, UUID> {
     ORDER BY e.createdAt DESC
 """)
     List<NewsEntity> findByTagsIn(@Param("tags") Set<ThemeTags> tags);
-
-    List<NewsEntity> findAllByOrderByCreatedAtDesc();
 }

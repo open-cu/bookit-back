@@ -20,6 +20,7 @@
 		<module>bootstrap</module>
         <module>qrcode-adapter</module>
 		<module>persistence-adapter</module>
+		<module>security-adapter</module>
 	</modules>
 	<properties>
 		<java.version>21</java.version>

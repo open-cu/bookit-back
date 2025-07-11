@@ -26,7 +26,7 @@ public class NewsPersistenceAdapter implements LoadNewsPort, SaveNewsPort {
 
     @Override
     public List<NewsModel> findAll() {
-        return newsMapper.toModelList(newsRepository.findAllByOrderByCreatedAtDesc());
+        return newsMapper.toModelList(newsRepository.findAll());
     }
 
     @Override

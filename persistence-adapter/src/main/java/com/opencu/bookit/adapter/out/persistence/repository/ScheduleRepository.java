@@ -18,7 +18,4 @@ public interface ScheduleRepository extends JpaRepository<ScheduleEntity, LocalD
                         (scheduleEntity.getDescription() != null ?
                                 ". " + scheduleEntity.getDescription() : ""));
     }
-
-    @Query("SELECT s FROM ScheduleEntity s WHERE s.day_off BETWEEN :start AND :end")
-    List<ScheduleEntity> findByDate(LocalDate start, LocalDate end);
 }

@@ -25,6 +25,11 @@ public class SchedulePersistenceAdapter implements LoadSchedulePort, SaveSchedul
     }
 
     @Override
+    public Optional<ScheduleModel> findById(LocalDate date) {
+        return scheduleRepository.findById(date).map(scheduleMapper::toModel);
+    }
+
+    @Override
     public ScheduleModel save(ScheduleModel schedule) {
         var entity = scheduleMapper.toEntity(schedule);
         var savedEntity = scheduleRepository.save(entity);

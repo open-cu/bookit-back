@@ -13,10 +13,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface BookingRepository extends JpaRepository<BookingEntity, UUID> {
-    @Query("SELECT b FROM BookingEntity b WHERE b.area.id = :userId")
+    @Query("SELECT b FROM BookingEntity b WHERE b.areaEntity.id = :userId")
     Optional<BookingEntity> findByUserId(@Param("userId") UUID userId);
 
-    @Query("SELECT b FROM BookingEntity b WHERE b.area.id = :areaId")
+    @Query("SELECT b FROM BookingEntity b WHERE b.areaEntity.id = :areaId")
     List<BookingEntity> findByAreaId(@Param("areaId") UUID areaId);
 
     @Query("SELECT b FROM BookingEntity b WHERE CAST(b.startTime AS DATE) = ?1")
@@ -28,15 +28,15 @@ public interface BookingRepository extends JpaRepository<BookingEntity, UUID> {
     @Query("SELECT b FROM BookingEntity b WHERE b.startTime <= ?1 AND ?1 < b.endTime")
     List<BookingEntity> findByDatetime(LocalDateTime date);
 
-    @Query("SELECT b FROM BookingEntity b WHERE CAST(b.startTime AS DATE) = ?1 AND b.area.id = :areaId")
+    @Query("SELECT b FROM BookingEntity b WHERE CAST(b.startTime AS DATE) = ?1 AND b.areaEntity.id = :areaId")
     List<BookingEntity> findByDateAndArea(LocalDate date, @Param("areaId") UUID areaId);
 
-    @Query("SELECT b FROM BookingEntity b WHERE b.user.id = :userId AND b.startTime < :now AND b.endTime > :now")
+    @Query("SELECT b FROM BookingEntity b WHERE b.userEntity.id = :userId AND b.startTime < :now AND b.endTime > :now")
     List<BookingEntity> findCurrentBookingsByUser(@Param("userId") UUID userId, @Param("now") LocalDateTime now);
 
-    @Query("SELECT b FROM BookingEntity b WHERE b.user.id = :userId AND b.startTime > :now")
+    @Query("SELECT b FROM BookingEntity b WHERE b.userEntity.id = :userId AND b.startTime > :now")
     List<BookingEntity> findFutureBookingsByUser(@Param("userId") UUID userId, @Param("now") LocalDateTime now);
 
-    @Query("SELECT b FROM BookingEntity b WHERE b.user.id = :userId AND b.endTime < :now")
+    @Query("SELECT b FROM BookingEntity b WHERE b.userEntity.id = :userId AND b.endTime < :now")
     List<BookingEntity> findPastBookingsByUser(@Param("userId") UUID userId, @Param("now") LocalDateTime now);
 }

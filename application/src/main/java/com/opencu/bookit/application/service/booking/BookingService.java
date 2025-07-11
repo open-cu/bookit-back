@@ -1,10 +1,10 @@
 package com.opencu.bookit.application.service.booking;
 
+import com.opencu.bookit.application.config.BookingConfig;
 import com.opencu.bookit.application.port.out.area.LoadAreaPort;
 import com.opencu.bookit.application.port.in.booking.CRUDBookingUseCase;
 import com.opencu.bookit.application.port.out.booking.LoadBookingPort;
 import com.opencu.bookit.application.port.out.booking.SaveBookingPort;
-import com.opencu.bookit.application.port.out.config.LoadBookingConfigurationPort;
 import com.opencu.bookit.application.port.out.schedule.LoadSchedulePort;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.application.service.user.UserService;
@@ -40,12 +40,12 @@ public class BookingService {
     private final LoadAreaPort loadAreaPort;
     private final LoadUserPort loadUserPort;
 
-    private final LoadBookingConfigurationPort bookingConfig;
+    private final BookingConfig bookingConfig;
 
     @Autowired
     public BookingService(UserService userService, LoadBookingPort loadBookingPort, SaveBookingPort saveBookingPort,
                           LoadHallOccupancyPort loadHallOccupancyPort, SaveHallOccupancyPort saveHallOccupancyPort,
-                          LoadSchedulePort loadSchedulePort, LoadBookingConfigurationPort bookingConfig,
+                          LoadSchedulePort loadSchedulePort, BookingConfig bookingConfig,
                           LoadAreaPort loadAreaPort, LoadUserPort loadUserPort) {
         this.userService = userService;
         this.loadBookingPort = loadBookingPort;

@@ -1,6 +1,6 @@
 package com.opencu.bookit.application.service.user;
 
-import com.opencu.bookit.application.port.out.user.LoadAuthorizationInfo;
+import com.opencu.bookit.application.port.out.user.LoadAuthorizationInfoPort;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.application.port.out.user.SaveUserPort;
 import com.opencu.bookit.domain.model.user.UserModel;
@@ -15,27 +15,31 @@ import java.util.UUID;
 public class UserService {
     private final LoadUserPort loadUserPort;
     private final SaveUserPort saveUserPort;
-    private final LoadAuthorizationInfo loadAuthorizationInfo;
+    private final LoadAuthorizationInfoPort loadAuthorizationInfoPort;
 
     @Autowired
     public UserService(LoadUserPort loadUserPort,
                        SaveUserPort saveUserPort,
-                       LoadAuthorizationInfo loadAuthorizationInfo) {
+                       LoadAuthorizationInfoPort loadAuthorizationInfoPort) {
         this.loadUserPort = loadUserPort;
         this.saveUserPort = saveUserPort;
-        this.loadAuthorizationInfo = loadAuthorizationInfo;
+        this.loadAuthorizationInfoPort = loadAuthorizationInfoPort;
     }
 
     public Optional<UserModel> findById(UUID id) {
         return loadUserPort.findById(id);
     }
+
+    public Optional<UserModel> findByTgId(Long tgId) {
+        return loadUserPort.findByTgId(tgId);
+    }
+
     public UUID getTestUserId() {
         return loadUserPort.findByName("Alice Johnson").getId();
     }
 
     public UserModel getCurrentUser() {
-        //String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        String username = loadAuthorizationInfo.getCurrentUsername();
+        String username = loadAuthorizationInfoPort.getCurrentUsername();
         return loadUserPort.findByUsername(username)
                            .orElseThrow(() -> new RuntimeException("Пользователь не найден: " + username));
     }

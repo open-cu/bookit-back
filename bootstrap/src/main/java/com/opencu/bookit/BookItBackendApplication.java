@@ -9,7 +9,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EntityScan(basePackages = "com.opencu.bookit")
-@EnableJpaRepositories(basePackages = "com.opencu.bookit")
 public class BookItBackendApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(BookItBackendApplication.class, args);
