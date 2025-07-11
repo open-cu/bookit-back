@@ -14,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.tbank.bookit.book_it_backend.DTO.EventResponse;
 import ru.tbank.bookit.book_it_backend.exception.ResourceNotFoundException;
 import ru.tbank.bookit.book_it_backend.model.*;
+import ru.tbank.bookit.book_it_backend.security.services.UserDetailsImpl;
 import ru.tbank.bookit.book_it_backend.service.EventService;
 
 import java.util.Set;
@@ -46,8 +47,8 @@ public class EventControllerV1 {
 
         UUID currentUserId = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof User user) {
-            currentUserId = user.getId();
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl userDetails) {
+            currentUserId = userDetails.getId();
         }
 
         if ((("registered".equalsIgnoreCase(status) || "available".equalsIgnoreCase(status)) && currentUserId == null)) {
@@ -62,32 +63,32 @@ public class EventControllerV1 {
     @GetMapping("/registrations/{eventId}/status")
     public ResponseEntity<EventStatus> getRegistrationStatus(@PathVariable UUID eventId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof User)) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetailsImpl)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        User currentUser = (User) authentication.getPrincipal();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
         Event event = eventService.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 
-        return ResponseEntity.ok(eventService.findStatusById(currentUser.getId(), event));
+        return ResponseEntity.ok(eventService.findStatusById(userDetails.getId(), event));
     }
 
     @Operation(summary = "Register current user for the event")
     @PutMapping("/registrations/{eventId}")
     public ResponseEntity<Event> registerForEvent(@PathVariable UUID eventId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof User)) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetailsImpl)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        User currentUser = (User) authentication.getPrincipal();
-        if (currentUser.getStatus() != UserStatus.VERIFIED) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        if (userDetails.getStatus() != UserStatus.VERIFIED) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
 
         Event event = eventService.findById(eventId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
-        eventService.addUser(currentUser.getId(), event);
+        eventService.addUser(userDetails.getId(), event);
         return ResponseEntity.ok(event);
     }
 
@@ -95,18 +96,18 @@ public class EventControllerV1 {
     @DeleteMapping("/registrations/{eventId}")
     public ResponseEntity<String> unregisterFromEvent(@PathVariable UUID eventId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof User)) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetailsImpl)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        User currentUser = (User) authentication.getPrincipal();
-        if (currentUser.getStatus() != UserStatus.VERIFIED) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        if (userDetails.getStatus() != UserStatus.VERIFIED) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body("Only verified users can perform this action");
         }
 
         Event event = eventService.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
-        eventService.removeUser(currentUser.getId(), event);
+        eventService.removeUser(userDetails.getId(), event);
         return ResponseEntity.ok("User removed successfully");
     }
 }
