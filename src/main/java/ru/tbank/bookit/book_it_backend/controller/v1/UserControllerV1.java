@@ -1,6 +1,7 @@
 package ru.tbank.bookit.book_it_backend.controller.v1;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,7 +34,7 @@ public class UserControllerV1 {
 
     @Operation(summary = "Update current user profile")
     @PutMapping("/me")
-    public ResponseEntity<User> updateProfile(@RequestBody UpdateProfileRequest request) {
+    public ResponseEntity<User> updateProfile(@Valid @RequestBody UpdateProfileRequest request) {
         User updated = userService.updateProfile(
                 request.getFirstName(),
                 request.getLastName(),
