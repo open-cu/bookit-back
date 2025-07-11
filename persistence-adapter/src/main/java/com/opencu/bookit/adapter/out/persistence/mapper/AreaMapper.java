@@ -2,6 +2,7 @@ package com.opencu.bookit.adapter.out.persistence.mapper;
 
 import com.opencu.bookit.adapter.out.persistence.entity.AreaEntity;
 import com.opencu.bookit.domain.model.area.AreaModel;
+import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -30,4 +31,5 @@ public abstract class AreaMapper {
     public abstract AreaEntity toEntity(AreaModel model);
 
     public abstract List<AreaModel> toModelList(List<AreaEntity> entities);
+    public abstract List<AreaEntity> toEntityList(List<AreaModel> models);
 }

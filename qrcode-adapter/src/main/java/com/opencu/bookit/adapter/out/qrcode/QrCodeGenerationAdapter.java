@@ -5,13 +5,16 @@ import com.google.zxing.EncodeHintType;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import com.opencu.bookit.application.port.out.qr.GenerateQrCodePort;
 import com.opencu.bookit.domain.model.user.UserModel;
+import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-public class QrCodeGenerationAdapter {
+@Component
+public class QrCodeGenerationAdapter implements GenerateQrCodePort {
     public byte[] generateUserQrCode(UserModel userModel) {
         String userData = String.format(
                 "USER:%s:%s %s:%s",

@@ -77,4 +77,8 @@ public class EventService {
             saveEventPort.save(eventModel);
         }
     }
+
+    public EventModel saveEvent(EventModel event) {
+        return saveEventPort.save(event);
+    }
 }

@@ -4,6 +4,7 @@ import com.opencu.bookit.adapter.out.persistence.entity.AreaEntity;
 import com.opencu.bookit.adapter.out.persistence.mapper.AreaMapper;
 import com.opencu.bookit.adapter.out.persistence.repository.AreaRepository;
 import com.opencu.bookit.application.port.out.area.LoadAreaPort;
+import com.opencu.bookit.application.port.out.area.SaveAreaPort;
 import com.opencu.bookit.domain.model.area.AreaModel;
 import com.opencu.bookit.domain.model.area.AreaType;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class AreaPersistenceAdapter implements LoadAreaPort {
+public class AreaPersistenceAdapter implements LoadAreaPort, SaveAreaPort {
 
     private final AreaRepository areaRepository;
     private final AreaMapper areaMapper;
@@ -34,6 +35,11 @@ public class AreaPersistenceAdapter implements LoadAreaPort {
     @Override
     public List<AreaModel> findAll() {
         return areaMapper.toModelList(areaRepository.findAll());
+    }
+
+    @Override
+    public void saveAll(List<AreaModel> areaModels) {
+        areaRepository.saveAll(areaMapper.toEntityList(areaModels));
     }
 }
 

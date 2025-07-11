@@ -43,6 +43,11 @@
             <artifactId>security-adapter</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.opencu.bookit</groupId>
+            <artifactId>web-adapter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

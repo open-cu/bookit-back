@@ -36,8 +36,9 @@ public class EventPersistenceAdapter implements LoadEventPort, SaveEventPort {
     }
 
     @Override
-    public void save(EventModel eventModel) {
+    public EventModel save(EventModel eventModel) {
         eventRepository.save(eventMapper.toEntity(eventModel));
+        return eventModel;
     }
 }
 
