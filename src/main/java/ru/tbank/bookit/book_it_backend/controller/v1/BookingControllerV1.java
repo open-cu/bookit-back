@@ -9,8 +9,6 @@ import org.springframework.data.util.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import ru.tbank.bookit.book_it_backend.DTO.CreateBookingRequest;
 import ru.tbank.bookit.book_it_backend.DTO.UpdateBookingRequest;
@@ -21,6 +19,7 @@ import ru.tbank.bookit.book_it_backend.model.User;
 import ru.tbank.bookit.book_it_backend.model.UserStatus;
 import ru.tbank.bookit.book_it_backend.service.BookingMenuService;
 import ru.tbank.bookit.book_it_backend.service.HomeService;
+import ru.tbank.bookit.book_it_backend.service.UserService;
 
 import java.net.URI;
 import java.time.LocalDate;
@@ -33,10 +32,12 @@ import java.util.stream.Collectors;
 public class BookingControllerV1 {
     private final HomeService homeService;
     private final BookingMenuService bookingMenuService;
+    private final UserService userService;
 
-    public BookingControllerV1(HomeService homeService, BookingMenuService bookingMenuService) {
+    public BookingControllerV1(HomeService homeService, BookingMenuService bookingMenuService, UserService userService) {
         this.homeService = homeService;
         this.bookingMenuService = bookingMenuService;
+        this.userService = userService;
     }
 
     @Operation(summary = "Get available dates for area")
@@ -95,8 +96,7 @@ public class BookingControllerV1 {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) authentication.getPrincipal();
+        User currentUser = getCurrentUser();
         List<Booking> bookings;
         switch (timeline) {
             case "future" -> bookings = new ArrayList<>(homeService.getFutureBookings(currentUser.getId()));
@@ -132,7 +132,14 @@ public class BookingControllerV1 {
             }
         }
 
-        Set<Booking> createdBooking = bookingMenuService.createBooking(request);
+        CreateBookingRequest actualRequest = new CreateBookingRequest(
+                currentUser.getId(),
+                request.areaId(),
+                request.timePeriods(),
+                request.quantity()
+        );
+
+        Set<Booking> createdBooking = bookingMenuService.createBooking(actualRequest);
         Set<ResponseEntity<Booking>> result = new HashSet<>();
 
         for (Booking b : createdBooking) {
@@ -172,7 +179,6 @@ public class BookingControllerV1 {
     }
 
     private User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return (User) authentication.getPrincipal();
+        return userService.getCurrentUser();
     }
 }
