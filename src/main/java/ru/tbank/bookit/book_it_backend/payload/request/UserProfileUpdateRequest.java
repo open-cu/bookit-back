@@ -17,6 +17,7 @@ public class UserProfileUpdateRequest {
     @Pattern(regexp = "^(\\+7\\d{10}|8\\d{10})$", message = "Incorrect phone number format")
     private String phone;
 
+    @NotBlank
     @Email
     private String email;
 }
