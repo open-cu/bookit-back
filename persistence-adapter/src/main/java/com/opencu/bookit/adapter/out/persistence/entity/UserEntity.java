@@ -3,8 +3,6 @@ package com.opencu.bookit.adapter.out.persistence.entity;
 import com.opencu.bookit.domain.model.user.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -15,7 +13,7 @@ import java.util.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserEntity implements UserDetails {
+public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -61,45 +59,6 @@ public class UserEntity implements UserDetails {
 
     @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewEntity> reviewEntities = new ArrayList<>();
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        Set<GrantedAuthority> authorities = new HashSet<>();
-        for (RoleEntity roleEntity : roleEntities) {
-            authorities.add((GrantedAuthority) () -> roleEntity.getName().name());
-        }
-        return authorities;
-    }
-
-    @Override
-    public String getPassword() {
-        return passwordHash;
-    }
-
-    @Override
-    public String getUsername() {
-        return username;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return status != UserStatus.DELETED;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return status != UserStatus.BANNED;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return status == UserStatus.VERIFIED;
-    }
 
     @PrePersist
     protected void onCreate() {

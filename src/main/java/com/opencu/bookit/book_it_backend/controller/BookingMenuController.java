@@ -9,8 +9,6 @@ import org.springframework.data.util.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import ru.tbank.bookit.book_it_backend.DTO.CreateBookingRequest;
 import ru.tbank.bookit.book_it_backend.DTO.UpdateBookingRequest;
@@ -23,6 +21,7 @@ import ru.tbank.bookit.book_it_backend.model.User;
 import ru.tbank.bookit.book_it_backend.model.UserStatus;
 import ru.tbank.bookit.book_it_backend.repository.AreaRepository;
 import ru.tbank.bookit.book_it_backend.service.BookingMenuService;
+import ru.tbank.bookit.book_it_backend.service.UserService;
 
 import java.net.URI;
 import java.time.LocalDate;
@@ -35,10 +34,12 @@ import java.util.stream.Collectors;
 public class BookingMenuController {
     private final BookingMenuService bookingMenuService;
     private final AreaRepository areaRepository;
+    private final UserService userService;
 
-    public BookingMenuController(BookingMenuService bookingMenuService, AreaRepository areaRepository) {
+    public BookingMenuController(BookingMenuService bookingMenuService, AreaRepository areaRepository, UserService userService) {
         this.bookingMenuService = bookingMenuService;
         this.areaRepository = areaRepository;
+        this.userService = userService;
     }
 
     @Operation(description = "returns information in the list format about the available dates")
@@ -118,7 +119,7 @@ public class BookingMenuController {
     )
     @PostMapping("/booking")
     public Set<ResponseEntity<Booking>> createBooking(@RequestBody CreateBookingRequest request) {
-        User currentUser = getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         if (currentUser.getStatus() != UserStatus.VERIFIED) {
             throw new ProfileNotCompletedException("User profile is not completed. Please complete your profile before creating bookings.");
         }
@@ -131,7 +132,14 @@ public class BookingMenuController {
             }
         }
 
-        Set<Booking> createdBooking = bookingMenuService.createBooking(request);
+        CreateBookingRequest actualRequest = new CreateBookingRequest(
+                currentUser.getId(),
+                request.areaId(),
+                request.timePeriods(),
+                request.quantity()
+        );
+
+        Set<Booking> createdBooking = bookingMenuService.createBooking(actualRequest);
         Set<ResponseEntity<Booking>> result = new HashSet<>();
 
         for (Booking b : createdBooking) {
@@ -148,7 +156,7 @@ public class BookingMenuController {
             @PathVariable UUID bookingId,
             @RequestBody UpdateBookingRequest request) {
         try {
-            User currentUser = getCurrentUser();
+            User currentUser = userService.getCurrentUser();
             if (currentUser.getStatus() != UserStatus.VERIFIED) {
                 throw new ProfileNotCompletedException("User profile is not completed. Please complete your profile before updating bookings.");
             }
@@ -178,10 +186,5 @@ public class BookingMenuController {
         areaRepository.save(area);
         URI uri = URI.create("/booking-menu/area/" + area.getId());
         return ResponseEntity.created(uri).body(area);
-    }
-
-    private User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return (User) authentication.getPrincipal();
     }
 }

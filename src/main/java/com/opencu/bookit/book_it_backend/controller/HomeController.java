@@ -13,6 +13,7 @@ import ru.tbank.bookit.book_it_backend.exception.ProfileNotCompletedException;
 import ru.tbank.bookit.book_it_backend.model.Booking;
 import ru.tbank.bookit.book_it_backend.model.User;
 import ru.tbank.bookit.book_it_backend.model.UserStatus;
+import ru.tbank.bookit.book_it_backend.security.services.UserDetailsImpl;
 import ru.tbank.bookit.book_it_backend.service.HomeService;
 
 import java.util.*;
@@ -28,25 +29,24 @@ public class HomeController {
 
     @Operation(description = "returns QR code in string format")
     @GetMapping("/qr")
-    public ResponseEntity<byte[]> getUserQrCode(@RequestParam UUID userId) {
+    public ResponseEntity<byte[]> getUserQrCode() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof User)) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetailsImpl userDetails)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        User currentUser = (User) authentication.getPrincipal();
-        if (currentUser.getStatus() != UserStatus.VERIFIED) {
+        User user = homeService.findUserByTgId(userDetails.getTgId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        if (user.getStatus() != UserStatus.VERIFIED) {
             throw new ProfileNotCompletedException("User profile is not completed. Please complete your profile before accessing QR code.");
         }
-
-        User user = homeService.findUserById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         try {
             byte[] qrPng = homeService.generateUserQrCode(user);
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "inline; filename=\"user-" + userId + "-qr.png\"")
+                            "inline; filename=\"user-" + user.getId() + "-qr.png\"")
                     .contentType(MediaType.IMAGE_PNG)
                     .body(qrPng);
         } catch (Exception e) {
@@ -56,24 +56,39 @@ public class HomeController {
 
     @Operation(description = "returns information in the list format about current bookings")
     @GetMapping("/bookings/current")
-    public ResponseEntity<List<Booking>> getCurrentBookings(@RequestParam UUID userId) {
-        List<Booking> bookings = new ArrayList<Booking>(homeService.getCurrentBookings(userId));
+    public ResponseEntity<List<Booking>> getCurrentBookings() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetailsImpl userDetails)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        UUID userId = userDetails.getId();
+        List<Booking> bookings = new ArrayList<>(homeService.getCurrentBookings(userId));
         bookings.sort(Comparator.comparing(Booking::getStartTime));
         return ResponseEntity.ok(bookings);
     }
 
     @Operation(description = "returns information in the list format about future bookings")
     @GetMapping("/bookings/future")
-    public ResponseEntity<List<Booking>> getFutureBookings(@RequestParam UUID userId) {
-        List<Booking> bookings = new ArrayList<Booking>(homeService.getFutureBookings(userId));
+    public ResponseEntity<List<Booking>> getFutureBookings() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetailsImpl userDetails)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        UUID userId = userDetails.getId();
+        List<Booking> bookings = new ArrayList<>(homeService.getFutureBookings(userId));
         bookings.sort(Comparator.comparing(Booking::getStartTime));
         return ResponseEntity.ok(bookings);
     }
 
     @Operation(description = "returns information in the list format about past bookings")
     @GetMapping("/bookings/past")
-    public ResponseEntity<List<Booking>> getPastBookings(@RequestParam UUID userId) {
-        List<Booking> bookings = new ArrayList<Booking>(homeService.getPastBookings(userId));
+    public ResponseEntity<List<Booking>> getPastBookings() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetailsImpl userDetails)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        UUID userId = userDetails.getId();
+        List<Booking> bookings = new ArrayList<>(homeService.getPastBookings(userId));
         bookings.sort(Comparator.comparing(Booking::getStartTime));
         return ResponseEntity.ok(bookings);
     }

@@ -10,6 +10,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
 
   db:
     image: postgres:16

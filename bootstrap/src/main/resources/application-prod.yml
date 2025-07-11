@@ -9,7 +9,12 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        log:
+          mask_data: true
   flyway:
     enabled: false
     locations: classpath:db/migration/prod
@@ -22,3 +27,18 @@ bookit:
   app:
     jwtSecret: bookItSecretKey123456789012345678901234567890123456789012345678901234567890
     jwtExpirationMs: 18000000
+
+logging:
+  level:
+    org.springframework: WARN
+    org.springframework.web: WARN
+    org.springframework.transaction: WARN
+    org.springframework.security: WARN
+    org.springframework.security.web.FilterChainProxy: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql: OFF
+    org.hibernate.stat: OFF
+    org.springframework.jdbc.core.JdbcTemplate: WARN
+    org.springframework.jdbc.core.StatementCreatorUtils: OFF
+    org.flywaydb: OFF
+    ru.tbank.bookit: INFO
