@@ -5,8 +5,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.tbank.bookit.book_it_backend.DTO.UpdateProfileRequest;
@@ -48,16 +46,10 @@ public class UserControllerV1 {
     @Operation(summary = "Get QR code for current user")
     @GetMapping("/me/qr")
     public ResponseEntity<byte[]> getCurrentUserQrCode() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof User)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        User currentUser = (User) authentication.getPrincipal();
+        User currentUser = userService.getCurrentUser();
         if (currentUser.getStatus() != UserStatus.VERIFIED) {
             throw new ProfileNotCompletedException("User profile is not completed. Please complete your profile before accessing QR code.");
         }
-
         try {
             byte[] qrPng = homeService.generateUserQrCode(currentUser);
             return ResponseEntity.ok()
