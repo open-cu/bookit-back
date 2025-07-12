@@ -151,6 +151,16 @@ public class AuthService implements LoadAuthorizationInfoPort {
         );
     }
 
+    public UserModel getCurrentUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetailsImpl userDetails) {
+            Long tgId = userDetails.getTgId();
+            return loadUserPort.findByTgId(tgId)
+                                 .orElseThrow(() -> new RuntimeException("User not found (tgId): " + tgId));
+        }
+        throw new RuntimeException("Unknown principal: " + principal);
+    }
+
     @Transactional
     public JwtResponse login(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(

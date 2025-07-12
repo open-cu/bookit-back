@@ -1,15 +1,15 @@
-package ru.tbank.bookit.book_it_backend.controller.v1;
+package com.opencu.bookit.adapter.in.web.controller.v1;
 
+import com.opencu.bookit.adapter.out.security.spring.payload.request.TelegramUserRequest;
+import com.opencu.bookit.adapter.out.security.spring.payload.request.UserProfileUpdateRequest;
+import com.opencu.bookit.adapter.out.security.spring.payload.response.JwtResponse;
+import com.opencu.bookit.adapter.out.security.spring.payload.response.MessageResponse;
+import com.opencu.bookit.adapter.out.security.spring.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import ru.tbank.bookit.book_it_backend.payload.request.TelegramUserRequest;
-import ru.tbank.bookit.book_it_backend.payload.request.UserProfileUpdateRequest;
-import ru.tbank.bookit.book_it_backend.payload.response.JwtResponse;
-import ru.tbank.bookit.book_it_backend.payload.response.MessageResponse;
-import ru.tbank.bookit.book_it_backend.service.AuthService;
 
 @RestController
 @RequestMapping("/api/v1/auth")

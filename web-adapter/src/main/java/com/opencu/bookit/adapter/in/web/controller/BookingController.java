@@ -9,6 +9,7 @@ import com.opencu.bookit.adapter.in.web.mapper.BookingRequestMapper;
 import com.opencu.bookit.adapter.in.web.mapper.BookingResponseMapper;
 import com.opencu.bookit.application.port.in.booking.CRUDBookingUseCase;
 import com.opencu.bookit.application.port.out.area.LoadAreaPort;
+import com.opencu.bookit.application.port.out.user.LoadAuthorizationInfoPort;
 import com.opencu.bookit.application.service.booking.BookingService;
 import com.opencu.bookit.application.service.user.UserService;
 import com.opencu.bookit.domain.model.booking.BookingModel;
@@ -38,13 +39,16 @@ public class BookingController {
     private final UserService userService;
     private final BookingRequestMapper bookingRequestMapper;
     private final BookingResponseMapper bookingResponseMapper;
+    private final LoadAuthorizationInfoPort loadAuthorizationInfoPort;
 
     public BookingController(BookingService bookingService, LoadAreaPort areaRepository, UserService userService,
-                             BookingRequestMapper bookingRequestMapper, BookingResponseMapper bookingResponseMapper) {
+                             BookingRequestMapper bookingRequestMapper, BookingResponseMapper bookingResponseMapper,
+                             LoadAuthorizationInfoPort loadAuthorizationInfoPort) {
         this.bookingService = bookingService;
         this.userService = userService;
         this.bookingRequestMapper = bookingRequestMapper;
         this.bookingResponseMapper = bookingResponseMapper;
+        this.loadAuthorizationInfoPort = loadAuthorizationInfoPort;
     }
 
     @Operation(description = "returns information in the list format about the available dates")
@@ -124,7 +128,7 @@ public class BookingController {
     )
     @PostMapping("/booking")
     public Set<ResponseEntity<BookingResponse>> createBooking(@RequestBody CreateBookingRequest request) {
-        UserModel currentUser = userService.getCurrentUser();
+        UserModel currentUser = loadAuthorizationInfoPort.getCurrentUser();
         if (currentUser.getStatus() != UserStatus.VERIFIED) {
             throw new ProfileNotCompletedException("User profile is not completed. Please complete your profile before creating bookings.");
         }
@@ -161,7 +165,7 @@ public class BookingController {
             @PathVariable UUID bookingId,
             @RequestBody UpdateBookingRequest request) {
         try {
-            UserModel currentUser = userService.getCurrentUser();
+            UserModel currentUser = loadAuthorizationInfoPort.getCurrentUser();
             if (currentUser.getStatus() != UserStatus.VERIFIED) {
                 throw new ProfileNotCompletedException("User profile is not completed. Please complete your profile before updating bookings.");
             }

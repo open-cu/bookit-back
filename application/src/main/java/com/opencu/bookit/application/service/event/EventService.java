@@ -8,6 +8,9 @@ import com.opencu.bookit.domain.model.event.EventStatus;
 import com.opencu.bookit.domain.model.event.ThemeTags;
 import com.opencu.bookit.domain.model.user.UserModel;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -29,18 +32,9 @@ public class EventService {
     }
 
     public List<EventModel> findAll() {
-        //return eventMapper.toEventResponseList(loadEventPort.findAll());
         return loadEventPort.findAll();
     }
-/*
-    public List<Event> toEventResponseList(List<Event> events) {
-        return eventMapper.toEventResponseList(events);
-    }
 
-    public EventResponse toEventResponse(Event event) {
-        return eventMapper.toEventResponse(event);
-    }
-*/
     public List<EventModel> findByTags(Set<ThemeTags> tags){
         return loadEventPort.findByTags(tags);
     }
@@ -80,5 +74,10 @@ public class EventService {
 
     public EventModel saveEvent(EventModel event) {
         return saveEventPort.save(event);
+    }
+
+    public Page<EventModel> findWithFilters(
+            Set<ThemeTags> tags, String search, String status, Pageable pageable, UUID currentUserId) {
+        return loadEventPort.findWithFilters(tags, search, status, pageable, currentUserId);
     }
 }

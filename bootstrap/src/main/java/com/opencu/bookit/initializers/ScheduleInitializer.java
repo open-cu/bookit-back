@@ -1,11 +1,10 @@
-package com.opencu.bookit.application.config;
+package com.opencu.bookit.initializers;
 
 import com.opencu.bookit.application.port.out.schedule.LoadSchedulePort;
 import com.opencu.bookit.application.port.out.schedule.SaveSchedulePort;
 import com.opencu.bookit.domain.model.schedule.DayStatus;
 import com.opencu.bookit.domain.model.schedule.ScheduleModel;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;

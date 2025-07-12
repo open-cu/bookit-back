@@ -6,6 +6,7 @@ import com.opencu.bookit.application.port.in.booking.CRUDBookingUseCase;
 import com.opencu.bookit.application.port.out.booking.LoadBookingPort;
 import com.opencu.bookit.application.port.out.booking.SaveBookingPort;
 import com.opencu.bookit.application.port.out.schedule.LoadSchedulePort;
+import com.opencu.bookit.application.port.out.user.LoadAuthorizationInfoPort;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.application.service.user.UserService;
 import com.opencu.bookit.application.port.out.statstics.LoadHallOccupancyPort;
@@ -39,6 +40,7 @@ public class BookingService {
     private final LoadSchedulePort loadSchedulePort;
     private final LoadAreaPort loadAreaPort;
     private final LoadUserPort loadUserPort;
+    private final LoadAuthorizationInfoPort loadAuthorizationInfoPort;
 
     private final BookingConfig bookingConfig;
 
@@ -46,7 +48,8 @@ public class BookingService {
     public BookingService(UserService userService, LoadBookingPort loadBookingPort, SaveBookingPort saveBookingPort,
                           LoadHallOccupancyPort loadHallOccupancyPort, SaveHallOccupancyPort saveHallOccupancyPort,
                           LoadSchedulePort loadSchedulePort, BookingConfig bookingConfig,
-                          LoadAreaPort loadAreaPort, LoadUserPort loadUserPort) {
+                          LoadAreaPort loadAreaPort, LoadUserPort loadUserPort,
+                          LoadAuthorizationInfoPort loadAuthorizationInfoPort) {
         this.userService = userService;
         this.loadBookingPort = loadBookingPort;
         this.saveBookingPort = saveBookingPort;
@@ -56,6 +59,7 @@ public class BookingService {
         this.bookingConfig = bookingConfig;
         this.loadAreaPort = loadAreaPort;
         this.loadUserPort = loadUserPort;
+        this.loadAuthorizationInfoPort = loadAuthorizationInfoPort;
     }
 
     public Optional<BookingModel> findBooking(UUID bookingId) {
@@ -130,7 +134,8 @@ public class BookingService {
         } else {
             Optional<HallOccupancyModel> hallOccupancy = loadHallOccupancyPort.findById(currHour);
             if (hallOccupancy.isPresent() &&
-                    bookingModels.stream().noneMatch(b -> b.getUserId().equals(userService.getCurrentUser().getId()) &&
+                    bookingModels.stream().noneMatch(
+                            b -> b.getUserId().equals(loadAuthorizationInfoPort.getCurrentUser().getId()) &&
                             bookingIncludeHour(currHour, b))) {
                 return hallOccupancy.get().getReservedPlaces() < bookingConfig.getHallMaxCapacity();
             }
@@ -406,7 +411,8 @@ public class BookingService {
                                            .collect(Collectors.toCollection(ArrayList::new));
             int reservedPlaces = loadHallOccupancyPort.getByDateTime(time).getReservedPlaces();
             if (reservedPlaces >= bookingConfig.getHallMaxCapacity() ||
-                    bookingModels.stream().anyMatch(b -> b.getUserId().equals(userService.getCurrentUser().getId()) &&
+                    bookingModels.stream().anyMatch(
+                            b -> b.getUserId().equals(loadAuthorizationInfoPort.getCurrentUser().getId()) &&
                     bookingIncludeHour(time, b))) {
                 isWorkplaceAvailable = false;
             }

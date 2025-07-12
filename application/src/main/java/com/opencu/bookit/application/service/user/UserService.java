@@ -38,19 +38,13 @@ public class UserService {
         return loadUserPort.findByName("Alice Johnson").getId();
     }
 
-    public UserModel getCurrentUser() {
-        String username = loadAuthorizationInfoPort.getCurrentUsername();
-        return loadUserPort.findByUsername(username)
-                           .orElseThrow(() -> new RuntimeException("Пользователь не найден: " + username));
-    }
-
     public Optional<UserModel> getUserById(UUID id) {
         return loadUserPort.findById(id);
     }
 
     @Transactional
     public UserModel updateProfile(String firstName, String lastName, String email, String phone) {
-        UserModel userModel = getCurrentUser();
+        UserModel userModel = loadAuthorizationInfoPort.getCurrentUser();
         if (firstName != null) userModel.setFirstName(firstName);
         if (lastName != null) userModel.setLastName(lastName);
         if (email != null) userModel.setEmail(email);

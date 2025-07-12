@@ -32,6 +32,19 @@ public class UserModel {
         return username;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof UserModel)) return false;
+        UserModel user = (UserModel) o;
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
     public boolean isAccountNonExpired() {
         return status != UserStatus.DELETED;
     }

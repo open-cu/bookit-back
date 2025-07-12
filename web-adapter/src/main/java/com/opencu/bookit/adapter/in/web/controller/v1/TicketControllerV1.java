@@ -1,12 +1,12 @@
-package ru.tbank.bookit.book_it_backend.controller.v1;
+package com.opencu.bookit.adapter.in.web.controller.v1;
 
+import com.opencu.bookit.adapter.in.web.dto.request.CreateTicketRequest;
+import com.opencu.bookit.application.service.ticket.TicketService;
+import com.opencu.bookit.domain.model.ticket.TicketModel;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.tbank.bookit.book_it_backend.DTO.CreateTicketRequest;
-import ru.tbank.bookit.book_it_backend.model.Ticket;
-import ru.tbank.bookit.book_it_backend.service.TicketService;
 
 import java.util.List;
 
@@ -21,8 +21,8 @@ public class TicketControllerV1 {
 
     @Operation(summary = "Create new ticket")
     @PostMapping
-    public ResponseEntity<Ticket> createTicket(@RequestBody CreateTicketRequest ticketDTO) {
-        Ticket createdTicket = ticketService.createTicket(
+    public ResponseEntity<TicketModel> createTicket(@RequestBody CreateTicketRequest ticketDTO) {
+        TicketModel createdTicket = ticketService.createTicket(
                 ticketDTO.userId(),
                 ticketDTO.areaId(),
                 ticketDTO.type(),
@@ -32,8 +32,8 @@ public class TicketControllerV1 {
 
     @Operation(summary = "Get all tickets")
     @GetMapping
-    public ResponseEntity<List<Ticket>> getAllTickets() {
-        List<Ticket> tickets = ticketService.getAllTickets();
+    public ResponseEntity<List<TicketModel>> getAllTickets() {
+        List<TicketModel> tickets = ticketService.getAllTickets();
         return ResponseEntity.ok(tickets);
     }
 }

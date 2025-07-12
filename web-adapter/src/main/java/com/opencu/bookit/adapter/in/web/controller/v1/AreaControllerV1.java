@@ -1,14 +1,14 @@
-package ru.tbank.bookit.book_it_backend.controller.v1;
+package com.opencu.bookit.adapter.in.web.controller.v1;
 
+import com.opencu.bookit.adapter.in.web.dto.response.AreaResponse;
+import com.opencu.bookit.adapter.in.web.exception.ResourceNotFoundException;
+import com.opencu.bookit.adapter.in.web.mapper.AreaResponseMapper;
+import com.opencu.bookit.application.service.area.AreaService;
+import com.opencu.bookit.domain.model.area.AreaModel;
+import com.opencu.bookit.domain.model.area.AreaType;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.tbank.bookit.book_it_backend.DTO.AreaResponse;
-import ru.tbank.bookit.book_it_backend.exception.ResourceNotFoundException;
-import ru.tbank.bookit.book_it_backend.mapper.AreaMapper;
-import ru.tbank.bookit.book_it_backend.model.Area;
-import ru.tbank.bookit.book_it_backend.model.AreaType;
-import ru.tbank.bookit.book_it_backend.service.AreaService;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,9 +18,9 @@ import java.util.UUID;
 @RequestMapping("/api/v1/public/areas")
 public class AreaControllerV1 {
     private final AreaService areaService;
-    private final AreaMapper areaMapper;
+    private final AreaResponseMapper areaMapper;
 
-    public AreaControllerV1(AreaService areaService, AreaMapper areaMapper) {
+    public AreaControllerV1(AreaService areaService, AreaResponseMapper areaMapper) {
         this.areaService = areaService;
         this.areaMapper = areaMapper;
     }
@@ -43,7 +43,7 @@ public class AreaControllerV1 {
     @Operation(summary = "Get area by ID")
     @GetMapping("/{areaId}")
     public ResponseEntity<AreaResponse> getAreaById(@PathVariable UUID areaId) {
-        Optional<Area> area = areaService.findById(areaId);
+        Optional<AreaModel> area = areaService.findById(areaId);
 
         AreaResponse areaResponse = area
                 .map(areaMapper::toAreaResponse)

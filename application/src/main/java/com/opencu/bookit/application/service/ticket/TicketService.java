@@ -1,5 +1,6 @@
 package com.opencu.bookit.application.service.ticket;
 
+import com.opencu.bookit.application.port.out.ticket.LoadTicketPort;
 import com.opencu.bookit.application.service.area.AreaService;
 import com.opencu.bookit.application.port.out.ticket.SaveTicketPort;
 import com.opencu.bookit.application.service.user.UserService;
@@ -13,17 +14,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public class TicketService {
     private final SaveTicketPort saveTicketPort;
+    private final LoadTicketPort loadTicketPort;
     private final UserService userService;
     private final AreaService areaService;
 
-    public TicketService(SaveTicketPort saveTicketPort, UserService userService,
+    public TicketService(SaveTicketPort saveTicketPort, LoadTicketPort loadTicketPort, UserService userService,
                          AreaService areaService) {
         this.saveTicketPort = saveTicketPort;
+        this.loadTicketPort = loadTicketPort;
         this.userService = userService;
         this.areaService = areaService;
     }
@@ -45,5 +50,9 @@ public class TicketService {
         ticketModel.setCreatedAt(LocalDateTime.now());
 
         return saveTicketPort.save(ticketModel);
+    }
+
+    public List<TicketModel> getAllTickets() {
+        return new ArrayList<>(loadTicketPort.findAll());
     }
 }

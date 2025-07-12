@@ -1,8 +1,8 @@
-package com.opencu.bookit.adapter.in.web.dto.response;
+package com.opencu.bookit.domain.model.statistics;
 
 import java.time.LocalDate;
 
-public record BookingStatsResponse(
+public record BookingStats(
         LocalDate date,
         String areaName,
         long totalBookings

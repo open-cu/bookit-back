@@ -1,5 +1,14 @@
-package ru.tbank.bookit.book_it_backend.controller.v1;
+package com.opencu.bookit.adapter.in.web.controller.v1;
 
+import com.opencu.bookit.adapter.in.web.dto.response.EventResponse;
+import com.opencu.bookit.adapter.in.web.exception.ResourceNotFoundException;
+import com.opencu.bookit.adapter.in.web.mapper.EventResponseMapper;
+import com.opencu.bookit.application.service.event.EventService;
+import com.opencu.bookit.domain.model.event.EventModel;
+import com.opencu.bookit.domain.model.event.EventStatus;
+import com.opencu.bookit.domain.model.event.ThemeTags;
+import com.opencu.bookit.domain.model.user.UserModel;
+import com.opencu.bookit.domain.model.user.UserStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,10 +20,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import ru.tbank.bookit.book_it_backend.DTO.EventResponse;
-import ru.tbank.bookit.book_it_backend.exception.ResourceNotFoundException;
-import ru.tbank.bookit.book_it_backend.model.*;
-import ru.tbank.bookit.book_it_backend.service.EventService;
 
 import java.util.Set;
 import java.util.UUID;
@@ -23,9 +28,11 @@ import java.util.UUID;
 @RequestMapping("/api/v1/events")
 public class EventControllerV1 {
     private final EventService eventService;
+    private final EventResponseMapper eventResponseMapper;
 
-    public EventControllerV1(EventService eventService) {
+    public EventControllerV1(EventService eventService, EventResponseMapper eventResponseMapper) {
         this.eventService = eventService;
+        this.eventResponseMapper = eventResponseMapper;
     }
 
     @Operation(summary = "Get all events with optional filters")
@@ -37,7 +44,7 @@ public class EventControllerV1 {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "date,asc") String sort
-    ) {
+                                                           ) {
         String[] sortParams = sort.split(",");
         Sort.Direction direction = sortParams.length > 1 && sortParams[1].equalsIgnoreCase("desc")
                 ? Sort.Direction.DESC : Sort.Direction.ASC;
@@ -46,7 +53,7 @@ public class EventControllerV1 {
 
         UUID currentUserId = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof User user) {
+        if (authentication != null && authentication.getPrincipal() instanceof UserModel user) {
             currentUserId = user.getId();
         }
 
@@ -54,7 +61,8 @@ public class EventControllerV1 {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        Page<EventResponse> events = eventService.findWithFilters(tags, search, status, pageable, currentUserId);
+        Page<EventResponse> events = eventService.findWithFilters(tags, search, status, pageable, currentUserId)
+                                                 .map(eventResponseMapper::toEventResponse);
         return ResponseEntity.ok(events);
     }
 
@@ -62,30 +70,30 @@ public class EventControllerV1 {
     @GetMapping("/registrations/{eventId}/status")
     public ResponseEntity<EventStatus> getRegistrationStatus(@PathVariable UUID eventId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof User)) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserModel)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        User currentUser = (User) authentication.getPrincipal();
+        UserModel currentUser = (UserModel) authentication.getPrincipal();
 
-        Event event = eventService.findById(eventId)
-                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+        EventModel event = eventService.findById(eventId)
+                                       .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
 
         return ResponseEntity.ok(eventService.findStatusById(currentUser.getId(), event));
     }
 
     @Operation(summary = "Register current user for the event")
     @PutMapping("/registrations/{eventId}")
-    public ResponseEntity<Event> registerForEvent(@PathVariable UUID eventId) {
+    public ResponseEntity<EventModel> registerForEvent(@PathVariable UUID eventId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof User)) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserModel)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        User currentUser = (User) authentication.getPrincipal();
+        UserModel currentUser = (UserModel) authentication.getPrincipal();
         if (currentUser.getStatus() != UserStatus.VERIFIED) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
 
-        Event event = eventService.findById(eventId)
+        EventModel event = eventService.findById(eventId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
         eventService.addUser(currentUser.getId(), event);
         return ResponseEntity.ok(event);
@@ -95,16 +103,16 @@ public class EventControllerV1 {
     @DeleteMapping("/registrations/{eventId}")
     public ResponseEntity<String> unregisterFromEvent(@PathVariable UUID eventId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof User)) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserModel)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        User currentUser = (User) authentication.getPrincipal();
+        UserModel currentUser = (UserModel) authentication.getPrincipal();
         if (currentUser.getStatus() != UserStatus.VERIFIED) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body("Only verified users can perform this action");
         }
 
-        Event event = eventService.findById(eventId)
+        EventModel event = eventService.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
         eventService.removeUser(currentUser.getId(), event);
         return ResponseEntity.ok("User removed successfully");
