@@ -26,9 +26,11 @@ public class SignupRequest {
     @Size(max = 255)
     private String lastName;
 
+    @NotBlank
     @Email
     private String email;
 
+    @NotBlank
     @Pattern(regexp = "^(\\+7\\d{10}|8\\d{10})$", message = "Invalid phone")
     private String phone;
 
