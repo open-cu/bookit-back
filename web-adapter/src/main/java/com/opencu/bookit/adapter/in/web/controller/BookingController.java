@@ -8,10 +8,8 @@ import com.opencu.bookit.adapter.in.web.exception.ProfileNotCompletedException;
 import com.opencu.bookit.adapter.in.web.mapper.BookingRequestMapper;
 import com.opencu.bookit.adapter.in.web.mapper.BookingResponseMapper;
 import com.opencu.bookit.application.port.in.booking.CRUDBookingUseCase;
-import com.opencu.bookit.application.port.out.area.LoadAreaPort;
 import com.opencu.bookit.application.port.out.user.LoadAuthorizationInfoPort;
 import com.opencu.bookit.application.service.booking.BookingService;
-import com.opencu.bookit.application.service.user.UserService;
 import com.opencu.bookit.domain.model.booking.BookingModel;
 import com.opencu.bookit.domain.model.user.UserModel;
 import com.opencu.bookit.domain.model.user.UserStatus;
@@ -35,16 +33,14 @@ import java.util.stream.Collectors;
 @RequestMapping("/booking-menu")
 public class BookingController {
     private final BookingService bookingService;
-    private final UserService userService;
     private final BookingRequestMapper bookingRequestMapper;
     private final BookingResponseMapper bookingResponseMapper;
     private final LoadAuthorizationInfoPort loadAuthorizationInfoPort;
 
-    public BookingController(BookingService bookingService, LoadAreaPort areaRepository, UserService userService,
+    public BookingController(BookingService bookingService,
                              BookingRequestMapper bookingRequestMapper, BookingResponseMapper bookingResponseMapper,
                              LoadAuthorizationInfoPort loadAuthorizationInfoPort) {
         this.bookingService = bookingService;
-        this.userService = userService;
         this.bookingRequestMapper = bookingRequestMapper;
         this.bookingResponseMapper = bookingResponseMapper;
         this.loadAuthorizationInfoPort = loadAuthorizationInfoPort;
