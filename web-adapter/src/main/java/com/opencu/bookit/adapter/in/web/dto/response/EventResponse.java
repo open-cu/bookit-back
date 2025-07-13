@@ -12,6 +12,6 @@ public record EventResponse(
         String description,
         Set<ThemeTags> tags,
         LocalDateTime date,
-        int availablePlaces,
-        Set<UUID> registeredUsers
+        //для сохранения старой версии API
+        int availablePlaces
 ) {}

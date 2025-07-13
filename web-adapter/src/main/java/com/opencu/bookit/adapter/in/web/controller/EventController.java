@@ -56,7 +56,7 @@ public class EventController {
 
     @Operation(description = "Registers (by entering the guest list of the event) the user for this event")
     @PutMapping("/{eventId}/registrations/{userId}")
-    public ResponseEntity<EventModel> addUserInList(@PathVariable UUID eventId, @PathVariable UUID userId){
+    public ResponseEntity<EventResponse> addUserInList(@PathVariable UUID eventId, @PathVariable UUID userId){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof UserDetailsImpl)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -72,7 +72,7 @@ public class EventController {
         }
 
         eventService.addUser(userId, event);
-        return ResponseEntity.ok(event);
+        return ResponseEntity.ok(eventResponseMapper.toEventResponse(event));
     }
 
     @Operation(description = "returns information about the created event")

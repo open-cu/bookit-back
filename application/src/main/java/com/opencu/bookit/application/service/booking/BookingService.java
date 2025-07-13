@@ -18,7 +18,6 @@ import com.opencu.bookit.domain.model.booking.BookingStatus;
 import com.opencu.bookit.domain.model.booking.TimeTag;
 import com.opencu.bookit.domain.model.statistics.HallOccupancyModel;
 import com.opencu.bookit.domain.model.user.UserModel;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
@@ -194,7 +193,7 @@ public class BookingService {
 
         if (bookingId.isPresent()) {
             BookingModel bookingModel = loadBookingPort.findById(bookingId.get())
-                                                       .orElseThrow(() -> new EntityNotFoundException("Booking not found with id: " + bookingId.get()));
+                                                       .orElseThrow(() -> new NoSuchElementException("Booking not found with id: " + bookingId.get()));
             if (bookingModel.getStartTime().toLocalDate().equals(date) && (bookingModel.getAreaId().equals(areaId.orElse(null)) || areaId.isEmpty())) {
                 LocalDateTime start = bookingModel.getStartTime();
                 LocalDateTime end = bookingModel.getEndTime();
@@ -246,10 +245,10 @@ public class BookingService {
     @Transactional
     public Set<BookingModel> createBooking(CRUDBookingUseCase.CreateBookingCommand createBookingCommand) {
         UserModel userModel = loadUserPort.findById(createBookingCommand.userId())
-                                          .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + createBookingCommand.userId()));
+                                          .orElseThrow(() -> new NoSuchElementException("User not found with id: " + createBookingCommand.userId()));
 
         AreaModel areaModel = loadAreaPort.findById(createBookingCommand.areaId())
-                                          .orElseThrow(() -> new EntityNotFoundException("Area not found with id: " + createBookingCommand.areaId()));
+                                          .orElseThrow(() -> new NoSuchElementException("Area not found with id: " + createBookingCommand.areaId()));
 
         if (createBookingCommand.timePeriods().isEmpty()) {
             throw new IllegalStateException("There are no chosen time periods");
@@ -349,7 +348,7 @@ public class BookingService {
         LocalDateTime startTime = request.startTime();
         LocalDateTime endTime = request.endTime();
         BookingModel bookingModel = loadBookingPort.findById(bookingId)
-                                                   .orElseThrow(() -> new EntityNotFoundException("Booking not found with id: " + bookingId));
+                                                   .orElseThrow(() -> new NoSuchElementException("Booking not found with id: " + bookingId));
 
         if (bookingModel.getStatus() == BookingStatus.CANCELED || bookingModel.getStatus() == BookingStatus.COMPLETED) {
             throw new IllegalStateException("Unable to update " + bookingModel.getStatus() + " booking");
@@ -367,7 +366,7 @@ public class BookingService {
 
         AreaModel areaModel = !sameArea
                 ? loadAreaPort.findById(areaId)
-                              .orElseThrow(() -> new EntityNotFoundException("Area not found id: " + areaId))
+                              .orElseThrow(() -> new NoSuchElementException("Area not found id: " + areaId))
                 : bookingModel.getAreaModel();
 
         if (!sameArea) {

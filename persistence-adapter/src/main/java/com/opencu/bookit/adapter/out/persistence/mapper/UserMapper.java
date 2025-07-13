@@ -21,11 +21,11 @@ public abstract class UserMapper {
     @Lazy
     protected ReviewMapper reviewMapper;
 
-    @Mapping(target = "roleModels", source = "roleEntities")
+    @Mapping(target = "roles", source = "roleEntities")
     @Mapping(target = "reviews", source = "reviewEntities")
     public abstract UserModel toModel(UserEntity entity);
 
-    @Mapping(target = "roleEntities", source = "roleModels")
+    @Mapping(target = "roleEntities", source = "roles")
     @Mapping(target = "reviewEntities", source = "reviews")
     public abstract UserEntity toEntity(UserModel model);
 

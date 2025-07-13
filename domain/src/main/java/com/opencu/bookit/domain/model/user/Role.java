@@ -6,7 +6,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoleModel {
+public class Role {
     private Long id;
     private RoleName name;
 

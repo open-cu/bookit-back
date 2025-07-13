@@ -7,10 +7,8 @@ import com.opencu.bookit.domain.model.event.EventModel;
 import com.opencu.bookit.domain.model.event.EventStatus;
 import com.opencu.bookit.domain.model.event.ThemeTags;
 import com.opencu.bookit.domain.model.user.UserModel;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -51,7 +49,7 @@ public class EventService {
 
     public void addUser(UUID userId, EventModel eventModel) {
         UserModel userModel = loadUserPort.findById(userId)
-                                          .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                                          .orElseThrow(() -> new NoSuchElementException("User not found"));
         if (!eventModel.getUserModels().contains(userModel) && eventModel.getAvailable_places() > 0) {
             eventModel.getUserModels().add(userModel);
             eventModel.setAvailable_places(eventModel.getAvailable_places() - 1);
@@ -65,7 +63,7 @@ public class EventService {
 
     public void removeUser(UUID userId, EventModel eventModel) {
         UserModel userModel = loadUserPort.findById(userId)
-                                          .orElseThrow(() -> new EntityNotFoundException("User not found"));
+                                          .orElseThrow(() -> new NoSuchElementException("User not found"));
         if (eventModel.getUserModels().remove(userModel)) {
             eventModel.setAvailable_places(eventModel.getAvailable_places() + 1);
             saveEventPort.save(eventModel);

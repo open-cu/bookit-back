@@ -44,9 +44,9 @@ public class HallOccupancyPersistenceAdapter implements LoadHallOccupancyPort, S
     }
 
     @Override
-    public void save(HallOccupancyModel hallOccupancyModel) {
+    public HallOccupancyModel save(HallOccupancyModel hallOccupancyModel) {
         var entity = hallOccupancyMapper.toEntity(hallOccupancyModel);
-        hallOccupancyRepository.save(entity);
+        return hallOccupancyMapper.toModel(hallOccupancyRepository.save(entity));
     }
 }
 

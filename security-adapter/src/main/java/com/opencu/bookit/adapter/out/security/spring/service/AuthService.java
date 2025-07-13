@@ -65,7 +65,7 @@ public class AuthService implements LoadAuthorizationInfoPort {
             String randomPassword = generateRandomPassword();
             user.setPasswordHash(passwordEncoder.encode(randomPassword));
 
-            saveUserPort.save(user);
+            user = saveUserPort.save(user);
         } else {
             String newUsername = telegramUserRequest.getUsername() != null
                     ? telegramUserRequest.getUsername()

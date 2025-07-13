@@ -12,42 +12,67 @@
     <artifactId>bootstrap</artifactId>
 
     <properties>
-        <maven.compiler.source>22</maven.compiler.source>
-        <maven.compiler.target>22</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
 
     <dependencies>
+        <!-- Все адаптеры -->
         <dependency>
             <groupId>com.opencu.bookit</groupId>
             <artifactId>domain</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.opencu.bookit</groupId>
             <artifactId>application</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.opencu.bookit</groupId>
             <artifactId>persistence-adapter</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.opencu.bookit</groupId>
             <artifactId>qrcode-adapter</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.opencu.bookit</groupId>
             <artifactId>security-adapter</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.opencu.bookit</groupId>
             <artifactId>web-adapter</artifactId>
-            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Spring Boot стартер -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- Логирование -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

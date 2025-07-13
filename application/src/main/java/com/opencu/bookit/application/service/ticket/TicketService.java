@@ -9,13 +9,12 @@ import com.opencu.bookit.domain.model.ticket.TicketModel;
 import com.opencu.bookit.domain.model.ticket.TicketId;
 import com.opencu.bookit.domain.model.ticket.TicketType;
 import com.opencu.bookit.domain.model.user.UserModel;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -35,10 +34,10 @@ public class TicketService {
 
     public TicketModel createTicket(UUID userId, UUID areaId, TicketType type, String description) {
         UserModel userModel = userService.findById(userId)
-                                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+                                         .orElseThrow(() -> new NoSuchElementException("User not found"));
 
         AreaModel areaModel = areaService.findById(areaId)
-                                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Area not found"));
+                                         .orElseThrow(() -> new NoSuchElementException("Area not found"));
 
         TicketModel ticketModel = new TicketModel();
         TicketId ticketId = new TicketId(userId, areaId);

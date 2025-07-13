@@ -17,15 +17,7 @@ import java.util.stream.Collectors;
 public interface EventResponseMapper {
 
     @Mapping(target = "availablePlaces", source = "available_places")
-    @Mapping(target = "registeredUsers", expression = "java(mapUsersToUuids(event.getUserModels()))")
     EventResponse toEventResponse(EventModel event);
 
     List<EventResponse> toEventResponseList(List<EventModel> events);
-
-    default Set<UUID> mapUsersToUuids(Set<UserModel> users) {
-        if (users == null) return Set.of();
-        return users.stream()
-                    .map(UserModel::getId)
-                    .collect(Collectors.toSet());
-    }
 }

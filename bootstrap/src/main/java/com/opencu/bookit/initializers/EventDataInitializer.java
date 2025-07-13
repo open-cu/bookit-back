@@ -42,10 +42,6 @@ public class EventDataInitializer {
                 aiWorkshop2.setDate(LocalDateTime.of(2025, 9, 10, 0, 0, 0));
                 aiWorkshop2.setAvailable_places(30);
 
-                UserEntity user1 = userRepository.findByName("Alice Johnson");
-                aiWorkshop2.getUsers().add(user1);
-                eventRepository.save(aiWorkshop2);
-
                 eventRepository.saveAll(List.of(pitchNight, aiWorkshop, aiWorkshop2));
                 System.out.println("Initial events created successfully");
             }

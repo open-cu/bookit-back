@@ -23,7 +23,7 @@ public class UserModel {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String username;
-    private Set<RoleModel> roleModels = new HashSet<>();
+    private Set<Role> roles = new HashSet<>();
     private List<Review> reviews = new ArrayList<>();
     public String getPassword() {
         return passwordHash;

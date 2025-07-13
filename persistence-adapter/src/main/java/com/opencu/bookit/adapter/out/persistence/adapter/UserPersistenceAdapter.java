@@ -19,9 +19,9 @@ public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort {
     private final UserMapper userMapper;
 
     @Override
-    public UserModel findByName(String name) {
+    public Optional<UserModel> findByName(String name) {
         var userEntity = userRepository.findByName(name);
-        return userMapper.toModel(userEntity);
+        return userEntity.map(userMapper::toModel);
     }
 
     @Override

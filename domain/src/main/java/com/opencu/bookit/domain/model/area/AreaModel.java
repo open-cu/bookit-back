@@ -2,7 +2,10 @@ package com.opencu.bookit.domain.model.area;
 
 import com.opencu.bookit.domain.model.booking.BookingModel;
 import com.opencu.bookit.domain.model.ticket.TicketModel;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -19,7 +19,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.util.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -172,7 +171,7 @@ public class BookingController {
 
             BookingModel updatedBooking = bookingService.updateBooking(bookingId, bookingRequestMapper.toQuery(request));
             return ResponseEntity.ok(bookingResponseMapper.toResponse(updatedBooking));
-        } catch (EntityNotFoundException e) {
+        } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().body(null);
