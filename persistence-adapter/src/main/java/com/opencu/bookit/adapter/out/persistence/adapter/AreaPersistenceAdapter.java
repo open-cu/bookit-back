@@ -7,6 +7,7 @@ import com.opencu.bookit.application.port.out.area.LoadAreaPort;
 import com.opencu.bookit.application.port.out.area.SaveAreaPort;
 import com.opencu.bookit.domain.model.area.AreaModel;
 import com.opencu.bookit.domain.model.area.AreaType;
+import com.opencu.bookit.domain.model.booking.BookingModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -38,8 +39,8 @@ public class AreaPersistenceAdapter implements LoadAreaPort, SaveAreaPort {
     }
 
     @Override
-    public void saveAll(List<AreaModel> areaModels) {
-        areaRepository.saveAll(areaMapper.toEntityList(areaModels));
+    public List<AreaModel> saveAll(List<AreaModel> areaModels) {
+        return areaMapper.toModelList(areaRepository.saveAll(areaMapper.toEntityList(areaModels)));
     }
 }
 

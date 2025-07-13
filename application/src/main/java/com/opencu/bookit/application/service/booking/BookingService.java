@@ -243,7 +243,7 @@ public class BookingService {
     }
 
     @Transactional
-    public Set<BookingModel> createBooking(CRUDBookingUseCase.CreateBookingCommand createBookingCommand) {
+    public List<BookingModel> createBooking(CRUDBookingUseCase.CreateBookingCommand createBookingCommand) {
         UserModel userModel = loadUserPort.findById(createBookingCommand.userId())
                                           .orElseThrow(() -> new NoSuchElementException("User not found with id: " + createBookingCommand.userId()));
 
@@ -304,9 +304,8 @@ public class BookingService {
                 }
             }
         }
-        saveBookingPort.saveAll(result);
 
-        return result;
+        return saveBookingPort.saveAll(result);
     }
 
     public List<BookingModel> getCurrentBookings(UUID userId) {

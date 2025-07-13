@@ -1,6 +1,8 @@
 package com.opencu.bookit.adapter.in.web.controller;
 
+import com.opencu.bookit.adapter.in.web.dto.response.BookingResponse;
 import com.opencu.bookit.adapter.in.web.exception.ProfileNotCompletedException;
+import com.opencu.bookit.adapter.in.web.mapper.BookingResponseMapper;
 import com.opencu.bookit.adapter.out.security.spring.service.UserDetailsImpl;
 import com.opencu.bookit.application.port.out.qr.GenerateQrCodePort;
 import com.opencu.bookit.application.service.area.AreaService;
@@ -29,13 +31,16 @@ public class HomeController {
     private final GenerateQrCodePort generateQrCodePort;
     private final AreaService areaService;
     private final BookingService bookingService;
+    private final BookingResponseMapper bookingResponseMapper;
 
     @Autowired
-    public HomeController(UserService userService, GenerateQrCodePort generateQrCodePort, AreaService areaService, BookingService bookingService) {
+    public HomeController(UserService userService, GenerateQrCodePort generateQrCodePort, AreaService areaService, BookingService bookingService,
+                          BookingResponseMapper bookingResponseMapper) {
         this.userService = userService;
         this.generateQrCodePort = generateQrCodePort;
         this.areaService = areaService;
         this.bookingService = bookingService;
+        this.bookingResponseMapper = bookingResponseMapper;
     }
 
     @Operation(description = "returns QR code in string format")
@@ -67,7 +72,7 @@ public class HomeController {
 
     @Operation(description = "returns information in the list format about current bookings")
     @GetMapping("/bookings/current")
-    public ResponseEntity<List<BookingModel>> getCurrentBookings() {
+    public ResponseEntity<List<BookingResponse>> getCurrentBookings() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof UserDetailsImpl userDetails)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -75,12 +80,12 @@ public class HomeController {
         UUID userId = userDetails.getId();
         List<BookingModel> bookings = new ArrayList<>(bookingService.getCurrentBookings(userId));
         bookings.sort(Comparator.comparing(BookingModel::getStartTime));
-        return ResponseEntity.ok(bookings);
+        return ResponseEntity.ok(bookingResponseMapper.toResponseList(bookings));
     }
 
     @Operation(description = "returns information in the list format about future bookings")
     @GetMapping("/bookings/future")
-    public ResponseEntity<List<BookingModel>> getFutureBookings() {
+    public ResponseEntity<List<BookingResponse>> getFutureBookings() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof UserDetailsImpl userDetails)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -88,12 +93,12 @@ public class HomeController {
         UUID userId = userDetails.getId();
         List<BookingModel> bookings = new ArrayList<>(bookingService.getFutureBookings(userId));
         bookings.sort(Comparator.comparing(BookingModel::getStartTime));
-        return ResponseEntity.ok(bookings);
+        return ResponseEntity.ok(bookingResponseMapper.toResponseList(bookings));
     }
 
     @Operation(description = "returns information in the list format about past bookings")
     @GetMapping("/bookings/past")
-    public ResponseEntity<List<BookingModel>> getPastBookings() {
+    public ResponseEntity<List<BookingResponse>> getPastBookings() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof UserDetailsImpl userDetails)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -101,7 +106,7 @@ public class HomeController {
         UUID userId = userDetails.getId();
         List<BookingModel> bookings = new ArrayList<>(bookingService.getPastBookings(userId));
         bookings.sort(Comparator.comparing(BookingModel::getStartTime));
-        return ResponseEntity.ok(bookings);
+        return ResponseEntity.ok(bookingResponseMapper.toResponseList(bookings));
     }
 
     @Operation(description = "returns a string about successful remote booking")

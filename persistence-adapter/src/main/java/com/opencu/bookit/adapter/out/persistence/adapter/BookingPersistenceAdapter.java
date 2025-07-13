@@ -72,8 +72,8 @@ public class BookingPersistenceAdapter implements LoadBookingPort, SaveBookingPo
     }
 
     @Override
-    public void saveAll(Set<BookingModel> bookingModels) {
+    public List<BookingModel> saveAll(Set<BookingModel> bookingModels) {
         List<BookingEntity> entities = bookingMapper.toEntityList(bookingModels);
-        bookingRepository.saveAll(entities);
+        return bookingMapper.toModelList(bookingRepository.saveAll(entities));
     }
 }

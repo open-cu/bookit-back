@@ -126,7 +126,7 @@ public class BookingController {
             }
     )
     @PostMapping("/booking")
-    public Set<ResponseEntity<BookingResponse>> createBooking(@RequestBody CreateBookingRequest request) {
+    public List<ResponseEntity<BookingResponse>> createBooking(@RequestBody CreateBookingRequest request) {
         UserModel currentUser = loadAuthorizationInfoPort.getCurrentUser();
         if (currentUser.getStatus() != UserStatus.VERIFIED) {
             throw new ProfileNotCompletedException("User profile is not completed. Please complete your profile before creating bookings.");
@@ -134,7 +134,7 @@ public class BookingController {
 
         for (Pair<LocalDateTime, LocalDateTime> t : request.timePeriods()) {
             if (t.getFirst().isAfter(t.getSecond())) {
-                HashSet<ResponseEntity<BookingResponse>> res = new HashSet<>();
+                List<ResponseEntity<BookingResponse>> res = new ArrayList<>();
                 res.add(ResponseEntity.badRequest().build());
                 return res;
             }
@@ -147,8 +147,8 @@ public class BookingController {
                 request.quantity()
         );
 
-        Set<BookingModel> createdBooking = bookingService.createBooking(actualRequest);
-        Set<ResponseEntity<BookingResponse>> result = new HashSet<>();
+        List<BookingModel> createdBooking = bookingService.createBooking(actualRequest);
+        List<ResponseEntity<BookingResponse>> result = new ArrayList<>();
 
         for (BookingModel b : createdBooking) {
             URI uri = URI.create("/booking-menu/booking/" + b.getId());
