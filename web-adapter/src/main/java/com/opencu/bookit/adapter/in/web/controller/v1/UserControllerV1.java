@@ -13,8 +13,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -53,12 +51,7 @@ public class UserControllerV1 {
     @Operation(summary = "Get QR code for current user")
     @GetMapping("/me/qr")
     public ResponseEntity<byte[]> getCurrentUserQrCode() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof UserModel)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        UserModel currentUser = (UserModel) authentication.getPrincipal();
+        UserModel currentUser = loadAuthorizationInfoPort.getCurrentUser();
         if (currentUser.getStatus() != UserStatus.VERIFIED) {
             throw new ProfileNotCompletedException("User profile is not completed. Please complete your profile before accessing QR code.");
         }
