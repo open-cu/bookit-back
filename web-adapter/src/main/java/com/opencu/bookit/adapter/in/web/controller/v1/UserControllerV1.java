@@ -8,6 +8,7 @@ import com.opencu.bookit.application.service.user.UserService;
 import com.opencu.bookit.domain.model.user.UserModel;
 import com.opencu.bookit.domain.model.user.UserStatus;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -39,7 +40,7 @@ public class UserControllerV1 {
 
     @Operation(summary = "Update current user profile")
     @PutMapping("/me")
-    public ResponseEntity<UserModel> updateProfile(@RequestBody UpdateProfileRequest request) {
+    public ResponseEntity<UserModel> updateProfile(@Valid @RequestBody UpdateProfileRequest request) {
         UserModel updated = userService.updateProfile(
                 request.getFirstName(),
                 request.getLastName(),
