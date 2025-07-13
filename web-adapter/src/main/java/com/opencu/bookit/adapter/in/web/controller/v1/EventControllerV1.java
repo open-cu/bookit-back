@@ -7,8 +7,8 @@ import com.opencu.bookit.application.service.event.EventService;
 import com.opencu.bookit.domain.model.event.EventModel;
 import com.opencu.bookit.domain.model.event.EventStatus;
 import com.opencu.bookit.domain.model.event.ThemeTags;
-import com.opencu.bookit.domain.model.user.UserModel;
 import com.opencu.bookit.domain.model.user.UserStatus;
+import com.opencu.bookit.adapter.out.security.spring.service.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -53,7 +53,7 @@ public class EventControllerV1 {
 
         UUID currentUserId = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof UserModel user) {
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetailsImpl user) {
             currentUserId = user.getId();
         }
 
@@ -70,10 +70,10 @@ public class EventControllerV1 {
     @GetMapping("/registrations/{eventId}/status")
     public ResponseEntity<EventStatus> getRegistrationStatus(@PathVariable UUID eventId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof UserModel)) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetailsImpl)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        UserModel currentUser = (UserModel) authentication.getPrincipal();
+        UserDetailsImpl currentUser = (UserDetailsImpl) authentication.getPrincipal();
 
         EventModel event = eventService.findById(eventId)
                                        .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
@@ -85,10 +85,10 @@ public class EventControllerV1 {
     @PutMapping("/registrations/{eventId}")
     public ResponseEntity<EventModel> registerForEvent(@PathVariable UUID eventId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof UserModel)) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetailsImpl)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        UserModel currentUser = (UserModel) authentication.getPrincipal();
+        UserDetailsImpl currentUser = (UserDetailsImpl) authentication.getPrincipal();
         if (currentUser.getStatus() != UserStatus.VERIFIED) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
@@ -103,10 +103,10 @@ public class EventControllerV1 {
     @DeleteMapping("/registrations/{eventId}")
     public ResponseEntity<String> unregisterFromEvent(@PathVariable UUID eventId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof UserModel)) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof UserDetailsImpl)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        UserModel currentUser = (UserModel) authentication.getPrincipal();
+        UserDetailsImpl currentUser = (UserDetailsImpl) authentication.getPrincipal();
         if (currentUser.getStatus() != UserStatus.VERIFIED) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body("Only verified users can perform this action");
