@@ -8,8 +8,8 @@ import com.opencu.bookit.adapter.in.web.exception.ProfileNotCompletedException;
 import com.opencu.bookit.adapter.in.web.mapper.BookingRequestMapper;
 import com.opencu.bookit.adapter.in.web.mapper.BookingResponseMapper;
 import com.opencu.bookit.application.service.booking.BookingService;
+import com.opencu.bookit.adapter.out.security.spring.service.UserDetailsImpl;
 import com.opencu.bookit.domain.model.booking.BookingModel;
-import com.opencu.bookit.domain.model.user.UserModel;
 import com.opencu.bookit.domain.model.user.UserStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -99,8 +99,7 @@ public class BookingControllerV1 {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
                                                             ) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserModel currentUser = (UserModel) authentication.getPrincipal();
+        UserDetailsImpl currentUser = getCurrentUser();
         List<BookingModel> bookings;
         switch (timeline) {
             case "future" -> bookings = new ArrayList<>(bookingService.getFutureBookings(currentUser.getId()));
@@ -123,7 +122,7 @@ public class BookingControllerV1 {
     @Operation(summary = "Create a new booking")
     @PostMapping
     public Set<ResponseEntity<BookingResponse>> createBooking(@RequestBody CreateBookingRequest request) {
-        UserModel currentUser = getCurrentUser();
+        UserDetailsImpl currentUser = getCurrentUser();
         if (currentUser.getStatus() != UserStatus.VERIFIED) {
             throw new ProfileNotCompletedException("User profile is not completed. Please complete your profile before creating bookings.");
         }
@@ -159,7 +158,7 @@ public class BookingControllerV1 {
             @PathVariable UUID bookingId,
             @RequestBody UpdateBookingRequest request) {
         try {
-            UserModel currentUser = getCurrentUser();
+            UserDetailsImpl currentUser = getCurrentUser();
             if (currentUser.getStatus() != UserStatus.VERIFIED) {
                 throw new ProfileNotCompletedException("User profile is not completed. Please complete your profile before updating bookings.");
             }
@@ -175,8 +174,8 @@ public class BookingControllerV1 {
         }
     }
 
-    private UserModel getCurrentUser() {
+    private UserDetailsImpl getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return (UserModel) authentication.getPrincipal();
+        return (UserDetailsImpl) authentication.getPrincipal();
     }
 }
