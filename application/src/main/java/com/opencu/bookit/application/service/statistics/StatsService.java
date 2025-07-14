@@ -161,11 +161,11 @@ public class StatsService {
             LocalDate endDate
     ) {
         List<LocalDate> datesInRange = startDate.datesUntil(endDate.plusDays(1))
-                .collect(Collectors.toList());
+                .toList();
 
         List<HallOccupancyModel> allOccupancies = datesInRange.stream()
                 .flatMap(date -> loadHallOccupancyPort.findByDate(date).stream())
-                .collect(Collectors.toList());
+                .toList();
 
         Map<Integer, Long> hourToCountMap = allOccupancies.stream()
                 .collect(Collectors.groupingBy(

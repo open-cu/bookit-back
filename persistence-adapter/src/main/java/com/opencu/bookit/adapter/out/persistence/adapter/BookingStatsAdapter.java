@@ -2,7 +2,6 @@ package com.opencu.bookit.adapter.out.persistence.adapter;
 
 import com.opencu.bookit.adapter.out.persistence.repository.BookingStatsRepository;
 import com.opencu.bookit.application.port.out.statstics.LoadBookingStatsPort;
-import com.opencu.bookit.application.port.out.statstics.LoadHallOccupancyPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
