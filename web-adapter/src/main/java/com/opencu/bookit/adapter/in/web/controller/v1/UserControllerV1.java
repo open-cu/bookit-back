@@ -8,12 +8,11 @@ import com.opencu.bookit.application.service.user.UserService;
 import com.opencu.bookit.domain.model.user.UserModel;
 import com.opencu.bookit.domain.model.user.UserStatus;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -39,7 +38,7 @@ public class UserControllerV1 {
 
     @Operation(summary = "Update current user profile")
     @PutMapping("/me")
-    public ResponseEntity<UserModel> updateProfile(@RequestBody UpdateProfileRequest request) {
+    public ResponseEntity<UserModel> updateProfile(@Valid @RequestBody UpdateProfileRequest request) {
         UserModel updated = userService.updateProfile(
                 request.getFirstName(),
                 request.getLastName(),
@@ -52,12 +51,7 @@ public class UserControllerV1 {
     @Operation(summary = "Get QR code for current user")
     @GetMapping("/me/qr")
     public ResponseEntity<byte[]> getCurrentUserQrCode() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof UserModel)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        UserModel currentUser = (UserModel) authentication.getPrincipal();
+        UserModel currentUser = loadAuthorizationInfoPort.getCurrentUser();
         if (currentUser.getStatus() != UserStatus.VERIFIED) {
             throw new ProfileNotCompletedException("User profile is not completed. Please complete your profile before accessing QR code.");
         }
