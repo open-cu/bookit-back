@@ -5,5 +5,6 @@ import java.time.LocalDate;
 public record BookingStats(
         LocalDate date,
         String areaName,
-        long totalBookings
+        Long totalBookings,
+        Double percentageChange
 ) {}
