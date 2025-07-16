@@ -1,7 +1,7 @@
 package com.opencu.bookit.adapter.out.persistence.repository;
 
 import com.opencu.bookit.adapter.out.persistence.entity.EventEntity;
-import com.opencu.bookit.domain.model.event.ThemeTags;
+import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;

@@ -3,7 +3,10 @@ package com.opencu.bookit.adapter.in.web.controller.v1;
 import com.opencu.bookit.adapter.in.web.dto.response.EventResponse;
 import com.opencu.bookit.adapter.in.web.mapper.EventResponseMapper;
 import com.opencu.bookit.application.service.event.EventService;
-import com.opencu.bookit.domain.model.event.ThemeTags;
+import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
+import com.opencu.bookit.domain.model.contentcategory.ContentTime;
+import com.opencu.bookit.domain.model.contentcategory.ParticipationFormat;
+import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,6 +32,9 @@ public class PublicEventControllerV1 {
     @GetMapping
     public ResponseEntity<Page<EventResponse>> getAllPublicEvents(
             @RequestParam(required = false) Set<ThemeTags> tags,
+            @RequestParam(required = false) Set<ContentFormat> formats,
+            @RequestParam(required = false) Set<ContentTime> times,
+            @RequestParam(required = false) Set<ParticipationFormat> participationFormats,
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -40,8 +46,10 @@ public class PublicEventControllerV1 {
         String sortBy = sortParams[0];
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
 
-        Page<EventResponse> events = eventService.findWithFilters(tags, search, null, pageable, null)
-                                                 .map(eventResponseMapper::toEventResponse);
+        Page<EventResponse> events = eventService.findWithFilters(
+                tags, formats, times, participationFormats,
+                search, null, pageable, null
+        ).map(eventResponseMapper::toEventResponse);
 
         return ResponseEntity.ok(events);
     }

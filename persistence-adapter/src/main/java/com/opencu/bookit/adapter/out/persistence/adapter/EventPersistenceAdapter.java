@@ -7,9 +7,11 @@ import com.opencu.bookit.adapter.out.persistence.repository.EventRepository;
 import com.opencu.bookit.adapter.out.persistence.repository.UserRepository;
 import com.opencu.bookit.application.port.out.event.LoadEventPort;
 import com.opencu.bookit.application.port.out.event.SaveEventPort;
+import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
+import com.opencu.bookit.domain.model.contentcategory.ContentTime;
+import com.opencu.bookit.domain.model.contentcategory.ParticipationFormat;
 import com.opencu.bookit.domain.model.event.EventModel;
-import com.opencu.bookit.domain.model.event.ThemeTags;
-import com.opencu.bookit.domain.model.user.UserModel;
+import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,21 +44,43 @@ public class EventPersistenceAdapter implements LoadEventPort, SaveEventPort {
     public Optional<EventModel> findById(UUID eventId) {
         return eventRepository.findById(eventId).map(eventMapper::toModel);
     }
+
     @Override
-    public Page<EventModel> findWithFilters(Set<ThemeTags> tags, String search, String status, Pageable pageable,
-                                            UUID currentUserId) {
+    public Page<EventModel> findWithFilters(
+            Set<ThemeTags> tags,
+            Set<ContentFormat> formats,
+            Set<ContentTime> times,
+            Set<ParticipationFormat> participationFormats,
+            String search,
+            String status,
+            Pageable pageable,
+            UUID currentUserId
+    ) {
         Specification<EventEntity> spec = Specification.where(null);
 
         if (tags != null && !tags.isEmpty()) {
-            spec = spec.and((root, query, cb) -> root.join("tags").in(tags));
+            spec = spec.and((root, query, cb) ->
+                    root.join("tags").in(tags));
+        }
+        if (formats != null && !formats.isEmpty()) {
+            spec = spec.and((root, query, cb) ->
+                    root.join("formats").in(formats));
+        }
+        if (times != null && !times.isEmpty()) {
+            spec = spec.and((root, query, cb) ->
+                    root.join("times").in(times));
+        }
+        if (participationFormats != null && !participationFormats.isEmpty()) {
+            spec = spec.and((root, query, cb) ->
+                    root.join("participationFormats").in(participationFormats));
         }
         if (search != null && !search.isBlank()) {
             spec = spec.and((root, query, cb) ->
-                                    cb.or(
-                                            cb.like(cb.lower(root.get("name")), "%" + search.toLowerCase() + "%"),
-                                            cb.like(cb.lower(root.get("description")), "%" + search.toLowerCase() + "%")
-                                         )
-                           );
+                    cb.or(
+                            cb.like(cb.lower(root.get("name")), "%" + search.toLowerCase() + "%"),
+                            cb.like(cb.lower(root.get("description")), "%" + search.toLowerCase() + "%")
+                    )
+            );
         }
 
         if (status != null && currentUserId != null) {
@@ -64,19 +88,19 @@ public class EventPersistenceAdapter implements LoadEventPort, SaveEventPort {
             if (userOpt.isPresent()) {
                 UserEntity user = userOpt.get();
                 if (status.equalsIgnoreCase("registered")) {
-                    spec = spec.and((root, query, cb) -> cb.isMember(user, root.get("users")));
+                    spec = spec.and((root, query, cb) ->
+                            cb.isMember(user, root.get("users")));
                 } else if (status.equalsIgnoreCase("available")) {
                     spec = spec.and((root, query, cb) -> cb.and(
                             cb.greaterThan(root.get("available_places"), 0),
                             cb.not(cb.isMember(user, root.get("users")))
-                                                               ));
+                    ));
                 }
             }
         }
 
-        return eventRepository.findAll(spec, pageable). map(eventMapper::toModel);
+        return eventRepository.findAll(spec, pageable).map(eventMapper::toModel);
     }
-
 
     @Override
     public EventModel save(EventModel eventModel) {

@@ -1,6 +1,9 @@
 package com.opencu.bookit.adapter.in.web.dto.response;
 
-import com.opencu.bookit.domain.model.event.ThemeTags;
+import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
+import com.opencu.bookit.domain.model.contentcategory.ContentTime;
+import com.opencu.bookit.domain.model.contentcategory.ParticipationFormat;
+import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -11,6 +14,9 @@ public record EventResponse(
         String name,
         String description,
         Set<ThemeTags> tags,
+        Set<ContentFormat> formats,
+        Set<ContentTime> times,
+        Set<ParticipationFormat> participationFormats,
         LocalDateTime date,
         //для сохранения старой версии API
         int availablePlaces

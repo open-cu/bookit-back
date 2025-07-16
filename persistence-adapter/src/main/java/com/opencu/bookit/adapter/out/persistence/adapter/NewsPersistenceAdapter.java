@@ -5,7 +5,7 @@ import com.opencu.bookit.adapter.out.persistence.mapper.NewsMapper;
 import com.opencu.bookit.adapter.out.persistence.repository.NewsRepository;
 import com.opencu.bookit.application.port.out.news.LoadNewsPort;
 import com.opencu.bookit.application.port.out.news.SaveNewsPort;
-import com.opencu.bookit.domain.model.event.ThemeTags;
+import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
 import com.opencu.bookit.domain.model.news.NewsModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

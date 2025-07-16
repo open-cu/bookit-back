@@ -1,6 +1,6 @@
 package com.opencu.bookit.adapter.out.persistence.entity;
 
-import com.opencu.bookit.domain.model.event.ThemeTags;
+import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
 import jakarta.persistence.*;
 import lombok.*;
 

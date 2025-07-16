@@ -4,9 +4,12 @@ import com.opencu.bookit.adapter.in.web.dto.response.EventResponse;
 import com.opencu.bookit.adapter.in.web.exception.ResourceNotFoundException;
 import com.opencu.bookit.adapter.in.web.mapper.EventResponseMapper;
 import com.opencu.bookit.application.service.event.EventService;
+import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
+import com.opencu.bookit.domain.model.contentcategory.ContentTime;
+import com.opencu.bookit.domain.model.contentcategory.ParticipationFormat;
 import com.opencu.bookit.domain.model.event.EventModel;
 import com.opencu.bookit.domain.model.event.EventStatus;
-import com.opencu.bookit.domain.model.event.ThemeTags;
+import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
 import com.opencu.bookit.domain.model.user.UserStatus;
 import com.opencu.bookit.adapter.out.security.spring.service.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,6 +42,9 @@ public class EventControllerV1 {
     @GetMapping
     public ResponseEntity<Page<EventResponse>> getAllEvents(
             @RequestParam(required = false) Set<ThemeTags> tags,
+            @RequestParam(required = false) Set<ContentFormat> formats,
+            @RequestParam(required = false) Set<ContentTime> times,
+            @RequestParam(required = false) Set<ParticipationFormat> participationFormats,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "0") int page,
@@ -48,8 +54,7 @@ public class EventControllerV1 {
         String[] sortParams = sort.split(",");
         Sort.Direction direction = sortParams.length > 1 && sortParams[1].equalsIgnoreCase("desc")
                 ? Sort.Direction.DESC : Sort.Direction.ASC;
-        String sortBy = sortParams[0];
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortParams[0]));
 
         UUID currentUserId = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -61,9 +66,10 @@ public class EventControllerV1 {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        Page<EventResponse> events = eventService.findWithFilters(tags, search, status, pageable, currentUserId)
-                                                 .map(eventResponseMapper::toEventResponse);
-        return ResponseEntity.ok(events);
+        Page<EventResponse> eventsPage = eventService
+                .findWithFilters(tags, formats, times, participationFormats, search, status, pageable, currentUserId)
+                .map(eventResponseMapper::toEventResponse);
+        return ResponseEntity.ok(eventsPage);
     }
 
     @Operation(summary = "Get registration status for current user and event")

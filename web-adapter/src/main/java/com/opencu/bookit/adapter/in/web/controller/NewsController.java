@@ -1,7 +1,7 @@
 package com.opencu.bookit.adapter.in.web.controller;
 
 import com.opencu.bookit.application.service.news.NewsService;
-import com.opencu.bookit.domain.model.event.ThemeTags;
+import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
 import com.opencu.bookit.domain.model.news.NewsModel;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;

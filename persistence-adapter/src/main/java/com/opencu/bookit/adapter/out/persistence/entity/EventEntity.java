@@ -1,6 +1,9 @@
 package com.opencu.bookit.adapter.out.persistence.entity;
 
-import com.opencu.bookit.domain.model.event.ThemeTags;
+import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
+import com.opencu.bookit.domain.model.contentcategory.ContentTime;
+import com.opencu.bookit.domain.model.contentcategory.ParticipationFormat;
+import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,13 +31,28 @@ public class EventEntity {
     private String description;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-            name = "event_tags",
-            joinColumns = @JoinColumn(name = "event_id")
-    )
+    @CollectionTable(name = "event_tags", joinColumns = @JoinColumn(name = "event_id"))
     @Enumerated(EnumType.STRING)
     @Column(name = "tag")
     private Set<ThemeTags> tags = new HashSet<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "event_formats", joinColumns = @JoinColumn(name = "event_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "format")
+    private Set<ContentFormat> formats = new HashSet<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "event_times", joinColumns = @JoinColumn(name = "event_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "time")
+    private Set<ContentTime> times = new HashSet<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "event_participation_formats", joinColumns = @JoinColumn(name = "event_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "participation_format")
+    private Set<ParticipationFormat> participationFormats = new HashSet<>();
 
     @Column(nullable = false)
     private LocalDateTime date;
