@@ -1,6 +1,6 @@
 package com.opencu.bookit.domain.model.news;
 
-import com.opencu.bookit.domain.model.event.ThemeTags;
+import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
 import lombok.*;
 
 import java.time.LocalDateTime;

@@ -1,7 +1,7 @@
 package com.opencu.bookit.adapter.out.persistence.repository;
 
 import com.opencu.bookit.adapter.out.persistence.entity.NewsEntity;
-import com.opencu.bookit.domain.model.event.ThemeTags;
+import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;

@@ -14,9 +14,15 @@ import java.util.List;
 public interface EventMapper {
 
     @Mapping(target = "userModels", source = "users")
+    @Mapping(target = "formats", source = "formats")
+    @Mapping(target = "times", source = "times")
+    @Mapping(target = "participationFormats", source = "participationFormats")
     EventModel toModel(EventEntity entity);
 
     @Mapping(target = "users", source = "userModels")
+    @Mapping(target = "formats", source = "formats")
+    @Mapping(target = "times", source = "times")
+    @Mapping(target = "participationFormats", source = "participationFormats")
     EventEntity toEntity(EventModel model);
 
     List<EventModel> toModelList(List<EventEntity> entities);

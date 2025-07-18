@@ -3,9 +3,12 @@ package com.opencu.bookit.application.service.event;
 import com.opencu.bookit.application.port.out.event.LoadEventPort;
 import com.opencu.bookit.application.port.out.event.SaveEventPort;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
+import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
+import com.opencu.bookit.domain.model.contentcategory.ContentTime;
+import com.opencu.bookit.domain.model.contentcategory.ParticipationFormat;
 import com.opencu.bookit.domain.model.event.EventModel;
 import com.opencu.bookit.domain.model.event.EventStatus;
-import com.opencu.bookit.domain.model.event.ThemeTags;
+import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
 import com.opencu.bookit.domain.model.user.UserModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -75,7 +78,11 @@ public class EventService {
     }
 
     public Page<EventModel> findWithFilters(
-            Set<ThemeTags> tags, String search, String status, Pageable pageable, UUID currentUserId) {
-        return loadEventPort.findWithFilters(tags, search, status, pageable, currentUserId);
+            Set<ThemeTags> tags, Set<ContentFormat> formats, Set<ContentTime> times,
+            Set<ParticipationFormat> participationFormats,
+            String search, String status, Pageable pageable, UUID currentUserId
+    ) {
+        return loadEventPort.findWithFilters(tags, formats, times, participationFormats,
+                search, status, pageable, currentUserId);
     }
 }

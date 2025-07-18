@@ -2,7 +2,7 @@ package com.opencu.bookit.application.service.news;
 
 import com.opencu.bookit.application.port.out.news.LoadNewsPort;
 import com.opencu.bookit.application.port.out.news.SaveNewsPort;
-import com.opencu.bookit.domain.model.event.ThemeTags;
+import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
 import com.opencu.bookit.domain.model.news.NewsModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

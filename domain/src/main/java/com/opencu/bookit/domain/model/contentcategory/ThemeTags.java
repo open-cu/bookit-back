@@ -1,4 +1,4 @@
-package com.opencu.bookit.domain.model.event;
+package com.opencu.bookit.domain.model.contentcategory;
 
 public enum ThemeTags {
     PSYCHOLOGY,

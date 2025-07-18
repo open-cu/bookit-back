@@ -1,10 +1,9 @@
 package com.opencu.bookit.initializers;
 
 import com.opencu.bookit.adapter.out.persistence.entity.EventEntity;
-import com.opencu.bookit.adapter.out.persistence.entity.UserEntity;
 import com.opencu.bookit.adapter.out.persistence.repository.EventRepository;
 import com.opencu.bookit.adapter.out.persistence.repository.UserRepository;
-import com.opencu.bookit.domain.model.event.ThemeTags;
+import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

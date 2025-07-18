@@ -7,7 +7,7 @@ import com.opencu.bookit.adapter.out.security.spring.service.UserDetailsImpl;
 import com.opencu.bookit.application.service.event.EventService;
 import com.opencu.bookit.domain.model.event.EventModel;
 import com.opencu.bookit.domain.model.event.EventStatus;
-import com.opencu.bookit.domain.model.event.ThemeTags;
+import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
