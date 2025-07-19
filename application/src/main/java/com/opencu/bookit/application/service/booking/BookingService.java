@@ -19,6 +19,8 @@ import com.opencu.bookit.domain.model.booking.TimeTag;
 import com.opencu.bookit.domain.model.statistics.HallOccupancyModel;
 import com.opencu.bookit.domain.model.user.UserModel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -439,5 +441,13 @@ public class BookingService {
             }
         }
         return result;
+    }
+
+    public Page<BookingModel> findWithFilters(
+            Pageable pageable,
+            UUID bookingId,
+            UUID userId
+    ) {
+        return loadBookingPort.findWithFilters(pageable, bookingId, userId);
     }
 }

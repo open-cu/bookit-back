@@ -2,10 +2,14 @@ package com.opencu.bookit.adapter.out.persistence.repository;
 
 
 import com.opencu.bookit.adapter.out.persistence.entity.BookingEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.nio.channels.FileChannel;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,4 +43,6 @@ public interface BookingRepository extends JpaRepository<BookingEntity, UUID> {
 
     @Query("SELECT b FROM BookingEntity b WHERE b.userEntity.id = :userId AND b.endTime < :now")
     List<BookingEntity> findPastBookingsByUser(@Param("userId") UUID userId, @Param("now") LocalDateTime now);
+
+    Page<BookingEntity> findAll(Specification<BookingEntity> spec, Pageable pageable);
 }

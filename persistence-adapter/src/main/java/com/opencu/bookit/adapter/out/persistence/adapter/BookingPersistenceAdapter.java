@@ -1,13 +1,18 @@
 package com.opencu.bookit.adapter.out.persistence.adapter;
 
 import com.opencu.bookit.adapter.out.persistence.entity.BookingEntity;
+import com.opencu.bookit.adapter.out.persistence.entity.UserEntity;
 import com.opencu.bookit.adapter.out.persistence.mapper.BookingMapper;
 import com.opencu.bookit.adapter.out.persistence.repository.BookingRepository;
+import com.opencu.bookit.adapter.out.persistence.repository.UserRepository;
 import com.opencu.bookit.application.port.out.booking.LoadBookingPort;
 import com.opencu.bookit.application.port.out.booking.SaveBookingPort;
 import com.opencu.bookit.domain.model.booking.BookingModel;
 import com.opencu.bookit.domain.model.booking.TimeTag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -21,6 +26,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BookingPersistenceAdapter implements LoadBookingPort, SaveBookingPort {
     private final BookingRepository bookingRepository;
+    private final UserRepository userRepository;
     private final BookingMapper bookingMapper;
 
     @Override
@@ -62,6 +68,29 @@ public class BookingPersistenceAdapter implements LoadBookingPort, SaveBookingPo
     @Override
     public List<BookingModel> findAll() {
         return bookingMapper.toModelList(bookingRepository.findAll());
+    }
+
+    @Override
+    public Page<BookingModel> findWithFilters(Pageable pageable, UUID bookingId, UUID userId) {
+        Specification<BookingEntity> spec = Specification.where(null);
+
+        if (bookingId != null) {
+            Optional<BookingEntity> bookingOpt = bookingRepository.findByUserId(bookingId);
+            if (bookingOpt.isPresent()) {
+                BookingEntity booking = bookingOpt.get();
+                spec = spec.and((root, query, cb) ->
+                    cb.isMember(booking, root.get("bookings")));
+            }
+        }
+        if (userId != null) {
+            Optional<UserEntity> userOpt = userRepository.findById(userId);
+            if (userOpt.isPresent()) {
+                UserEntity user = userOpt.get();
+                spec = spec.and((root, query, cb) ->
+                        cb.isMember(user, root.get("users")));
+            }
+        }
+        return bookingRepository.findAll(spec, pageable).map(bookingMapper::toModel);
     }
 
     @Override

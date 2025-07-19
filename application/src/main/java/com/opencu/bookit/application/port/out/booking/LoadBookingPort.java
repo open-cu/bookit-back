@@ -2,6 +2,8 @@ package com.opencu.bookit.application.port.out.booking;
 
 import com.opencu.bookit.domain.model.booking.BookingModel;
 import com.opencu.bookit.domain.model.booking.TimeTag;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,4 +19,6 @@ public interface LoadBookingPort {
     List<BookingModel> findByDatetime(LocalDateTime date);
     List<BookingModel> findByDateAndArea(LocalDate date, UUID areaId);
     List<BookingModel> findAll();
+
+    Page<BookingModel> findWithFilters(Pageable pageable, UUID bookingId, UUID userId);
 }

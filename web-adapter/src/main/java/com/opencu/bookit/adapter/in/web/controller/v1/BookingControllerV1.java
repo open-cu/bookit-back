@@ -15,6 +15,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.util.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -110,6 +114,26 @@ public class BookingControllerV1 {
         int fromIndex = Math.min(page * size, bookings.size());
         int toIndex = Math.min(fromIndex + size, bookings.size());
         return ResponseEntity.ok(bookingResponseMapper.toResponseList(bookings.subList(fromIndex, toIndex)));
+    }
+
+    @Operation(summary = "Get current room's bookings by user and timeline")
+    @GetMapping
+    public ResponseEntity<Page<BookingResponse>> getBookings(
+            @RequestParam UUID roomId,
+            @RequestParam UUID userId,
+            @RequestParam String date,
+            @RequestParam (defaultValue = "0") int page,
+            @RequestParam (defaultValue = "10") int size
+            ) {
+        Sort.Direction direction = Sort.Direction.ASC;
+
+        Pageable pageable = PageRequest.of(page, size,
+                Sort.by(direction, "date"));
+
+        Page<BookingResponse> bookingResponsePage = bookingService
+                .findWithFilters(pageable, roomId, userId)
+                .map(bookingResponseMapper::toResponse);
+        return ResponseEntity.ok(bookingResponsePage);
     }
 
     @Operation(summary = "Cancel booking by ID")
