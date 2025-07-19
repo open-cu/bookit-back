@@ -46,8 +46,8 @@ public class AreaControllerV1 {
     }
 
     @Operation(summary = "Get all areas with filters and pagination")
-    @GetMapping
-    public ResponseEntity<Page<AreaResponse>> getAllAreas(
+    @GetMapping("/advanced")
+    public ResponseEntity<Page<AreaResponse>> getAllAreasAdvanced(
             @RequestParam(required = false) AreaType type,
             @RequestParam(required = false)AreaStatus status,
             @RequestParam(defaultValue = "0") int page,

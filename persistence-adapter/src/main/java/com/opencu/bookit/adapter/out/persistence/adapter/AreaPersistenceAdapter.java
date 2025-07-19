@@ -8,7 +8,6 @@ import com.opencu.bookit.application.port.out.area.SaveAreaPort;
 import com.opencu.bookit.domain.model.area.AreaModel;
 import com.opencu.bookit.domain.model.area.AreaStatus;
 import com.opencu.bookit.domain.model.area.AreaType;
-import com.opencu.bookit.domain.model.booking.BookingModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,15 +42,18 @@ public class AreaPersistenceAdapter implements LoadAreaPort, SaveAreaPort {
     }
 
     @Override
-    public Page<AreaModel> findWithFilters(AreaType type, AreaStatus status, Pageable pageable) {
+    public Page<AreaModel> findWithFilters(
+            AreaType type,
+            AreaStatus status,
+            Pageable pageable) {
         Specification<AreaEntity> spec = Specification.where(null);
         if (type != null) {
             spec = spec.and((root, query, cb) ->
-                    root.join("type").in(type));
+                    cb.equal(root.get("type"), type));
         }
         if (status != null) {
             spec = spec.and((root, query, cb) ->
-                root.join("status").in(status));
+                    cb.equal(root.get("status"), status));
         }
         return areaRepository.findAll(spec, pageable)
                 .map(areaMapper::toModel);

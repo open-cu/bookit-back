@@ -117,8 +117,8 @@ public class BookingControllerV1 {
     }
 
     @Operation(summary = "Get current area's bookings by user and date")
-    @GetMapping
-    public ResponseEntity<Page<BookingResponse>> getBookings(
+    @GetMapping("/advanced")
+    public ResponseEntity<Page<BookingResponse>> getBookingsAdvanced(
             @RequestParam (required = false) UUID areaId,
             @RequestParam (required = false) UUID userId,
             @RequestParam  (required = false) String date,
@@ -128,7 +128,7 @@ public class BookingControllerV1 {
         Sort.Direction direction = Sort.Direction.ASC;
 
         Pageable pageable = PageRequest.of(page, size,
-                Sort.by(direction, "date"));
+                Sort.by(direction, "startTime"));
 
         Page<BookingResponse> bookingResponsePage = bookingService
                 .findWithFilters(pageable, areaId, userId)

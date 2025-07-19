@@ -82,7 +82,7 @@ public class BookingPersistenceAdapter implements LoadBookingPort, SaveBookingPo
             if (areaOpt.isPresent()) {
                 AreaEntity area = areaOpt.get();
                 spec = spec.and((root, query, cb) ->
-                    cb.isMember(area, root.get("areas")));
+                    cb.equal(root.get("areaEntity"), area));
             }
         }
         if (userId != null) {
@@ -90,7 +90,7 @@ public class BookingPersistenceAdapter implements LoadBookingPort, SaveBookingPo
             if (userOpt.isPresent()) {
                 UserEntity user = userOpt.get();
                 spec = spec.and((root, query, cb) ->
-                        cb.isMember(user, root.get("users")));
+                        cb.equal(root.get("userEntity"), user));
             }
         }
         return bookingRepository.findAll(spec, pageable).map(bookingMapper::toModel);

@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public interface LoadAreaPort {
@@ -15,5 +16,8 @@ public interface LoadAreaPort {
     Optional<AreaModel> findById(UUID areaId);
     List<AreaModel> findAll();
 
-    Page<AreaModel> findWithFilters(AreaType type, AreaStatus status, Pageable pageable);
+    Page<AreaModel> findWithFilters(
+            AreaType type,
+            AreaStatus status,
+            Pageable pageable);
 }
