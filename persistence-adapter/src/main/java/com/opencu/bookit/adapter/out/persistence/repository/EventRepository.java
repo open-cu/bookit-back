@@ -16,7 +16,7 @@ import java.util.UUID;
 
 public interface EventRepository extends JpaRepository<EventEntity, UUID>, JpaSpecificationExecutor<EventEntity> {
     @Query("""
-    SELECT DISTINCT e 
+    SELECT DISTINCT e
     FROM EventEntity e 
     JOIN e.tags t 
     WHERE t IN :tags 

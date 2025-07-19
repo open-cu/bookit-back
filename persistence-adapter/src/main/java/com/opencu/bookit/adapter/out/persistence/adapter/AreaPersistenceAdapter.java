@@ -6,7 +6,6 @@ import com.opencu.bookit.adapter.out.persistence.repository.AreaRepository;
 import com.opencu.bookit.application.port.out.area.LoadAreaPort;
 import com.opencu.bookit.application.port.out.area.SaveAreaPort;
 import com.opencu.bookit.domain.model.area.AreaModel;
-import com.opencu.bookit.domain.model.area.AreaStatus;
 import com.opencu.bookit.domain.model.area.AreaType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

@@ -2,9 +2,7 @@ package com.opencu.bookit.adapter.in.web.controller.v1;
 
 import com.opencu.bookit.adapter.in.web.dto.response.MeResponse;
 import com.opencu.bookit.adapter.in.web.mapper.MeResponseMapper;
-import com.opencu.bookit.adapter.out.security.spring.payload.response.UserProfileResponse;
 import com.opencu.bookit.application.service.user.UserService;
-import com.opencu.bookit.domain.model.user.UserModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
