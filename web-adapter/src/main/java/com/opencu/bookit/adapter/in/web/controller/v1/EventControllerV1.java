@@ -153,4 +153,26 @@ public class EventControllerV1 {
         );
         return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventModel));
     }
+
+    @PostMapping
+    public ResponseEntity<EventResponse> createEvent(
+            @RequestBody UpdateEventRequest updateEventRequest
+    ) {
+        EventModel eventModel = eventService.createEvent(
+                updateEventRequest.name(),
+                updateEventRequest.description(),
+                updateEventRequest.tags(),
+                updateEventRequest.date(),
+                updateEventRequest.available_places()
+        );
+        return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventModel));
+    }
+
+    @DeleteMapping("/{eventId}")
+    public ResponseEntity<?> deleteEvent(
+            @PathVariable UUID eventId
+    ) {
+        eventService.deleteById(eventId);
+        return ResponseEntity.ok("Event removed successfully");
+    }
 }

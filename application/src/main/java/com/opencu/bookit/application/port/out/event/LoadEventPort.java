@@ -27,4 +27,5 @@ public interface LoadEventPort {
             Pageable pageable,
             UUID currentUserId
     );
+    Optional<EventModel> findByName(String name);
 }
