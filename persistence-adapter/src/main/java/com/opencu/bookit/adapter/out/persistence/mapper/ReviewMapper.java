@@ -25,7 +25,7 @@ public abstract class ReviewMapper {
     @Mapping(target = "userEntity", source = "userModel")
     public abstract ReviewEntity toEntity(Review model);
 
-    @Mapping(target = "userId", expression = "java(userEntity.getId())")
+    @Mapping(target = "userId", expression = "java(review.getUserEntity().getId())")
     public abstract ReviewsModel toReviewsModel(ReviewEntity review);
 
     public abstract List<Review> toModelList(List<ReviewEntity> entities);
