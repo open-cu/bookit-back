@@ -3,9 +3,13 @@ package com.opencu.bookit.application.service.area;
 import com.opencu.bookit.application.port.out.area.LoadAreaPort;
 import com.opencu.bookit.application.service.booking.BookingService;
 import com.opencu.bookit.domain.model.area.AreaModel;
+import com.opencu.bookit.domain.model.area.AreaStatus;
 import com.opencu.bookit.domain.model.area.AreaType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.nio.channels.FileChannel;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -38,5 +42,9 @@ public class AreaService {
     }
     public Optional<AreaModel> findById(UUID areaId) {
         return loadAreaPort.findById(areaId);
+    }
+
+    public Page<AreaModel> findWithFilters(AreaType type, AreaStatus status, Pageable pageable) {
+        return loadAreaPort.findWithFilters(type, status, pageable);
     }
 }

@@ -20,5 +20,5 @@ public interface LoadBookingPort {
     List<BookingModel> findByDateAndArea(LocalDate date, UUID areaId);
     List<BookingModel> findAll();
 
-    Page<BookingModel> findWithFilters(Pageable pageable, UUID bookingId, UUID userId);
+    Page<BookingModel> findWithFilters(Pageable pageable, UUID areaId, UUID userId);
 }

@@ -116,12 +116,12 @@ public class BookingControllerV1 {
         return ResponseEntity.ok(bookingResponseMapper.toResponseList(bookings.subList(fromIndex, toIndex)));
     }
 
-    @Operation(summary = "Get current room's bookings by user and timeline")
+    @Operation(summary = "Get current area's bookings by user and date")
     @GetMapping
     public ResponseEntity<Page<BookingResponse>> getBookings(
-            @RequestParam UUID roomId,
-            @RequestParam UUID userId,
-            @RequestParam String date,
+            @RequestParam (required = false) UUID areaId,
+            @RequestParam (required = false) UUID userId,
+            @RequestParam  (required = false) String date,
             @RequestParam (defaultValue = "0") int page,
             @RequestParam (defaultValue = "10") int size
             ) {
@@ -131,7 +131,7 @@ public class BookingControllerV1 {
                 Sort.by(direction, "date"));
 
         Page<BookingResponse> bookingResponsePage = bookingService
-                .findWithFilters(pageable, roomId, userId)
+                .findWithFilters(pageable, areaId, userId)
                 .map(bookingResponseMapper::toResponse);
         return ResponseEntity.ok(bookingResponsePage);
     }

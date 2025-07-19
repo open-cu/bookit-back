@@ -1,8 +1,10 @@
 package com.opencu.bookit.adapter.out.persistence.adapter;
 
+import com.opencu.bookit.adapter.out.persistence.entity.AreaEntity;
 import com.opencu.bookit.adapter.out.persistence.entity.BookingEntity;
 import com.opencu.bookit.adapter.out.persistence.entity.UserEntity;
 import com.opencu.bookit.adapter.out.persistence.mapper.BookingMapper;
+import com.opencu.bookit.adapter.out.persistence.repository.AreaRepository;
 import com.opencu.bookit.adapter.out.persistence.repository.BookingRepository;
 import com.opencu.bookit.adapter.out.persistence.repository.UserRepository;
 import com.opencu.bookit.application.port.out.booking.LoadBookingPort;
@@ -27,6 +29,7 @@ import java.util.UUID;
 public class BookingPersistenceAdapter implements LoadBookingPort, SaveBookingPort {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
+    private final AreaRepository areaRepository;
     private final BookingMapper bookingMapper;
 
     @Override
@@ -71,15 +74,15 @@ public class BookingPersistenceAdapter implements LoadBookingPort, SaveBookingPo
     }
 
     @Override
-    public Page<BookingModel> findWithFilters(Pageable pageable, UUID bookingId, UUID userId) {
+    public Page<BookingModel> findWithFilters(Pageable pageable, UUID areaId, UUID userId) {
         Specification<BookingEntity> spec = Specification.where(null);
 
-        if (bookingId != null) {
-            Optional<BookingEntity> bookingOpt = bookingRepository.findByUserId(bookingId);
-            if (bookingOpt.isPresent()) {
-                BookingEntity booking = bookingOpt.get();
+        if (areaId != null) {
+            Optional<AreaEntity> areaOpt = areaRepository.findById(areaId);
+            if (areaOpt.isPresent()) {
+                AreaEntity area = areaOpt.get();
                 spec = spec.and((root, query, cb) ->
-                    cb.isMember(booking, root.get("bookings")));
+                    cb.isMember(area, root.get("areas")));
             }
         }
         if (userId != null) {

@@ -445,9 +445,9 @@ public class BookingService {
 
     public Page<BookingModel> findWithFilters(
             Pageable pageable,
-            UUID bookingId,
+            UUID areaId,
             UUID userId
     ) {
-        return loadBookingPort.findWithFilters(pageable, bookingId, userId);
+        return loadBookingPort.findWithFilters(pageable, areaId, userId);
     }
 }
