@@ -18,6 +18,5 @@ public interface LoadAreaPort {
 
     Page<AreaModel> findWithFilters(
             AreaType type,
-            AreaStatus status,
             Pageable pageable);
 }

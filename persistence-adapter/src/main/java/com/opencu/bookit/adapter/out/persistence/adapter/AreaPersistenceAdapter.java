@@ -44,16 +44,11 @@ public class AreaPersistenceAdapter implements LoadAreaPort, SaveAreaPort {
     @Override
     public Page<AreaModel> findWithFilters(
             AreaType type,
-            AreaStatus status,
             Pageable pageable) {
         Specification<AreaEntity> spec = Specification.where(null);
         if (type != null) {
             spec = spec.and((root, query, cb) ->
                     cb.equal(root.get("type"), type));
-        }
-        if (status != null) {
-            spec = spec.and((root, query, cb) ->
-                    cb.equal(root.get("status"), status));
         }
         return areaRepository.findAll(spec, pageable)
                 .map(areaMapper::toModel);

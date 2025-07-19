@@ -49,14 +49,13 @@ public class AreaControllerV1 {
     @GetMapping("/advanced")
     public ResponseEntity<Page<AreaResponse>> getAllAreasAdvanced(
             @RequestParam(required = false) AreaType type,
-            @RequestParam(required = false)AreaStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
             ) {
         Sort.Direction direction = Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "type"));
         Page<AreaResponse> areasPage = areaService
-                .findWithFilters(type, status, pageable)
+                .findWithFilters(type, pageable)
                 .map(areaMapper::toAreaResponse);
         return ResponseEntity.ok(areasPage);
     }
