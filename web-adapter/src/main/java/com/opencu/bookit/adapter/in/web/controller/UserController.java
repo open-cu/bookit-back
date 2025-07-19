@@ -36,8 +36,9 @@ public class UserController {
     @Operation(summary = "Получить пользователя по id (админ)")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
-    public ResponseEntity<UserModel> getUserById(@PathVariable UUID id) {
+    public ResponseEntity<MeResponse> getUserById(@PathVariable UUID id) {
         return userService.getUserById(id)
+                .map(meResponseMapper::toResponse)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

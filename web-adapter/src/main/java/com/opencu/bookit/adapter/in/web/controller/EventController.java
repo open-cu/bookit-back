@@ -77,9 +77,9 @@ public class EventController {
 
     @Operation(description = "returns information about the created event")
     @PostMapping("/event")
-    public ResponseEntity<EventModel> createEvent(@RequestBody EventModel event) {
+    public ResponseEntity<EventResponse> createEvent(@RequestBody EventModel event) {
         EventModel savedEvent = eventService.saveEvent(event);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedEvent);
+        return ResponseEntity.status(HttpStatus.CREATED).body(eventResponseMapper.toEventResponse(savedEvent));
     }
 
     @Operation(description = "Deletes the user from the guest list for the event, returns a string about the success of the deletion")

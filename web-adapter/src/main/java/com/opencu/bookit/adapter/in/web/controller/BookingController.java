@@ -86,7 +86,7 @@ public class BookingController {
     }
 
     @GetMapping("/available-areas")
-    @io.swagger.v3.oas.annotations.Operation(
+    @Operation(
             summary = "returns information in the list format of UUID about available area on date",
             responses = {
                     @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ApiError.class))),

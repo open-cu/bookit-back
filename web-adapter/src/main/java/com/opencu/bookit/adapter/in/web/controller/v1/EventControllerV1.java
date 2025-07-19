@@ -143,15 +143,20 @@ public class EventControllerV1 {
             @PathVariable UUID eventId,
             @RequestBody UpdateEventRequest updateEventRequest
     ) {
-        EventModel eventModel = eventService.updateEvent(
-                eventId,
-                updateEventRequest.name(),
-                updateEventRequest.description(),
-                updateEventRequest.tags(),
-                updateEventRequest.date(),
-                updateEventRequest.available_places()
-        );
-        return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventModel));
+        try {
+            EventModel eventModel = eventService.updateEvent(
+                    eventId,
+                    updateEventRequest.name(),
+                    updateEventRequest.description(),
+                    updateEventRequest.tags(),
+                    updateEventRequest.date(),
+                    updateEventRequest.available_places()
+            );
+            return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventModel));
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
+
     }
 
     @PostMapping

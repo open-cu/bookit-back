@@ -178,7 +178,7 @@ public class BookingControllerV1 {
 
     @Operation(summary = "Update booking by id and booking information")
     @PutMapping("/{bookingId}")
-    public ResponseEntity<BookingModel> updateBooking(
+    public ResponseEntity<BookingResponse> updateBooking(
             @PathVariable UUID bookingId,
             @RequestBody UpdateBookingRequest request) {
         try {
@@ -188,7 +188,7 @@ public class BookingControllerV1 {
             }
 
             BookingModel updatedBooking = bookingService.updateBooking(bookingId, bookingRequestMapper.toQuery(request));
-            return ResponseEntity.ok(updatedBooking);
+            return ResponseEntity.ok(bookingResponseMapper.toResponse(updatedBooking));
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         } catch (IllegalStateException e) {

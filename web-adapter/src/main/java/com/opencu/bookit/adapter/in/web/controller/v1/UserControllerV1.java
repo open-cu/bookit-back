@@ -40,20 +40,20 @@ public class UserControllerV1 {
 
     @Operation(summary = "Get current user profile")
     @GetMapping("/me")
-    public ResponseEntity<UserModel> getCurrentUser() {
-        return ResponseEntity.ok(loadAuthorizationInfoPort.getCurrentUser());
+    public ResponseEntity<MeResponse> getCurrentUser() {
+        return ResponseEntity.ok(meResponseMapper.toResponse(loadAuthorizationInfoPort.getCurrentUser()));
     }
 
     @Operation(summary = "Update current user profile")
     @PutMapping("/me")
-    public ResponseEntity<UserModel> updateProfile(@Valid @RequestBody UpdateProfileRequest request) {
+    public ResponseEntity<MeResponse> updateProfile(@Valid @RequestBody UpdateProfileRequest request) {
         UserModel updated = userService.updateProfile(
                 request.getFirstName(),
                 request.getLastName(),
                 request.getEmail(),
                 request.getPhone()
         );
-        return ResponseEntity.ok(updated);
+        return ResponseEntity.ok(meResponseMapper.toResponse(updated));
     }
 
     @Operation(summary = "Get QR code for current user")
