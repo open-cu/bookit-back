@@ -1,7 +1,10 @@
 package com.opencu.bookit.adapter.in.web.controller.v1;
 
+import com.opencu.bookit.adapter.in.web.dto.request.PatchUserRequest;
 import com.opencu.bookit.adapter.in.web.dto.request.UpdateProfileRequest;
+import com.opencu.bookit.adapter.in.web.dto.response.MeResponse;
 import com.opencu.bookit.adapter.in.web.exception.ProfileNotCompletedException;
+import com.opencu.bookit.adapter.in.web.mapper.MeResponseMapper;
 import com.opencu.bookit.application.port.out.qr.GenerateQrCodePort;
 import com.opencu.bookit.application.port.out.user.LoadAuthorizationInfoPort;
 import com.opencu.bookit.application.service.user.UserService;
@@ -16,18 +19,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserControllerV1 {
     private final UserService userService;
     private final GenerateQrCodePort generateQrCodePort;
     private final LoadAuthorizationInfoPort loadAuthorizationInfoPort;
+    private final MeResponseMapper meResponseMapper;
 
     public UserControllerV1(UserService userService, GenerateQrCodePort generateQrCodePort,
-                            LoadAuthorizationInfoPort loadAuthorizationInfoPort) {
+                            LoadAuthorizationInfoPort loadAuthorizationInfoPort, MeResponseMapper meResponseMapper) {
         this.userService = userService;
         this.generateQrCodePort = generateQrCodePort;
         this.loadAuthorizationInfoPort = loadAuthorizationInfoPort;
+        this.meResponseMapper = meResponseMapper;
     }
 
     @Operation(summary = "Get current user profile")
@@ -66,5 +74,31 @@ public class UserControllerV1 {
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to generate QR code", e);
         }
+    }
+
+    @Operation(summary = "Get user by id")
+    @GetMapping("/{userId}")
+    public ResponseEntity<Optional<MeResponse>> getUserById(
+            @PathVariable UUID userId
+    ) {
+        return ResponseEntity.ok(userService.findById(userId)
+                .map(meResponseMapper::toResponse));
+    }
+
+    @Operation(summary = "Changing status by userId")
+    @PatchMapping("/{userId}")
+    public ResponseEntity<MeResponse> patchStatus(
+            @PathVariable UUID userId,
+            @RequestBody PatchUserRequest patchUserRequest
+    ) {
+        UserModel patched = userService.patchUser(
+                userId,
+                patchUserRequest.firstName(),
+                patchUserRequest.lastName(),
+                patchUserRequest.email(),
+                patchUserRequest.userStatus()
+        );
+        return ResponseEntity.ok(meResponseMapper.toResponse(patched));
+
     }
 }

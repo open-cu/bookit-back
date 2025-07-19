@@ -4,13 +4,13 @@ import com.opencu.bookit.application.port.out.user.LoadAuthorizationInfoPort;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.application.port.out.user.SaveUserPort;
 import com.opencu.bookit.domain.model.user.UserModel;
+import com.opencu.bookit.domain.model.user.UserStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.channels.FileChannel;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
@@ -58,6 +58,27 @@ public class UserService {
         if (email != null) userModel.setEmail(email);
         if (phone != null) userModel.setPhone(phone);
         return saveUserPort.save(userModel);
+    }
+
+    @Transactional
+    public UserModel patchUser(
+            UUID userId,
+            String firstName,
+            String lastname,
+            String email,
+            UserStatus userStatus
+    ) {
+        Optional<UserModel> userOpt = loadUserPort.findById(userId);
+        if (userOpt.isEmpty())
+        {
+            throw new NoSuchElementException("No such user found");
+        }
+        UserModel user = userOpt.get();
+        if (firstName != null) user.setFirstName(firstName);
+        if (lastname != null) user.setLastName(lastname);
+        if (email != null) user.setEmail(email);
+        if (userStatus != null) user.setStatus(userStatus);
+        return saveUserPort.save(user);
     }
 
     public Page<UserModel> findWithFilters(String search, Pageable pageable) {
