@@ -117,8 +117,8 @@ public class EventPersistenceAdapter implements LoadEventPort,
     }
 
     @Override
-    public int delete(UUID eventId) {
-        return eventRepository.delete(eventId);
+    public void delete(UUID eventId) {
+        eventRepository.delete(eventId);
     }
 }
 
