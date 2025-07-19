@@ -10,7 +10,7 @@ COPY persistence-adapter ./persistence-adapter
 COPY qrcode-adapter ./qrcode-adapter
 COPY security-adapter ./security-adapter
 COPY web-adapter ./web-adapter
-RUN chmod +x ./mvnw && ./mvnw clean package -s settings.xml -DskipTests
+RUN  mvn clean package -s settings.xml -DskipTests
 
 
 FROM eclipse-temurin:21-jre-jammy
