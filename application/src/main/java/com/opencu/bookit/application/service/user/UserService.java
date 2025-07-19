@@ -5,9 +5,12 @@ import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.application.port.out.user.SaveUserPort;
 import com.opencu.bookit.domain.model.user.UserModel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.channels.FileChannel;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
@@ -55,5 +58,9 @@ public class UserService {
         if (email != null) userModel.setEmail(email);
         if (phone != null) userModel.setPhone(phone);
         return saveUserPort.save(userModel);
+    }
+
+    public Page<UserModel> findWithFilters(String search, Pageable pageable) {
+        return loadUserPort.findWithFilters(search, pageable);
     }
 }

@@ -1,14 +1,21 @@
 package com.opencu.bookit.adapter.out.persistence.adapter;
 
+import com.opencu.bookit.adapter.out.persistence.entity.RoleEntity;
+import com.opencu.bookit.adapter.out.persistence.entity.UserEntity;
 import com.opencu.bookit.adapter.out.persistence.mapper.UserMapper;
 import com.opencu.bookit.adapter.out.persistence.repository.UserRepository;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.application.port.out.user.SaveUserPort;
 import com.opencu.bookit.domain.model.user.UserModel;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Component
@@ -52,6 +59,25 @@ public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort {
     @Override
     public boolean existsByPhone(String phone) {
         return userRepository.existsByPhone(phone);
+    }
+
+    @Override
+    public Page<UserModel> findWithFilters(String search, Pageable pageable) {
+        Specification<UserEntity> spec = Specification.where(null);
+        Set<RoleEntity> roles = new HashSet<>(RoleEntity.RoleName.ROLE_ADMIN.ordinal());
+        if (search != null && !search.isBlank()) {
+            spec = spec.and((root, query, cb) ->
+                    cb.or(
+                            cb.like(cb.lower(root.get("username")), "%" + search.toLowerCase() + "%"),
+                            cb.like(cb.lower(root.get("firstName")), "%" + search.toLowerCase() + "%"),
+                            cb.like(cb.lower(root.get("lastName")), "%" + search.toLowerCase() + "%")
+                    )
+            );
+        }
+        spec = spec.and((root, query, cb) ->
+                root.join("roleEntities").in(roles));
+        return userRepository.findAll(spec, pageable)
+                .map(userMapper::toModel);
     }
 
     @Override

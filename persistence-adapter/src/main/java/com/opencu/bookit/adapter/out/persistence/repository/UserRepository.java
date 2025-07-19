@@ -1,9 +1,13 @@
 package com.opencu.bookit.adapter.out.persistence.repository;
 
 import com.opencu.bookit.adapter.out.persistence.entity.UserEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.nio.channels.FileChannel;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,4 +30,6 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
     Optional<UserEntity> findByTgId(Long tgId);
 
     Optional<UserEntity> findByFirstNameAndLastName(String firstName, String lastName);
+
+    Page<UserEntity> findAll(Specification<UserEntity> spec, Pageable pageable);
 }
