@@ -1,5 +1,6 @@
 package com.opencu.bookit.application.service.news;
 
+import com.opencu.bookit.application.port.out.news.DeleteNewsPort;
 import com.opencu.bookit.application.port.out.news.LoadNewsPort;
 import com.opencu.bookit.application.port.out.news.SaveNewsPort;
 import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
@@ -9,17 +10,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 public class NewsService {
     private final LoadNewsPort loadNewsPort;
     private final SaveNewsPort saveNewsPort;
+    private final DeleteNewsPort deleteNewsPort;
 
-    public NewsService(LoadNewsPort loadNewsPort, SaveNewsPort saveNewsPort) {
+    public NewsService(LoadNewsPort loadNewsPort, SaveNewsPort saveNewsPort, DeleteNewsPort deleteNewsPort) {
         this.loadNewsPort = loadNewsPort;
         this.saveNewsPort = saveNewsPort;
+        this.deleteNewsPort = deleteNewsPort;
     }
 
     public List<NewsModel> findAll() {
@@ -33,5 +36,48 @@ public class NewsService {
 
     public Page<NewsModel> findWithFilters(Set<ThemeTags> tags, String search, Pageable pageable) {
         return loadNewsPort.findWithFilters(tags, search, pageable);
+    }
+
+    public NewsModel findById(UUID newsId) {
+        Optional<NewsModel> newsOpt = loadNewsPort.findById(newsId);
+        if (newsOpt.isEmpty()) {
+            throw new NoSuchElementException("No such news found");
+        }
+        return newsOpt.get();
+    }
+
+    public void delete(UUID newsId) {
+        deleteNewsPort.delete(newsId);
+    }
+
+    public NewsModel udpateNews(
+            UUID newsId,
+            String title,
+            String description,
+            List<ThemeTags> tags
+    ) {
+        Optional<NewsModel> newsOpt = loadNewsPort.findById(newsId);
+        if (newsOpt.isEmpty()) {
+            throw  new NoSuchElementException("No such news found");
+        }
+        NewsModel news = newsOpt.get();
+        news.setTitle(title);
+        news.setDescription(description);
+        news.setTags(new HashSet<>(tags));
+        return saveNewsPort.save(news);
+    }
+
+    @Transactional
+    public NewsModel createNews(
+            String title,
+            String description,
+            List<ThemeTags> tags
+    ) {
+        NewsModel newsModel = new NewsModel();
+        newsModel.setTitle(title);
+        newsModel.setDescription(description);
+        newsModel.setTags(new HashSet<>(tags));
+        newsModel.setCreatedAt(LocalDateTime.now());
+        return saveNewsPort.save(newsModel);
     }
 }

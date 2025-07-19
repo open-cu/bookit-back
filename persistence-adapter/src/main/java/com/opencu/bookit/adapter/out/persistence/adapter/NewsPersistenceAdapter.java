@@ -3,6 +3,7 @@ package com.opencu.bookit.adapter.out.persistence.adapter;
 import com.opencu.bookit.adapter.out.persistence.entity.NewsEntity;
 import com.opencu.bookit.adapter.out.persistence.mapper.NewsMapper;
 import com.opencu.bookit.adapter.out.persistence.repository.NewsRepository;
+import com.opencu.bookit.application.port.out.news.DeleteNewsPort;
 import com.opencu.bookit.application.port.out.news.LoadNewsPort;
 import com.opencu.bookit.application.port.out.news.SaveNewsPort;
 import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
@@ -14,11 +15,14 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class NewsPersistenceAdapter implements LoadNewsPort, SaveNewsPort {
+public class NewsPersistenceAdapter implements LoadNewsPort, SaveNewsPort,
+        DeleteNewsPort {
 
     private final NewsRepository newsRepository;
     private final NewsMapper newsMapper;
@@ -59,6 +63,16 @@ public class NewsPersistenceAdapter implements LoadNewsPort, SaveNewsPort {
         var entity = newsMapper.toEntity(newsModel);
         var savedEntity = newsRepository.save(entity);
         return newsMapper.toModel(savedEntity);
+    }
+
+    public Optional<NewsModel> findById(UUID newsId) {
+        return newsRepository.findById(newsId)
+                .map(newsMapper::toModel);
+    }
+
+    @Override
+    public void delete(UUID newsId) {
+        newsRepository.deleteById(newsId);
     }
 }
 

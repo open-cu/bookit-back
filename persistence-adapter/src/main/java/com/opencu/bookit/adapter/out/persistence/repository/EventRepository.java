@@ -35,5 +35,5 @@ public interface EventRepository extends JpaRepository<EventEntity, UUID>, JpaSp
     void delete(@Param("eventId") UUID eventId);
 
     @Query("SELECT e FROM EventEntity e WHERE e.name = :name")
-    Optional<EventModel> findByName(@Param("name") String name);
+    Optional<EventEntity> findByName(@Param("name") String name);
 }

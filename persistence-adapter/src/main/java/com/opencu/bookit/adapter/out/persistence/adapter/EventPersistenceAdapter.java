@@ -106,7 +106,8 @@ public class EventPersistenceAdapter implements LoadEventPort,
 
     @Override
     public Optional<EventModel> findByName(String name) {
-        return eventRepository.findByName(name);
+        return eventRepository.findByName(name)
+                .map(eventMapper::toModel);
     }
 
     @Override
