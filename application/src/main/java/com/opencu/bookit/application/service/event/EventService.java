@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -75,6 +76,27 @@ public class EventService {
 
     public EventModel saveEvent(EventModel event) {
         return saveEventPort.save(event);
+    }
+
+    public EventModel updateEvent(
+            UUID eventId,
+            String name,
+            String description,
+            List<ThemeTags> tags,
+            LocalDateTime date,
+            int availablePlaces
+    ) {
+        Optional<EventModel> eventOpt = loadEventPort.findById(eventId);
+        if (eventOpt.isEmpty()) {
+            throw new NoSuchElementException("No such event found");
+        }
+        EventModel eventModel = eventOpt.get();
+        eventModel.setName(name);
+        eventModel.setDescription(description);
+        eventModel.setTags(new HashSet<>(tags));
+        eventModel.setDate(date);
+        eventModel.setAvailable_places(availablePlaces);
+        return saveEventPort.save(eventModel);
     }
 
     public Page<EventModel> findWithFilters(

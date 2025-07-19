@@ -1,5 +1,6 @@
 package com.opencu.bookit.adapter.in.web.controller.v1;
 
+import com.opencu.bookit.adapter.in.web.dto.request.UpdateEventRequest;
 import com.opencu.bookit.adapter.in.web.dto.response.EventResponse;
 import com.opencu.bookit.adapter.in.web.exception.ResourceNotFoundException;
 import com.opencu.bookit.adapter.in.web.mapper.EventResponseMapper;
@@ -24,6 +25,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -122,5 +125,32 @@ public class EventControllerV1 {
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
         eventService.removeUser(currentUser.getId(), event);
         return ResponseEntity.ok("User removed successfully");
+    }
+
+    @GetMapping("/{eventId}")
+    public ResponseEntity<EventResponse> getById(
+        @PathVariable UUID eventId
+    ) {
+        Optional<EventModel> eventOpt = eventService.findById(eventId);
+        if (eventOpt.isEmpty()) {
+            throw new NoSuchElementException("No such event found");
+        }
+        return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventOpt.get()));
+    }
+
+    @PutMapping("/{eventId}")
+    public ResponseEntity<EventResponse> updateEvent(
+            @PathVariable UUID eventId,
+            @RequestBody UpdateEventRequest updateEventRequest
+    ) {
+        EventModel eventModel = eventService.updateEvent(
+                eventId,
+                updateEventRequest.name(),
+                updateEventRequest.description(),
+                updateEventRequest.tags(),
+                updateEventRequest.date(),
+                updateEventRequest.available_places()
+        );
+        return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventModel));
     }
 }
