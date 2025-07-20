@@ -40,14 +40,4 @@ public class RoleEntity {
             };
         }
     }
-
-    public static Set<RoleEntity> toRoleEntitySet(Set<String> roles) {
-        Set<RoleEntity> result = new HashSet<>();
-        for (var role: roles) {
-            RoleEntity entity = new RoleEntity();
-            entity.setName(RoleName.fromString(role));
-            result.add(entity);
-        }
-        return result;
-    }
 }

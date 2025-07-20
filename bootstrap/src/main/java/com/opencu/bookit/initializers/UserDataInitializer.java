@@ -1,6 +1,8 @@
 package com.opencu.bookit.initializers;
 
+import com.opencu.bookit.adapter.out.persistence.entity.RoleEntity;
 import com.opencu.bookit.adapter.out.persistence.entity.UserEntity;
+import com.opencu.bookit.adapter.out.persistence.repository.RoleRepository;
 import com.opencu.bookit.adapter.out.persistence.repository.UserRepository;
 import com.opencu.bookit.domain.model.user.UserStatus;
 import org.springframework.boot.ApplicationArguments;
@@ -17,9 +19,11 @@ import java.util.List;
 @Order(1)
 public class UserDataInitializer implements ApplicationRunner {
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
-    public UserDataInitializer(UserRepository userRepository) {
+    public UserDataInitializer(UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
     }
 
     @Override
@@ -60,6 +64,20 @@ public class UserDataInitializer implements ApplicationRunner {
 
             userRepository.saveAll(List.of(alice, bob, charlie));
             System.out.println("Initial users created successfully");
+        }
+
+        if (roleRepository.count() == 0) {
+            RoleEntity entity1 = new RoleEntity();
+            entity1.setName(RoleEntity.RoleName.ROLE_USER);
+            roleRepository.save(entity1);
+
+            RoleEntity entity2 = new RoleEntity();
+            entity2.setName(RoleEntity.RoleName.ROLE_ADMIN);
+            roleRepository.save(entity2);
+
+            RoleEntity entity3 = new RoleEntity();
+            entity3.setName(RoleEntity.RoleName.ROLE_SUPERADMIN);
+            roleRepository.save(entity3);
         }
     }
 }
