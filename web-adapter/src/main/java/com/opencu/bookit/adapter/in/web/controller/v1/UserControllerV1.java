@@ -16,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -76,6 +77,7 @@ public class UserControllerV1 {
         }
     }
 
+    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
     @Operation(summary = "Get user by id")
     @GetMapping("/{userId}")
     public ResponseEntity<Optional<MeResponse>> getUserById(
@@ -85,6 +87,7 @@ public class UserControllerV1 {
                 .map(meResponseMapper::toResponse));
     }
 
+    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
     @Operation(summary = "Changing status by userId")
     @PatchMapping("/{userId}")
     public ResponseEntity<MeResponse> patchStatus(

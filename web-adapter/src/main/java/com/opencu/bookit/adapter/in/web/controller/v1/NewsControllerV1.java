@@ -7,6 +7,7 @@ import com.opencu.bookit.domain.model.news.NewsModel;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.NoSuchElementException;
@@ -40,6 +41,7 @@ public class NewsControllerV1 {
         return ResponseEntity.ok(newsPage);
     }
 
+    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
     @GetMapping("/{newsId}")
     public ResponseEntity<NewsModel> getById(
         @PathVariable UUID newsId
@@ -51,6 +53,7 @@ public class NewsControllerV1 {
         }
     }
 
+    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
     @DeleteMapping("/{newsId}")
     public ResponseEntity<?> deleteNews(
             @PathVariable UUID newsId
@@ -59,6 +62,7 @@ public class NewsControllerV1 {
         return ResponseEntity.ok("News are successfully deleted");
     }
 
+    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
     @PutMapping("/{newsId}")
     public ResponseEntity<NewsModel> updateNews(
             @PathVariable UUID newsId,
@@ -77,6 +81,7 @@ public class NewsControllerV1 {
         }
     }
 
+    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
     @PostMapping
     public ResponseEntity<NewsModel> createNews(
             @RequestBody NewsUpdateRequest newsUpdateRequest

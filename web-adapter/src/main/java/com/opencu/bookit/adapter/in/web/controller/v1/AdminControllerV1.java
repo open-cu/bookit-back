@@ -44,6 +44,7 @@ public class AdminControllerV1 {
         return ResponseEntity.ok(adminsPage);
     }
 
+    @PreAuthorize("@securityService.hasRoleSuperAdminOrIsDev()")
     @GetMapping("/{userId}")
     public ResponseEntity<MeResponse> getById(
             @PathVariable UUID userId
@@ -54,6 +55,7 @@ public class AdminControllerV1 {
         ))).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("@securityService.hasRoleSuperAdminOrIsDev()")
     @DeleteMapping("/{userId}")
     public ResponseEntity<?> deleteById(
             @PathVariable UUID userId

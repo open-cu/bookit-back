@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -127,6 +128,7 @@ public class EventControllerV1 {
         return ResponseEntity.ok("User removed successfully");
     }
 
+    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
     @GetMapping("/{eventId}")
     public ResponseEntity<EventResponse> getById(
         @PathVariable UUID eventId
@@ -138,6 +140,7 @@ public class EventControllerV1 {
         return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventOpt.get()));
     }
 
+    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
     @PutMapping("/{eventId}")
     public ResponseEntity<EventResponse> updateEvent(
             @PathVariable UUID eventId,
@@ -159,6 +162,7 @@ public class EventControllerV1 {
 
     }
 
+    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
     @PostMapping
     public ResponseEntity<EventResponse> createEvent(
             @RequestBody UpdateEventRequest updateEventRequest
@@ -173,6 +177,7 @@ public class EventControllerV1 {
         return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventModel));
     }
 
+    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
     @DeleteMapping("/{eventId}")
     public ResponseEntity<?> deleteEvent(
             @PathVariable UUID eventId

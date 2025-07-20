@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.NoSuchElementException;
@@ -73,6 +74,7 @@ public class TicketControllerV1 {
         }
     }
 
+    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
     @Operation(summary = "Delete ticket found by id")
     @DeleteMapping("/{ticketId}")
     public ResponseEntity<?> deleteById(
@@ -82,6 +84,7 @@ public class TicketControllerV1 {
         return ResponseEntity.ok("Ticket successfully deleted");
     }
 
+    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
     @Operation(summary = "Patches ticket by id")
     @PatchMapping("/{ticketId}")
     public ResponseEntity<TicketResponse> patchById(

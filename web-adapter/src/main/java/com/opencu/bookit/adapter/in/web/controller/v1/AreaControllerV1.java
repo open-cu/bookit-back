@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -63,6 +64,7 @@ public class AreaControllerV1 {
         return ResponseEntity.ok(areasPage);
     }
 
+    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
     @Operation(summary = "Get area by ID")
     @GetMapping("/{areaId}")
     public ResponseEntity<AreaResponse> getAreaById(@PathVariable UUID areaId) {
@@ -74,6 +76,7 @@ public class AreaControllerV1 {
         return ResponseEntity.ok(areaResponse);
     }
 
+    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
     @Operation(summary = "Create area")
     @PostMapping
     public ResponseEntity<AreaResponse> createArea(
@@ -92,6 +95,7 @@ public class AreaControllerV1 {
         );
     }
 
+    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
     @Operation(summary = "Delete area by id")
     @DeleteMapping("/{areaId}")
     public ResponseEntity<?> deleteById(
@@ -101,6 +105,7 @@ public class AreaControllerV1 {
         return ResponseEntity.ok("Area successfully deleted");
     }
 
+    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
     @Operation(summary = "Updated area information")
     @PutMapping("/{areaId}")
     public ResponseEntity<AreaResponse> updateById(

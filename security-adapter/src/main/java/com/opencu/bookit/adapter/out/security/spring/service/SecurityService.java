@@ -12,12 +12,15 @@ public class SecurityService {
     public boolean hasRoleAdminOrIsDev() {
         return "dev".equalsIgnoreCase(activeProfile) ||
                 SecurityContextHolder.getContext().getAuthentication().getAuthorities()
-                        .stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+                        .stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")) ||
+                SecurityContextHolder.getContext().getAuthentication().getAuthorities()
+                        .stream().anyMatch(a -> a.getAuthority().equals("ROLE_SUPERADMIN"));
     }
 
     public boolean hasRoleSuperAdminOrIsDev() {
         return "dev".equalsIgnoreCase(activeProfile) ||
                 SecurityContextHolder.getContext().getAuthentication().getAuthorities()
-                        .stream().anyMatch(a -> a.getAuthority().equals("ROLE_SUPERADMIN"));
+                        .stream().anyMatch(
+                                a -> a.getAuthority().equals("ROLE_SUPERADMIN"));
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.NoSuchElementException;
@@ -24,6 +25,7 @@ public class ReviewsControllerV1 {
         this.reviewsResponseMapper = reviewsResponseMapper;
     }
 
+    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
     @GetMapping
     public ResponseEntity<Page<ReviewsResponse>> getReviews(
             @RequestParam(required = false) UUID userId,
@@ -41,6 +43,7 @@ public class ReviewsControllerV1 {
         );
     }
 
+    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
     @GetMapping("/{reviewId}")
     public ResponseEntity<ReviewsResponse> getById(
             @PathVariable UUID reviewId
@@ -55,6 +58,7 @@ public class ReviewsControllerV1 {
         }
     }
 
+    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<?> deleteById(
             @PathVariable UUID reviewId
