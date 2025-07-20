@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("api/v1/admins")
-public class AdminController {
+public class AdminControllerV1 {
     private final UserService userService;
     private final MeResponseMapper meResponseMapper;
 
-    public AdminController(UserService userService, MeResponseMapper meResponseMapper) {
+    public AdminControllerV1(UserService userService, MeResponseMapper meResponseMapper) {
         this.userService = userService;
         this.meResponseMapper = meResponseMapper;
     }

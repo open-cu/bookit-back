@@ -1,5 +1,6 @@
 package com.opencu.bookit.adapter.in.web.controller.v1;
 
+import com.opencu.bookit.adapter.in.web.dto.request.AdminUpdateBookingRequest;
 import com.opencu.bookit.adapter.in.web.dto.request.CreateBookingRequest;
 import com.opencu.bookit.adapter.in.web.dto.request.UpdateBookingRequest;
 import com.opencu.bookit.adapter.in.web.dto.response.BookingResponse;
@@ -196,6 +197,40 @@ public class BookingControllerV1 {
         } catch (ProfileNotCompletedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
+    }
+
+    @PutMapping("/admin/{bookingId}")
+    public ResponseEntity<BookingResponse> updateById(
+            @PathVariable UUID bookingId,
+            @RequestBody AdminUpdateBookingRequest adminUpdateBookingRequest
+    ) {
+        try {
+            BookingResponse response = bookingResponseMapper.toResponse(
+                    bookingService.updateById(
+                            bookingId,
+                            adminUpdateBookingRequest.userId(),
+                            adminUpdateBookingRequest.areaId(),
+                            adminUpdateBookingRequest.startTime(),
+                            adminUpdateBookingRequest.endTime(),
+                            adminUpdateBookingRequest.status()
+                    )
+            );
+            return ResponseEntity.ok(response);
+        }
+        catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
+        catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @DeleteMapping("/admin/{bookingId}")
+    public ResponseEntity<?> deleteById(
+            @PathVariable UUID bookingId
+    ) {
+        bookingService.deleteById(bookingId);
+        return ResponseEntity.ok("Booking deleted successfully");
     }
 
     private UserDetailsImpl getCurrentUser() {

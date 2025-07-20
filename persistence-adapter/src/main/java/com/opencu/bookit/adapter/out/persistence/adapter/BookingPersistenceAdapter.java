@@ -7,6 +7,7 @@ import com.opencu.bookit.adapter.out.persistence.mapper.BookingMapper;
 import com.opencu.bookit.adapter.out.persistence.repository.AreaRepository;
 import com.opencu.bookit.adapter.out.persistence.repository.BookingRepository;
 import com.opencu.bookit.adapter.out.persistence.repository.UserRepository;
+import com.opencu.bookit.application.port.out.booking.DeleteBookingPort;
 import com.opencu.bookit.application.port.out.booking.LoadBookingPort;
 import com.opencu.bookit.application.port.out.booking.SaveBookingPort;
 import com.opencu.bookit.domain.model.booking.BookingModel;
@@ -26,7 +27,8 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class BookingPersistenceAdapter implements LoadBookingPort, SaveBookingPort {
+public class BookingPersistenceAdapter implements
+        LoadBookingPort, SaveBookingPort, DeleteBookingPort {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final AreaRepository areaRepository;
@@ -107,5 +109,10 @@ public class BookingPersistenceAdapter implements LoadBookingPort, SaveBookingPo
     public List<BookingModel> saveAll(Set<BookingModel> bookingModels) {
         List<BookingEntity> entities = bookingMapper.toEntityList(bookingModels);
         return bookingMapper.toModelList(bookingRepository.saveAll(entities));
+    }
+
+    @Override
+    public void deleteById(UUID bookingId) {
+        bookingRepository.deleteById(bookingId);
     }
 }
