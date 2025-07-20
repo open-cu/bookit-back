@@ -1,6 +1,8 @@
 package com.opencu.bookit.adapter.in.web.controller.v1;
 
 import com.opencu.bookit.adapter.in.web.dto.request.NewsUpdateRequest;
+import com.opencu.bookit.adapter.in.web.dto.response.NewsResponse;
+import com.opencu.bookit.adapter.in.web.mapper.NewsResponseMapper;
 import com.opencu.bookit.application.service.news.NewsService;
 import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
 import com.opencu.bookit.domain.model.news.NewsModel;
@@ -18,14 +20,16 @@ import java.util.UUID;
 @RequestMapping("/api/v1/public/news")
 public class NewsControllerV1 {
     private final NewsService newsService;
+    private final NewsResponseMapper newsResponseMapper;
 
-    public NewsControllerV1(NewsService newsService) {
+    public NewsControllerV1(NewsService newsService, NewsResponseMapper newsResponseMapper) {
         this.newsService = newsService;
+        this.newsResponseMapper = newsResponseMapper;
     }
 
     @Operation(summary = "Get all public news with optional filters, search, pagination and sorting")
     @GetMapping
-    public ResponseEntity<Page<NewsModel>> getAllPublicNews(
+    public ResponseEntity<Page<NewsResponse>> getAllPublicNews(
             @RequestParam(required = false) Set<ThemeTags> tags,
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page,
@@ -38,16 +42,16 @@ public class NewsControllerV1 {
         String sortBy = sortParams[0];
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         Page<NewsModel> newsPage = newsService.findWithFilters(tags, search, pageable);
-        return ResponseEntity.ok(newsPage);
+        return ResponseEntity.ok(newsPage.map(newsResponseMapper::toResponse));
     }
 
     @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
     @GetMapping("/{newsId}")
-    public ResponseEntity<NewsModel> getById(
+    public ResponseEntity<NewsResponse> getById(
         @PathVariable UUID newsId
     ) {
         try {
-            return ResponseEntity.ok(newsService.findById(newsId));
+            return ResponseEntity.ok(newsResponseMapper.toResponse(newsService.findById(newsId)));
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         }
@@ -64,7 +68,7 @@ public class NewsControllerV1 {
 
     @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
     @PutMapping("/{newsId}")
-    public ResponseEntity<NewsModel> updateNews(
+    public ResponseEntity<NewsResponse> updateNews(
             @PathVariable UUID newsId,
             @RequestBody NewsUpdateRequest newsUpdateRequest
     ) {
@@ -75,7 +79,7 @@ public class NewsControllerV1 {
                     newsUpdateRequest.description(),
                     newsUpdateRequest.tags()
             );
-            return ResponseEntity.ok(news);
+            return ResponseEntity.ok(newsResponseMapper.toResponse(news));
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         }
@@ -83,7 +87,7 @@ public class NewsControllerV1 {
 
     @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
     @PostMapping
-    public ResponseEntity<NewsModel> createNews(
+    public ResponseEntity<NewsResponse> createNews(
             @RequestBody NewsUpdateRequest newsUpdateRequest
     ) {
         NewsModel news = newsService.createNews(
@@ -91,6 +95,6 @@ public class NewsControllerV1 {
                 newsUpdateRequest.description(),
                 newsUpdateRequest.tags()
         );
-        return ResponseEntity.ok(news);
+        return ResponseEntity.ok(newsResponseMapper.toResponse(news));
     }
 }
