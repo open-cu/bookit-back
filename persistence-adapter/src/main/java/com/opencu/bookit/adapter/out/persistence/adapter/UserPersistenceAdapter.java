@@ -1,9 +1,11 @@
 package com.opencu.bookit.adapter.out.persistence.adapter;
 
+import com.opencu.bookit.adapter.out.persistence.entity.UserEntity;
 import com.opencu.bookit.adapter.out.persistence.mapper.UserMapper;
 import com.opencu.bookit.adapter.out.persistence.repository.UserRepository;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.application.port.out.user.SaveUserPort;
+import com.opencu.bookit.application.port.out.user.UserPreferencesPort;
 import com.opencu.bookit.domain.model.user.UserModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -13,7 +15,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort {
+public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort, UserPreferencesPort {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -59,6 +61,21 @@ public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort {
         var userEntity = userMapper.toEntity(userModel);
         var savedEntity = userRepository.save(userEntity);
         return userMapper.toModel(savedEntity);
+    }
+
+    @Override
+    public boolean isSubscribedToNotifications(UUID userId) {
+        return userRepository.findById(userId)
+                .map(UserEntity::isSubscribedToNotifications)
+                .orElse(false);
+    }
+
+    @Override
+    public void setNotificationPreference(UUID userId, boolean subscribed) {
+        userRepository.findById(userId).ifPresent(user -> {
+            user.setSubscribedToNotifications(subscribed);
+            userRepository.save(user);
+        });
     }
 }
 

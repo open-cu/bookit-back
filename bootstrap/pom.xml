@@ -42,6 +42,14 @@
             <groupId>com.opencu.bookit</groupId>
             <artifactId>web-adapter</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.opencu.bookit</groupId>
+            <artifactId>email-notification-adapter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.opencu.bookit</groupId>
+            <artifactId>notification-queue-adapter</artifactId>
+        </dependency>
 
         <!-- Spring Boot стартер -->
         <dependency>

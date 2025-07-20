@@ -1,6 +1,23 @@
 spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+  mail:
+    host: smtp.example.com
+    port: 587
+    username: your-email@example.com
+    password: your-password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 springdoc:
   api-docs:
     enabled: true
@@ -8,6 +25,15 @@ springdoc:
     path: /swagger-ui.html
     operations-sorter: method
   default-produces-media-type: application/json
+
+rabbitmq:
+  exchange:
+    delayed: event.notification.delayed
+  queue:
+    notifications: event.notification.queue
+
+notification:
+  default-time-before-event-minutes: 60
 
 booking:
   max-days-forward: 30

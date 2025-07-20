@@ -23,6 +23,7 @@ public class UserModel {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String username;
+    private boolean subscribedToNotifications;
     private Set<Role> roles = new HashSet<>();
     private List<Review> reviews = new ArrayList<>();
     public String getPassword() {
