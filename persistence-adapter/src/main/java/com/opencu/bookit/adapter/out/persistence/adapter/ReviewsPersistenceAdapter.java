@@ -8,6 +8,7 @@ import com.opencu.bookit.adapter.out.persistence.repository.UserRepository;
 import com.opencu.bookit.application.port.out.reviews.DeleteReviewsPort;
 import com.opencu.bookit.application.port.out.reviews.LoadReviewsPort;
 import com.opencu.bookit.application.port.out.reviews.SaveReviewsPort;
+import com.opencu.bookit.domain.model.area.Review;
 import com.opencu.bookit.domain.model.reviews.ReviewsModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -53,5 +54,12 @@ public class ReviewsPersistenceAdapter implements
     @Override
     public void deleteById(UUID reviewId) {
         reviewRepository.deleteById(reviewId);
+    }
+
+    @Override
+    public ReviewsModel save(Review model) {
+        return reviewMapper.toReviewsModel(
+                reviewRepository.save(reviewMapper.toEntity(model))
+        );
     }
 }
