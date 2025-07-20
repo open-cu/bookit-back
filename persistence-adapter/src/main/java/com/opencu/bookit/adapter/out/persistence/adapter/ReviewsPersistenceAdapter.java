@@ -51,7 +51,7 @@ public class ReviewsPersistenceAdapter implements
     }
 
     @Override
-    public void delete(UUID reviewId) {
+    public void deleteById(UUID reviewId) {
         reviewRepository.deleteById(reviewId);
     }
 }

@@ -3,6 +3,7 @@ package com.opencu.bookit.adapter.out.persistence.adapter;
 import com.opencu.bookit.adapter.out.persistence.entity.AreaEntity;
 import com.opencu.bookit.adapter.out.persistence.mapper.AreaMapper;
 import com.opencu.bookit.adapter.out.persistence.repository.AreaRepository;
+import com.opencu.bookit.application.port.out.area.DeleteAreaPort;
 import com.opencu.bookit.application.port.out.area.LoadAreaPort;
 import com.opencu.bookit.application.port.out.area.SaveAreaPort;
 import com.opencu.bookit.domain.model.area.AreaModel;
@@ -19,7 +20,8 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class AreaPersistenceAdapter implements LoadAreaPort, SaveAreaPort {
+public class AreaPersistenceAdapter implements
+        LoadAreaPort, SaveAreaPort, DeleteAreaPort {
 
     private final AreaRepository areaRepository;
     private final AreaMapper areaMapper;
@@ -56,6 +58,16 @@ public class AreaPersistenceAdapter implements LoadAreaPort, SaveAreaPort {
     @Override
     public List<AreaModel> saveAll(List<AreaModel> areaModels) {
         return areaMapper.toModelList(areaRepository.saveAll(areaMapper.toEntityList(areaModels)));
+    }
+
+    @Override
+    public AreaModel save(AreaModel model) {
+        return areaMapper.toModel(areaRepository.save(areaMapper.toEntity(model)));
+    }
+
+    @Override
+    public void deleteById(UUID areaId) {
+        areaRepository.deleteById(areaId);
     }
 }
 

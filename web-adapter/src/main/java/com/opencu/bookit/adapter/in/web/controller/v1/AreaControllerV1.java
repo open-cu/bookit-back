@@ -1,5 +1,7 @@
 package com.opencu.bookit.adapter.in.web.controller.v1;
 
+import com.opencu.bookit.adapter.in.web.dto.request.CreateAreaRequest;
+import com.opencu.bookit.adapter.in.web.dto.request.UpdateAreaRequest;
 import com.opencu.bookit.adapter.in.web.dto.response.AreaResponse;
 import com.opencu.bookit.adapter.in.web.exception.ResourceNotFoundException;
 import com.opencu.bookit.adapter.in.web.mapper.AreaResponseMapper;
@@ -16,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -69,5 +72,54 @@ public class AreaControllerV1 {
                 .map(areaMapper::toAreaResponse)
                 .orElseThrow(() -> new ResourceNotFoundException("Area not found with ID: " + areaId));
         return ResponseEntity.ok(areaResponse);
+    }
+
+    @Operation(summary = "Create area")
+    @PostMapping
+    public ResponseEntity<AreaResponse> createArea(
+            @RequestBody CreateAreaRequest createAreaRequest
+    ) {
+        AreaModel model = areaService.createArea(
+                createAreaRequest.name(),
+                createAreaRequest.description(),
+                createAreaRequest.type(),
+                createAreaRequest.features(),
+                createAreaRequest.capacity(),
+                createAreaRequest.status()
+        );
+        return ResponseEntity.ok(
+                areaMapper.toAreaResponse(model)
+        );
+    }
+
+    @Operation(summary = "Delete area by id")
+    @DeleteMapping("/{areaId}")
+    public ResponseEntity<?> deleteById(
+        @PathVariable UUID areaId
+    ) {
+        areaService.deleteById(areaId);
+        return ResponseEntity.ok("Area successfully deleted");
+    }
+
+    @Operation(summary = "Updated area information")
+    @PutMapping("/{areaId}")
+    public ResponseEntity<AreaResponse> updateById(
+            @PathVariable UUID areaId,
+            @RequestBody UpdateAreaRequest updateAreaRequest
+    ) {
+        try {
+            AreaResponse response = areaMapper.toAreaResponse(
+                    areaService.updateById(
+                            areaId,
+                            updateAreaRequest.name(),
+                            updateAreaRequest.type(),
+                            updateAreaRequest.capacity()
+                    )
+            );
+            return ResponseEntity.ok(response);
+        }
+        catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

@@ -41,6 +41,6 @@ public class ReviewsService {
     }
 
     public void deleteReview(UUID reviewId) {
-        deleteReviewsPort.delete(reviewId);
+        deleteReviewsPort.deleteById(reviewId);
     }
 }

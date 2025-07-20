@@ -8,4 +8,5 @@ import java.util.Set;
 
 public interface SaveAreaPort {
     List<AreaModel> saveAll(List<AreaModel> openSpace);
+    AreaModel save(AreaModel model);
 }

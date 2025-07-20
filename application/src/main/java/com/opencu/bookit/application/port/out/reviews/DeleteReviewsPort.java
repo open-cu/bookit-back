@@ -3,5 +3,5 @@ package com.opencu.bookit.application.port.out.reviews;
 import java.util.UUID;
 
 public interface DeleteReviewsPort {
-    void delete(UUID reviewId);
+    void deleteById(UUID reviewId);
 }
