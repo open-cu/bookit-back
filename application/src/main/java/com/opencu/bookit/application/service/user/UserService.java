@@ -1,5 +1,6 @@
 package com.opencu.bookit.application.service.user;
 
+import com.opencu.bookit.application.port.out.user.DeleteUserPort;
 import com.opencu.bookit.application.port.out.user.LoadAuthorizationInfoPort;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.application.port.out.user.SaveUserPort;
@@ -13,20 +14,23 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
 public class UserService {
     private final LoadUserPort loadUserPort;
     private final SaveUserPort saveUserPort;
+    private final DeleteUserPort deleteUserPort;
     private final LoadAuthorizationInfoPort loadAuthorizationInfoPort;
 
     @Autowired
     public UserService(LoadUserPort loadUserPort,
-                       SaveUserPort saveUserPort,
+                       SaveUserPort saveUserPort, DeleteUserPort deleteUserPort,
                        LoadAuthorizationInfoPort loadAuthorizationInfoPort) {
         this.loadUserPort = loadUserPort;
         this.saveUserPort = saveUserPort;
+        this.deleteUserPort = deleteUserPort;
         this.loadAuthorizationInfoPort = loadAuthorizationInfoPort;
     }
 
@@ -81,7 +85,11 @@ public class UserService {
         return saveUserPort.save(user);
     }
 
-    public Page<UserModel> findWithFilters(String search, Pageable pageable) {
-        return loadUserPort.findWithFilters(search, pageable);
+    public Page<UserModel> findWithFilters(Set<String> role, String search, Pageable pageable) {
+        return loadUserPort.findWithFilters(role, search, pageable);
+    }
+
+    public void deleteById(UUID userId) {
+        deleteUserPort.deleteById(userId);
     }
 }

@@ -4,6 +4,7 @@ import com.opencu.bookit.adapter.out.persistence.entity.RoleEntity;
 import com.opencu.bookit.adapter.out.persistence.entity.UserEntity;
 import com.opencu.bookit.adapter.out.persistence.mapper.UserMapper;
 import com.opencu.bookit.adapter.out.persistence.repository.UserRepository;
+import com.opencu.bookit.application.port.out.user.DeleteUserPort;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.application.port.out.user.SaveUserPort;
 import com.opencu.bookit.domain.model.user.UserModel;
@@ -20,7 +21,8 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort {
+public class UserPersistenceAdapter implements
+        LoadUserPort, SaveUserPort, DeleteUserPort {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -62,16 +64,16 @@ public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort {
     }
 
     @Override
-    public Page<UserModel> findWithFilters(String search, Pageable pageable) {
+    public Page<UserModel> findWithFilters(Set<String> role, String search, Pageable pageable) {
         Specification<UserEntity> spec = Specification.where(null);
-        Set<RoleEntity> roles = new HashSet<>(RoleEntity.RoleName.ROLE_ADMIN.ordinal());
+        Set<RoleEntity> roles = RoleEntity.toRoleEntitySet(role);
         if (search != null && !search.isBlank()) {
             spec = spec.and((root, query, cb) ->
-                    cb.or(
-                            cb.like(cb.lower(root.get("username")), "%" + search.toLowerCase() + "%"),
-                            cb.like(cb.lower(root.get("firstName")), "%" + search.toLowerCase() + "%"),
-                            cb.like(cb.lower(root.get("lastName")), "%" + search.toLowerCase() + "%")
-                    )
+                cb.or(
+                    cb.like(cb.lower(root.get("username")), "%" + search.toLowerCase() + "%"),
+                    cb.like(cb.lower(root.get("firstName")), "%" + search.toLowerCase() + "%"),
+                    cb.like(cb.lower(root.get("lastName")), "%" + search.toLowerCase() + "%")
+                )
             );
         }
         spec = spec.and((root, query, cb) ->
@@ -85,6 +87,11 @@ public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort {
         var userEntity = userMapper.toEntity(userModel);
         var savedEntity = userRepository.save(userEntity);
         return userMapper.toModel(savedEntity);
+    }
+
+    @Override
+    public void deleteById(UUID userId) {
+        userRepository.deleteById(userId);
     }
 }
 
