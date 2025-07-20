@@ -49,11 +49,11 @@ public class NewsPersistenceAdapter implements LoadNewsPort, SaveNewsPort,
         }
         if (search != null && !search.isBlank()) {
             spec = spec.and((root, query, cb) ->
-                                    cb.or(
-                                            cb.like(cb.lower(root.get("title")), "%" + search.toLowerCase() + "%"),
-                                            cb.like(root.get("description"), "%" + search + "%")
-                                         )
-                           );
+                    cb.or(
+                            cb.like(cb.lower(root.get("title")), "%" + search.toLowerCase() + "%"),
+                            cb.like(root.get("description"), "%" + search + "%")
+                         )
+           );
         }
         return spec;
     }

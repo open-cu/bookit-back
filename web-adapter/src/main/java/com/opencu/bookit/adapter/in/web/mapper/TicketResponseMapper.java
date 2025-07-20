@@ -14,8 +14,8 @@ import java.util.List;
 )
 public interface TicketResponseMapper {
 
-    @Mapping(target = "userId", source = "id.userId")
-    @Mapping(target = "areaId", source = "id.areaId")
+    @Mapping(target = "userId", source = "userModel.id")
+    @Mapping(target = "areaId", source = "areaModel.id")
     TicketResponse toResponse(TicketModel ticketModel);
 
     List<TicketResponse> toResponseList(List<TicketModel> ticketModels);

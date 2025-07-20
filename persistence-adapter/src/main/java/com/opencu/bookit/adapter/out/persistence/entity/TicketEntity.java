@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "TICKETS")
@@ -15,17 +16,16 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class TicketEntity {
 
-    @EmbeddedId
-    private TicketId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("userId")
     @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
     private UserEntity userEntity;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("areaId")
     @JoinColumn(name = "area_id", nullable = false)
     @JsonIgnore
     private AreaEntity areaEntity;
