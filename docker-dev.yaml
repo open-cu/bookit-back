@@ -4,8 +4,6 @@ services:
   app-dev:
     container_name: bookit-app-dev
     build: .
-    env_file:
-      - .env
     ports:
       - "8081:8080"
     volumes:

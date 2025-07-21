@@ -23,7 +23,12 @@ jobs:
           docker-compose -f docker-dev.yaml down
           docker-compose -f docker-dev.yaml up -d --build
           sleep 30
-
+        env:
+          KEY_ID: ${{ secrets.KEY_ID }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          REGION: ${{ secrets.REGION }}
+          S3_ENDPOINT: ${{ secrets.S3_ENDPOINT }}
+          BUCKET: ${{ secrets.BUCKET }}
       - name: Install Newman
         run: npm install newman@latest
 
