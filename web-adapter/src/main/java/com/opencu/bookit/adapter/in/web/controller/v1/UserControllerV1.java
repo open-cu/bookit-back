@@ -12,6 +12,10 @@ import com.opencu.bookit.domain.model.user.UserModel;
 import com.opencu.bookit.domain.model.user.UserStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -77,14 +82,31 @@ public class UserControllerV1 {
         }
     }
 
-    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
-    @Operation(summary = "Get user by id")
+    @PreAuthorize("@securityService.hasRoleSuperAdminOrIsDev()")
+    @GetMapping
+    public ResponseEntity<Page<MeResponse>> getUsers(
+            @RequestParam(required = false) Set<String> role,
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Sort.Direction direction = Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "firstName"));
+        Page<MeResponse> adminsPage = userService
+                .findWithFilters(role, search, pageable)
+                .map(meResponseMapper::toResponse);
+        return ResponseEntity.ok(adminsPage);
+    }
+
+    @PreAuthorize("@securityService.hasRoleSuperAdminOrIsDev()")
     @GetMapping("/{userId}")
-    public ResponseEntity<Optional<MeResponse>> getUserById(
+    public ResponseEntity<MeResponse> getById(
             @PathVariable UUID userId
     ) {
-        return ResponseEntity.ok(userService.findById(userId)
-                .map(meResponseMapper::toResponse));
+        Optional<UserModel> userOpt = userService.findById(userId);
+        return userOpt.map(userModel -> ResponseEntity.ok(meResponseMapper.toResponse(
+                userModel
+        ))).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
@@ -102,6 +124,14 @@ public class UserControllerV1 {
                 patchUserRequest.userStatus()
         );
         return ResponseEntity.ok(meResponseMapper.toResponse(patched));
+    }
 
+    @PreAuthorize("@securityService.hasRoleSuperAdminOrIsDev()")
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<?> deleteById(
+            @PathVariable UUID userId
+    ) {
+        userService.deleteById(userId);
+        return ResponseEntity.ok("User deleted successfully");
     }
 }
