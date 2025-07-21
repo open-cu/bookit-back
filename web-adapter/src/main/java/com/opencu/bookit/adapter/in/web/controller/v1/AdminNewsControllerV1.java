@@ -97,7 +97,8 @@ public class AdminNewsControllerV1 {
                     newsId,
                     newsUpdateRequest.title(),
                     newsUpdateRequest.description(),
-                    newsUpdateRequest.tags()
+                    newsUpdateRequest.tags(),
+                    newsUpdateRequest.keys()
             );
             try {
                 return ResponseEntity.ok(newsResponseMapper.toResponse(news));
@@ -118,7 +119,8 @@ public class AdminNewsControllerV1 {
         NewsModel news = newsService.createNews(
                 newsUpdateRequest.title(),
                 newsUpdateRequest.description(),
-                newsUpdateRequest.tags()
+                newsUpdateRequest.tags(),
+                newsUpdateRequest.keys()
         );
         try {
             return ResponseEntity.ok(newsResponseMapper.toResponse(news));

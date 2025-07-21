@@ -53,7 +53,8 @@ public class NewsService {
             UUID newsId,
             String title,
             String description,
-            List<ThemeTags> tags
+            List<ThemeTags> tags,
+            List<String> keys
     ) {
         Optional<NewsModel> newsOpt = loadNewsPort.findById(newsId);
         if (newsOpt.isEmpty()) {
@@ -63,6 +64,7 @@ public class NewsService {
         news.setTitle(title);
         news.setDescription(description);
         news.setTags(new HashSet<>(tags));
+        news.setKeys(new ArrayList<>(keys));
         return saveNewsPort.save(news);
     }
 
@@ -70,13 +72,15 @@ public class NewsService {
     public NewsModel createNews(
             String title,
             String description,
-            List<ThemeTags> tags
+            List<ThemeTags> tags,
+            List<String> keys
     ) {
         NewsModel newsModel = new NewsModel();
         newsModel.setTitle(title);
         newsModel.setDescription(description);
         newsModel.setTags(new HashSet<>(tags));
         newsModel.setCreatedAt(LocalDateTime.now());
+        newsModel.setKeys(keys);
         return saveNewsPort.save(newsModel);
     }
 }

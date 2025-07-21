@@ -8,5 +8,6 @@ import java.util.List;
 public record NewsUpdateRequest(
         String title,
         String description,
-        List<ThemeTags> tags
+        List<ThemeTags> tags,
+        List<String> keys
 ) {}

@@ -92,6 +92,7 @@ public class EventService {
             List<ContentFormat> formats,
             List<ContentTime> times,
             List<ParticipationFormat> participationFormats,
+            List<String> keys,
             LocalDateTime date,
             int availablePlaces
     ) {
@@ -106,6 +107,7 @@ public class EventService {
         eventModel.setFormats(new HashSet<>(formats));
         eventModel.setTimes(new HashSet<>(times));
         eventModel.setParticipationFormats(new HashSet<>(participationFormats));
+        eventModel.setKeys(keys);
         eventModel.setDate(date);
         eventModel.setAvailable_places(availablePlaces);
         return saveEventPort.save(eventModel);
@@ -133,6 +135,7 @@ public class EventService {
             List<ContentFormat> formats,
             List<ContentTime> times,
             List<ParticipationFormat> participationFormats,
+            List<String> keys,
             LocalDateTime date,
             int availablePlaces
     ) {
@@ -143,6 +146,7 @@ public class EventService {
         eventModel.setFormats(new HashSet<>(formats));
         eventModel.setTimes(new HashSet<>(times));
         eventModel.setParticipationFormats(new HashSet<>(participationFormats));
+        eventModel.setKeys(keys);
         eventModel.setDate(date);
         eventModel.setAvailable_places(availablePlaces);
         return saveEventPort.save(eventModel);

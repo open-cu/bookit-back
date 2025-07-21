@@ -168,6 +168,7 @@ public class EventControllerV1 {
                     updateEventRequest.formats(),
                     updateEventRequest.times(),
                     updateEventRequest.participationFormats(),
+                    updateEventRequest.keys(),
                     updateEventRequest.date(),
                     updateEventRequest.available_places()
             );
@@ -195,6 +196,7 @@ public class EventControllerV1 {
                 updateEventRequest.formats(),
                 updateEventRequest.times(),
                 updateEventRequest.participationFormats(),
+                updateEventRequest.keys(),
                 updateEventRequest.date(),
                 updateEventRequest.available_places()
         );
