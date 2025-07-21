@@ -46,8 +46,8 @@ public class TicketControllerV1 {
     @GetMapping
     public ResponseEntity<Page<TicketResponse>> getAllTickets(
             @RequestParam(required = false)TicketType type,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "${pagination.default-page}") int page,
+            @RequestParam(defaultValue = "${pagination.default-size}") int size
             ) {
         Sort.Direction direction = Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "type"));

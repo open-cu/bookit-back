@@ -31,8 +31,8 @@ public class ReviewsControllerV1 {
     public ResponseEntity<Page<ReviewsResponse>> getReviews(
             @RequestParam(required = false) UUID userId,
             @RequestParam(required = false) byte rating,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "${pagination.default-page}") int page,
+            @RequestParam(defaultValue = "${pagination.default-size}") int size
     ) {
         Sort.Direction direction = Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, size,

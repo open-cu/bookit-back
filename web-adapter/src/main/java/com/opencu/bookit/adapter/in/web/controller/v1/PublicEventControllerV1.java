@@ -36,8 +36,8 @@ public class PublicEventControllerV1 {
             @RequestParam(required = false) Set<ContentTime> times,
             @RequestParam(required = false) Set<ParticipationFormat> participationFormats,
             @RequestParam(required = false) String search,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "${pagination.default-page}") int page,
+            @RequestParam(defaultValue = "${pagination.default-size}") int size,
             @RequestParam(defaultValue = "date,asc") String sort
                                                                  ) {
         String[] sortParams = sort.split(",");

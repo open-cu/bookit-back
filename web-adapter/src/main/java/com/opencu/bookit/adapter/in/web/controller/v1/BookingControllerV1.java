@@ -103,8 +103,8 @@ public class BookingControllerV1 {
     @GetMapping
     public ResponseEntity<List<BookingResponse>> getBookings(
             @RequestParam(defaultValue = "current") String timeline,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "${pagination.default-page}") int page,
+            @RequestParam(defaultValue = "${pagination.default-size}") int size
                                                             ) {
         UserDetailsImpl currentUser = getCurrentUser();
         List<BookingModel> bookings;

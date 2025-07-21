@@ -38,8 +38,8 @@ public class AdminNewsControllerV1 {
     public ResponseEntity<Page<NewsResponse>> getAllPublicNews(
             @RequestParam(required = false) Set<ThemeTags> tags,
             @RequestParam(required = false) String search,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "${pagination.default-page}") int page,
+            @RequestParam(defaultValue = "${pagination.default-size}") int size,
             @RequestParam(defaultValue = "createdAt,desc") String sort
     ) {
         String[] sortParams = sort.split(",", 2);

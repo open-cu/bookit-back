@@ -88,8 +88,8 @@ public class UserControllerV1 {
     public ResponseEntity<Page<MeResponse>> getUsers(
             @RequestParam(required = false) Set<String> role,
             @RequestParam(required = false) String search,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "${pagination.default-page}") int page,
+            @RequestParam(defaultValue = "${pagination.default-size}") int size
     ) {
         Sort.Direction direction = Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "firstName"));
