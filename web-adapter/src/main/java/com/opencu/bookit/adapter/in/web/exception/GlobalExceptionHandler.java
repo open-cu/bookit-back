@@ -3,6 +3,7 @@ package com.opencu.bookit.adapter.in.web.exception;
 import io.swagger.v3.oas.annotations.Hidden;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,10 +21,12 @@ import java.util.Map;
 @Hidden
 public class GlobalExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    @Value("${booking.zone-id}")
+    private ZoneId zoneId;
 
     private ApiError buildError(HttpStatus status, String message, String path, Map<String, Object> details) {
         return new ApiError(
-                LocalDateTime.now(),
+                LocalDateTime.now(zoneId),
                 status.value(),
                 status.getReasonPhrase(),
                 message,

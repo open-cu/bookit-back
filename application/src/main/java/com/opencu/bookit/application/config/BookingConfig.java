@@ -5,6 +5,8 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.ZoneId;
+
 @Getter
 @Setter
 @Configuration
@@ -14,4 +16,5 @@ public class BookingConfig {
     private long startWork;
     private long endWork;
     private int hallMaxCapacity;
+    private ZoneId zoneId;
 }

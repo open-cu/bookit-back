@@ -16,10 +16,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -33,6 +35,8 @@ public class BookingPersistenceAdapter implements
     private final UserRepository userRepository;
     private final AreaRepository areaRepository;
     private final BookingMapper bookingMapper;
+    @Value("${booking.zone-id}")
+    private ZoneId zoneId;
 
     @Override
     public Optional<BookingModel> findById(UUID bookingId) {
@@ -41,7 +45,7 @@ public class BookingPersistenceAdapter implements
 
     @Override
     public List<BookingModel> loadBookingsByUser(UUID userId, TimeTag timeTag) {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(zoneId);
         List<BookingEntity> bookingEntities = switch (timeTag) {
             case CURRENT -> bookingRepository.findCurrentBookingsByUser(userId, now);
             case FUTURE -> bookingRepository.findFutureBookingsByUser(userId, now);

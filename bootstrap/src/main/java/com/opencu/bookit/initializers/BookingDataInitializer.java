@@ -10,15 +10,13 @@ import com.opencu.bookit.application.config.BookingConfig;
 import com.opencu.bookit.application.service.booking.BookingService;
 import com.opencu.bookit.domain.model.booking.BookingStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.LocalDate;
-import java.time.Month;
+import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
@@ -29,19 +27,17 @@ public class BookingDataInitializer implements ApplicationRunner {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final AreaRepository areaRepository;
-    private final BookingConfig bookingConfig;
-    private final BookingService bookingService;
+
+    @Value("${booking.zone-id}")
+    private ZoneId zoneId;
 
     @Autowired
     public BookingDataInitializer(BookingRepository bookingRepository,
                                   UserRepository userRepository,
-                                  AreaRepository areaRepository, BookingConfig bookingConfig,
-                                  BookingService bookingService) {
+                                  AreaRepository areaRepository) {
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
         this.areaRepository = areaRepository;
-        this.bookingConfig = bookingConfig;
-        this.bookingService = bookingService;
     }
 
     @Override
@@ -81,8 +77,8 @@ public class BookingDataInitializer implements ApplicationRunner {
         BookingEntity booking = new BookingEntity();
         booking.setUserEntity(user);
         booking.setAreaEntity(area);
-        booking.setStartTime(LocalDateTime.now().truncatedTo(ChronoUnit.HOURS).minusHours(1));
-        booking.setEndTime(LocalDateTime.now().truncatedTo(ChronoUnit.HOURS).plusHours(1));
+        booking.setStartTime(LocalDateTime.now(zoneId).truncatedTo(ChronoUnit.HOURS).minusHours(1));
+        booking.setEndTime(LocalDateTime.now(zoneId).truncatedTo(ChronoUnit.HOURS).plusHours(1));
         booking.setQuantity(1);
         booking.setStatus(BookingStatus.CONFIRMED);
         booking.setCreatedAt(LocalDateTime.of(2025, 4, 3, 22, 39, 25, 746173300));

@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -84,7 +85,7 @@ public class BookingService {
 
     private List<LocalDate> findAvailableDatesByArea(Optional<UUID> areaId) {
         List<LocalDate> availableDates = new ArrayList<>();
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(bookingConfig.getZoneId());
         List<BookingModel> relevantBookingModels = loadBookingPort.findByAreaId(areaId.get()); //todo проверить что area существует
 
         for (int i = 0; i <= bookingConfig.getMaxDaysForward(); ++i) {
@@ -111,7 +112,7 @@ public class BookingService {
 
     private List<LocalDate> findHallAvailableDates() {
         List<LocalDate> availableDates = new ArrayList<>();
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(bookingConfig.getZoneId());
         for (int i = 0; i <= 4; ++i) {
             LocalDate date = today.plusDays(i);
             if (loadSchedulePort.findByDate(date).isPresent()) {
@@ -159,7 +160,7 @@ public class BookingService {
             if (isAreaAvailable(currHour, bookingModels, areaModel)) {
                 Pair<LocalDateTime, LocalDateTime> pair = Pair.of(currHour, nextHour);
                 List<Pair<LocalDateTime, LocalDateTime>> addList = pair.getFirst().getHour() < 12 ? availableTime.get(0) : pair.getFirst().getHour() < 18 ? availableTime.get(1) : availableTime.get(2);
-                LocalDateTime now = LocalDateTime.now();
+                LocalDateTime now = LocalDateTime.now(bookingConfig.getZoneId());
                 if (!addList.contains(pair) && (now.getHour() <= pair.getFirst().getHour() || now.getDayOfYear() < pair.getFirst().getDayOfYear())) {
                     addList.addLast(pair);
                 }
@@ -173,7 +174,7 @@ public class BookingService {
         availableTime.addLast(new ArrayList<>());
         availableTime.addLast(new ArrayList<>());
 
-        if (date.isBefore(LocalDate.now())) {
+        if (date.isBefore(LocalDate.now(bookingConfig.getZoneId()))) {
             return availableTime;
         }
 
@@ -238,7 +239,7 @@ public class BookingService {
             throw new IllegalStateException("Booking already cancelled");
         }
 
-        if (bookingModel.getStartTime().isBefore(LocalDateTime.now())) {
+        if (bookingModel.getStartTime().isBefore(LocalDateTime.now(bookingConfig.getZoneId()))) {
             bookingModel.setStatus(BookingStatus.COMPLETED);
         }
         else {
@@ -295,7 +296,7 @@ public class BookingService {
 
             bookingModel.setQuantity(createBookingCommand.quantity());
             bookingModel.setStatus(BookingStatus.CONFIRMED);
-            bookingModel.setCreatedAt(LocalDateTime.now());
+            bookingModel.setCreatedAt(LocalDateTime.now(bookingConfig.getZoneId()));
 
             result.add(bookingModel);
         }
@@ -428,7 +429,7 @@ public class BookingService {
     }
 
     public Set<Pair<LocalDateTime, LocalDateTime>> findClosestAvailableTimes(UUID areaId) {
-        LocalDate currDate = LocalDate.now();
+        LocalDate currDate = LocalDate.now(bookingConfig.getZoneId());
         List<List<Pair<LocalDateTime, LocalDateTime>>> times = List.of();
         while (times.isEmpty()) {
             times = findAvailableTime(currDate, Optional.ofNullable(areaId), Optional.empty());

@@ -5,6 +5,7 @@ import com.opencu.bookit.application.port.out.schedule.SaveSchedulePort;
 import com.opencu.bookit.domain.model.schedule.DayStatus;
 import com.opencu.bookit.domain.model.schedule.ScheduleModel;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.ZoneId;
 
 @Component
 @Order(4)
@@ -22,6 +24,9 @@ public class ScheduleInitializer implements ApplicationRunner {
     private final LoadSchedulePort loadSchedulePort;
     private final SaveSchedulePort saveSchedulePort;
 
+    @Value("${booking.zone-id}")
+    private ZoneId zoneId;
+
     @Override
     public void run(ApplicationArguments args) {
         initializeScheduleForCurrentMonth();
@@ -29,7 +34,7 @@ public class ScheduleInitializer implements ApplicationRunner {
 
     @Scheduled(cron = "0 0 0 * * *")
     public void updateScheduleForNextDay() {
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(zoneId);
         LocalDate futureDate = today.plusDays(30);
 
         addDayIfWeekend(futureDate);
@@ -49,7 +54,7 @@ public class ScheduleInitializer implements ApplicationRunner {
     }
 
     private void initializeScheduleForCurrentMonth() {
-        addWeekends(LocalDate.now());
+        addWeekends(LocalDate.now(zoneId));
     }
 
     private void addWeekends(LocalDate date) {

@@ -11,11 +11,17 @@ import com.opencu.bookit.domain.model.ticket.TicketType;
 import com.opencu.bookit.domain.model.user.UserModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @Service
 public class TicketService {
@@ -25,8 +31,15 @@ public class TicketService {
     private final UserService userService;
     private final AreaService areaService;
 
-    public TicketService(SaveTicketPort saveTicketPort, LoadTicketPort loadTicketPort, DeleteTicketPort deleteTicketPort, UserService userService,
-                         AreaService areaService) {
+    @Value("${booking.zone-id}")
+    private ZoneId zoneId;
+
+    public TicketService(
+            SaveTicketPort saveTicketPort, LoadTicketPort loadTicketPort,
+            DeleteTicketPort deleteTicketPort,
+            UserService userService,
+            AreaService areaService
+    ) {
         this.saveTicketPort = saveTicketPort;
         this.loadTicketPort = loadTicketPort;
         this.deleteTicketPort = deleteTicketPort;
@@ -47,7 +60,7 @@ public class TicketService {
         ticketModel.setAreaModel(areaModel);
         ticketModel.setType(type);
         ticketModel.setDescription(description);
-        ticketModel.setCreatedAt(LocalDateTime.now());
+        ticketModel.setCreatedAt(LocalDateTime.now(zoneId));
 
         return saveTicketPort.save(ticketModel);
     }
