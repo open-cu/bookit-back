@@ -79,20 +79,18 @@ public class BookingPersistenceAdapter implements
     public Page<BookingModel> findWithFilters(Pageable pageable, UUID areaId, UUID userId) {
         Specification<BookingEntity> spec = Specification.where(null);
 
-        if (areaId != null) {
+        if (areaId != null && userId != null) {
             Optional<AreaEntity> areaOpt = areaRepository.findById(areaId);
-            if (areaOpt.isPresent()) {
-                AreaEntity area = areaOpt.get();
-                spec = spec.and((root, query, cb) ->
-                    cb.equal(root.get("areaEntity"), area));
-            }
-        }
-        if (userId != null) {
             Optional<UserEntity> userOpt = userRepository.findById(userId);
-            if (userOpt.isPresent()) {
+            if (areaOpt.isPresent() && userOpt.isPresent()) {
+                AreaEntity area = areaOpt.get();
                 UserEntity user = userOpt.get();
                 spec = spec.and((root, query, cb) ->
-                        cb.equal(root.get("userEntity"), user));
+                    cb.and(
+                            cb.equal(root.get("areaEntity"), area),
+                            cb.equal(root.get("userEntity"), user)
+                    )
+                );
             }
         }
         return bookingRepository.findAll(spec, pageable).map(bookingMapper::toModel);
