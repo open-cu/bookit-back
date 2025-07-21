@@ -19,7 +19,7 @@ public record EventResponse(
         Set<ContentFormat> formats,
         Set<ContentTime> times,
         Set<ParticipationFormat> participationFormats,
-        List<ImageModel> rawImages,
+        List<ImageModel> images,
         LocalDateTime date,
         //для сохранения старой версии API
         int availablePlaces

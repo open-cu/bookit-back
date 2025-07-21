@@ -23,6 +23,7 @@ public class AreaModel {
     private AreaFeature features;
     private int capacity;
     private AreaStatus status;
+    private List<String> keys;
     private List<BookingModel> bookingModels = new ArrayList<>();
     private List<TicketModel> ticketModels = new ArrayList<>();
 }

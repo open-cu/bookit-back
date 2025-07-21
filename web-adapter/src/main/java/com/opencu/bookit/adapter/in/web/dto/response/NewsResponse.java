@@ -13,6 +13,6 @@ public record NewsResponse(
     String title,
     String description,
     Set<ThemeTags> tags,
-    List<ImageModel> image,
+    List<ImageModel> images,
     LocalDateTime createdAt
 ) {}

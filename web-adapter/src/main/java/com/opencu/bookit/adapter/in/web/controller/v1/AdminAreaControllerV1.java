@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
@@ -45,7 +46,13 @@ public class AdminAreaControllerV1 {
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "type"));
         Page<AreaResponse> areasPage = areaService
                 .findWithFilters(type, pageable)
-                .map(areaMapper::toAreaResponse);
+                .map(area -> {
+                    try {
+                        return areaMapper.toAreaResponse(area);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
         return ResponseEntity.ok(areasPage);
     }
 
@@ -57,7 +64,13 @@ public class AdminAreaControllerV1 {
         Optional<AreaModel> area = areaService.findById(areaId);
 
         AreaResponse areaResponse = area
-                .map(areaMapper::toAreaResponse)
+                .map(area1 -> {
+                    try {
+                        return areaMapper.toAreaResponse(area1);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
                 .orElseThrow(() -> new ResourceNotFoundException("Area not found with ID: " + areaId));
         return ResponseEntity.ok(areaResponse);
     }
@@ -74,12 +87,17 @@ public class AdminAreaControllerV1 {
                 createAreaRequest.description(),
                 createAreaRequest.type(),
                 createAreaRequest.features(),
+                createAreaRequest.keys(),
                 createAreaRequest.capacity(),
                 createAreaRequest.status()
         );
-        return ResponseEntity.ok(
-                areaMapper.toAreaResponse(model)
-        );
+        try {
+            return ResponseEntity.ok(
+                    areaMapper.toAreaResponse(model)
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @PreAuthorize("@securityService.isDev() or " +
@@ -102,14 +120,20 @@ public class AdminAreaControllerV1 {
             @RequestBody UpdateAreaRequest updateAreaRequest
     ) {
         try {
-            AreaResponse response = areaMapper.toAreaResponse(
-                    areaService.updateById(
-                            areaId,
-                            updateAreaRequest.name(),
-                            updateAreaRequest.type(),
-                            updateAreaRequest.capacity()
-                    )
-            );
+            AreaResponse response = null;
+            try {
+                response = areaMapper.toAreaResponse(
+                        areaService.updateById(
+                                areaId,
+                                updateAreaRequest.name(),
+                                updateAreaRequest.type(),
+                                updateAreaRequest.keys(),
+                                updateAreaRequest.capacity()
+                        )
+                );
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             return ResponseEntity.ok(response);
         }
         catch (NoSuchElementException e) {

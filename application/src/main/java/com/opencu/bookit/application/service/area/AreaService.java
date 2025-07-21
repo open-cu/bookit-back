@@ -62,6 +62,7 @@ public class AreaService {
             String description,
             AreaType type,
             List<AreaFeature> features,
+            List<String> keys,
             int capacity,
             AreaStatus status
     ) {
@@ -71,6 +72,7 @@ public class AreaService {
         model.setType(type);
         model.setFeatures(features.getFirst());
         model.setCapacity(capacity);
+        model.setKeys(keys);
         model.setStatus(status);
 
         return saveAreaPort.save(model);
@@ -86,6 +88,7 @@ public class AreaService {
             UUID areaId,
             String name,
             AreaType type,
+            List<String> keys,
             int capacity
     ) {
         Optional<AreaModel> areaOpt = loadAreaPort.findById(areaId);
@@ -95,6 +98,7 @@ public class AreaService {
         AreaModel model = areaOpt.get();
         model.setName(name);
         model.setType(type);
+        model.setKeys(keys);
         model.setCapacity(capacity);
         return saveAreaPort.save(model);
     }

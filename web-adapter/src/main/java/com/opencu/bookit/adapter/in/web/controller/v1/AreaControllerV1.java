@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -39,7 +40,13 @@ public class AreaControllerV1 {
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "type"));
         Page<AreaResponse> areasPage = areaService
                 .findWithFilters(type, pageable)
-                .map(areaMapper::toAreaResponse);
+                .map(area -> {
+                    try {
+                        return areaMapper.toAreaResponse(area);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
         return ResponseEntity.ok(areasPage);
     }
 
@@ -49,7 +56,13 @@ public class AreaControllerV1 {
         Optional<AreaModel> area = areaService.findById(areaId);
 
         AreaResponse areaResponse = area
-                .map(areaMapper::toAreaResponse)
+                .map(area1 -> {
+                    try {
+                        return areaMapper.toAreaResponse(area1);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
                 .orElseThrow(() -> new ResourceNotFoundException("Area not found with ID: " + areaId));
         return ResponseEntity.ok(areaResponse);
     }

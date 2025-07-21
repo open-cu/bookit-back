@@ -41,6 +41,9 @@ public class AreaEntity {
     @Column(nullable = false)
     private AreaStatus status;
 
+    @Column(nullable = false)
+    private List<String> keys;
+
     @OneToMany(mappedBy = "areaEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BookingEntity> bookingEntities = new ArrayList<>();
 
