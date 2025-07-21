@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -36,6 +37,9 @@ public class NewsEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "tag")
     private Set<ThemeTags> tags = new HashSet<>();
+
+    @Column(nullable = false)
+    private List<String> keys;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;

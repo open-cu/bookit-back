@@ -10,6 +10,7 @@ import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Set;
 
 @RestController
@@ -38,6 +39,12 @@ public class NewsControllerV1 {
         String sortBy = sortParams[0];
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         Page<NewsModel> newsPage = newsService.findWithFilters(tags, search, pageable);
-        return ResponseEntity.ok(newsPage.map(newsResponseMapper::toResponse));
+        return ResponseEntity.ok(newsPage.map(model -> {
+            try {
+                return newsResponseMapper.toResponse(model);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }));
     }
 }

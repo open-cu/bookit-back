@@ -1,14 +1,42 @@
 package com.opencu.bookit.adapter.in.web.mapper;
 
+import com.opencu.bookit.adapter.in.web.dto.response.EventResponse;
 import com.opencu.bookit.adapter.in.web.dto.response.NewsResponse;
+import com.opencu.bookit.application.service.photo.PhotoService;
+import com.opencu.bookit.domain.model.event.EventModel;
 import com.opencu.bookit.domain.model.news.NewsModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
+import org.springframework.stereotype.Component;
 
-@Mapper(
-        componentModel = "spring",
-        unmappedTargetPolicy = ReportingPolicy.IGNORE
-)
-public interface NewsResponseMapper {
-    NewsResponse toResponse(NewsModel model);
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+@Component
+public class NewsResponseMapper {
+    private final PhotoService service;
+
+    public NewsResponseMapper(PhotoService service) {
+        this.service = service;
+    }
+
+    public NewsResponse toResponse(NewsModel model) throws IOException {
+        return new NewsResponse(
+            model.getId(),
+            model.getTitle(),
+            model.getDescription(),
+            model.getTags(),
+            service.getImagesFromKeys(model.getKeys()),
+            model.getCreatedAt()
+        );
+    }
+
+    public List<NewsResponse> toNewsResponseList(List<NewsModel> newsModels) throws IOException {
+        List<NewsResponse> newsResponseList = new ArrayList<>();
+        for (var news:  newsModels) {
+            newsResponseList.add(toResponse(news));
+        }
+        return newsResponseList;
+    }
 }

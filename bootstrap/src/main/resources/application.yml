@@ -44,3 +44,10 @@ booking:
 pagination:
   default-page: 0
   default-size: 10
+
+yandex-cloud:
+  key-id: ${KEY_ID:null}
+  secret-key: ${SECRET_KEY:null}
+  region: ${REGION:null}
+  s3-endpoint: ${S3_ENDPOINT:null}
+  bucket: ${BUCKET:null}

@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -34,7 +35,12 @@ public class EventController {
     @Operation(description = "Returns information in the list format about all events")
     @GetMapping()
     public ResponseEntity<List<EventResponse>> getAllEvents() {
-        List<EventResponse> event = eventResponseMapper.toEventResponseList(eventService.findAll());
+        List<EventResponse> event = null;
+        try {
+            event = eventResponseMapper.toEventResponseList(eventService.findAll());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return ResponseEntity.ok(event);
     }
 
@@ -42,7 +48,12 @@ public class EventController {
     @GetMapping("/by-tags")
     public ResponseEntity<List<EventResponse>> getAllEventsByTags(
             @RequestParam Set<ThemeTags> tags) {
-        List<EventResponse> event = eventResponseMapper.toEventResponseList(eventService.findByTags(tags));
+        List<EventResponse> event = null;
+        try {
+            event = eventResponseMapper.toEventResponseList(eventService.findByTags(tags));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return ResponseEntity.ok(event);
     }
 
@@ -72,14 +83,22 @@ public class EventController {
         }
 
         eventService.addUser(userId, event);
-        return ResponseEntity.ok(eventResponseMapper.toEventResponse(event));
+        try {
+            return ResponseEntity.ok(eventResponseMapper.toEventResponse(event));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Operation(description = "returns information about the created event")
     @PostMapping("/event")
     public ResponseEntity<EventResponse> createEvent(@RequestBody EventModel event) {
         EventModel savedEvent = eventService.saveEvent(event);
-        return ResponseEntity.status(HttpStatus.CREATED).body(eventResponseMapper.toEventResponse(savedEvent));
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(eventResponseMapper.toEventResponse(savedEvent));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Operation(description = "Deletes the user from the guest list for the event, returns a string about the success of the deletion")

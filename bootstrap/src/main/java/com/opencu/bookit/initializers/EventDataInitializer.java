@@ -25,6 +25,7 @@ public class EventDataInitializer {
                 pitchNight.setDescription("An opportunity for startups to present their ideas to investors.");
                 pitchNight.setTags(Set.of(ThemeTags.IT, ThemeTags.TECHNOLOGY));
                 pitchNight.setDate(LocalDateTime.of(2025, 7, 10, 0, 0, 0));
+                pitchNight.setKeys(List.of("arch.png"));
                 pitchNight.setAvailable_places(30);
 
                 EventEntity aiWorkshop = new EventEntity();
@@ -32,6 +33,7 @@ public class EventDataInitializer {
                 aiWorkshop.setDescription("Hands-on workshop on building AI-powered applications.");
                 aiWorkshop.setTags(Set.of(ThemeTags.IT, ThemeTags.SCIENCE));
                 aiWorkshop.setDate(LocalDateTime.of(2025, 8, 20, 0, 0, 0));
+                aiWorkshop.setKeys(List.of("arch.png"));
                 aiWorkshop.setAvailable_places(0);
 
                 EventEntity aiWorkshop2 = new EventEntity();
@@ -39,6 +41,7 @@ public class EventDataInitializer {
                 aiWorkshop2.setDescription("An opportunity for startups to present their ideas to investors.");
                 aiWorkshop2.setTags(Set.of(ThemeTags.IT, ThemeTags.TECHNOLOGY));
                 aiWorkshop2.setDate(LocalDateTime.of(2025, 9, 10, 0, 0, 0));
+                aiWorkshop2.setKeys(List.of("arch.png"));
                 aiWorkshop2.setAvailable_places(30);
 
                 eventRepository.saveAll(List.of(pitchNight, aiWorkshop, aiWorkshop2));

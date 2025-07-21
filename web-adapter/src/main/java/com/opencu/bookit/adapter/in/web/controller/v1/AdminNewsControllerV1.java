@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
@@ -48,7 +49,13 @@ public class AdminNewsControllerV1 {
         String sortBy = sortParams[0];
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         Page<NewsModel> newsPage = newsService.findWithFilters(tags, search, pageable);
-        return ResponseEntity.ok(newsPage.map(newsResponseMapper::toResponse));
+        return ResponseEntity.ok(newsPage.map(model -> {
+            try {
+                return newsResponseMapper.toResponse(model);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }));
     }
 
     @PreAuthorize("@securityService.isDev() or " +
@@ -58,7 +65,11 @@ public class AdminNewsControllerV1 {
             @PathVariable UUID newsId
     ) {
         try {
-            return ResponseEntity.ok(newsResponseMapper.toResponse(newsService.findById(newsId)));
+            try {
+                return ResponseEntity.ok(newsResponseMapper.toResponse(newsService.findById(newsId)));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         }
@@ -88,7 +99,11 @@ public class AdminNewsControllerV1 {
                     newsUpdateRequest.description(),
                     newsUpdateRequest.tags()
             );
-            return ResponseEntity.ok(newsResponseMapper.toResponse(news));
+            try {
+                return ResponseEntity.ok(newsResponseMapper.toResponse(news));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         }
@@ -105,6 +120,10 @@ public class AdminNewsControllerV1 {
                 newsUpdateRequest.description(),
                 newsUpdateRequest.tags()
         );
-        return ResponseEntity.ok(newsResponseMapper.toResponse(news));
+        try {
+            return ResponseEntity.ok(newsResponseMapper.toResponse(news));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

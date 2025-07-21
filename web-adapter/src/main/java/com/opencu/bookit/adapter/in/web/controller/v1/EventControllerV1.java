@@ -26,6 +26,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
@@ -69,11 +70,17 @@ public class EventControllerV1 {
         if ((("registered".equalsIgnoreCase(status) || "available".equalsIgnoreCase(status)) && currentUserId == null)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+            Page<EventResponse> eventsPage = eventService
+                    .findWithFilters(tags, formats, times, participationFormats, search, status, pageable, currentUserId)
+                    .map(event -> {
+                        try {
+                            return eventResponseMapper.toEventResponse(event);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+            return ResponseEntity.ok(eventsPage);
 
-        Page<EventResponse> eventsPage = eventService
-                .findWithFilters(tags, formats, times, participationFormats, search, status, pageable, currentUserId)
-                .map(eventResponseMapper::toEventResponse);
-        return ResponseEntity.ok(eventsPage);
     }
 
     @Operation(summary = "Get registration status for current user and event")
@@ -138,7 +145,11 @@ public class EventControllerV1 {
         if (eventOpt.isEmpty()) {
             throw new NoSuchElementException("No such event found");
         }
-        return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventOpt.get()));
+        try {
+            return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventOpt.get()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @PreAuthorize("@securityService.isDev() or " +
@@ -160,7 +171,11 @@ public class EventControllerV1 {
                     updateEventRequest.date(),
                     updateEventRequest.available_places()
             );
-            return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventModel));
+            try {
+                return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventModel));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         }
@@ -183,7 +198,11 @@ public class EventControllerV1 {
                 updateEventRequest.date(),
                 updateEventRequest.available_places()
         );
-        return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventModel));
+        try {
+            return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventModel));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @PreAuthorize("@securityService.isDev() or " +

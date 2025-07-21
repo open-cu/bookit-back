@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -17,5 +18,6 @@ public class NewsModel {
     private String title;
     private String description;
     private Set<ThemeTags> tags = new HashSet<>();
+    private List<String> keys;
     private LocalDateTime createdAt;
 }

@@ -4,8 +4,10 @@ import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
 import com.opencu.bookit.domain.model.contentcategory.ContentTime;
 import com.opencu.bookit.domain.model.contentcategory.ParticipationFormat;
 import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
+import com.opencu.bookit.domain.model.image.ImageModel;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -17,6 +19,7 @@ public record EventResponse(
         Set<ContentFormat> formats,
         Set<ContentTime> times,
         Set<ParticipationFormat> participationFormats,
+        List<ImageModel> rawImages,
         LocalDateTime date,
         //для сохранения старой версии API
         int availablePlaces

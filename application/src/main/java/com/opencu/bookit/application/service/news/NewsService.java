@@ -24,7 +24,6 @@ public class NewsService {
         this.saveNewsPort = saveNewsPort;
         this.deleteNewsPort = deleteNewsPort;
     }
-
     public List<NewsModel> findAll() {
         return loadNewsPort.findAll();
     }
