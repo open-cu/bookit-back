@@ -23,6 +23,8 @@
 		<module>persistence-adapter</module>
 		<module>security-adapter</module>
 		<module>web-adapter</module>
+		<module>email-notification-adapter</module>
+		<module>notification-queue-adapter</module>
 	</modules>
 
 	<properties>
@@ -66,6 +68,16 @@
 			<dependency>
 				<groupId>com.opencu.bookit</groupId>
 				<artifactId>web-adapter</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.opencu.bookit</groupId>
+				<artifactId>email-notification-adapter</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.opencu.bookit</groupId>
+				<artifactId>notification-queue-adapter</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 

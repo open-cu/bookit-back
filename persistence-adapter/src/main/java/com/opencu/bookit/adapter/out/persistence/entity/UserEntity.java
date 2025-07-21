@@ -29,6 +29,9 @@ public class UserEntity {
 
     private String photoUrl;
 
+    @Column(name = "subscribed_to_notifications", nullable = false, columnDefinition = "boolean default true")
+    private boolean subscribedToNotifications;
+
     @Column(unique = true)
     private String email;
 

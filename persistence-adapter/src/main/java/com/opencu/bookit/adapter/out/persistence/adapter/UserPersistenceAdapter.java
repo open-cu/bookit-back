@@ -23,7 +23,7 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 public class UserPersistenceAdapter implements
-        LoadUserPort, SaveUserPort, DeleteUserPort {
+        LoadUserPort, SaveUserPort, DeleteUserPort, UserPreferencesPort {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -102,6 +102,21 @@ public class UserPersistenceAdapter implements
     @Override
     public void deleteById(UUID userId) {
         userRepository.deleteById(userId);
+    }
+
+    @Override
+    public boolean isSubscribedToNotifications(UUID userId) {
+        return userRepository.findById(userId)
+                .map(UserEntity::isSubscribedToNotifications)
+                .orElse(false);
+    }
+
+    @Override
+    public void setNotificationPreference(UUID userId, boolean subscribed) {
+        userRepository.findById(userId).ifPresent(user -> {
+            user.setSubscribedToNotifications(subscribed);
+            userRepository.save(user);
+        });
     }
 }
 
