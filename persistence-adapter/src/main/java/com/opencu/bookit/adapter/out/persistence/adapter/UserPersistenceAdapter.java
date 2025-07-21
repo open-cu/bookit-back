@@ -1,23 +1,33 @@
 package com.opencu.bookit.adapter.out.persistence.adapter;
 
+import com.opencu.bookit.adapter.out.persistence.entity.RoleEntity;
 import com.opencu.bookit.adapter.out.persistence.entity.UserEntity;
 import com.opencu.bookit.adapter.out.persistence.mapper.UserMapper;
+import com.opencu.bookit.adapter.out.persistence.repository.RoleRepository;
 import com.opencu.bookit.adapter.out.persistence.repository.UserRepository;
+import com.opencu.bookit.application.port.out.user.DeleteUserPort;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.application.port.out.user.SaveUserPort;
 import com.opencu.bookit.application.port.out.user.UserPreferencesPort;
 import com.opencu.bookit.domain.model.user.UserModel;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort, UserPreferencesPort {
+public class UserPersistenceAdapter implements
+        LoadUserPort, SaveUserPort, DeleteUserPort, UserPreferencesPort {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final UserMapper userMapper;
 
     @Override
@@ -57,10 +67,42 @@ public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort, UserP
     }
 
     @Override
+    public Page<UserModel> findWithFilters(Set<String> role, String search, Pageable pageable) {
+        Specification<UserEntity> spec = Specification.where(null);
+
+        Set<RoleEntity> roles = new HashSet<>();
+        for (var roleStr: role) {
+            RoleEntity.RoleName name = RoleEntity.RoleName.fromString(roleStr);
+            roles.add(roleRepository.findByName(name).get());
+        }
+
+        if (search != null && !search.isBlank()) {
+            spec = spec.and((root, query, cb) ->
+                cb.or(
+                    cb.like(cb.lower(root.get("username")), "%" + search.toLowerCase() + "%"),
+                    cb.like(cb.lower(root.get("firstName")), "%" + search.toLowerCase() + "%"),
+                    cb.like(cb.lower(root.get("lastName")), "%" + search.toLowerCase() + "%")
+                )
+            );
+        }
+        if (!roles.isEmpty()) {
+            spec = spec.and((root, query, cb) ->
+                    root.join("roleEntities").in(roles));
+        }
+        return userRepository.findAll(spec, pageable)
+                .map(userMapper::toModel);
+    }
+
+    @Override
     public UserModel save(UserModel userModel) {
         var userEntity = userMapper.toEntity(userModel);
         var savedEntity = userRepository.save(userEntity);
         return userMapper.toModel(savedEntity);
+    }
+
+    @Override
+    public void deleteById(UUID userId) {
+        userRepository.deleteById(userId);
     }
 
     @Override

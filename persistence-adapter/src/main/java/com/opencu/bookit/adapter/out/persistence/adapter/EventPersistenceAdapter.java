@@ -5,6 +5,7 @@ import com.opencu.bookit.adapter.out.persistence.entity.UserEntity;
 import com.opencu.bookit.adapter.out.persistence.mapper.EventMapper;
 import com.opencu.bookit.adapter.out.persistence.repository.EventRepository;
 import com.opencu.bookit.adapter.out.persistence.repository.UserRepository;
+import com.opencu.bookit.application.port.out.event.DeleteEventPort;
 import com.opencu.bookit.application.port.out.event.LoadEventPort;
 import com.opencu.bookit.application.port.out.event.SaveEventPort;
 import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
@@ -25,7 +26,8 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class EventPersistenceAdapter implements LoadEventPort, SaveEventPort {
+public class EventPersistenceAdapter implements LoadEventPort,
+        SaveEventPort, DeleteEventPort {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final EventMapper eventMapper;
@@ -103,9 +105,21 @@ public class EventPersistenceAdapter implements LoadEventPort, SaveEventPort {
     }
 
     @Override
+    public Optional<EventModel> findByName(String name) {
+        return eventRepository.findByName(name)
+                .map(eventMapper::toModel);
+    }
+
+    @Override
     public EventModel save(EventModel eventModel) {
-        eventRepository.save(eventMapper.toEntity(eventModel));
-        return eventModel;
+        EventEntity entity = eventMapper.toEntity(eventModel);
+        EventEntity savedEntity = eventRepository.save(eventMapper.toEntity(eventModel));
+        return eventMapper.toModel(savedEntity);
+    }
+
+    @Override
+    public void delete(UUID eventId) {
+        eventRepository.delete(eventId);
     }
 }
 

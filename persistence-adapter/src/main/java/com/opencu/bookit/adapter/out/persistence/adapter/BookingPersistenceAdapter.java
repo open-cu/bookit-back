@@ -1,13 +1,21 @@
 package com.opencu.bookit.adapter.out.persistence.adapter;
 
+import com.opencu.bookit.adapter.out.persistence.entity.AreaEntity;
 import com.opencu.bookit.adapter.out.persistence.entity.BookingEntity;
+import com.opencu.bookit.adapter.out.persistence.entity.UserEntity;
 import com.opencu.bookit.adapter.out.persistence.mapper.BookingMapper;
+import com.opencu.bookit.adapter.out.persistence.repository.AreaRepository;
 import com.opencu.bookit.adapter.out.persistence.repository.BookingRepository;
+import com.opencu.bookit.adapter.out.persistence.repository.UserRepository;
+import com.opencu.bookit.application.port.out.booking.DeleteBookingPort;
 import com.opencu.bookit.application.port.out.booking.LoadBookingPort;
 import com.opencu.bookit.application.port.out.booking.SaveBookingPort;
 import com.opencu.bookit.domain.model.booking.BookingModel;
 import com.opencu.bookit.domain.model.booking.TimeTag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -21,8 +29,11 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class BookingPersistenceAdapter implements LoadBookingPort, SaveBookingPort {
+public class BookingPersistenceAdapter implements
+        LoadBookingPort, SaveBookingPort, DeleteBookingPort {
     private final BookingRepository bookingRepository;
+    private final UserRepository userRepository;
+    private final AreaRepository areaRepository;
     private final BookingMapper bookingMapper;
     @Value("${booking.zone-id}")
     private ZoneId zoneId;
@@ -69,6 +80,27 @@ public class BookingPersistenceAdapter implements LoadBookingPort, SaveBookingPo
     }
 
     @Override
+    public Page<BookingModel> findWithFilters(Pageable pageable, UUID areaId, UUID userId) {
+        Specification<BookingEntity> spec = Specification.where(null);
+
+        if (areaId != null && userId != null) {
+            Optional<AreaEntity> areaOpt = areaRepository.findById(areaId);
+            Optional<UserEntity> userOpt = userRepository.findById(userId);
+            if (areaOpt.isPresent() && userOpt.isPresent()) {
+                AreaEntity area = areaOpt.get();
+                UserEntity user = userOpt.get();
+                spec = spec.and((root, query, cb) ->
+                    cb.and(
+                            cb.equal(root.get("areaEntity"), area),
+                            cb.equal(root.get("userEntity"), user)
+                    )
+                );
+            }
+        }
+        return bookingRepository.findAll(spec, pageable).map(bookingMapper::toModel);
+    }
+
+    @Override
     public BookingModel save(BookingModel bookingModel) {
         BookingEntity entity = bookingMapper.toEntity(bookingModel);
         BookingEntity savedEntity = bookingRepository.save(entity);
@@ -79,5 +111,10 @@ public class BookingPersistenceAdapter implements LoadBookingPort, SaveBookingPo
     public List<BookingModel> saveAll(Set<BookingModel> bookingModels) {
         List<BookingEntity> entities = bookingMapper.toEntityList(bookingModels);
         return bookingMapper.toModelList(bookingRepository.saveAll(entities));
+    }
+
+    @Override
+    public void deleteById(UUID bookingId) {
+        bookingRepository.deleteById(bookingId);
     }
 }

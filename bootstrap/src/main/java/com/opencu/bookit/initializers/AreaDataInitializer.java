@@ -35,12 +35,14 @@ public class AreaDataInitializer implements ApplicationRunner {
             openSpace.setDescription("Large open area with shared desks and comfortable seating.");
             openSpace.setType(AreaType.WORKPLACE);
             openSpace.setCapacity(bookingConfig.getHallMaxCapacity());
+            openSpace.setKeys(List.of("arch.png"));
             openSpace.setStatus(AreaStatus.AVAILABLE);
 
             AreaEntity meetingRoom = new AreaEntity();
             meetingRoom.setName("Meeting Room Alpha");
             meetingRoom.setDescription("Private meeting room with a projector and conference table.");
             meetingRoom.setType(AreaType.MEETING_ROOM);
+            meetingRoom.setKeys(List.of("arch.png"));
             meetingRoom.setCapacity(10);
             meetingRoom.setStatus(AreaStatus.BOOKED);
 
@@ -48,6 +50,7 @@ public class AreaDataInitializer implements ApplicationRunner {
             quietZone.setName("Quiet Zone");
             quietZone.setDescription("Dedicated silent workspace for focused work.");
             quietZone.setType(AreaType.MEETING_ROOM);
+            quietZone.setKeys(List.of("arch.png"));
             quietZone.setCapacity(10);
             quietZone.setStatus(AreaStatus.AVAILABLE);
 

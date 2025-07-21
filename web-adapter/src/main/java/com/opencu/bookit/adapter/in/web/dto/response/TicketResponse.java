@@ -5,6 +5,7 @@ import com.opencu.bookit.domain.model.ticket.TicketType;
 import java.util.UUID;
 
 public record TicketResponse(
+        UUID id,
         UUID userId,
         UUID areaId,
         TicketType type,

@@ -3,6 +3,7 @@ package com.opencu.bookit.application.service.booking;
 import com.opencu.bookit.application.config.BookingConfig;
 import com.opencu.bookit.application.port.out.area.LoadAreaPort;
 import com.opencu.bookit.application.port.in.booking.CRUDBookingUseCase;
+import com.opencu.bookit.application.port.out.booking.DeleteBookingPort;
 import com.opencu.bookit.application.port.out.booking.LoadBookingPort;
 import com.opencu.bookit.application.port.out.booking.SaveBookingPort;
 import com.opencu.bookit.application.port.out.schedule.LoadSchedulePort;
@@ -19,6 +20,8 @@ import com.opencu.bookit.domain.model.booking.TimeTag;
 import com.opencu.bookit.domain.model.statistics.HallOccupancyModel;
 import com.opencu.bookit.domain.model.user.UserModel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +38,7 @@ public class BookingService {
     private final UserService userService;
     private final LoadBookingPort loadBookingPort;
     private final SaveBookingPort saveBookingPort;
+    private final DeleteBookingPort deleteBookingPort;
     private final LoadHallOccupancyPort loadHallOccupancyPort;
     private final SaveHallOccupancyPort saveHallOccupancyPort;
     private final LoadSchedulePort loadSchedulePort;
@@ -45,7 +49,7 @@ public class BookingService {
     private final BookingConfig bookingConfig;
 
     @Autowired
-    public BookingService(UserService userService, LoadBookingPort loadBookingPort, SaveBookingPort saveBookingPort,
+    public BookingService(UserService userService, LoadBookingPort loadBookingPort, SaveBookingPort saveBookingPort, DeleteBookingPort deleteBookingPort,
                           LoadHallOccupancyPort loadHallOccupancyPort, SaveHallOccupancyPort saveHallOccupancyPort,
                           LoadSchedulePort loadSchedulePort, BookingConfig bookingConfig,
                           LoadAreaPort loadAreaPort, LoadUserPort loadUserPort,
@@ -53,6 +57,7 @@ public class BookingService {
         this.userService = userService;
         this.loadBookingPort = loadBookingPort;
         this.saveBookingPort = saveBookingPort;
+        this.deleteBookingPort = deleteBookingPort;
         this.loadHallOccupancyPort = loadHallOccupancyPort;
         this.saveHallOccupancyPort = saveHallOccupancyPort;
         this.loadSchedulePort = loadSchedulePort;
@@ -441,4 +446,48 @@ public class BookingService {
         }
         return result;
     }
+
+    public Page<BookingModel> findWithFilters(
+            Pageable pageable,
+            UUID areaId,
+            UUID userId
+    ) {
+        return loadBookingPort.findWithFilters(pageable, areaId, userId);
+    }
+
+    public BookingModel updateById(
+            UUID bookingId,
+            UUID userId,
+            UUID areaId,
+            LocalDateTime startTime,
+            LocalDateTime endTime,
+            BookingStatus status
+    ) {
+        Optional<BookingModel> bookingOpt = loadBookingPort.findById(bookingId);
+        Optional<AreaModel> areaOpt = loadAreaPort.findById(areaId);
+        Optional<UserModel> userOpt = loadUserPort.findById(userId);
+        if (bookingOpt.isEmpty() || userOpt.isEmpty() || areaOpt.isEmpty()) {
+            throw new NoSuchElementException();
+        }
+        BookingModel model = bookingOpt.get();
+        model.setAreaModel(areaOpt.get());
+        model.setUserModel(userOpt.get());
+
+        if (startTime == null || startTime.isAfter(endTime)) {
+            throw new IllegalArgumentException(
+                    "startTime should be not empty and be before endTime"
+            );
+        }
+
+        model.setStartTime(startTime);
+        model.setEndTime(endTime);
+        model.setStatus(status);
+
+        return saveBookingPort.save(model);
+    }
+
+    public void deleteById(UUID bookingId) {
+        deleteBookingPort.deleteById(bookingId);
+    }
+
 }

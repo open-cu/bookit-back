@@ -2,6 +2,7 @@ package com.opencu.bookit.adapter.out.persistence.mapper;
 
 import com.opencu.bookit.adapter.out.persistence.entity.ReviewEntity;
 import com.opencu.bookit.domain.model.area.Review;
+import com.opencu.bookit.domain.model.reviews.ReviewsModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -23,6 +24,9 @@ public abstract class ReviewMapper {
 
     @Mapping(target = "userEntity", source = "userModel")
     public abstract ReviewEntity toEntity(Review model);
+
+    @Mapping(target = "userId", expression = "java(review.getUserEntity().getId())")
+    public abstract ReviewsModel toReviewsModel(ReviewEntity review);
 
     public abstract List<Review> toModelList(List<ReviewEntity> entities);
 }

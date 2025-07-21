@@ -1,16 +1,18 @@
 
-FROM eclipse-temurin:21-jdk-jammy AS builder
+FROM maven:3.9.9-eclipse-temurin-21-jammy AS builder
 WORKDIR /app
 COPY .mvn/ .mvn
-COPY mvnw pom.xml ./
+COPY mvnw pom.xml settings.xml ./
 COPY application ./application
 COPY bootstrap ./bootstrap
 COPY domain ./domain
 COPY persistence-adapter ./persistence-adapter
 COPY qrcode-adapter ./qrcode-adapter
 COPY security-adapter ./security-adapter
+COPY email-notification-adapter ./email-notification-adapter
+COPY notification-queue-adapter ./notification-queue-adapter
 COPY web-adapter ./web-adapter
-RUN chmod +x ./mvnw && ./mvnw clean package -DskipTests
+RUN  mvn clean package -s settings.xml -DskipTests
 
 
 FROM eclipse-temurin:21-jre-jammy

@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Set;
 
 @RestController
@@ -36,8 +37,8 @@ public class PublicEventControllerV1 {
             @RequestParam(required = false) Set<ContentTime> times,
             @RequestParam(required = false) Set<ParticipationFormat> participationFormats,
             @RequestParam(required = false) String search,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "${pagination.default-page}") int page,
+            @RequestParam(defaultValue = "${pagination.default-size}") int size,
             @RequestParam(defaultValue = "date,asc") String sort
                                                                  ) {
         String[] sortParams = sort.split(",");
@@ -49,7 +50,13 @@ public class PublicEventControllerV1 {
         Page<EventResponse> events = eventService.findWithFilters(
                 tags, formats, times, participationFormats,
                 search, null, pageable, null
-        ).map(eventResponseMapper::toEventResponse);
+        ).map(event -> {
+            try {
+                return eventResponseMapper.toEventResponse(event);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         return ResponseEntity.ok(events);
     }

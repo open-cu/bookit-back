@@ -1,5 +1,6 @@
 package com.opencu.bookit.adapter.in.web.controller.v1;
 
+import com.opencu.bookit.adapter.in.web.dto.request.UpdateEventRequest;
 import com.opencu.bookit.adapter.in.web.dto.response.EventResponse;
 import com.opencu.bookit.adapter.in.web.exception.ResourceNotFoundException;
 import com.opencu.bookit.adapter.in.web.mapper.EventResponseMapper;
@@ -19,11 +20,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -47,8 +52,8 @@ public class EventControllerV1 {
             @RequestParam(required = false) Set<ParticipationFormat> participationFormats,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "${pagination.default-page}") int page,
+            @RequestParam(defaultValue = "${pagination.default-size}") int size,
             @RequestParam(defaultValue = "date,asc") String sort
                                                            ) {
         String[] sortParams = sort.split(",");
@@ -65,11 +70,17 @@ public class EventControllerV1 {
         if ((("registered".equalsIgnoreCase(status) || "available".equalsIgnoreCase(status)) && currentUserId == null)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+            Page<EventResponse> eventsPage = eventService
+                    .findWithFilters(tags, formats, times, participationFormats, search, status, pageable, currentUserId)
+                    .map(event -> {
+                        try {
+                            return eventResponseMapper.toEventResponse(event);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+            return ResponseEntity.ok(eventsPage);
 
-        Page<EventResponse> eventsPage = eventService
-                .findWithFilters(tags, formats, times, participationFormats, search, status, pageable, currentUserId)
-                .map(eventResponseMapper::toEventResponse);
-        return ResponseEntity.ok(eventsPage);
     }
 
     @Operation(summary = "Get registration status for current user and event")
@@ -122,5 +133,87 @@ public class EventControllerV1 {
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
         eventService.removeUser(currentUser.getId(), event);
         return ResponseEntity.ok("User removed successfully");
+    }
+
+    @PreAuthorize("@securityService.isDev() or " +
+            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
+    @GetMapping("/{eventId}")
+    public ResponseEntity<EventResponse> getById(
+        @PathVariable UUID eventId
+    ) {
+        Optional<EventModel> eventOpt = eventService.findById(eventId);
+        if (eventOpt.isEmpty()) {
+            throw new NoSuchElementException("No such event found");
+        }
+        try {
+            return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventOpt.get()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @PreAuthorize("@securityService.isDev() or " +
+            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
+    @PutMapping("/{eventId}")
+    public ResponseEntity<EventResponse> updateEvent(
+            @PathVariable UUID eventId,
+            @RequestBody UpdateEventRequest updateEventRequest
+    ) {
+        try {
+            EventModel eventModel = eventService.updateEvent(
+                    eventId,
+                    updateEventRequest.name(),
+                    updateEventRequest.description(),
+                    updateEventRequest.tags(),
+                    updateEventRequest.formats(),
+                    updateEventRequest.times(),
+                    updateEventRequest.participationFormats(),
+                    updateEventRequest.keys(),
+                    updateEventRequest.date(),
+                    updateEventRequest.available_places()
+            );
+            try {
+                return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventModel));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
+
+    }
+
+    @PreAuthorize("@securityService.isDev() or " +
+            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
+    @PostMapping
+    public ResponseEntity<EventResponse> createEvent(
+            @RequestBody UpdateEventRequest updateEventRequest
+    ) {
+        EventModel eventModel = eventService.createEvent(
+                updateEventRequest.name(),
+                updateEventRequest.description(),
+                updateEventRequest.tags(),
+                updateEventRequest.formats(),
+                updateEventRequest.times(),
+                updateEventRequest.participationFormats(),
+                updateEventRequest.keys(),
+                updateEventRequest.date(),
+                updateEventRequest.available_places()
+        );
+        try {
+            return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventModel));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @PreAuthorize("@securityService.isDev() or " +
+            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
+    @DeleteMapping("/{eventId}")
+    public ResponseEntity<?> deleteEvent(
+            @PathVariable UUID eventId
+    ) {
+        eventService.deleteById(eventId);
+        return ResponseEntity.ok("Event removed successfully");
     }
 }

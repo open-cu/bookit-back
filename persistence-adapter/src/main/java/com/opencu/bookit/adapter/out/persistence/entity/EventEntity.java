@@ -9,6 +9,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -53,6 +54,9 @@ public class EventEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "participation_format")
     private Set<ParticipationFormat> participationFormats = new HashSet<>();
+
+    @Column(nullable = false)
+    private List<String> keys;
 
     @Column(nullable = false)
     private LocalDateTime date;

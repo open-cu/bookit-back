@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -30,7 +31,13 @@ public class AreaController {
     public List<AreaResponse> getAllAreas() {
         return areaService.findAll()
                 .stream()
-                .map(areaResponseMapper::toAreaResponse)
+                .map(area -> {
+                    try {
+                        return areaResponseMapper.toAreaResponse(area);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
                 .toList();
     }
 
@@ -40,7 +47,13 @@ public class AreaController {
         Optional<AreaModel> area = areaService.findById(areaId);
 
         AreaResponse areaResponse = area
-                .map(areaResponseMapper::toAreaResponse)
+                .map(area1 -> {
+                    try {
+                        return areaResponseMapper.toAreaResponse(area1);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
                 .orElseThrow(() -> new ResourceNotFoundException("Area not found with ID: " + areaId));
         return ResponseEntity.ok(areaResponse);
     }
@@ -50,7 +63,13 @@ public class AreaController {
     public List<AreaResponse> getAreasByType(@RequestParam AreaType type) {
         return areaService.findByType(type)
                           .stream()
-                          .map(areaResponseMapper::toAreaResponse)
+                          .map(area -> {
+                              try {
+                                  return areaResponseMapper.toAreaResponse(area);
+                              } catch (IOException e) {
+                                  throw new RuntimeException(e);
+                              }
+                          })
                           .toList();
     }
 

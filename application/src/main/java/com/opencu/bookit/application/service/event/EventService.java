@@ -1,5 +1,6 @@
 package com.opencu.bookit.application.service.event;
 
+import com.opencu.bookit.application.port.out.event.DeleteEventPort;
 import com.opencu.bookit.application.port.out.event.LoadEventPort;
 import com.opencu.bookit.application.port.out.event.SaveEventPort;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
@@ -12,8 +13,11 @@ import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
 import com.opencu.bookit.domain.model.user.UserModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.expression.spel.ast.NullLiteral;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -21,11 +25,13 @@ public class EventService {
     private final LoadEventPort loadEventPort;
     private final SaveEventPort saveEventPort;
     private final LoadUserPort loadUserPort;
+    private final DeleteEventPort deleteEventPort;
 
-    public EventService(LoadEventPort loadEventPort, SaveEventPort saveEventPort, LoadUserPort loadUserPort) {
+    public EventService(LoadEventPort loadEventPort, SaveEventPort saveEventPort, LoadUserPort loadUserPort, DeleteEventPort deleteEventPort) {
         this.loadEventPort = loadEventPort;
         this.saveEventPort = saveEventPort;
         this.loadUserPort = loadUserPort;
+        this.deleteEventPort = deleteEventPort;
     }
 
     public Optional<EventModel> findById(UUID eventId) {
@@ -77,6 +83,36 @@ public class EventService {
         return saveEventPort.save(event);
     }
 
+    @Transactional
+    public EventModel updateEvent(
+            UUID eventId,
+            String name,
+            String description,
+            List<ThemeTags> tags,
+            List<ContentFormat> formats,
+            List<ContentTime> times,
+            List<ParticipationFormat> participationFormats,
+            List<String> keys,
+            LocalDateTime date,
+            int availablePlaces
+    ) {
+        Optional<EventModel> eventOpt = loadEventPort.findById(eventId);
+        if (eventOpt.isEmpty()) {
+            throw new NoSuchElementException("No such event found");
+        }
+        EventModel eventModel = eventOpt.get();
+        eventModel.setName(name);
+        eventModel.setDescription(description);
+        eventModel.setTags(new HashSet<>(tags));
+        eventModel.setFormats(new HashSet<>(formats));
+        eventModel.setTimes(new HashSet<>(times));
+        eventModel.setParticipationFormats(new HashSet<>(participationFormats));
+        eventModel.setKeys(keys);
+        eventModel.setDate(date);
+        eventModel.setAvailable_places(availablePlaces);
+        return saveEventPort.save(eventModel);
+    }
+
     public Page<EventModel> findWithFilters(
             Set<ThemeTags> tags, Set<ContentFormat> formats, Set<ContentTime> times,
             Set<ParticipationFormat> participationFormats,
@@ -84,5 +120,35 @@ public class EventService {
     ) {
         return loadEventPort.findWithFilters(tags, formats, times, participationFormats,
                 search, status, pageable, currentUserId);
+    }
+
+    @Transactional
+    public void deleteById(UUID eventId) {
+        deleteEventPort.delete(eventId);
+    }
+
+    @Transactional
+    public EventModel createEvent(
+            String name,
+            String description,
+            List<ThemeTags> tags,
+            List<ContentFormat> formats,
+            List<ContentTime> times,
+            List<ParticipationFormat> participationFormats,
+            List<String> keys,
+            LocalDateTime date,
+            int availablePlaces
+    ) {
+        EventModel eventModel = new EventModel();
+        eventModel.setName(name);
+        eventModel.setDescription(description);
+        eventModel.setTags(new HashSet<>(tags));
+        eventModel.setFormats(new HashSet<>(formats));
+        eventModel.setTimes(new HashSet<>(times));
+        eventModel.setParticipationFormats(new HashSet<>(participationFormats));
+        eventModel.setKeys(keys);
+        eventModel.setDate(date);
+        eventModel.setAvailable_places(availablePlaces);
+        return saveEventPort.save(eventModel);
     }
 }

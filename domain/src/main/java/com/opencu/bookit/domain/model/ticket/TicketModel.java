@@ -2,16 +2,20 @@ package com.opencu.bookit.domain.model.ticket;
 
 import com.opencu.bookit.domain.model.area.AreaModel;
 import com.opencu.bookit.domain.model.user.UserModel;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class TicketModel {
-    private TicketId id;
+    private UUID id;
     private UserModel userModel;
     private AreaModel areaModel;
     private TicketType type;

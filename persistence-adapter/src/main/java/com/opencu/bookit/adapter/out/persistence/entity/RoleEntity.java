@@ -3,6 +3,9 @@ package com.opencu.bookit.adapter.out.persistence.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "roles")
 @Getter
@@ -20,6 +23,21 @@ public class RoleEntity {
 
     public enum RoleName {
         ROLE_USER,
-        ROLE_ADMIN
+        ROLE_ADMIN,
+        ROLE_SUPERADMIN;
+
+        public static RoleName fromString(String role) {
+            if (role == null) {
+                throw new IllegalArgumentException("Role name cannot be null");
+            }
+            String normalized = role.trim().toLowerCase();
+
+            return switch (normalized) {
+                case "user" -> ROLE_USER;
+                case "admin" -> ROLE_ADMIN;
+                case "superadmin" -> ROLE_SUPERADMIN;
+                default -> throw new IllegalArgumentException("Unknown role name: " + role);
+            };
+        }
     }
 }

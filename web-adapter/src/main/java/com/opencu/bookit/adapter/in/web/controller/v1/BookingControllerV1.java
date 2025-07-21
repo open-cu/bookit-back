@@ -1,5 +1,6 @@
 package com.opencu.bookit.adapter.in.web.controller.v1;
 
+import com.opencu.bookit.adapter.in.web.dto.request.AdminUpdateBookingRequest;
 import com.opencu.bookit.adapter.in.web.dto.request.CreateBookingRequest;
 import com.opencu.bookit.adapter.in.web.dto.request.UpdateBookingRequest;
 import com.opencu.bookit.adapter.in.web.dto.response.BookingResponse;
@@ -7,6 +8,7 @@ import com.opencu.bookit.adapter.in.web.exception.ApiError;
 import com.opencu.bookit.adapter.in.web.exception.ProfileNotCompletedException;
 import com.opencu.bookit.adapter.in.web.mapper.BookingRequestMapper;
 import com.opencu.bookit.adapter.in.web.mapper.BookingResponseMapper;
+import com.opencu.bookit.adapter.out.security.spring.service.SecurityService;
 import com.opencu.bookit.application.service.booking.BookingService;
 import com.opencu.bookit.adapter.out.security.spring.service.UserDetailsImpl;
 import com.opencu.bookit.domain.model.booking.BookingModel;
@@ -15,10 +17,15 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.util.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -96,8 +103,8 @@ public class BookingControllerV1 {
     @GetMapping
     public ResponseEntity<List<BookingResponse>> getBookings(
             @RequestParam(defaultValue = "current") String timeline,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "${pagination.default-page}") int page,
+            @RequestParam(defaultValue = "${pagination.default-size}") int size
                                                             ) {
         UserDetailsImpl currentUser = getCurrentUser();
         List<BookingModel> bookings;
@@ -112,11 +119,24 @@ public class BookingControllerV1 {
         return ResponseEntity.ok(bookingResponseMapper.toResponseList(bookings.subList(fromIndex, toIndex)));
     }
 
-    @Operation(summary = "Cancel booking by ID")
-    @DeleteMapping("/{bookingId}")
-    public ResponseEntity<String> cancelBooking(@PathVariable UUID bookingId) {
-        bookingService.cancelBooking(bookingId);
-        return ResponseEntity.ok("Booking cancelled successfully");
+    @Operation(summary = "Get current area's bookings by user and date")
+    @GetMapping("/advanced")
+    public ResponseEntity<Page<BookingResponse>> getBookingsAdvanced(
+            @RequestParam (required = false) UUID areaId,
+            @RequestParam (required = false) UUID userId,
+            @RequestParam  (required = false) String date,
+            @RequestParam (defaultValue = "0") int page,
+            @RequestParam (defaultValue = "10") int size
+            ) {
+        Sort.Direction direction = Sort.Direction.ASC;
+
+        Pageable pageable = PageRequest.of(page, size,
+                Sort.by(direction, "startTime"));
+
+        Page<BookingResponse> bookingResponsePage = bookingService
+                .findWithFilters(pageable, areaId, userId)
+                .map(bookingResponseMapper::toResponse);
+        return ResponseEntity.ok(bookingResponsePage);
     }
 
     @Operation(summary = "Create a new booking")
@@ -154,23 +174,67 @@ public class BookingControllerV1 {
 
     @Operation(summary = "Update booking by id and booking information")
     @PutMapping("/{bookingId}")
-    public ResponseEntity<BookingModel> updateBooking(
+    public ResponseEntity<BookingResponse> updateBooking(
             @PathVariable UUID bookingId,
             @RequestBody UpdateBookingRequest request) {
         try {
+            if (new SecurityService().hasRequiredRole(SecurityService.getAdmin())) {
+
+            }
             UserDetailsImpl currentUser = getCurrentUser();
             if (currentUser.getStatus() != UserStatus.VERIFIED) {
                 throw new ProfileNotCompletedException("User profile is not completed. Please complete your profile before updating bookings.");
             }
 
             BookingModel updatedBooking = bookingService.updateBooking(bookingId, bookingRequestMapper.toQuery(request));
-            return ResponseEntity.ok(updatedBooking);
+            return ResponseEntity.ok(bookingResponseMapper.toResponse(updatedBooking));
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().body(null);
         } catch (ProfileNotCompletedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
+        }
+    }
+
+    @PreAuthorize("@securityService.isDev() or " +
+            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
+    @PutMapping("/admin/{bookingId}")
+    public ResponseEntity<BookingResponse> updateById(
+            @PathVariable UUID bookingId,
+            @RequestBody AdminUpdateBookingRequest adminUpdateBookingRequest
+    ) {
+        try {
+            BookingResponse response = bookingResponseMapper.toResponse(
+                    bookingService.updateById(
+                            bookingId,
+                            adminUpdateBookingRequest.userId(),
+                            adminUpdateBookingRequest.areaId(),
+                            adminUpdateBookingRequest.startTime(),
+                            adminUpdateBookingRequest.endTime(),
+                            adminUpdateBookingRequest.status()
+                    )
+            );
+            return ResponseEntity.ok(response);
+        }
+        catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
+        catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @DeleteMapping("/{bookingId}")
+    public ResponseEntity<?> deleteById(
+            @PathVariable UUID bookingId
+    ) {
+        if (new SecurityService().hasRequiredRole(SecurityService.getAdmin())) {
+            bookingService.deleteById(bookingId);
+            return ResponseEntity.ok("Booking deleted successfully");
+        } else {
+            bookingService.cancelBooking(bookingId);
+            return ResponseEntity.ok("Booking cancelled successfully");
         }
     }
 

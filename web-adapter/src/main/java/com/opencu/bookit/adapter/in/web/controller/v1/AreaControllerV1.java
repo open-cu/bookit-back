@@ -7,10 +7,14 @@ import com.opencu.bookit.application.service.area.AreaService;
 import com.opencu.bookit.domain.model.area.AreaModel;
 import com.opencu.bookit.domain.model.area.AreaType;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,19 +29,25 @@ public class AreaControllerV1 {
         this.areaMapper = areaMapper;
     }
 
-    @Operation(summary = "Get all areas")
+    @Operation(summary = "Get all areas with filters and pagination")
     @GetMapping
-    public List<AreaResponse> getAllAreas(@RequestParam(required = false) AreaType type) {
-        if (type != null) {
-            return areaService.findByType(type)
-                    .stream()
-                    .map(areaMapper::toAreaResponse)
-                    .toList();
-        }
-        return areaService.findAll()
-                .stream()
-                .map(areaMapper::toAreaResponse)
-                .toList();
+    public ResponseEntity<Page<AreaResponse>> getAllAreas(
+            @RequestParam(required = false) AreaType type,
+            @RequestParam(defaultValue = "${pagination.default-page}") int page,
+            @RequestParam(defaultValue = "${pagination.default-size}") int size
+    ) {
+        Sort.Direction direction = Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "type"));
+        Page<AreaResponse> areasPage = areaService
+                .findWithFilters(type, pageable)
+                .map(area -> {
+                    try {
+                        return areaMapper.toAreaResponse(area);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+        return ResponseEntity.ok(areasPage);
     }
 
     @Operation(summary = "Get area by ID")
@@ -46,7 +56,13 @@ public class AreaControllerV1 {
         Optional<AreaModel> area = areaService.findById(areaId);
 
         AreaResponse areaResponse = area
-                .map(areaMapper::toAreaResponse)
+                .map(area1 -> {
+                    try {
+                        return areaMapper.toAreaResponse(area1);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
                 .orElseThrow(() -> new ResourceNotFoundException("Area not found with ID: " + areaId));
         return ResponseEntity.ok(areaResponse);
     }

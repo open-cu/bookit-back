@@ -9,6 +9,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -24,6 +25,7 @@ public class EventModel {
     private Set<ContentFormat> formats = new HashSet<>();
     private Set<ContentTime> times = new HashSet<>();
     private Set<ParticipationFormat> participationFormats = new HashSet<>();
+    private List<String> keys;
     private LocalDateTime date;
     private int available_places;
     private Set<UserModel> userModels = new HashSet<>();

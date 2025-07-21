@@ -5,8 +5,11 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public interface LoadUserPort {
@@ -17,4 +20,6 @@ public interface LoadUserPort {
     boolean existsByUsername(@NotBlank @Size(min = 3, max = 50) String username);
     boolean existsByEmail(@Email String email);
     boolean existsByPhone(@Pattern(regexp = "^(\\+7\\d{10}|8\\d{10})$", message = "Invalid phone") String phone);
+
+    Page<UserModel> findWithFilters(Set<String> role, String search, Pageable pageable);
 }
