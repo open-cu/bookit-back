@@ -4,6 +4,7 @@ import com.opencu.bookit.application.service.statistics.StatsService;
 import com.opencu.bookit.domain.model.statistics.*;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,6 +26,8 @@ import java.util.List;
 public class StatsController {
 
     private final StatsService statsService;
+    @Value("${booking.zone-id}")
+    private ZoneId zoneId;
 
     @Operation(description = "Returns booking statistics for the specified date range")
     @GetMapping("/bookings")
@@ -67,7 +71,7 @@ public class StatsController {
                     "Invalid period value. Valid values are: " + Arrays.toString(StatsPeriod.values()));
         }
 
-        final LocalDate endDate = LocalDate.now();
+        final LocalDate endDate = LocalDate.now(zoneId);
         final LocalDate startDate = endDate.minusWeeks(statsPeriod.getWeeksCount());
 
         try {

@@ -14,6 +14,7 @@ import com.opencu.bookit.application.port.out.user.SaveUserPort;
 import com.opencu.bookit.domain.model.user.UserModel;
 import com.opencu.bookit.domain.model.user.UserStatus;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.UUID;
 
 @Service
@@ -31,6 +33,8 @@ public class AuthService implements LoadAuthorizationInfoPort {
     private final SaveUserPort saveUserPort;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
+    @Value("${booking.zone-id}")
+    private ZoneId zoneId;
 
     public AuthService(
             AuthenticationManager authenticationManager,
@@ -60,7 +64,7 @@ public class AuthService implements LoadAuthorizationInfoPort {
             user.setLastName(telegramUserRequest.getLastName());
             user.setPhotoUrl(telegramUserRequest.getPhotoUrl());
             user.setStatus(UserStatus.CREATED);
-            user.setCreatedAt(LocalDateTime.now());
+            user.setCreatedAt(LocalDateTime.now(zoneId));
 
             String randomPassword = generateRandomPassword();
             user.setPasswordHash(passwordEncoder.encode(randomPassword));
@@ -85,7 +89,7 @@ public class AuthService implements LoadAuthorizationInfoPort {
                     !telegramUserRequest.getPhotoUrl().equals(user.getPhotoUrl())) {
                 user.setPhotoUrl(telegramUserRequest.getPhotoUrl());
             }
-            user.setUpdatedAt(LocalDateTime.now());
+            user.setUpdatedAt(LocalDateTime.now(zoneId));
             saveUserPort.save(user);
         }
 
@@ -126,7 +130,7 @@ public class AuthService implements LoadAuthorizationInfoPort {
         currentUser.setEmail(profileRequest.getEmail());
 
         currentUser.setStatus(UserStatus.VERIFIED);
-        currentUser.setUpdatedAt(LocalDateTime.now());
+        currentUser.setUpdatedAt(LocalDateTime.now(zoneId));
 
         saveUserPort.save(currentUser);
 
@@ -208,7 +212,7 @@ public class AuthService implements LoadAuthorizationInfoPort {
         user.setPhotoUrl(signUpRequest.getPhotoUrl());
         user.setPasswordHash(passwordEncoder.encode(signUpRequest.getPassword()));
         user.setStatus(UserStatus.CREATED);
-        user.setCreatedAt(LocalDateTime.now());
+        user.setCreatedAt(LocalDateTime.now(zoneId));
 
         saveUserPort.save(user);
 

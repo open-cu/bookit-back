@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Component
@@ -33,6 +34,9 @@ public class HallOccupancyInitializer implements ApplicationRunner {
     @Value("${booking.end-work}")
     private int endWork;
 
+    @Value("${booking.zone-id}")
+    private ZoneId zoneId;
+
     @Override
     public void run(ApplicationArguments args) {
         initializeHallOccupancy();
@@ -47,7 +51,7 @@ public class HallOccupancyInitializer implements ApplicationRunner {
     }
 
     private void initializeHallOccupancy() {
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(zoneId);
         LocalDate endDate = today.plusDays(maxDaysForward);
 
         for (LocalDate date = today; !date.isAfter(endDate); date = date.plusDays(1)) {
@@ -79,6 +83,6 @@ public class HallOccupancyInitializer implements ApplicationRunner {
                                       .distinct()
                                       .sorted((d1, d2) -> d2.compareTo(d1))
                                       .findFirst()
-                                      .orElse(LocalDate.now());
+                                      .orElse(LocalDate.now(zoneId));
     }
 }

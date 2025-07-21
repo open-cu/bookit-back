@@ -8,10 +8,12 @@ import com.opencu.bookit.application.port.out.booking.SaveBookingPort;
 import com.opencu.bookit.domain.model.booking.BookingModel;
 import com.opencu.bookit.domain.model.booking.TimeTag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -22,6 +24,8 @@ import java.util.UUID;
 public class BookingPersistenceAdapter implements LoadBookingPort, SaveBookingPort {
     private final BookingRepository bookingRepository;
     private final BookingMapper bookingMapper;
+    @Value("${booking.zone-id}")
+    private ZoneId zoneId;
 
     @Override
     public Optional<BookingModel> findById(UUID bookingId) {
@@ -30,7 +34,7 @@ public class BookingPersistenceAdapter implements LoadBookingPort, SaveBookingPo
 
     @Override
     public List<BookingModel> loadBookingsByUser(UUID userId, TimeTag timeTag) {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(zoneId);
         List<BookingEntity> bookingEntities = switch (timeTag) {
             case CURRENT -> bookingRepository.findCurrentBookingsByUser(userId, now);
             case FUTURE -> bookingRepository.findFutureBookingsByUser(userId, now);

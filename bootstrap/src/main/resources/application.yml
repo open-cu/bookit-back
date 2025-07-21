@@ -40,3 +40,4 @@ booking:
   start-work: 8
   end-work: 21
   hall-max-capacity: 4
+  zone-id: Europe/Moscow

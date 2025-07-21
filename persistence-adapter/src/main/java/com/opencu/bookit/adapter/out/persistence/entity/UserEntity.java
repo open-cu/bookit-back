@@ -1,5 +1,6 @@
 package com.opencu.bookit.adapter.out.persistence.entity;
 
+import com.opencu.bookit.application.config.BookingConfig;
 import com.opencu.bookit.domain.model.user.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -66,7 +67,7 @@ public class UserEntity {
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {
-            createdAt = LocalDateTime.now();
+            createdAt = LocalDateTime.now(new BookingConfig().getZoneId());
         }
         if (status == null) {
             status = UserStatus.CREATED;
