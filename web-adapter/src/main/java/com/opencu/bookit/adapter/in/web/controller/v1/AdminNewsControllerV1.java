@@ -31,7 +31,8 @@ public class AdminNewsControllerV1 {
         this.newsResponseMapper = newsResponseMapper;
     }
 
-    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
+    @PreAuthorize("@securityService.isDev() or " +
+            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
     @Operation(summary = "Get all public news with optional filters, search, pagination and sorting")
     @GetMapping
     public ResponseEntity<Page<NewsResponse>> getAllPublicNews(
@@ -50,7 +51,8 @@ public class AdminNewsControllerV1 {
         return ResponseEntity.ok(newsPage.map(newsResponseMapper::toResponse));
     }
 
-    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
+    @PreAuthorize("@securityService.isDev() or " +
+            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
     @GetMapping("/{newsId}")
     public ResponseEntity<NewsResponse> getById(
             @PathVariable UUID newsId
@@ -62,7 +64,8 @@ public class AdminNewsControllerV1 {
         }
     }
 
-    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
+    @PreAuthorize("@securityService.isDev() or " +
+            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
     @DeleteMapping("/{newsId}")
     public ResponseEntity<?> deleteNews(
             @PathVariable UUID newsId
@@ -71,7 +74,8 @@ public class AdminNewsControllerV1 {
         return ResponseEntity.ok("News are successfully deleted");
     }
 
-    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
+    @PreAuthorize("@securityService.isDev() or " +
+            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
     @PutMapping("/{newsId}")
     public ResponseEntity<NewsResponse> updateNews(
             @PathVariable UUID newsId,
@@ -90,7 +94,8 @@ public class AdminNewsControllerV1 {
         }
     }
 
-    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
+    @PreAuthorize("@securityService.isDev() or " +
+            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
     @PostMapping
     public ResponseEntity<NewsResponse> createNews(
             @RequestBody NewsUpdateRequest newsUpdateRequest

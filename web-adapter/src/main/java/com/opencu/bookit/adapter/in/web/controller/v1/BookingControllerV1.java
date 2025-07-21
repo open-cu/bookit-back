@@ -8,6 +8,7 @@ import com.opencu.bookit.adapter.in.web.exception.ApiError;
 import com.opencu.bookit.adapter.in.web.exception.ProfileNotCompletedException;
 import com.opencu.bookit.adapter.in.web.mapper.BookingRequestMapper;
 import com.opencu.bookit.adapter.in.web.mapper.BookingResponseMapper;
+import com.opencu.bookit.adapter.out.security.spring.service.SecurityService;
 import com.opencu.bookit.application.service.booking.BookingService;
 import com.opencu.bookit.adapter.out.security.spring.service.UserDetailsImpl;
 import com.opencu.bookit.domain.model.booking.BookingModel;
@@ -138,13 +139,6 @@ public class BookingControllerV1 {
         return ResponseEntity.ok(bookingResponsePage);
     }
 
-    @Operation(summary = "Cancel booking by ID")
-    @DeleteMapping("/{bookingId}")
-    public ResponseEntity<String> cancelBooking(@PathVariable UUID bookingId) {
-        bookingService.cancelBooking(bookingId);
-        return ResponseEntity.ok("Booking cancelled successfully");
-    }
-
     @Operation(summary = "Create a new booking")
     @PostMapping
     public Set<ResponseEntity<BookingResponse>> createBooking(@RequestBody CreateBookingRequest request) {
@@ -184,6 +178,9 @@ public class BookingControllerV1 {
             @PathVariable UUID bookingId,
             @RequestBody UpdateBookingRequest request) {
         try {
+            if (new SecurityService().hasRequiredRole(SecurityService.getAdmin())) {
+
+            }
             UserDetailsImpl currentUser = getCurrentUser();
             if (currentUser.getStatus() != UserStatus.VERIFIED) {
                 throw new ProfileNotCompletedException("User profile is not completed. Please complete your profile before updating bookings.");
@@ -200,7 +197,8 @@ public class BookingControllerV1 {
         }
     }
 
-    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
+    @PreAuthorize("@securityService.isDev() or " +
+            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
     @PutMapping("/admin/{bookingId}")
     public ResponseEntity<BookingResponse> updateById(
             @PathVariable UUID bookingId,
@@ -227,13 +225,17 @@ public class BookingControllerV1 {
         }
     }
 
-    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
-    @DeleteMapping("/admin/{bookingId}")
+    @DeleteMapping("/{bookingId}")
     public ResponseEntity<?> deleteById(
             @PathVariable UUID bookingId
     ) {
-        bookingService.deleteById(bookingId);
-        return ResponseEntity.ok("Booking deleted successfully");
+        if (new SecurityService().hasRequiredRole(SecurityService.getAdmin())) {
+            bookingService.deleteById(bookingId);
+            return ResponseEntity.ok("Booking deleted successfully");
+        } else {
+            bookingService.cancelBooking(bookingId);
+            return ResponseEntity.ok("Booking cancelled successfully");
+        }
     }
 
     private UserDetailsImpl getCurrentUser() {

@@ -32,7 +32,8 @@ public class AdminAreaControllerV1 {
         this.areaMapper = areaMapper;
     }
 
-    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
+    @PreAuthorize("@securityService.isDev() or " +
+            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
     @Operation(summary = "Get all areas with filters and pagination")
     @GetMapping
     public ResponseEntity<Page<AreaResponse>> getAllAreas(
@@ -48,7 +49,8 @@ public class AdminAreaControllerV1 {
         return ResponseEntity.ok(areasPage);
     }
 
-    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
+    @PreAuthorize("@securityService.isDev() or " +
+            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
     @Operation(summary = "Get area by ID")
     @GetMapping("/{areaId}")
     public ResponseEntity<AreaResponse> getAreaById(@PathVariable UUID areaId) {
@@ -60,7 +62,8 @@ public class AdminAreaControllerV1 {
         return ResponseEntity.ok(areaResponse);
     }
 
-    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
+    @PreAuthorize("@securityService.isDev() or " +
+            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
     @Operation(summary = "Create area")
     @PostMapping
     public ResponseEntity<AreaResponse> createArea(
@@ -79,7 +82,8 @@ public class AdminAreaControllerV1 {
         );
     }
 
-    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
+    @PreAuthorize("@securityService.isDev() or " +
+            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
     @Operation(summary = "Delete area by id")
     @DeleteMapping("/{areaId}")
     public ResponseEntity<?> deleteById(
@@ -89,7 +93,8 @@ public class AdminAreaControllerV1 {
         return ResponseEntity.ok("Area successfully deleted");
     }
 
-    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
+    @PreAuthorize("@securityService.isDev() or " +
+            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
     @Operation(summary = "Updated area information")
     @PutMapping("/{areaId}")
     public ResponseEntity<AreaResponse> updateById(

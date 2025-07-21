@@ -74,7 +74,8 @@ public class TicketControllerV1 {
         }
     }
 
-    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
+    @PreAuthorize("@securityService.isDev() or " +
+            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
     @Operation(summary = "Delete ticket found by id")
     @DeleteMapping("/{ticketId}")
     public ResponseEntity<?> deleteById(
@@ -84,7 +85,8 @@ public class TicketControllerV1 {
         return ResponseEntity.ok("Ticket successfully deleted");
     }
 
-    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
+    @PreAuthorize("@securityService.isDev() or " +
+            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
     @Operation(summary = "Patches ticket by id")
     @PatchMapping("/{ticketId}")
     public ResponseEntity<TicketResponse> patchById(

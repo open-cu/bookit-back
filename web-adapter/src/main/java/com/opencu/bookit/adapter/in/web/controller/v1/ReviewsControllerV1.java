@@ -25,7 +25,8 @@ public class ReviewsControllerV1 {
         this.reviewsResponseMapper = reviewsResponseMapper;
     }
 
-    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
+    @PreAuthorize("@securityService.isDev() or " +
+            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
     @GetMapping
     public ResponseEntity<Page<ReviewsResponse>> getReviews(
             @RequestParam(required = false) UUID userId,
@@ -43,7 +44,8 @@ public class ReviewsControllerV1 {
         );
     }
 
-    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
+    @PreAuthorize("@securityService.isDev() or " +
+            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
     @GetMapping("/{reviewId}")
     public ResponseEntity<ReviewsResponse> getById(
             @PathVariable UUID reviewId
@@ -58,7 +60,8 @@ public class ReviewsControllerV1 {
         }
     }
 
-    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
+    @PreAuthorize("@securityService.isDev() or " +
+            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<?> deleteById(
             @PathVariable UUID reviewId

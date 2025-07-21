@@ -128,7 +128,8 @@ public class EventControllerV1 {
         return ResponseEntity.ok("User removed successfully");
     }
 
-    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
+    @PreAuthorize("@securityService.isDev() or " +
+            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
     @GetMapping("/{eventId}")
     public ResponseEntity<EventResponse> getById(
         @PathVariable UUID eventId
@@ -140,7 +141,8 @@ public class EventControllerV1 {
         return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventOpt.get()));
     }
 
-    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
+    @PreAuthorize("@securityService.isDev() or " +
+            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
     @PutMapping("/{eventId}")
     public ResponseEntity<EventResponse> updateEvent(
             @PathVariable UUID eventId,
@@ -165,7 +167,8 @@ public class EventControllerV1 {
 
     }
 
-    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
+    @PreAuthorize("@securityService.isDev() or " +
+            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
     @PostMapping
     public ResponseEntity<EventResponse> createEvent(
             @RequestBody UpdateEventRequest updateEventRequest
@@ -183,7 +186,8 @@ public class EventControllerV1 {
         return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventModel));
     }
 
-    @PreAuthorize("@securityService.hasRoleAdminOrIsDev()")
+    @PreAuthorize("@securityService.isDev() or " +
+            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
     @DeleteMapping("/{eventId}")
     public ResponseEntity<?> deleteEvent(
             @PathVariable UUID eventId

@@ -9,18 +9,24 @@ public class SecurityService {
     @Value("${spring.profiles.active:}")
     private String activeProfile;
 
-    public boolean hasRoleAdminOrIsDev() {
-        return "dev".equalsIgnoreCase(activeProfile) ||
-                SecurityContextHolder.getContext().getAuthentication().getAuthorities()
-                        .stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")) ||
-                SecurityContextHolder.getContext().getAuthentication().getAuthorities()
-                        .stream().anyMatch(a -> a.getAuthority().equals("ROLE_SUPERADMIN"));
+    private static final String PROFILE_DEV = "dev";
+    private static final String ADMIN = "ROLE_ADMIN";
+    private static final String SUPERADMIN = "ROLE_SUPERADMIN";
+
+    public boolean isDev() {
+        return PROFILE_DEV.equalsIgnoreCase(activeProfile);
     }
 
-    public boolean hasRoleSuperAdminOrIsDev() {
-        return "dev".equalsIgnoreCase(activeProfile) ||
-                SecurityContextHolder.getContext().getAuthentication().getAuthorities()
-                        .stream().anyMatch(
-                                a -> a.getAuthority().equals("ROLE_SUPERADMIN"));
+    public static String getAdmin() {
+        return ADMIN;
+    }
+
+    public static String getSuperadmin() {
+        return SUPERADMIN;
+    }
+
+    public boolean hasRequiredRole(String role) {
+        return SecurityContextHolder.getContext().getAuthentication().getAuthorities()
+                .stream().anyMatch(a -> a.getAuthority().equals(role));
     }
 }

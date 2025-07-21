@@ -1,6 +1,5 @@
 package com.opencu.bookit.adapter.in.web.controller.v1;
 
-import com.opencu.bookit.adapter.in.web.dto.request.NewsUpdateRequest;
 import com.opencu.bookit.adapter.in.web.dto.response.NewsResponse;
 import com.opencu.bookit.adapter.in.web.mapper.NewsResponseMapper;
 import com.opencu.bookit.application.service.news.NewsService;
@@ -9,12 +8,9 @@ import com.opencu.bookit.domain.model.news.NewsModel;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/public/news")
