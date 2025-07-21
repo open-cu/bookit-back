@@ -9,6 +9,8 @@ COPY domain ./domain
 COPY persistence-adapter ./persistence-adapter
 COPY qrcode-adapter ./qrcode-adapter
 COPY security-adapter ./security-adapter
+COPY email-notification-adapter ./email-notification-adapter
+COPY notification-queue-adapter ./notification-queue-adapter
 COPY web-adapter ./web-adapter
 RUN  mvn clean package -s settings.xml -DskipTests
 
