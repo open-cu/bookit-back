@@ -19,16 +19,16 @@ public class SecurityService {
         return PROFILE_DEV.equalsIgnoreCase(activeProfile);
     }
 
-    public static String getAdmin() {
+    public String getAdmin() {
         return ADMIN;
     }
 
-    public static String getSuperadmin() {
+    public String getSuperadmin() {
         return SUPERADMIN;
     }
 
     public boolean hasRequiredRole(String role) {
-        UserModel user = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return user.getRoles().contains(Role.fromString(role));
+        return SecurityContextHolder.getContext().getAuthentication().getAuthorities()
+                .stream().anyMatch(authority -> authority.getAuthority().equals(role));
     }
 }

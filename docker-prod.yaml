@@ -12,6 +12,11 @@ services:
         condition: service_healthy
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - KEY_ID=${KEY_ID}
+      - SECRET_KEY=${SECRET_KEY}
+      - REGION=${REGION}
+      - S3_ENDPOINT=${S3_ENDPOINT}
+      - BUCKET=${BUCKET}
 
   db:
     image: postgres:16
