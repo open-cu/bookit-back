@@ -6,6 +6,7 @@ import com.opencu.bookit.adapter.in.web.dto.response.AreaResponse;
 import com.opencu.bookit.adapter.in.web.exception.ResourceNotFoundException;
 import com.opencu.bookit.adapter.in.web.mapper.AreaResponseMapper;
 import com.opencu.bookit.application.service.area.AreaService;
+import com.opencu.bookit.application.service.photo.PhotoService;
 import com.opencu.bookit.domain.model.area.AreaModel;
 import com.opencu.bookit.domain.model.area.AreaType;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,8 +17,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,14 +30,16 @@ import java.util.UUID;
 public class AdminAreaControllerV1 {
     private final AreaService areaService;
     private final AreaResponseMapper areaMapper;
+    private final PhotoService photoService;
 
-    public AdminAreaControllerV1(AreaService areaService, AreaResponseMapper areaMapper) {
+    public AdminAreaControllerV1(AreaService areaService, AreaResponseMapper areaMapper, PhotoService photoService) {
         this.areaService = areaService;
         this.areaMapper = areaMapper;
+        this.photoService = photoService;
     }
 
     @PreAuthorize("@securityService.isDev() or " +
-            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
+            "@securityService.hasRequiredRole(@securityService.getAdmin())")
     @Operation(summary = "Get all areas with filters and pagination")
     @GetMapping
     public ResponseEntity<Page<AreaResponse>> getAllAreas(
@@ -57,7 +62,7 @@ public class AdminAreaControllerV1 {
     }
 
     @PreAuthorize("@securityService.isDev() or " +
-            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
+            "@securityService.hasRequiredRole(@securityService.getAdmin())")
     @Operation(summary = "Get area by ID")
     @GetMapping("/{areaId}")
     public ResponseEntity<AreaResponse> getAreaById(@PathVariable UUID areaId) {
@@ -76,32 +81,36 @@ public class AdminAreaControllerV1 {
     }
 
     @PreAuthorize("@securityService.isDev() or " +
-            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
+            "@securityService.hasRequiredRole(@securityService.getAdmin())")
     @Operation(summary = "Create area")
     @PostMapping
     public ResponseEntity<AreaResponse> createArea(
-            @RequestBody CreateAreaRequest createAreaRequest
+            @RequestPart("createAreaRequest") CreateAreaRequest createAreaRequest,
+            @RequestPart("photos") List<MultipartFile> photos
     ) {
+        try {
+        List<String> keys = null;
+        keys = photoService.upload(photos);
         AreaModel model = areaService.createArea(
                 createAreaRequest.name(),
                 createAreaRequest.description(),
                 createAreaRequest.type(),
                 createAreaRequest.features(),
-                createAreaRequest.keys(),
+                keys,
                 createAreaRequest.capacity(),
                 createAreaRequest.status()
         );
-        try {
+
             return ResponseEntity.ok(
                     areaMapper.toAreaResponse(model)
             );
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            return ResponseEntity.badRequest().build();
         }
     }
 
     @PreAuthorize("@securityService.isDev() or " +
-            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
+            "@securityService.hasRequiredRole(@securityService.getAdmin())")
     @Operation(summary = "Delete area by id")
     @DeleteMapping("/{areaId}")
     public ResponseEntity<?> deleteById(
@@ -112,14 +121,17 @@ public class AdminAreaControllerV1 {
     }
 
     @PreAuthorize("@securityService.isDev() or " +
-            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
+            "@securityService.hasRequiredRole(@securityService.getAdmin())")
     @Operation(summary = "Updated area information")
     @PutMapping("/{areaId}")
     public ResponseEntity<AreaResponse> updateById(
             @PathVariable UUID areaId,
-            @RequestBody UpdateAreaRequest updateAreaRequest
-    ) {
+            @RequestPart("updateAreaRequest") UpdateAreaRequest updateAreaRequest,
+            @RequestPart("photos") List<MultipartFile> photos
+    ) throws IOException {
         try {
+            List<String> keys = null;
+            keys = photoService.upload(photos);
             AreaResponse response = null;
             try {
                 response = areaMapper.toAreaResponse(
@@ -127,12 +139,12 @@ public class AdminAreaControllerV1 {
                                 areaId,
                                 updateAreaRequest.name(),
                                 updateAreaRequest.type(),
-                                updateAreaRequest.keys(),
+                                keys,
                                 updateAreaRequest.capacity()
                         )
                 );
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                return ResponseEntity.badRequest().build();
             }
             return ResponseEntity.ok(response);
         }

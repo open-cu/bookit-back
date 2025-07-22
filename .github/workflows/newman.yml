@@ -7,6 +7,9 @@ on:
       - release
       - -main
 
+env:
+  REMOTE_USER: ${{ secrets.SSH_USER }}
+
 jobs:
   newman-tests:
     runs-on: self-hosted
@@ -34,4 +37,4 @@ jobs:
 
       - name: Run Postman Tests
         if: always()
-        run: npx newman run "https://api.getpostman.com/collections/${{ secrets.COLLECTION_UID }}?access_key=${{ secrets.ACCESS_KEY }}"
+        run: npx newman run "https://api.getpostman.com/collections/${{ secrets.COLLECTION_UID }}?access_key=${{ secrets.ACCESS_KEY }}" --working-dir $REMOTE_USER/photos

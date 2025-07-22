@@ -11,7 +11,6 @@ public record CreateAreaRequest(
         String description,
         AreaType type,
         List<AreaFeature> features,
-        List<String> keys,
         int capacity,
         AreaStatus status
 ) {}

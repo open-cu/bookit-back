@@ -197,7 +197,7 @@ public class BookingControllerV1 {
     }
 
     @PreAuthorize("@securityService.isDev() or " +
-            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
+            "@securityService.hasRequiredRole(@securityService.getAdmin())")
     @PutMapping("/admin/{bookingId}")
     public ResponseEntity<BookingResponse> updateById(
             @PathVariable UUID bookingId,
