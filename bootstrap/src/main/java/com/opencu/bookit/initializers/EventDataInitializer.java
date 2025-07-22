@@ -21,24 +21,24 @@ public class EventDataInitializer {
             if (eventRepository.count() == 0) {
                 // Создаем события
                 EventEntity pitchNight = new EventEntity();
-                pitchNight.setName("Startup Pitch Night");
-                pitchNight.setDescription("An opportunity for startups to present their ideas to investors.");
+                pitchNight.setName("Ночь презентаций стартапов");
+                pitchNight.setDescription("Возможность для стартапов представить свои идеи инвесторам.");
                 pitchNight.setTags(Set.of(ThemeTags.IT, ThemeTags.TECHNOLOGY));
                 pitchNight.setDate(LocalDateTime.of(2025, 7, 10, 0, 0, 0));
                 pitchNight.setKeys(List.of("arch.png"));
                 pitchNight.setAvailable_places(30);
 
                 EventEntity aiWorkshop = new EventEntity();
-                aiWorkshop.setName("AI Workshop");
-                aiWorkshop.setDescription("Hands-on workshop on building AI-powered applications.");
+                aiWorkshop.setName("Мастерская искусственного интеллекта");
+                aiWorkshop.setDescription("Практический семинар по созданию приложений на базе искусственного интеллекта.");
                 aiWorkshop.setTags(Set.of(ThemeTags.IT, ThemeTags.SCIENCE));
                 aiWorkshop.setDate(LocalDateTime.of(2025, 8, 20, 0, 0, 0));
                 aiWorkshop.setKeys(List.of("arch.png"));
                 aiWorkshop.setAvailable_places(0);
 
                 EventEntity aiWorkshop2 = new EventEntity();
-                aiWorkshop2.setName("AI Workshop is back");
-                aiWorkshop2.setDescription("An opportunity for startups to present their ideas to investors.");
+                aiWorkshop2.setName("Мастерская искусственного интеллекта возвращается");
+                aiWorkshop2.setDescription("Возможность для стартапов представить свои идеи инвесторам.");
                 aiWorkshop2.setTags(Set.of(ThemeTags.IT, ThemeTags.TECHNOLOGY));
                 aiWorkshop2.setDate(LocalDateTime.of(2025, 9, 10, 0, 0, 0));
                 aiWorkshop2.setKeys(List.of("arch.png"));
