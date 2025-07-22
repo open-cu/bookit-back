@@ -4,6 +4,7 @@ import com.opencu.bookit.application.port.out.user.DeleteUserPort;
 import com.opencu.bookit.application.port.out.user.LoadAuthorizationInfoPort;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.application.port.out.user.SaveUserPort;
+import com.opencu.bookit.domain.model.user.Role;
 import com.opencu.bookit.domain.model.user.UserModel;
 import com.opencu.bookit.domain.model.user.UserStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -70,6 +68,7 @@ public class UserService {
             String firstName,
             String lastname,
             String email,
+            List<String> roles,
             UserStatus userStatus
     ) {
         Optional<UserModel> userOpt = loadUserPort.findById(userId);
@@ -81,6 +80,11 @@ public class UserService {
         if (firstName != null) user.setFirstName(firstName);
         if (lastname != null) user.setLastName(lastname);
         if (email != null) user.setEmail(email);
+        if (roles != null && !roles.isEmpty()) {
+            Set<Role> rolesSet = new HashSet<>();
+            roles.forEach(role -> rolesSet.add(Role.valueOf(role)));
+            user.setRoles(rolesSet);
+        }
         if (userStatus != null) user.setStatus(userStatus);
         return saveUserPort.save(user);
     }
