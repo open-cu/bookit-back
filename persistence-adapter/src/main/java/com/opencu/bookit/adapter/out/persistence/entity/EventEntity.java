@@ -55,6 +55,8 @@ public class EventEntity {
     @Column(name = "participation_format")
     private Set<ParticipationFormat> participationFormats = new HashSet<>();
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "event_keys", joinColumns = @JoinColumn(name = "event_id"))
     @Column(nullable = false)
     private List<String> keys;
 

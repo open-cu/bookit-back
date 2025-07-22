@@ -41,6 +41,8 @@ public class AreaEntity {
     @Column(nullable = false)
     private AreaStatus status;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "area_keys", joinColumns = @JoinColumn(name = "area_id"))
     @Column(nullable = false)
     private List<String> keys;
 

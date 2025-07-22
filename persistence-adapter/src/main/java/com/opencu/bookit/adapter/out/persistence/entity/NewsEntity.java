@@ -38,6 +38,8 @@ public class NewsEntity {
     @Column(name = "tag")
     private Set<ThemeTags> tags = new HashSet<>();
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "news_keys", joinColumns = @JoinColumn(name = "news_id"))
     @Column(nullable = false)
     private List<String> keys;
 
