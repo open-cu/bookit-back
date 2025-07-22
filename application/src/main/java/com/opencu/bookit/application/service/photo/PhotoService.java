@@ -3,15 +3,18 @@ package com.opencu.bookit.application.service.photo;
 import com.opencu.bookit.domain.model.image.ImageModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.http.apache.ApacheHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
 import java.net.URI;
@@ -81,5 +84,21 @@ public class PhotoService {
                     base64Data
             );
         }
+    }
+
+    public List<String> upload(List<MultipartFile> photos) throws IOException {
+        List<String> keys = new ArrayList<>();
+        for (MultipartFile photo : photos) {
+            String key = photo.getOriginalFilename();
+            PutObjectRequest request = PutObjectRequest.builder()
+                    .bucket(BUCKET)
+                    .key(key)
+                    .contentType(photo.getContentType())
+                    .build();
+
+            s3Client.putObject(request, RequestBody.fromBytes(photo.getBytes()));
+            keys.add(key);
+        }
+        return keys; // Возвращаем ключ объекта для дальнейшего доступа
     }
 }

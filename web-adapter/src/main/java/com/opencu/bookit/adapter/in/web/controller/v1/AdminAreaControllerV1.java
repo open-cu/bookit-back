@@ -6,6 +6,7 @@ import com.opencu.bookit.adapter.in.web.dto.response.AreaResponse;
 import com.opencu.bookit.adapter.in.web.exception.ResourceNotFoundException;
 import com.opencu.bookit.adapter.in.web.mapper.AreaResponseMapper;
 import com.opencu.bookit.application.service.area.AreaService;
+import com.opencu.bookit.application.service.photo.PhotoService;
 import com.opencu.bookit.domain.model.area.AreaModel;
 import com.opencu.bookit.domain.model.area.AreaType;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,8 +17,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,10 +30,12 @@ import java.util.UUID;
 public class AdminAreaControllerV1 {
     private final AreaService areaService;
     private final AreaResponseMapper areaMapper;
+    private final PhotoService photoService;
 
-    public AdminAreaControllerV1(AreaService areaService, AreaResponseMapper areaMapper) {
+    public AdminAreaControllerV1(AreaService areaService, AreaResponseMapper areaMapper, PhotoService photoService) {
         this.areaService = areaService;
         this.areaMapper = areaMapper;
+        this.photoService = photoService;
     }
 
     @PreAuthorize("@securityService.isDev() or " +
@@ -80,14 +85,21 @@ public class AdminAreaControllerV1 {
     @Operation(summary = "Create area")
     @PostMapping
     public ResponseEntity<AreaResponse> createArea(
-            @RequestBody CreateAreaRequest createAreaRequest
+            @RequestPart("createAreaRequest") CreateAreaRequest createAreaRequest,
+            @RequestParam List<MultipartFile> photos
     ) {
+        List<String> keys = null;
+        try {
+            keys = photoService.upload(photos);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         AreaModel model = areaService.createArea(
                 createAreaRequest.name(),
                 createAreaRequest.description(),
                 createAreaRequest.type(),
                 createAreaRequest.features(),
-                createAreaRequest.keys(),
+                keys,
                 createAreaRequest.capacity(),
                 createAreaRequest.status()
         );
@@ -117,9 +129,12 @@ public class AdminAreaControllerV1 {
     @PutMapping("/{areaId}")
     public ResponseEntity<AreaResponse> updateById(
             @PathVariable UUID areaId,
-            @RequestBody UpdateAreaRequest updateAreaRequest
-    ) {
+            @RequestPart("updateAreaRequest") UpdateAreaRequest updateAreaRequest,
+            @RequestParam List<MultipartFile> photos
+    ) throws IOException {
         try {
+            List<String> keys = null;
+            keys = photoService.upload(photos);
             AreaResponse response = null;
             try {
                 response = areaMapper.toAreaResponse(
@@ -127,7 +142,7 @@ public class AdminAreaControllerV1 {
                                 areaId,
                                 updateAreaRequest.name(),
                                 updateAreaRequest.type(),
-                                updateAreaRequest.keys(),
+                                keys,
                                 updateAreaRequest.capacity()
                         )
                 );

@@ -5,6 +5,7 @@ import com.opencu.bookit.adapter.in.web.dto.response.EventResponse;
 import com.opencu.bookit.adapter.in.web.exception.ResourceNotFoundException;
 import com.opencu.bookit.adapter.in.web.mapper.EventResponseMapper;
 import com.opencu.bookit.application.service.event.EventService;
+import com.opencu.bookit.application.service.photo.PhotoService;
 import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
 import com.opencu.bookit.domain.model.contentcategory.ContentTime;
 import com.opencu.bookit.domain.model.contentcategory.ParticipationFormat;
@@ -24,22 +25,22 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/events")
 public class EventControllerV1 {
     private final EventService eventService;
+    private final PhotoService photoService;
     private final EventResponseMapper eventResponseMapper;
 
-    public EventControllerV1(EventService eventService, EventResponseMapper eventResponseMapper) {
+    public EventControllerV1(EventService eventService, PhotoService photoService, EventResponseMapper eventResponseMapper) {
         this.eventService = eventService;
+        this.photoService = photoService;
         this.eventResponseMapper = eventResponseMapper;
     }
 
@@ -157,9 +158,16 @@ public class EventControllerV1 {
     @PutMapping("/{eventId}")
     public ResponseEntity<EventResponse> updateEvent(
             @PathVariable UUID eventId,
-            @RequestBody UpdateEventRequest updateEventRequest
+            @RequestPart("updateEventRequest") UpdateEventRequest updateEventRequest,
+            @RequestParam List<MultipartFile> photos
     ) {
         try {
+            List<String> keys = null;
+            try {
+                keys = photoService.upload(photos);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             EventModel eventModel = eventService.updateEvent(
                     eventId,
                     updateEventRequest.name(),
@@ -168,7 +176,7 @@ public class EventControllerV1 {
                     updateEventRequest.formats(),
                     updateEventRequest.times(),
                     updateEventRequest.participationFormats(),
-                    updateEventRequest.keys(),
+                    keys,
                     updateEventRequest.date(),
                     updateEventRequest.available_places()
             );
@@ -187,8 +195,15 @@ public class EventControllerV1 {
             "@securityService.hasRequiredRole(SecurityService.getAdmin())")
     @PostMapping
     public ResponseEntity<EventResponse> createEvent(
-            @RequestBody UpdateEventRequest updateEventRequest
+            @RequestPart("updateEventRequest") UpdateEventRequest updateEventRequest,
+            @RequestParam List<MultipartFile> photos
     ) {
+        List<String> keys = null;
+        try {
+            keys = photoService.upload(photos);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         EventModel eventModel = eventService.createEvent(
                 updateEventRequest.name(),
                 updateEventRequest.description(),
@@ -196,7 +211,7 @@ public class EventControllerV1 {
                 updateEventRequest.formats(),
                 updateEventRequest.times(),
                 updateEventRequest.participationFormats(),
-                updateEventRequest.keys(),
+                keys,
                 updateEventRequest.date(),
                 updateEventRequest.available_places()
         );

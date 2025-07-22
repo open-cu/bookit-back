@@ -7,6 +7,5 @@ import java.util.List;
 public record UpdateAreaRequest(
         String name,
         AreaType type,
-        List<String> keys,
         int capacity
 ) {}
