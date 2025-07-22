@@ -42,12 +42,14 @@ public class BookingControllerV1 {
     private final BookingService bookingService;
     private final BookingResponseMapper bookingResponseMapper;
     private final BookingRequestMapper bookingRequestMapper;
+    private final SecurityService securityService;
 
     public BookingControllerV1(BookingService bookingService,
-                               BookingResponseMapper bookingResponseMapper, BookingRequestMapper bookingRequestMapper) {
+                               BookingResponseMapper bookingResponseMapper, BookingRequestMapper bookingRequestMapper, SecurityService securityService) {
         this.bookingService = bookingService;
         this.bookingResponseMapper = bookingResponseMapper;
         this.bookingRequestMapper = bookingRequestMapper;
+        this.securityService = securityService;
     }
 
     @Operation(summary = "Get available dates for area")
@@ -178,9 +180,6 @@ public class BookingControllerV1 {
             @PathVariable UUID bookingId,
             @RequestBody UpdateBookingRequest request) {
         try {
-            if (new SecurityService().hasRequiredRole(SecurityService.getAdmin())) {
-
-            }
             UserDetailsImpl currentUser = getCurrentUser();
             if (currentUser.getStatus() != UserStatus.VERIFIED) {
                 throw new ProfileNotCompletedException("User profile is not completed. Please complete your profile before updating bookings.");
@@ -229,7 +228,7 @@ public class BookingControllerV1 {
     public ResponseEntity<?> deleteById(
             @PathVariable UUID bookingId
     ) {
-        if (new SecurityService().hasRequiredRole(SecurityService.getAdmin())) {
+        if (securityService.hasRequiredRole(securityService.getAdmin())) {
             bookingService.deleteById(bookingId);
             return ResponseEntity.ok("Booking deleted successfully");
         } else {

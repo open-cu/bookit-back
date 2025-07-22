@@ -1,14 +1,13 @@
 package com.opencu.bookit.adapter.out.persistence.adapter;
 
-import com.opencu.bookit.adapter.out.persistence.entity.RoleEntity;
 import com.opencu.bookit.adapter.out.persistence.entity.UserEntity;
 import com.opencu.bookit.adapter.out.persistence.mapper.UserMapper;
-import com.opencu.bookit.adapter.out.persistence.repository.RoleRepository;
 import com.opencu.bookit.adapter.out.persistence.repository.UserRepository;
 import com.opencu.bookit.application.port.out.user.DeleteUserPort;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.application.port.out.user.SaveUserPort;
 import com.opencu.bookit.application.port.out.user.UserPreferencesPort;
+import com.opencu.bookit.domain.model.user.Role;
 import com.opencu.bookit.domain.model.user.UserModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,7 +26,6 @@ public class UserPersistenceAdapter implements
         LoadUserPort, SaveUserPort, DeleteUserPort, UserPreferencesPort {
 
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
     private final UserMapper userMapper;
 
     @Override
@@ -70,12 +68,12 @@ public class UserPersistenceAdapter implements
     public Page<UserModel> findWithFilters(Set<String> role, String search, Pageable pageable) {
         Specification<UserEntity> spec = Specification.where(null);
 
-        Set<RoleEntity> roles = new HashSet<>();
-        for (var roleStr: role) {
-            RoleEntity.RoleName name = RoleEntity.RoleName.fromString(roleStr);
-            roles.add(roleRepository.findByName(name).get());
+        Set<Role> roles = new HashSet<>();
+        if (role != null) {
+            for (String roleStr : role) {
+                roles.add(Role.fromString(roleStr));
+            }
         }
-
         if (search != null && !search.isBlank()) {
             spec = spec.and((root, query, cb) ->
                 cb.or(
@@ -87,7 +85,7 @@ public class UserPersistenceAdapter implements
         }
         if (!roles.isEmpty()) {
             spec = spec.and((root, query, cb) ->
-                    root.join("roleEntities").in(roles));
+                    root.join("roles").in(roles));
         }
         return userRepository.findAll(spec, pageable)
                 .map(userMapper::toModel);

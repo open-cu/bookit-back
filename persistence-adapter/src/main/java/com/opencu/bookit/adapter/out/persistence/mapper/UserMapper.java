@@ -12,8 +12,7 @@ import java.util.List;
 
 @Mapper(
         componentModel = "spring",
-        unmappedTargetPolicy = ReportingPolicy.IGNORE,
-        uses = {RoleMapper.class}
+        unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
 public abstract class UserMapper {
 
@@ -21,11 +20,11 @@ public abstract class UserMapper {
     @Lazy
     protected ReviewMapper reviewMapper;
 
-    @Mapping(target = "roles", source = "roleEntities")
+    @Mapping(target = "roles", source = "roles")
     @Mapping(target = "reviews", source = "reviewEntities")
     public abstract UserModel toModel(UserEntity entity);
 
-    @Mapping(target = "roleEntities", source = "roles")
+    @Mapping(target = "roles", source = "roles")
     @Mapping(target = "reviewEntities", source = "reviews")
     public abstract UserEntity toEntity(UserModel model);
 

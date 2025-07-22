@@ -1,18 +1,18 @@
 package com.opencu.bookit.domain.model.user;
 
-import lombok.*;
+public enum Role {
+    ROLE_USER,
+    ROLE_ADMIN,
+    ROLE_SUPERADMIN;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class Role {
-    private Long id;
-    private RoleName name;
-
-    public enum RoleName {
-        ROLE_USER,
-        ROLE_ADMIN,
-        ROLE_SUPERADMIN
+    public static Role fromString(String roleStr) {
+        if (roleStr == null) {
+            return null;
+        }
+        try {
+            return Role.valueOf(roleStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 }

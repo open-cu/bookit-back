@@ -1,6 +1,7 @@
 package com.opencu.bookit.adapter.out.persistence.entity;
 
 import com.opencu.bookit.application.config.BookingConfig;
+import com.opencu.bookit.domain.model.user.Role;
 import com.opencu.bookit.domain.model.user.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -55,11 +56,11 @@ public class UserEntity {
     @Column(unique = true, nullable = false)
     private String username;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<RoleEntity> roleEntities = new HashSet<>();
+    @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Set<Role> roles = new HashSet<>();
 
     @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewEntity> reviewEntities = new ArrayList<>();

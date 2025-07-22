@@ -124,6 +124,7 @@ public class UserControllerV1 {
                 patchUserRequest.firstName(),
                 patchUserRequest.lastName(),
                 patchUserRequest.email(),
+                patchUserRequest.roles(),
                 patchUserRequest.userStatus()
         );
         return ResponseEntity.ok(meResponseMapper.toResponse(patched));

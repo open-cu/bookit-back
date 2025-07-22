@@ -11,6 +11,7 @@ import com.opencu.bookit.adapter.out.security.spring.payload.response.UserProfil
 import com.opencu.bookit.application.port.out.user.LoadAuthorizationInfoPort;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.application.port.out.user.SaveUserPort;
+import com.opencu.bookit.domain.model.user.Role;
 import com.opencu.bookit.domain.model.user.UserModel;
 import com.opencu.bookit.domain.model.user.UserStatus;
 import jakarta.transaction.Transactional;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -64,6 +66,7 @@ public class AuthService implements LoadAuthorizationInfoPort {
             user.setLastName(telegramUserRequest.getLastName());
             user.setPhotoUrl(telegramUserRequest.getPhotoUrl());
             user.setStatus(UserStatus.CREATED);
+            user.setRoles(Set.of(Role.ROLE_USER));
             user.setCreatedAt(LocalDateTime.now(zoneId));
 
             String randomPassword = generateRandomPassword();
