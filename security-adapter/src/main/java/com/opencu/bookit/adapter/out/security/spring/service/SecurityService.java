@@ -1,5 +1,7 @@
 package com.opencu.bookit.adapter.out.security.spring.service;
 
+import com.opencu.bookit.domain.model.user.Role;
+import com.opencu.bookit.domain.model.user.UserModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -26,7 +28,7 @@ public class SecurityService {
     }
 
     public boolean hasRequiredRole(String role) {
-        return SecurityContextHolder.getContext().getAuthentication().getAuthorities()
-                .stream().anyMatch(a -> a.getAuthority().equals(role));
+        UserModel user = (UserModel) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return user.getRoles().contains(Role.fromString(role));
     }
 }
