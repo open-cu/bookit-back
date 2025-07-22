@@ -38,7 +38,7 @@ public class AdminNewsControllerV1 {
     }
 
     @PreAuthorize("@securityService.isDev() or " +
-            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
+            "@securityService.hasRequiredRole(@securityService.getAdmin())")
     @Operation(summary = "Get all public news with optional filters, search, pagination and sorting")
     @GetMapping
     public ResponseEntity<Page<NewsResponse>> getAllPublicNews(
@@ -64,7 +64,7 @@ public class AdminNewsControllerV1 {
     }
 
     @PreAuthorize("@securityService.isDev() or " +
-            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
+            "@securityService.hasRequiredRole(@securityService.getAdmin())")
     @GetMapping("/{newsId}")
     public ResponseEntity<NewsResponse> getById(
             @PathVariable UUID newsId
@@ -81,7 +81,7 @@ public class AdminNewsControllerV1 {
     }
 
     @PreAuthorize("@securityService.isDev() or " +
-            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
+            "@securityService.hasRequiredRole(@securityService.getAdmin())")
     @DeleteMapping("/{newsId}")
     public ResponseEntity<?> deleteNews(
             @PathVariable UUID newsId
@@ -91,20 +91,16 @@ public class AdminNewsControllerV1 {
     }
 
     @PreAuthorize("@securityService.isDev() or " +
-            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
+            "@securityService.hasRequiredRole(@securityService.getAdmin())")
     @PutMapping("/{newsId}")
     public ResponseEntity<NewsResponse> updateNews(
             @PathVariable UUID newsId,
             @RequestPart("newsUpdateRequest") NewsUpdateRequest newsUpdateRequest,
-            @RequestParam List<MultipartFile> photos
+            @RequestPart("photos") List<MultipartFile> photos
     ) {
         try {
             List<String> keys = null;
-            try {
-                keys = photoService.upload(photos);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            keys = photoService.upload(photos);
             NewsModel news = newsService.udpateNews(
                     newsId,
                     newsUpdateRequest.title(),
@@ -112,39 +108,34 @@ public class AdminNewsControllerV1 {
                     newsUpdateRequest.tags(),
                     keys
             );
-            try {
                 return ResponseEntity.ok(newsResponseMapper.toResponse(news));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 
     @PreAuthorize("@securityService.isDev() or " +
-            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
+            "@securityService.hasRequiredRole(@securityService.getAdmin())")
     @PostMapping
     public ResponseEntity<NewsResponse> createNews(
             @RequestPart("newsUpdateRequest") NewsUpdateRequest newsUpdateRequest,
-            @RequestParam List<MultipartFile> photos
+            @RequestPart("photos") List<MultipartFile> photos
     ) {
         List<String> keys = null;
         try {
             keys = photoService.upload(photos);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
         NewsModel news = newsService.createNews(
                 newsUpdateRequest.title(),
                 newsUpdateRequest.description(),
                 newsUpdateRequest.tags(),
                 keys
         );
-        try {
             return ResponseEntity.ok(newsResponseMapper.toResponse(news));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            return ResponseEntity.badRequest().build();
         }
     }
 }

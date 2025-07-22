@@ -137,7 +137,7 @@ public class EventControllerV1 {
     }
 
     @PreAuthorize("@securityService.isDev() or " +
-            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
+            "@securityService.hasRequiredRole(@securityService.getAdmin())")
     @GetMapping("/{eventId}")
     public ResponseEntity<EventResponse> getById(
         @PathVariable UUID eventId
@@ -154,20 +154,16 @@ public class EventControllerV1 {
     }
 
     @PreAuthorize("@securityService.isDev() or " +
-            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
+            "@securityService.hasRequiredRole(@securityService.getAdmin())")
     @PutMapping("/{eventId}")
     public ResponseEntity<EventResponse> updateEvent(
             @PathVariable UUID eventId,
             @RequestPart("updateEventRequest") UpdateEventRequest updateEventRequest,
-            @RequestParam List<MultipartFile> photos
+            @RequestPart("photos") List<MultipartFile> photos
     ) {
         try {
             List<String> keys = null;
-            try {
-                keys = photoService.upload(photos);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            keys = photoService.upload(photos);
             EventModel eventModel = eventService.updateEvent(
                     eventId,
                     updateEventRequest.name(),
@@ -180,31 +176,25 @@ public class EventControllerV1 {
                     updateEventRequest.date(),
                     updateEventRequest.available_places()
             );
-            try {
                 return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventModel));
             } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.badRequest().build();
+            } catch (NoSuchElementException e) {
+                return ResponseEntity.notFound().build();
         }
-
     }
 
     @PreAuthorize("@securityService.isDev() or " +
-            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
+            "@securityService.hasRequiredRole(@securityService.getAdmin())")
     @PostMapping
     public ResponseEntity<EventResponse> createEvent(
             @RequestPart("updateEventRequest") UpdateEventRequest updateEventRequest,
-            @RequestParam List<MultipartFile> photos
+            @RequestPart("photos") List<MultipartFile> photos
     ) {
         List<String> keys = null;
         try {
             keys = photoService.upload(photos);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        EventModel eventModel = eventService.createEvent(
+            EventModel eventModel = eventService.createEvent(
                 updateEventRequest.name(),
                 updateEventRequest.description(),
                 updateEventRequest.tags(),
@@ -215,15 +205,14 @@ public class EventControllerV1 {
                 updateEventRequest.date(),
                 updateEventRequest.available_places()
         );
-        try {
             return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventModel));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            return ResponseEntity.badRequest().build();
         }
     }
 
     @PreAuthorize("@securityService.isDev() or " +
-            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
+            "@securityService.hasRequiredRole(@securityService.getAdmin())")
     @DeleteMapping("/{eventId}")
     public ResponseEntity<?> deleteEvent(
             @PathVariable UUID eventId

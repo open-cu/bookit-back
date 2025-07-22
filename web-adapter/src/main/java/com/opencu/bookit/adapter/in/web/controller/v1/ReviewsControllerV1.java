@@ -45,7 +45,7 @@ public class ReviewsControllerV1 {
     }
 
     @PreAuthorize("@securityService.isDev() or " +
-            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
+            "@securityService.hasRequiredRole(@securityService.getAdmin())")
     @GetMapping("/{reviewId}")
     public ResponseEntity<ReviewsResponse> getById(
             @PathVariable UUID reviewId
@@ -61,7 +61,7 @@ public class ReviewsControllerV1 {
     }
 
     @PreAuthorize("@securityService.isDev() or " +
-            "@securityService.hasRequiredRole(SecurityService.getAdmin())")
+            "@securityService.hasRequiredRole(@securityService.getAdmin())")
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<?> deleteById(
             @PathVariable UUID reviewId

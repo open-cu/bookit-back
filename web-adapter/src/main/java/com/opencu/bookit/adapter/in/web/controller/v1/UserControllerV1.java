@@ -83,7 +83,7 @@ public class UserControllerV1 {
     }
 
     @PreAuthorize("@securityService.isDev() or " +
-            "@securityService.hasRequiredRole(SecurityService.getSuperadmin())")
+            "@securityService.hasRequiredRole(@securityService.getSuperadmin())")
     @GetMapping
     public ResponseEntity<Page<MeResponse>> getUsers(
             @RequestParam(required = false) Set<String> role,
@@ -100,7 +100,7 @@ public class UserControllerV1 {
     }
 
     @PreAuthorize("@securityService.isDev() or " +
-            "@securityService.hasRequiredRole(SecurityService.getSuperadmin())")
+            "@securityService.hasRequiredRole(@securityService.getSuperadmin())")
     @GetMapping("/{userId}")
     public ResponseEntity<MeResponse> getById(
             @PathVariable UUID userId
@@ -112,7 +112,7 @@ public class UserControllerV1 {
     }
 
     @PreAuthorize("@securityService.isDev() or " +
-            "@securityService.hasRequiredRole(SecurityService.getSuperadmin())")
+            "@securityService.hasRequiredRole(@securityService.getSuperadmin())")
     @Operation(summary = "Changing status by userId")
     @PatchMapping("/{userId}")
     public ResponseEntity<MeResponse> patchStatus(
@@ -131,7 +131,7 @@ public class UserControllerV1 {
     }
 
     @PreAuthorize("@securityService.isDev() or " +
-            "@securityService.hasRequiredRole(SecurityService.getSuperadmin())")
+            "@securityService.hasRequiredRole(@securityService.getSuperadmin())")
     @DeleteMapping("/{userId}")
     public ResponseEntity<?> deleteById(
             @PathVariable UUID userId
