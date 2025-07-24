@@ -1,4 +1,4 @@
-package com.opencu.bookit.adapter.in.web.controller;
+package com.opencu.bookit.adapter.in.web.controller.v1;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencu.bookit.adapter.in.web.dto.request.AIRequest;
@@ -20,11 +20,11 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/ai")
-public class AIController {
+public class AIControllerV1 {
     private final RestTemplate restTemplate = new RestTemplate();
     private final JdbcTemplate jdbcTemplate;
 
-    public AIController(JdbcTemplate jdbcTemplate) {
+    public AIControllerV1(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
