@@ -1,4 +1,4 @@
-package com.opencu.bookit.adapter.in.web.controller;
+package com.opencu.bookit.adapter.in.web.controller.v1;
 
 import com.opencu.bookit.application.service.statistics.StatsService;
 import com.opencu.bookit.domain.model.statistics.*;
@@ -21,9 +21,9 @@ import java.util.Arrays;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/stats")
+@RequestMapping("/api/v1/stats")
 @RequiredArgsConstructor
-public class StatsController {
+public class StatsControllerV1 {
 
     private final StatsService statsService;
     @Value("${booking.zone-id}")

@@ -4,6 +4,8 @@ on:
   pull_request:
     branches:
       - release
+    types:
+      - closed
 
 env:
   SSH_HOST: ${{ secrets.SSH_HOST }}
@@ -36,5 +38,7 @@ jobs:
           cd ./bookit-back &&
           git checkout release &&
           git pull &&
-          sudo docker-compose -f docker-prod.yaml up --build -d
+          export COMPOSE_HTTP_TIMEOUT=300 &&
+          docker-compose -f docker-prod.yaml down &&
+          docker-compose -f docker-prod.yaml up --build -d
           "
