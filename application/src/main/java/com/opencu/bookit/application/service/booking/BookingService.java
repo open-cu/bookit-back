@@ -29,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -135,13 +134,14 @@ public class BookingService {
 
     private boolean isAreaAvailable(LocalDateTime currHour, List<BookingModel> bookingModels, AreaModel areaModel) {
         if (areaModel.getType() != AreaType.WORKPLACE) {
-            return bookingModels.stream().noneMatch(b -> bookingIncludeHour(currHour, b));
+            UUID areaId = areaModel.getId();
+            return bookingModels.stream().noneMatch(b -> bookingIncludeHour(currHour, b) &&
+                    b.getAreaId().equals(areaId));
         } else {
             Optional<HallOccupancyModel> hallOccupancy = loadHallOccupancyPort.findById(currHour);
-            if (hallOccupancy.isPresent() &&
-                    bookingModels.stream().noneMatch(
-                            b -> b.getUserId().equals(loadAuthorizationInfoPort.getCurrentUser().getId()) &&
-                            bookingIncludeHour(currHour, b))) {
+            UUID userId = loadAuthorizationInfoPort.getCurrentUser().getId();
+            if (hallOccupancy.isPresent() && bookingModels.stream().noneMatch(b -> b.getUserId().equals(userId)
+                    && bookingIncludeHour(currHour, b))) {
                 return hallOccupancy.get().getReservedPlaces() < bookingConfig.getHallMaxCapacity();
             }
         }
@@ -244,6 +244,13 @@ public class BookingService {
         }
         else {
             bookingModel.setStatus(BookingStatus.CANCELED);
+            if (bookingModel.getAreaModel().getType().equals(AreaType.WORKPLACE)) {
+                for (LocalDateTime time = bookingModel.getStartTime(); time.isBefore(bookingModel.getEndTime()); time = time.plusHours(1)) {
+                    HallOccupancyModel hallOccupancyModel = loadHallOccupancyPort.getByDateTime(time).orElseThrow();
+                    hallOccupancyModel.setReservedPlaces(hallOccupancyModel.getReservedPlaces() - 1);
+                    saveHallOccupancyPort.save(hallOccupancyModel);
+                }
+            }
         }
         saveBookingPort.save(bookingModel);
     }
@@ -260,9 +267,13 @@ public class BookingService {
             throw new IllegalStateException("There are no chosen time periods");
         }
 
-        for (Pair<LocalDateTime, LocalDateTime> t : createBookingCommand.timePeriods()) {
-            if (!isAreaAvailable(areaModel, t.getFirst(), t.getSecond())) {
-                throw new IllegalStateException("Area is already booked for this time slot");
+        for (Pair<LocalDateTime, LocalDateTime> time : createBookingCommand.timePeriods()) {
+            Set<LocalDateTime> eachTime = new HashSet<>();
+            for (LocalDateTime t = time.getFirst(); t.isBefore(time.getSecond()); t = t.plusHours(1)) {
+                eachTime.add(t);
+            }
+            if (!findAvailableAreas(eachTime).contains(areaModel.getId())) {
+                throw new IllegalArgumentException("Area is not available for requested time periods");
             }
         }
 
@@ -304,7 +315,7 @@ public class BookingService {
         if (areaModel.getType().equals(AreaType.WORKPLACE)) {
             for (Pair<LocalDateTime, LocalDateTime> t : createBookingCommand.timePeriods()) {
                 for (LocalDateTime time = t.getFirst(); time.isBefore(t.getSecond()); time = time.plusHours(1)) {
-                    HallOccupancyModel hallOccupancyModel = loadHallOccupancyPort.getByDateTime(time);
+                    HallOccupancyModel hallOccupancyModel = loadHallOccupancyPort.getByDateTime(time).orElseThrow();
                     hallOccupancyModel.setReservedPlaces(hallOccupancyModel.getReservedPlaces() + 1);
                     saveHallOccupancyPort.save(hallOccupancyModel);
                 }
@@ -393,39 +404,41 @@ public class BookingService {
         return loadBookingPort.findByStartDatetime(time);
     }
 
-    private boolean isAreaAvailable(AreaModel areaModel, LocalDateTime startTime, LocalDateTime endTime) {
-        return true;
+
+    public List<UUID> findAvailableAreas(Set<LocalDateTime> requestedTimes) {
+        HashSet<UUID> availableAreas = loadAreaPort.findAll().stream().map(AreaModel::getId)
+                .collect(Collectors.toCollection(HashSet::new));
+        for (LocalDateTime time : requestedTimes) {
+            List<BookingModel> bookingModels = loadBookingPort.findAllIncludingTime(time);
+            Set<UUID> bookedAreaIds = bookingModels.stream().filter(b -> b.getStatus() == BookingStatus.CONFIRMED)
+                    .map(BookingModel::getAreaId).collect(Collectors.toSet());
+            availableAreas.removeAll(bookedAreaIds);
+        }
+
+        UUID workplaceId = loadAreaPort.findByType(AreaType.WORKPLACE).getFirst().getId();
+        availableAreas.remove(workplaceId);
+        if (requestedTimes.stream().allMatch(time -> isWorkplaceAvailable(time) && isOnlyOneBooking(time))) {
+            availableAreas.add(workplaceId);
+        }
+
+        return availableAreas.stream().toList();
     }
 
+    private boolean isWorkplaceAvailable(LocalDateTime time) {
 
-    public List<UUID> findAvailableAreas(Set<LocalDateTime> startTimes) {
-        ArrayList<UUID> availableAreas = loadAreaPort.findAll().stream().filter(area -> area.getType() != AreaType.WORKPLACE)
-                                                     .map(AreaModel::getId)
-                                                     .collect(Collectors.toCollection(ArrayList::new));
-        AreaModel workplace = loadAreaPort.findByType(AreaType.WORKPLACE).getFirst();
-        boolean isWorkplaceAvailable = true;
-
-        for (LocalDateTime time : startTimes) {
-            List<BookingModel> bookingModels = loadBookingPort.findByDatetime(time);
-            Set<UUID> bookedAreaIds = bookingModels.stream()
-                                                   .map(BookingModel::getAreaId)
-                                                   .collect(Collectors.toSet());
-            availableAreas = availableAreas.stream()
-                                           .filter(id -> !bookedAreaIds.contains(id))
-                                           .collect(Collectors.toCollection(ArrayList::new));
-            int reservedPlaces = loadHallOccupancyPort.getByDateTime(time).getReservedPlaces();
-            if (reservedPlaces >= bookingConfig.getHallMaxCapacity() ||
-                    bookingModels.stream().anyMatch(
-                            b -> b.getUserId().equals(loadAuthorizationInfoPort.getCurrentUser().getId()) &&
-                    bookingIncludeHour(time, b))) {
-                isWorkplaceAvailable = false;
-            }
-        }
-        if (isWorkplaceAvailable) {
-            availableAreas.add(workplace.getId());
+        if (loadSchedulePort.findByDate(time.toLocalDate()).isPresent() || loadHallOccupancyPort.getByDateTime(time).isEmpty()) {
+            return false;
         }
 
-        return availableAreas;
+        int reservedPlaces = loadHallOccupancyPort.getByDateTime(time).get().getReservedPlaces();
+        return reservedPlaces < bookingConfig.getHallMaxCapacity();
+    }
+
+    private boolean isOnlyOneBooking(LocalDateTime time) {
+        UUID userId = loadAuthorizationInfoPort.getCurrentUser().getId();
+        List<BookingModel> bookingModels = loadBookingPort.findAllIncludingTime(time);
+        return bookingModels.stream().noneMatch(b -> b.getUserId().equals(userId)
+                && b.getStatus() == BookingStatus.CONFIRMED);
     }
 
     public Set<Pair<LocalDateTime, LocalDateTime>> findClosestAvailableTimes(UUID areaId) {
