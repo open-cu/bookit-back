@@ -264,12 +264,15 @@ public class BookingService {
                                           .orElseThrow(() -> new NoSuchElementException("Area not found with id: " + createBookingCommand.areaId()));
 
         if (createBookingCommand.timePeriods().isEmpty()) {
-            throw new IllegalStateException("There are no chosen time periods");
+            throw new IllegalArgumentException("There are no chosen time periods");
         }
 
         for (Pair<LocalDateTime, LocalDateTime> time : createBookingCommand.timePeriods()) {
             Set<LocalDateTime> eachTime = new HashSet<>();
             for (LocalDateTime t = time.getFirst(); t.isBefore(time.getSecond()); t = t.plusHours(1)) {
+                if (!isOnlyOneBooking(t)) {
+                    throw new IllegalArgumentException("You already have a booking at " + t);
+                }
                 eachTime.add(t);
             }
             if (!findAvailableAreas(eachTime).contains(areaModel.getId())) {
@@ -417,7 +420,7 @@ public class BookingService {
 
         UUID workplaceId = loadAreaPort.findByType(AreaType.WORKPLACE).getFirst().getId();
         availableAreas.remove(workplaceId);
-        if (requestedTimes.stream().allMatch(time -> isWorkplaceAvailable(time) && isOnlyOneBooking(time))) {
+        if (requestedTimes.stream().allMatch(this::isWorkplaceAvailable)) {
             availableAreas.add(workplaceId);
         }
 
