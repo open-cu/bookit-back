@@ -1,7 +1,4 @@
-package com.opencu.bookit.adapter.in.web.dto.request;
-
-import com.opencu.bookit.adapter.in.web.dto.request.AIRequestComponents.CompletionOptions;
-import com.opencu.bookit.adapter.in.web.dto.request.AIRequestComponents.Message;
+package com.opencu.bookit.adapter.out.ai_agent.dto.request;
 
 import java.util.ArrayList;
 import java.util.List;

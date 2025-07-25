@@ -1,4 +1,5 @@
-package com.opencu.bookit.adapter.in.web.dto.response.AIResponseComponents;
+package com.opencu.bookit.adapter.out.ai_agent.dto.response;
+
 
 import java.util.List;
 
