@@ -214,7 +214,7 @@ public class EventControllerV1 {
                 updateEventRequest.date(),
                 updateEventRequest.available_places()
         );
-            return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventModel));
+            return ResponseEntity.status(HttpStatus.CREATED).body(eventResponseMapper.toEventResponse(eventModel));
         } catch (IOException e) {
             return ResponseEntity.badRequest().build();
         }
