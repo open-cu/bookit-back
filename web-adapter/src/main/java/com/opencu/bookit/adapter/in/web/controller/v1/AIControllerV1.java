@@ -6,47 +6,54 @@ import com.opencu.bookit.adapter.in.web.dto.request.AIRequestBuilder;
 import com.opencu.bookit.adapter.in.web.dto.request.RawAIRequest;
 import com.opencu.bookit.adapter.in.web.dto.response.AIResponse;
 import com.opencu.bookit.adapter.in.web.dto.response.SqlResponse;
-import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.http.*;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/ai")
+@RequestMapping("/api/v1/ai")
 public class AIControllerV1 {
     private final RestTemplate restTemplate = new RestTemplate();
     private final JdbcTemplate jdbcTemplate;
+
+    @Value("${yandex-gpt.api-url}")
+    private String url;
+
+    @Value("${yandex-gpt.authorization}")
+    private String authorization;
+
+    @Value("${yandex-gpt.model-uri}")
+    private String modelUri;
+
+    @Value("${yandex-gpt.system-text}")
+    private String systemText;
+
+    @Value("${yandex-gpt.system-text-analyze}")
+    private String systemTextAnalyze;
 
     public AIControllerV1(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @PostMapping("/get-sql")
-    public ResponseEntity<String> getSql(
+    @PostMapping
+    public ResponseEntity<String> getAiResponse(
+            @RequestParam(defaultValue = "false") boolean humanize,
             @RequestBody RawAIRequest rawAIRequest
     ) {
-        Dotenv dotenv = Dotenv.configure()
-                .directory("./")
-                .ignoreIfMalformed()
-                .ignoreIfMissing()
-                .load();
 
-        String url = dotenv.get("API_URL");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", dotenv.get("AUTHORIZATION"));
+        headers.set("Authorization", authorization);
 
         AIRequest aiRequest = AIRequestBuilder.createAIRequest(
-                dotenv.get("SYSTEM_TEXT"),
+                systemText,
                 rawAIRequest.prompt(),
-                dotenv.get("MODEL_URI")
+                modelUri
         );
 
         HttpEntity<AIRequest> aiRequestHttpEntity = new HttpEntity<>(aiRequest, headers);
@@ -64,10 +71,13 @@ public class AIControllerV1 {
                 ObjectMapper objectMapper = new ObjectMapper();
                 try {
                     String jsonString = objectMapper.writeValueAsString(sqlResponseDTO);
+                    if (!humanize) {
+                        return ResponseEntity.ok(jsonString);
+                    }
                     AIRequest analyzeAIRequest = AIRequestBuilder.createAIRequest(
-                            dotenv.get("SYSTEM_TEXT_ANALIZE"),
+                            systemTextAnalyze,
                             jsonString,
-                            dotenv.get("MODEL_URI")
+                            modelUri
                     );
                     HttpEntity<AIRequest> aiRequestHttpEntity2 = new HttpEntity<>(analyzeAIRequest, headers);
                     ResponseEntity<AIResponse> response2 = restTemplate.exchange(url, HttpMethod.POST, aiRequestHttpEntity2, AIResponse.class);
