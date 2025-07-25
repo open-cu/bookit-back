@@ -138,6 +138,7 @@ public class EventControllerV1 {
 
     @PreAuthorize("@securityService.isDev() or " +
             "@securityService.hasRequiredRole(@securityService.getAdmin())")
+    @Operation(summary = "Get event by id")
     @GetMapping("/{eventId}")
     public ResponseEntity<EventResponse> getById(
         @PathVariable UUID eventId
@@ -155,6 +156,10 @@ public class EventControllerV1 {
 
     @PreAuthorize("@securityService.isDev() or " +
             "@securityService.hasRequiredRole(@securityService.getAdmin())")
+    @Operation(
+            summary = "Update event by id. FOR ADMINS ONLY!",
+            description = "Content-type: multipart/form-data, see Postman tests for more details."
+    )
     @PutMapping("/{eventId}")
     public ResponseEntity<EventResponse> updateEvent(
             @PathVariable UUID eventId,
@@ -186,6 +191,10 @@ public class EventControllerV1 {
 
     @PreAuthorize("@securityService.isDev() or " +
             "@securityService.hasRequiredRole(@securityService.getAdmin())")
+    @Operation(
+            summary = "Update event. FOR ADMINS ONLY!",
+            description = "Content-type: multipart/form-data, see Postman tests for more details."
+    )
     @PostMapping
     public ResponseEntity<EventResponse> createEvent(
             @RequestPart("updateEventRequest") UpdateEventRequest updateEventRequest,
@@ -213,6 +222,7 @@ public class EventControllerV1 {
 
     @PreAuthorize("@securityService.isDev() or " +
             "@securityService.hasRequiredRole(@securityService.getAdmin())")
+    @Operation(summary = "Delete event from database")
     @DeleteMapping("/{eventId}")
     public ResponseEntity<?> deleteEvent(
             @PathVariable UUID eventId

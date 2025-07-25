@@ -90,7 +90,7 @@ public class EventController {
         }
     }
 
-    @Operation(description = "returns information about the created event")
+    @Operation(description = "Returns information about the created event")
     @PostMapping("/event")
     public ResponseEntity<EventResponse> createEvent(@RequestBody EventModel event) {
         EventModel savedEvent = eventService.saveEvent(event);

@@ -198,6 +198,7 @@ public class BookingControllerV1 {
 
     @PreAuthorize("@securityService.isDev() or " +
             "@securityService.hasRequiredRole(@securityService.getAdmin())")
+    @Operation(summary = "Update info about booking. FOR ADMINS ONLY!")
     @PutMapping("/admin/{bookingId}")
     public ResponseEntity<BookingResponse> updateById(
             @PathVariable UUID bookingId,
@@ -225,6 +226,7 @@ public class BookingControllerV1 {
     }
 
     @DeleteMapping("/{bookingId}")
+    @Operation(summary = "Admins delete booking, users cancel it if have made a booking before")
     public ResponseEntity<?> deleteById(
             @PathVariable UUID bookingId
     ) {

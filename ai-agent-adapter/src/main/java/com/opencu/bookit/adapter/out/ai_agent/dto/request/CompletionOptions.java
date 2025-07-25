@@ -1,4 +1,5 @@
-package com.opencu.bookit.adapter.in.web.dto.request.AIRequestComponents;
+package com.opencu.bookit.adapter.out.ai_agent.dto.request;
+
 
 public record CompletionOptions(
         Boolean stream,

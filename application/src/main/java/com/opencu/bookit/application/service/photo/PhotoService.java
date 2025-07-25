@@ -99,6 +99,6 @@ public class PhotoService {
             s3Client.putObject(request, RequestBody.fromBytes(photo.getBytes()));
             keys.add(key);
         }
-        return keys; // Возвращаем ключ объекта для дальнейшего доступа
+        return keys;
     }
 }

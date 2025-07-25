@@ -84,6 +84,9 @@ public class UserControllerV1 {
 
     @PreAuthorize("@securityService.isDev() or " +
             "@securityService.hasRequiredRole(@securityService.getSuperadmin())")
+    @Operation(
+            summary = "Get list of users with or without filters. FOR SUPERADMINS ONLY!"
+    )
     @GetMapping
     public ResponseEntity<Page<MeResponse>> getUsers(
             @RequestParam(required = false) Set<String> role,
@@ -101,6 +104,9 @@ public class UserControllerV1 {
 
     @PreAuthorize("@securityService.isDev() or " +
             "@securityService.hasRequiredRole(@securityService.getSuperadmin())")
+    @Operation(
+            summary = "Get user's profile by its id. FOR SUPERADMINS ONLY!"
+    )
     @GetMapping("/{userId}")
     public ResponseEntity<MeResponse> getById(
             @PathVariable UUID userId
@@ -113,7 +119,7 @@ public class UserControllerV1 {
 
     @PreAuthorize("@securityService.isDev() or " +
             "@securityService.hasRequiredRole(@securityService.getSuperadmin())")
-    @Operation(summary = "Changing status by userId")
+    @Operation(summary = "Changing status by userId. FOR SUPERADMINS ONLY!")
     @PatchMapping("/{userId}")
     public ResponseEntity<MeResponse> patchStatus(
             @PathVariable UUID userId,
@@ -132,6 +138,9 @@ public class UserControllerV1 {
 
     @PreAuthorize("@securityService.isDev() or " +
             "@securityService.hasRequiredRole(@securityService.getSuperadmin())")
+    @Operation(
+            summary = "Delete user from database. FOR SUPERADMINS ONLY!"
+    )
     @DeleteMapping("/{userId}")
     public ResponseEntity<?> deleteById(
             @PathVariable UUID userId

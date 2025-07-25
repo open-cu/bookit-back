@@ -27,13 +27,13 @@ public class UserController {
         this.meResponseMapper = meResponseMapper;
     }
 
-    @Operation(summary = "Получить свой профиль")
+    @Operation(summary = "Get one's profiles")
     @GetMapping("/me")
     public ResponseEntity<MeResponse> getCurrentUser() {
         return ResponseEntity.ok(meResponseMapper.toResponse(loadAuthorizationInfoPort.getCurrentUser()));
     }
 
-    @Operation(summary = "Получить пользователя по id (админ)")
+    @Operation(summary = "Get user's profile by ID (admins only)")
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<MeResponse> getUserById(@PathVariable UUID id) {
@@ -43,7 +43,7 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @Operation(summary = "Обновить свои данные")
+    @Operation(summary = "Update one's profile data")
     @PutMapping("/me")
     public ResponseEntity<MeResponse> updateProfile(@RequestBody UpdateProfileRequest request) {
         UserModel updated = userService.updateProfile(

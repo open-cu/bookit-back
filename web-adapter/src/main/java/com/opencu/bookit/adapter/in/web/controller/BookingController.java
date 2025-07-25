@@ -46,13 +46,13 @@ public class BookingController {
         this.loadAuthorizationInfoPort = loadAuthorizationInfoPort;
     }
 
-    @Operation(description = "returns information in the list format about the available dates")
+    @Operation(description = "Returns information in the list format about the available dates")
     @GetMapping("/available-date")
     public List<LocalDate> findAvailableDates(@RequestParam Optional<UUID> areaId) {
         return bookingService.findAvailableDates(areaId);
     }
 
-    @Operation(description = "returns list of available time by date separated by ; (start_time;end_time)")
+    @Operation(description = "Returns list of available time by date separated by ; (start_time;end_time)")
     @GetMapping("/available-time/{date}")
     public ResponseEntity<List<List<String>>> findAvailableTimeByDate(
             @PathVariable
@@ -76,7 +76,7 @@ public class BookingController {
         return ResponseEntity.ok(result);
     }
 
-    @Operation(description = "returns information in the list format of String about available time by date")
+    @Operation(description = "Returns information in the list format of String about available time by date")
     @GetMapping("/closest-available-time/{areaId}")
     public Set<String> findAvailableTimeByDate(
             @PathVariable UUID areaId) {
@@ -87,11 +87,7 @@ public class BookingController {
 
     @GetMapping("/available-areas")
     @Operation(
-            summary = "returns information in the list format of UUID about available area on date",
-            responses = {
-                    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ApiError.class))),
-                    @ApiResponse(responseCode = "404", description = "Not found", content = @Content(schema = @Schema(implementation = ApiError.class)))
-            }
+            summary = "Returns information in the list format of UUID about available area on date"
     )
     public ResponseEntity<List<UUID>> findAvailableAreas(
             @RequestParam(required = false)
@@ -103,7 +99,7 @@ public class BookingController {
         return ResponseEntity.ok(availableAreas);
     }
 
-    @Operation(description = "returns information about booking on his id")
+    @Operation(description = "Returns information about booking on his id")
     @GetMapping("/booking/{bookingId}")
     public ResponseEntity<BookingResponse> getBooking(@PathVariable UUID bookingId) {
 
@@ -176,7 +172,7 @@ public class BookingController {
         }
     }
 
-    @Operation(description = "returns information in the list format in Booking about all bookings")
+    @Operation(description = "Returns information in the list format in Booking about all bookings")
     @GetMapping("/bookings")
     public ResponseEntity<List<BookingResponse>> getAllBookings() {
         List<BookingModel> bookings = bookingService.findAll();
