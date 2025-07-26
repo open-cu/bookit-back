@@ -2,6 +2,7 @@ package com.opencu.bookit.adapter.in.web.controller.v1;
 
 import com.opencu.bookit.application.service.nofication.NotificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +19,7 @@ public class NotificationControllerV1 {
     @PostMapping("/unsubscribe/{userId}")
     public ResponseEntity<String> unsubscribe(@PathVariable UUID userId) {
         notificationService.unsubscribeFromNotifications(userId);
-        return ResponseEntity.ok("You have successfully unsubscribed from notifications");
+        return ResponseEntity.status(HttpStatus.CREATED).body("You have successfully unsubscribed from notifications");
     }
 
     @PostMapping("/subscribe/{userId}")
@@ -27,6 +28,6 @@ public class NotificationControllerV1 {
             return ResponseEntity.badRequest().body("You are already subscribed to notifications");
         }
         notificationService.subscribeToNotifications(userId);
-        return ResponseEntity.ok("You have successfully subscribed to notifications");
+        return ResponseEntity.status(HttpStatus.CREATED).body("You have successfully subscribed to notifications");
     }
 }

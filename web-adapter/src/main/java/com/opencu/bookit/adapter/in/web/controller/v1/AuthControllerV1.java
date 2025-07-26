@@ -7,6 +7,7 @@ import com.opencu.bookit.adapter.out.security.spring.payload.response.MessageRes
 import com.opencu.bookit.adapter.out.security.spring.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -23,13 +24,13 @@ public class AuthControllerV1 {
     @Operation(summary = "Telegram user basic authentication")
     @PostMapping("/telegram")
     public ResponseEntity<JwtResponse> authenticateTelegramUser(@Valid @RequestBody TelegramUserRequest telegramUserRequest) {
-        return ResponseEntity.ok(authService.authenticateTelegramUser(telegramUserRequest));
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.authenticateTelegramUser(telegramUserRequest));
     }
 
     @Operation(summary = "Complete user profile with additional information")
     @PostMapping("/complete-profile")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MessageResponse> completeUserProfile(@Valid @RequestBody UserProfileUpdateRequest profileRequest) {
-        return ResponseEntity.ok(authService.completeUserProfile(profileRequest));
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.completeUserProfile(profileRequest));
     }
 }
