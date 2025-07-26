@@ -26,7 +26,8 @@
 		<module>email-notification-adapter</module>
 		<module>notification-queue-adapter</module>
         <module>ai-agent-adapter</module>
-    </modules>
+		<module>s3-adapter</module>
+	</modules>
 
 	<properties>
 		<java.version>21</java.version>

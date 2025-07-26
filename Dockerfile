@@ -12,6 +12,7 @@ COPY security-adapter ./security-adapter
 COPY email-notification-adapter ./email-notification-adapter
 COPY notification-queue-adapter ./notification-queue-adapter
 COPY ai-agent-adapter ./ai-agent-adapter
+COPY s3-adapter ./s3-adapter
 COPY web-adapter ./web-adapter
 RUN  mvn clean package -s settings.xml -DskipTests
 
