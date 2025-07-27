@@ -16,7 +16,7 @@ public interface LoadBookingPort {
     List<BookingModel> loadBookingsByUser(UUID userId, TimeTag timeTag);
     List<BookingModel> findByAreaId(UUID areaId);
     List<BookingModel> findByStartDatetime(LocalDateTime date);
-    List<BookingModel> findByDatetime(LocalDateTime date);
+    List<BookingModel> findAllIncludingTime(LocalDateTime date);
     List<BookingModel> findByDateAndArea(LocalDate date, UUID areaId);
     List<BookingModel> findAll();
 

@@ -65,7 +65,7 @@ public class BookingPersistenceAdapter implements
     }
 
     @Override
-    public List<BookingModel> findByDatetime(LocalDateTime date) {
+    public List<BookingModel> findAllIncludingTime(LocalDateTime date) {
         return bookingMapper.toModelList(bookingRepository.findByDatetime(date));
     }
 

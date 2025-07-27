@@ -73,6 +73,7 @@ public class EventService {
     public void removeUser(UUID userId, EventModel eventModel) {
         UserModel userModel = loadUserPort.findById(userId)
                                           .orElseThrow(() -> new NoSuchElementException("User not found"));
+
         if (eventModel.getUserModels().remove(userModel)) {
             eventModel.setAvailable_places(eventModel.getAvailable_places() + 1);
             saveEventPort.save(eventModel);

@@ -37,10 +37,9 @@ public class HallOccupancyPersistenceAdapter implements LoadHallOccupancyPort, S
     }
 
     @Override
-    public HallOccupancyModel getByDateTime(LocalDateTime time) {
+    public Optional<HallOccupancyModel> getByDateTime(LocalDateTime time) {
         return hallOccupancyRepository.findById(time)
-                .map(hallOccupancyMapper::toModel)
-                .orElseThrow(() -> new IllegalArgumentException("Hall occupancy not found for time: " + time));
+                .map(hallOccupancyMapper::toModel);
     }
 
     @Override
