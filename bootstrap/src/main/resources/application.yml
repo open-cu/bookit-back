@@ -6,17 +6,21 @@ spring:
     port: 5672
     username: guest
     password: guest
+
   mail:
-    host: smtp.example.com
-    port: 587
-    username: your-email@example.com
-    password: your-password
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    sender-name: ${MAIL_SENDER_NAME:BookIt}
     properties:
       mail:
         smtp:
           auth: true
+          ssl:
+            enable: ${MAIL_SSL_ENABLE:true}
           starttls:
-            enable: true
+            enable: ${MAIL_STARTTLS_ENABLE:false}
 
 springdoc:
   api-docs:
