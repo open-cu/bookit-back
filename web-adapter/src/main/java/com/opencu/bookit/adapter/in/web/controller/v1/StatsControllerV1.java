@@ -1,8 +1,13 @@
-package com.opencu.bookit.adapter.in.web.controller;
+package com.opencu.bookit.adapter.in.web.controller.v1;
 
 import com.opencu.bookit.application.service.statistics.StatsService;
 import com.opencu.bookit.domain.model.statistics.*;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
@@ -21,9 +26,9 @@ import java.util.Arrays;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/stats")
+@RequestMapping("/api/v1/stats")
 @RequiredArgsConstructor
-public class StatsController {
+public class StatsControllerV1 {
 
     private final StatsService statsService;
     @Value("${booking.zone-id}")
@@ -166,6 +171,37 @@ public class StatsController {
     }
 
     @GetMapping("/new-users-by-year-month")
+    @Operation(
+            summary = "Get statistics about new users by year and month",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    array = @ArraySchema(
+                                            schema = @Schema(implementation = NewUsersCreatedAt.class)
+                                    ),
+                                    examples = {
+                                            @ExampleObject(
+                                                    name = "Example of successful response",
+                                                    value = """
+                                                            [
+                                                                  {
+                                                                      "created": "2025-04",
+                                                                      "count": 3
+                                                                  },
+                                                                  {
+                                                                      "created": "2025-07",
+                                                                      "count": 1
+                                                                  }
+                                                            ]
+                                                            """
+                                            )
+                                    }
+                            )
+                    )
+            }
+    )
     public ResponseEntity<List<NewUsersCreatedAt>> getNewUsersByYearMonth() {
         return ResponseEntity.ok(statsService.newUsersCreatedAtStats());
     }

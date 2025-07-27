@@ -59,20 +59,6 @@
             <artifactId>jakarta.transaction-api</artifactId>
         </dependency>
 
-        <!-- AWS SDK S3 -->
-        <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>s3</artifactId>
-            <version>2.29.33</version>
-        </dependency>
-
-        <!-- Apache HTTP client для AWS SDK -->
-        <dependency>
-            <groupId>software.amazon.awssdk</groupId>
-            <artifactId>apache-client</artifactId>
-            <version>2.29.33</version>
-        </dependency>
-
         <!-- Spring Boot Web Starter -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -84,6 +70,12 @@
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>2.7.0</version>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>auth</artifactId>
+            <version>2.29.33</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

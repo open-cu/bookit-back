@@ -47,8 +47,16 @@ pagination:
   default-size: 10
 
 yandex-cloud:
-  key-id: ${KEY_ID:null}
-  secret-key: ${SECRET_KEY:null}
-  region: ${REGION:null}
-  s3-endpoint: ${S3_ENDPOINT:null}
-  bucket: ${BUCKET:null}
+  key-id: ${KEY_ID}
+  secret-key: ${SECRET_KEY}
+  region: ${REGION}
+  s3-endpoint: ${S3_ENDPOINT}
+  bucket: ${BUCKET}
+
+yandex-gpt:
+  authorization: ${AUTH}
+  api-url: https://llm.api.cloud.yandex.net/foundationModels/v1/completion
+  model-uri: ${MODEL_URI}
+  folder-id: ${FOLDER_ID}
+  system-text: ${SYSTEM_TEXT}
+  system-text-analyze: ${SYSTEM_TEXT_ANALYZE}

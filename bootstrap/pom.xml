@@ -50,6 +50,16 @@
             <groupId>com.opencu.bookit</groupId>
             <artifactId>notification-queue-adapter</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.opencu.bookit</groupId>
+            <artifactId>ai-agent-adapter</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.opencu.bookit</groupId>
+            <artifactId>s3-adapter</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 
         <!-- Spring Boot стартер -->
         <dependency>

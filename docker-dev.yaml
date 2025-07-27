@@ -17,6 +17,12 @@ services:
       - REGION=${REGION}
       - S3_ENDPOINT=${S3_ENDPOINT}
       - BUCKET=${BUCKET}
+      - AUTH=${AUTH}
+      - MODEL_URI=${MODEL_URI}
+      - SYSTEM_TEXT=${SYSTEM_TEXT}
+      - SYSTEM_TEXT_ANALYZE=${SYSTEM_TEXT_ANALYZE}
+      - API_URL=${API_URL}
+      - FOLDER_ID=${FOLDER_ID}
 
 networks:
   bookit-dev:

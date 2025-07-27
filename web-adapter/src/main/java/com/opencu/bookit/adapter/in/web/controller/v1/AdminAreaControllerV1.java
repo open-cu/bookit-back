@@ -10,10 +10,12 @@ import com.opencu.bookit.application.service.photo.PhotoService;
 import com.opencu.bookit.domain.model.area.AreaModel;
 import com.opencu.bookit.domain.model.area.AreaType;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +27,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
+@Tag(name = "admin-area-controller-v-1", description = "For admins only")
 @RestController
 @RequestMapping("/api/v1/areas")
 public class AdminAreaControllerV1 {
@@ -63,7 +66,7 @@ public class AdminAreaControllerV1 {
 
     @PreAuthorize("@securityService.isDev() or " +
             "@securityService.hasRequiredRole(@securityService.getAdmin())")
-    @Operation(summary = "Get area by ID")
+    @Operation(summary = "Get area by id")
     @GetMapping("/{areaId}")
     public ResponseEntity<AreaResponse> getAreaById(@PathVariable UUID areaId) {
         Optional<AreaModel> area = areaService.findById(areaId);
@@ -82,7 +85,10 @@ public class AdminAreaControllerV1 {
 
     @PreAuthorize("@securityService.isDev() or " +
             "@securityService.hasRequiredRole(@securityService.getAdmin())")
-    @Operation(summary = "Create area")
+    @Operation(
+            summary = "Create area. FOR ADMINS ONLY!",
+            description = "Content-type: multipart/form-data, see Postman tests for more details."
+    )
     @PostMapping
     public ResponseEntity<AreaResponse> createArea(
             @RequestPart("createAreaRequest") CreateAreaRequest createAreaRequest,
@@ -101,7 +107,7 @@ public class AdminAreaControllerV1 {
                 createAreaRequest.status()
         );
 
-            return ResponseEntity.ok(
+            return ResponseEntity.status(HttpStatus.CREATED).body(
                     areaMapper.toAreaResponse(model)
             );
         } catch (IOException e) {
@@ -122,7 +128,10 @@ public class AdminAreaControllerV1 {
 
     @PreAuthorize("@securityService.isDev() or " +
             "@securityService.hasRequiredRole(@securityService.getAdmin())")
-    @Operation(summary = "Updated area information")
+    @Operation(
+            summary = "Update area information. FOR ADMINS ONLY!",
+            description = "Content-type: multipart/form-data, see Postman tests for more details."
+    )
     @PutMapping("/{areaId}")
     public ResponseEntity<AreaResponse> updateById(
             @PathVariable UUID areaId,
