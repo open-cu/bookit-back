@@ -13,14 +13,16 @@ spring:
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
     sender-name: ${MAIL_SENDER_NAME:BookIt}
+    from-email: ${MAIL_FROM_EMAIL}
     properties:
       mail:
         smtp:
           auth: true
           ssl:
-            enable: ${MAIL_SSL_ENABLE:true}
+            enable: ${MAIL_SSL_ENABLE:false}
           starttls:
-            enable: ${MAIL_STARTTLS_ENABLE:false}
+            enable: ${MAIL_STARTTLS_ENABLE:true}
+            required: true
 
 springdoc:
   api-docs:
@@ -37,7 +39,7 @@ rabbitmq:
     notifications: event.notification.queue
 
 notification:
-  default-time-before-event-minutes: 60
+  default-time-before-event-in-days: 1
 
 booking:
   max-days-forward: 30

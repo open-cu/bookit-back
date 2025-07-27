@@ -30,6 +30,7 @@ services:
       - MAIL_SENDER_NAME=${MAIL_SENDER_NAME}
       - MAIL_SSL_ENABLE=${MAIL_SSL_ENABLE}
       - MAIL_STARTTLS_ENABLE=${MAIL_STARTTLS_ENABLE}
+      - MAIL_FROM_EMAIL=${MAIL_FROM_EMAIL}
 
 networks:
   bookit-dev:

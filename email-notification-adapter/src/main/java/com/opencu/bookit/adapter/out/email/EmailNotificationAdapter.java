@@ -2,25 +2,29 @@ package com.opencu.bookit.adapter.out.email;
 
 import com.opencu.bookit.application.port.out.nofication.NotificationPort;
 import com.opencu.bookit.domain.model.event.EventNotification;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class EmailNotificationAdapter implements NotificationPort {
 
     private final JavaMailSender mailSender;
 
-    @Value("${spring.mail.username}")
+    @Value("${spring.mail.from-email}")
     private String fromEmail;
 
     @Value("${spring.mail.sender-name}")
     private String senderName;
+
+    @Autowired
+    public EmailNotificationAdapter(JavaMailSender mailSender) {
+        this.mailSender = mailSender;
+    }
 
     @Override
     public void sendNotification(EventNotification notification) {
@@ -37,7 +41,12 @@ public class EmailNotificationAdapter implements NotificationPort {
             mailSender.send(message);
             log.info("Email notification sent successfully");
         } catch (Exception e) {
-            log.error("Failed to send email notification", e);
+            log.error("Failed to send email notification: {}", e.getMessage(), e);
+            if (e.getMessage().contains("invalid mail data")) {
+                log.error("Ошибка формата данных письма. Проверьте формат адресов и содержимого");
+            } else if (e.getMessage().contains("Could not connect")) {
+                log.error("Проблема подключения к SMTP-серверу. Проверьте сетевые настройки");
+            }
         }
     }
 }

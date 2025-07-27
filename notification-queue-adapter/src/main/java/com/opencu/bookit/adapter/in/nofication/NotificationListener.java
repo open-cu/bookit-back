@@ -17,6 +17,6 @@ public class NotificationListener {
     @RabbitListener(queues = "${rabbitmq.queue.notifications}")
     public void handleNotification(EventNotification notification) {
         log.info("Received notification for processing: {}", notification.getId());
-        notificationService.sendNotificationNow(notification);
+        notificationService.sendEventNotificationNow(notification);
     }
 }

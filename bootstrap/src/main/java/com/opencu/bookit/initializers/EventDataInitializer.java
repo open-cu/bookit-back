@@ -24,7 +24,7 @@ public class EventDataInitializer {
                 pitchNight.setName("Ночь презентаций стартапов");
                 pitchNight.setDescription("Возможность для стартапов представить свои идеи инвесторам.");
                 pitchNight.setTags(Set.of(ThemeTags.IT, ThemeTags.TECHNOLOGY));
-                pitchNight.setDate(LocalDateTime.of(2025, 7, 10, 0, 0, 0));
+                pitchNight.setDate(LocalDateTime.of(2025, 7, 28, 16, 0, 0));
                 pitchNight.setKeys(List.of("arch.png"));
                 pitchNight.setAvailable_places(30);
 
@@ -32,7 +32,7 @@ public class EventDataInitializer {
                 aiWorkshop.setName("Мастерская искусственного интеллекта");
                 aiWorkshop.setDescription("Практический семинар по созданию приложений на базе искусственного интеллекта.");
                 aiWorkshop.setTags(Set.of(ThemeTags.IT, ThemeTags.SCIENCE));
-                aiWorkshop.setDate(LocalDateTime.of(2025, 8, 20, 0, 0, 0));
+                aiWorkshop.setDate(LocalDateTime.of(2025, 7, 28, 18, 0, 0));
                 aiWorkshop.setKeys(List.of("arch.png"));
                 aiWorkshop.setAvailable_places(0);
 
@@ -40,7 +40,7 @@ public class EventDataInitializer {
                 aiWorkshop2.setName("Мастерская искусственного интеллекта возвращается");
                 aiWorkshop2.setDescription("Возможность для стартапов представить свои идеи инвесторам.");
                 aiWorkshop2.setTags(Set.of(ThemeTags.IT, ThemeTags.TECHNOLOGY));
-                aiWorkshop2.setDate(LocalDateTime.of(2025, 9, 10, 0, 0, 0));
+                aiWorkshop2.setDate(LocalDateTime.of(2025, 7, 28, 20, 0, 0));
                 aiWorkshop2.setKeys(List.of("arch.png"));
                 aiWorkshop2.setAvailable_places(30);
 
