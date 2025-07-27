@@ -85,7 +85,7 @@ public class BookingService {
     private List<LocalDate> findAvailableDatesByArea(Optional<UUID> areaId) {
         List<LocalDate> availableDates = new ArrayList<>();
         LocalDate today = LocalDate.now(bookingConfig.getZoneId());
-        List<BookingModel> relevantBookingModels = loadBookingPort.findByAreaId(areaId.get()); //todo проверить что area существует
+        List<BookingModel> relevantBookingModels = loadBookingPort.findByAreaId(areaId.orElseThrow());
 
         for (int i = 0; i <= bookingConfig.getMaxDaysForward(); ++i) {
             LocalDate date = today.plusDays(i);
