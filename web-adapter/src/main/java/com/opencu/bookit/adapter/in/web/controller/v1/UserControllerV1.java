@@ -91,7 +91,7 @@ public class UserControllerV1 {
     )
     @GetMapping
     public ResponseEntity<Page<MeResponse>> getUsers(
-            @RequestParam(required = false) String email,
+            @RequestParam(required = false) @Email String email,
             @RequestParam(required = false) String phone,
             @RequestParam(required = false) Set<String> role,
             @RequestParam(required = false) String search,
