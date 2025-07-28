@@ -32,6 +32,7 @@ public class AreaControllerV1 {
     @Operation(summary = "Get all areas with filters and pagination")
     @GetMapping
     public ResponseEntity<Page<AreaResponse>> getAllAreas(
+            @RequestParam(required = false) String areaName,
             @RequestParam(required = false) AreaType type,
             @RequestParam(defaultValue = "${pagination.default-page}") int page,
             @RequestParam(defaultValue = "${pagination.default-size}") int size
@@ -39,7 +40,7 @@ public class AreaControllerV1 {
         Sort.Direction direction = Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "type"));
         Page<AreaResponse> areasPage = areaService
-                .findWithFilters(type, pageable)
+                .findWithFilters(areaName, type, pageable)
                 .map(area -> {
                     try {
                         return areaMapper.toAreaResponse(area);
