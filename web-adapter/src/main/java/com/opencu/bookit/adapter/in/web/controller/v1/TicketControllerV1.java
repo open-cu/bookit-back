@@ -47,7 +47,7 @@ public class TicketControllerV1 {
     @Operation(summary = "Get all tickets")
     @GetMapping
     public ResponseEntity<Page<TicketResponse>> getAllTickets(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) TicketType type,
