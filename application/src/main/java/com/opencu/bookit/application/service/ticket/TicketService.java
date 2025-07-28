@@ -102,7 +102,7 @@ public class TicketService {
     public Page<TicketModel> findWithFilters(
             LocalDate startDate,
             LocalDate endDate,
-            String searchByName,
+            String search,
             TicketType type,
             Pageable pageable
     ) {
