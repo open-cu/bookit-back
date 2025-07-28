@@ -12,6 +12,8 @@ import com.opencu.bookit.domain.model.user.UserModel;
 import com.opencu.bookit.domain.model.user.UserStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -89,6 +91,8 @@ public class UserControllerV1 {
     )
     @GetMapping
     public ResponseEntity<Page<MeResponse>> getUsers(
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String phone,
             @RequestParam(required = false) Set<String> role,
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "${pagination.default-page}") int page,
@@ -97,7 +101,7 @@ public class UserControllerV1 {
         Sort.Direction direction = Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "firstName"));
         Page<MeResponse> adminsPage = userService
-                .findWithFilters(role, search, pageable)
+                .findWithFilters(email, phone, role, search, pageable)
                 .map(meResponseMapper::toResponse);
         return ResponseEntity.ok(adminsPage);
     }

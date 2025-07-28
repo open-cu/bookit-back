@@ -89,8 +89,8 @@ public class UserService {
         return saveUserPort.save(user);
     }
 
-    public Page<UserModel> findWithFilters(Set<String> role, String search, Pageable pageable) {
-        return loadUserPort.findWithFilters(role, search, pageable);
+    public Page<UserModel> findWithFilters(String email, String phone, Set<String> role, String search, Pageable pageable) {
+        return loadUserPort.findWithFilters(email, phone, role, search, pageable);
     }
 
     public void deleteById(UUID userId) {
