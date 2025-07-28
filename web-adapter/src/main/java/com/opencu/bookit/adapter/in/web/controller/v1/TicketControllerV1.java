@@ -48,7 +48,7 @@ public class TicketControllerV1 {
     @GetMapping
     public ResponseEntity<Page<TicketResponse>> getAllTickets(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) TicketType type,
             @RequestParam(defaultValue = "${pagination.default-page}") int page,
