@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.time.ZoneId;
@@ -99,9 +100,12 @@ public class TicketService {
     }
 
     public Page<TicketModel> findWithFilters(
+            LocalDate startDate,
+            LocalDate endDate,
+            String search,
             TicketType type,
             Pageable pageable
     ) {
-        return loadTicketPort.findWithFilters(type, pageable);
+        return loadTicketPort.findWithFilters(startDate, endDate, search, type, pageable);
     }
 }

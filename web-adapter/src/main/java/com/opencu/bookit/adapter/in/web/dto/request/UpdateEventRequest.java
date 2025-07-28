@@ -16,5 +16,6 @@ public record UpdateEventRequest(
         List<ContentTime> times,
         List<ParticipationFormat> participationFormats,
         LocalDateTime date,
+        LocalDateTime endTime,
         int available_places
 ) {}

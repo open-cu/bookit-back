@@ -15,6 +15,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -44,10 +47,20 @@ public class TicketPersistenceAdapter implements SaveTicketPort, LoadTicketPort,
     }
 
     @Override
-    public Page<TicketModel> findWithFilters(TicketType type, Pageable pageable) {
+    public Page<TicketModel> findWithFilters(LocalDate startDate, LocalDate endDate, String search, TicketType type, Pageable pageable) {
         Specification<TicketEntity> spec = Specification.where(null);
         spec = spec.and((root, query, cb) ->
                 cb.equal(root.get("type"), type));
+        spec = spec.and((root, query, cb) ->
+            cb.between(root.get("createdAt"),
+                    LocalDateTime.of(startDate, LocalTime.of(0, 0, 0)),
+                    LocalDateTime.of(endDate, LocalTime.of(0,0,0))
+        ));
+        if (search != null && !search.isBlank()) {
+            spec = spec.and((root, query, cb) ->
+                cb.like(cb.lower(root.get("description")), "%" + search.toLowerCase() + "%")
+            );
+        }
         return ticketRepository.findAll(spec, pageable)
                 .map(ticketMapper::toModel);
     }

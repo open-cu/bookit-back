@@ -15,6 +15,7 @@ public interface LoadAreaPort {
     List<AreaModel> findAll();
 
     Page<AreaModel> findWithFilters(
+            String areaName,
             AreaType type,
             Pageable pageable);
 }

@@ -26,7 +26,11 @@ public class EventModel {
     private Set<ContentTime> times = new HashSet<>();
     private Set<ParticipationFormat> participationFormats = new HashSet<>();
     private List<String> keys;
+    /**
+     * stands for start of the event
+     */
     private LocalDateTime date;
+    private LocalDateTime endTime;
     private int available_places;
     private Set<UserModel> userModels = new HashSet<>();
 }

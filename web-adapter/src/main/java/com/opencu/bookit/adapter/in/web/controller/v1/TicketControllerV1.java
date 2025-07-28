@@ -12,11 +12,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -45,13 +47,16 @@ public class TicketControllerV1 {
     @Operation(summary = "Get all tickets")
     @GetMapping
     public ResponseEntity<Page<TicketResponse>> getAllTickets(
-            @RequestParam(required = false)TicketType type,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) TicketType type,
             @RequestParam(defaultValue = "${pagination.default-page}") int page,
             @RequestParam(defaultValue = "${pagination.default-size}") int size
             ) {
         Sort.Direction direction = Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "type"));
-        Page<TicketResponse> tickets = ticketService.findWithFilters(type, pageable)
+        Page<TicketResponse> tickets = ticketService.findWithFilters(startDate, endDate, search, type, pageable)
                 .map(ticketResponseMapper::toResponse);
         
         return ResponseEntity.ok(tickets);

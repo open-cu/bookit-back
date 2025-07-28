@@ -21,5 +21,9 @@ public interface LoadUserPort {
     boolean existsByEmail(@Email String email);
     boolean existsByPhone(@Pattern(regexp = "^(\\+7\\d{10}|8\\d{10})$", message = "Invalid phone") String phone);
 
-    Page<UserModel> findWithFilters(Set<String> role, String search, Pageable pageable);
+    Page<UserModel> findWithFilters(@Email String email,
+                                    @Pattern(regexp = "^(\\+7\\d{10}|8\\d{10})$", message = "Invalid phone") String phone,
+                                    Set<String> role,
+                                    String search,
+                                    Pageable pageable);
 }
