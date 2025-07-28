@@ -19,6 +19,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -49,6 +52,8 @@ public class EventPersistenceAdapter implements LoadEventPort,
 
     @Override
     public Page<EventModel> findWithFilters(
+            LocalDate startDate,
+            LocalDate endDate,
             Set<ThemeTags> tags,
             Set<ContentFormat> formats,
             Set<ContentTime> times,
@@ -60,6 +65,13 @@ public class EventPersistenceAdapter implements LoadEventPort,
     ) {
         Specification<EventEntity> spec = Specification.where(null);
 
+        if (startDate != null && endDate != null) {
+            spec = spec.and((root, query, cb) ->
+                cb.between(root.get("date"),
+                        LocalDateTime.of(startDate, LocalTime.of(0,0,0)),
+                        LocalDateTime.of(endDate, LocalTime.of(0,0,0))
+            ));
+        }
         if (tags != null && !tags.isEmpty()) {
             spec = spec.and((root, query, cb) ->
                     root.join("tags").in(tags));

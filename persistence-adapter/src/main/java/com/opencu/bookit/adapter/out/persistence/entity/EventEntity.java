@@ -60,8 +60,15 @@ public class EventEntity {
     @Column(nullable = false)
     private List<String> keys;
 
+
+    /**
+     * stands for start of the event
+     */
     @Column(nullable = false)
     private LocalDateTime date;
+
+    @Column
+    private LocalDateTime endTime;
 
     @Column(nullable = false)
     private int available_places;
