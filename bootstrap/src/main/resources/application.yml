@@ -43,6 +43,7 @@ rabbitmq:
     delayed: bookit.delayed.exchange
   queue:
     notifications: bookit.notifications.queue
+    routing-key: bookit.notifications
 
 notification:
   default-time-before-event-in-days: 1

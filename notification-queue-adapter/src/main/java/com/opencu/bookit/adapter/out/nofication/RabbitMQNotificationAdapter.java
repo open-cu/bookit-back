@@ -23,6 +23,9 @@ public class RabbitMQNotificationAdapter implements NotificationQueuePort {
     @Value("${rabbitmq.queue.notifications}")
     private String notificationsQueueName;
 
+    @Value("${rabbitmq.queue.routing-key}")
+    public String routingKey;
+
     @Override
     public void scheduleNotification(EventNotification notification, long delayInMilliseconds) {
         log.info("Scheduling notification for event: {} with delay: {} ms", 
@@ -30,11 +33,10 @@ public class RabbitMQNotificationAdapter implements NotificationQueuePort {
         
         rabbitTemplate.convertAndSend(
                 delayedExchangeName,
-                notificationsQueueName,
+                routingKey,
                 notification,
                 message -> {
                     message.getMessageProperties().setDelayLong(delayInMilliseconds);
-                    message.getMessageProperties().setMessageId(notification.getId().toString());
                     return message;
                 }
         );
