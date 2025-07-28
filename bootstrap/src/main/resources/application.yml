@@ -6,6 +6,12 @@ spring:
     port: 5672
     username: guest
     password: guest
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 5000
+          max-attempts: 3
 
   mail:
     host: ${MAIL_HOST}
@@ -34,9 +40,9 @@ springdoc:
 
 rabbitmq:
   exchange:
-    delayed: event.notification.delayed
+    delayed: bookit.delayed.exchange
   queue:
-    notifications: event.notification.queue
+    notifications: bookit.notifications.queue
 
 notification:
   default-time-before-event-in-days: 1
