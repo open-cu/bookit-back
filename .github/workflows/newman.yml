@@ -32,6 +32,12 @@ jobs:
           REGION: ${{ secrets.REGION }}
           S3_ENDPOINT: ${{ secrets.S3_ENDPOINT }}
           BUCKET: ${{ secrets.BUCKET }}
+          AUTH: "null"
+          MODEL_URI: "null"
+          SYSTEM_TEXT: "null"
+          SYSTEM_TEXT_ANALYZE: "null"
+          API_URL: "null"
+          FOLDER_ID: "null"
       - name: Install Newman
         run: npm install newman@latest
 

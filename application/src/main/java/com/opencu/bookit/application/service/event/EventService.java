@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -151,11 +152,12 @@ public class EventService {
     }
 
     public Page<EventModel> findWithFilters(
+            LocalDate startDate, LocalDate endDate,
             Set<ThemeTags> tags, Set<ContentFormat> formats, Set<ContentTime> times,
             Set<ParticipationFormat> participationFormats,
             String search, String status, Pageable pageable, UUID currentUserId
     ) {
-        return loadEventPort.findWithFilters(tags, formats, times, participationFormats,
+        return loadEventPort.findWithFilters(startDate, endDate, tags, formats, times, participationFormats,
                 search, status, pageable, currentUserId);
     }
 

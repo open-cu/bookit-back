@@ -33,7 +33,6 @@ public class TicketEntity {
     @Column(nullable = false)
     private TicketType type;
 
-    @Lob
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 

@@ -10,7 +10,7 @@
         <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
             <providers>
                 <timestamp>
-                    <timeZone>UTC</timeZone>
+                    <timeZone>Europe/Moscow</timeZone>
                     <fieldName>timestamp</fieldName>
                 </timestamp>
                 <version/>

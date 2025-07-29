@@ -21,6 +21,7 @@ public record EventResponse(
         Set<ParticipationFormat> participationFormats,
         List<ImageModel> images,
         LocalDateTime date,
+        LocalDateTime endTime,
         //для сохранения старой версии API
         int availablePlaces
 ) {}

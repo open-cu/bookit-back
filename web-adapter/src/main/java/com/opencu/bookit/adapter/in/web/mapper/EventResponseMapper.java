@@ -30,6 +30,7 @@ public class EventResponseMapper {
                 event.getParticipationFormats(),
                 service.getImagesFromKeys(event.getKeys()),
                 event.getDate(),
+                event.getEndTime(),
                 event.getAvailable_places()
         );
     }

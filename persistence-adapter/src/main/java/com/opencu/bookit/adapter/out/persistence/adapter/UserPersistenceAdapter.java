@@ -65,7 +65,7 @@ public class UserPersistenceAdapter implements
     }
 
     @Override
-    public Page<UserModel> findWithFilters(Set<String> role, String search, Pageable pageable) {
+    public Page<UserModel> findWithFilters(String email, String phone, Set<String> role, String search, Pageable pageable) {
         Specification<UserEntity> spec = Specification.where(null);
 
         Set<Role> roles = new HashSet<>();
@@ -73,6 +73,16 @@ public class UserPersistenceAdapter implements
             for (String roleStr : role) {
                 roles.add(Role.fromString(roleStr));
             }
+        }
+        if (email != null && !email.isBlank()) {
+            spec = spec.and((root, query, cb) ->
+                cb.equal(cb.lower(root.get("email")), email.toLowerCase())
+            );
+        }
+        if (phone != null &&  !phone.isBlank()) {
+            spec = spec.and((root, query, cb) ->
+                    cb.like(root.get("phone"), "%" + phone + "%")
+            );
         }
         if (search != null && !search.isBlank()) {
             spec = spec.and((root, query, cb) ->
