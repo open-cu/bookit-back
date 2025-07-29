@@ -52,8 +52,8 @@ public class AreaService {
         return loadAreaPort.findById(areaId);
     }
 
-    public Page<AreaModel> findWithFilters(AreaType type, Pageable pageable) {
-        return loadAreaPort.findWithFilters(type, pageable);
+    public Page<AreaModel> findWithFilters(String areaName, AreaType type, Pageable pageable) {
+        return loadAreaPort.findWithFilters(areaName, type, pageable);
     }
 
     @Transactional

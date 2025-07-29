@@ -11,5 +11,5 @@ public interface LoadHallOccupancyPort {
     Optional<Integer> countReservedPlacesByDate(LocalDate date);
     List<HallOccupancyModel> findByDate(LocalDate date);
     Optional<HallOccupancyModel> findById(LocalDateTime currHour);
-    HallOccupancyModel getByDateTime(LocalDateTime time);
+    Optional<HallOccupancyModel> getByDateTime(LocalDateTime time);
 }

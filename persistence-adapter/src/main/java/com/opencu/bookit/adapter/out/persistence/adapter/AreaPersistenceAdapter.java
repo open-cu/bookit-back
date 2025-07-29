@@ -44,12 +44,18 @@ public class AreaPersistenceAdapter implements
 
     @Override
     public Page<AreaModel> findWithFilters(
+            String areaName,
             AreaType type,
             Pageable pageable) {
         Specification<AreaEntity> spec = Specification.where(null);
         if (type != null) {
             spec = spec.and((root, query, cb) ->
                     cb.equal(root.get("type"), type));
+        }
+        if (areaName != null && !areaName.isBlank()) {
+            spec = spec.and((root, query, cb) ->
+                    cb.like(cb.lower(root.get("name")), "%" + areaName.toLowerCase() + "%")
+            );
         }
         return areaRepository.findAll(spec, pageable)
                 .map(areaMapper::toModel);

@@ -5,6 +5,7 @@ import com.opencu.bookit.domain.model.ticket.TicketType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -15,5 +16,9 @@ public interface LoadTicketPort {
 
     Optional<TicketModel> findById(UUID id);
 
-    Page<TicketModel> findWithFilters(TicketType type, Pageable pageable);
+    Page<TicketModel> findWithFilters(LocalDate startDate,
+                                      LocalDate endDate,
+                                      String  search,
+                                      TicketType type,
+                                      Pageable pageable);
 }

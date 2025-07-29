@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +46,7 @@ public class AdminAreaControllerV1 {
     @Operation(summary = "Get all areas with filters and pagination")
     @GetMapping
     public ResponseEntity<Page<AreaResponse>> getAllAreas(
+            @RequestParam(required = false) String areaName,
             @RequestParam(required = false) AreaType type,
             @RequestParam(defaultValue = "${pagination.default-page}") int page,
             @RequestParam(defaultValue = "${pagination.default-size}") int size
@@ -52,7 +54,7 @@ public class AdminAreaControllerV1 {
         Sort.Direction direction = Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "type"));
         Page<AreaResponse> areasPage = areaService
-                .findWithFilters(type, pageable)
+                .findWithFilters(areaName, type, pageable)
                 .map(area -> {
                     try {
                         return areaMapper.toAreaResponse(area);
@@ -106,7 +108,7 @@ public class AdminAreaControllerV1 {
                 createAreaRequest.status()
         );
 
-            return ResponseEntity.ok(
+            return ResponseEntity.status(HttpStatus.CREATED).body(
                     areaMapper.toAreaResponse(model)
             );
         } catch (IOException e) {

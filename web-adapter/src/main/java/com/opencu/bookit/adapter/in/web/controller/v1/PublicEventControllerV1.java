@@ -12,10 +12,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.Set;
 
 @RestController
@@ -29,9 +31,14 @@ public class PublicEventControllerV1 {
         this.eventResponseMapper = eventResponseMapper;
     }
 
-    @Operation(summary = "Get all public events with optional filters")
+    @Operation(
+            summary = "Get all public events with optional filters",
+            description = "startDate and endDate are days event.date is between"
+    )
     @GetMapping
     public ResponseEntity<Page<EventResponse>> getAllPublicEvents(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(required = false) Set<ThemeTags> tags,
             @RequestParam(required = false) Set<ContentFormat> formats,
             @RequestParam(required = false) Set<ContentTime> times,
@@ -48,6 +55,7 @@ public class PublicEventControllerV1 {
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
 
         Page<EventResponse> events = eventService.findWithFilters(
+                startDate, endDate,
                 tags, formats, times, participationFormats,
                 search, null, pageable, null
         ).map(event -> {

@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.*;
 
 @RestController
@@ -44,9 +46,14 @@ public class EventControllerV1 {
         this.eventResponseMapper = eventResponseMapper;
     }
 
-    @Operation(summary = "Get all events with optional filters")
+    @Operation(
+            summary = "Get all public events with optional filters",
+            description = "startDate and endDate are days event.date is between"
+    )
     @GetMapping
     public ResponseEntity<Page<EventResponse>> getAllEvents(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(required = false) Set<ThemeTags> tags,
             @RequestParam(required = false) Set<ContentFormat> formats,
             @RequestParam(required = false) Set<ContentTime> times,
@@ -72,7 +79,7 @@ public class EventControllerV1 {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
             Page<EventResponse> eventsPage = eventService
-                    .findWithFilters(tags, formats, times, participationFormats, search, status, pageable, currentUserId)
+                    .findWithFilters(startDate, endDate, tags, formats, times, participationFormats, search, status, pageable, currentUserId)
                     .map(event -> {
                         try {
                             return eventResponseMapper.toEventResponse(event);
@@ -214,7 +221,7 @@ public class EventControllerV1 {
                 updateEventRequest.date(),
                 updateEventRequest.available_places()
         );
-            return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventModel));
+            return ResponseEntity.status(HttpStatus.CREATED).body(eventResponseMapper.toEventResponse(eventModel));
         } catch (IOException e) {
             return ResponseEntity.badRequest().build();
         }
