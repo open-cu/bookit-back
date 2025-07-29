@@ -51,11 +51,16 @@ public class TicketPersistenceAdapter implements SaveTicketPort, LoadTicketPort,
         Specification<TicketEntity> spec = Specification.where(null);
         spec = spec.and((root, query, cb) ->
                 cb.equal(root.get("type"), type));
-        spec = spec.and((root, query, cb) ->
-            cb.between(root.get("createdAt"),
-                    LocalDateTime.of(startDate, LocalTime.of(0, 0, 0)),
-                    LocalDateTime.of(endDate, LocalTime.of(0,0,0))
-        ));
+
+        if (startDate != null && endDate != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.between(root.get("createdAt"),
+                            LocalDateTime.of(startDate, LocalTime.of(0, 0, 0)),
+                            LocalDateTime.of(endDate, LocalTime.of(0,0,0))
+                    )
+            );
+        }
+
         if (search != null && !search.isBlank()) {
             spec = spec.and((root, query, cb) ->
                 cb.like(cb.lower(root.get("description")), "%" + search.toLowerCase() + "%")

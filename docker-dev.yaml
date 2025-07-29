@@ -23,6 +23,7 @@ services:
       - SYSTEM_TEXT_ANALYZE=${SYSTEM_TEXT_ANALYZE}
       - API_URL=${API_URL}
       - FOLDER_ID=${FOLDER_ID}
+      - TZ=Europe/Moscow
 
 networks:
   bookit-dev:
