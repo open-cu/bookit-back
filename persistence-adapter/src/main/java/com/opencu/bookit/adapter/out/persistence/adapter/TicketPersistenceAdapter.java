@@ -49,8 +49,10 @@ public class TicketPersistenceAdapter implements SaveTicketPort, LoadTicketPort,
     @Override
     public Page<TicketModel> findWithFilters(LocalDate startDate, LocalDate endDate, String search, TicketType type, Pageable pageable) {
         Specification<TicketEntity> spec = Specification.where(null);
-        spec = spec.and((root, query, cb) ->
-                cb.equal(root.get("type"), type));
+        if (type != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("type"), type));
+        }
 
         if (startDate != null && endDate != null) {
             spec = spec.and((root, query, cb) ->
