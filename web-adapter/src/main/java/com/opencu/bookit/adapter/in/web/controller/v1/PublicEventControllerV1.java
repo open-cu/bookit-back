@@ -33,7 +33,7 @@ public class PublicEventControllerV1 {
 
     @Operation(
             summary = "Get all public events with optional filters",
-            description = "startDate and endDate are days event.date is between"
+            description = "startDate and endDate are days event.startTime is between"
     )
     @GetMapping
     public ResponseEntity<Page<EventResponse>> getAllPublicEvents(

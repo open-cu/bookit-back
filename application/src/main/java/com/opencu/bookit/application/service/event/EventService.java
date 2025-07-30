@@ -1,9 +1,11 @@
 package com.opencu.bookit.application.service.event;
 
+import com.opencu.bookit.application.port.in.booking.CRUDBookingUseCase;
 import com.opencu.bookit.application.port.out.event.DeleteEventPort;
 import com.opencu.bookit.application.port.out.event.LoadEventPort;
 import com.opencu.bookit.application.port.out.event.SaveEventPort;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
+import com.opencu.bookit.application.service.booking.BookingService;
 import com.opencu.bookit.application.service.nofication.NotificationService;
 import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
 import com.opencu.bookit.domain.model.contentcategory.ContentTime;
@@ -16,6 +18,7 @@ import com.opencu.bookit.domain.model.user.UserModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +34,7 @@ public class EventService {
     private final LoadUserPort loadUserPort;
     private final DeleteEventPort deleteEventPort;
     private final NotificationService notificationService;
+    private final BookingService bookingService;
 
     @Value("${booking.zone-id}")
     private ZoneId zoneId;
@@ -38,12 +42,15 @@ public class EventService {
     @Value("${notification.default-time-before-event-in-days}")
     private int defaultTimeBeforeEventInDays;
 
-    public EventService(LoadEventPort loadEventPort, SaveEventPort saveEventPort, LoadUserPort loadUserPort, DeleteEventPort deleteEventPort, NotificationService notificationService) {
+    public EventService(LoadEventPort loadEventPort, SaveEventPort saveEventPort,
+                        LoadUserPort loadUserPort, DeleteEventPort deleteEventPort,
+                        NotificationService notificationService, BookingService bookingService) {
         this.loadEventPort = loadEventPort;
         this.saveEventPort = saveEventPort;
         this.loadUserPort = loadUserPort;
         this.deleteEventPort = deleteEventPort;
         this.notificationService = notificationService;
+        this.bookingService = bookingService;
     }
 
     public Optional<EventModel> findById(UUID eventId) {
@@ -83,6 +90,12 @@ public class EventService {
         eventModel.setAvailable_places(eventModel.getAvailable_places() - 1);
         saveEventPort.save(eventModel);
 
+        CRUDBookingUseCase.CreateBookingCommand createBookingCommand = new CRUDBookingUseCase.CreateBookingCommand(
+                userId,
+                eventModel.getId(),
+                Set.of(Pair.of(eventModel.getStartTime(), eventModel.getEndTime())),
+                1
+        );
 
         EventNotification eventNotification = new EventNotification(
                 UUID.randomUUID(),
@@ -133,6 +146,7 @@ public class EventService {
             List<ParticipationFormat> participationFormats,
             List<String> keys,
             LocalDateTime date,
+            LocalDateTime endTime,
             int availablePlaces
     ) {
         Optional<EventModel> eventOpt = loadEventPort.findById(eventId);
@@ -149,6 +163,7 @@ public class EventService {
         eventModel.setKeys(keys);
         eventModel.setStartTime(date);
         eventModel.setAvailable_places(availablePlaces);
+        eventModel.setEndTime(endTime);
         return saveEventPort.save(eventModel);
     }
 
@@ -176,7 +191,8 @@ public class EventService {
             List<ContentTime> times,
             List<ParticipationFormat> participationFormats,
             List<String> keys,
-            LocalDateTime date,
+            LocalDateTime startTime,
+            LocalDateTime endTime,
             int availablePlaces
     ) {
         EventModel eventModel = new EventModel();
@@ -187,7 +203,8 @@ public class EventService {
         eventModel.setTimes(new HashSet<>(times));
         eventModel.setParticipationFormats(new HashSet<>(participationFormats));
         eventModel.setKeys(keys);
-        eventModel.setStartTime(date);
+        eventModel.setStartTime(startTime);
+        eventModel.setEndTime(endTime);
         eventModel.setAvailable_places(availablePlaces);
         return saveEventPort.save(eventModel);
     }

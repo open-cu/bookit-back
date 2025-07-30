@@ -48,7 +48,7 @@ public class EventControllerV1 {
 
     @Operation(
             summary = "Get all public events with optional filters",
-            description = "startDate and endDate are days event.date is between"
+            description = "startDate and endDate are days event.startTime is between"
     )
     @GetMapping
     public ResponseEntity<Page<EventResponse>> getAllEvents(
@@ -191,7 +191,8 @@ public class EventControllerV1 {
                     updateEventRequest.times(),
                     updateEventRequest.participationFormats(),
                     keys,
-                    updateEventRequest.date(),
+                    updateEventRequest.startTime(),
+                    updateEventRequest.endTime(),
                     updateEventRequest.available_places()
             );
                 return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventModel));
@@ -224,7 +225,8 @@ public class EventControllerV1 {
                 updateEventRequest.times(),
                 updateEventRequest.participationFormats(),
                 keys,
-                updateEventRequest.date(),
+                updateEventRequest.startTime(),
+                updateEventRequest.endTime(),
                 updateEventRequest.available_places()
         );
             return ResponseEntity.status(HttpStatus.CREATED).body(eventResponseMapper.toEventResponse(eventModel));

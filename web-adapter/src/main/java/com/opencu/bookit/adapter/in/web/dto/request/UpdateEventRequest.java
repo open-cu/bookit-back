@@ -4,18 +4,26 @@ import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
 import com.opencu.bookit.domain.model.contentcategory.ContentTime;
 import com.opencu.bookit.domain.model.contentcategory.ParticipationFormat;
 import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 public record UpdateEventRequest(
+        @NotBlank
         String name,
+        @NotBlank
         String description,
         List<ThemeTags> tags,
         List<ContentFormat> formats,
         List<ContentTime> times,
         List<ParticipationFormat> participationFormats,
-        LocalDateTime date,
+        @NotNull
+        LocalDateTime startTime,
+        @NotNull
         LocalDateTime endTime,
+        @PositiveOrZero
         int available_places
 ) {}
