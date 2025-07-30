@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
@@ -80,7 +81,13 @@ public class BookingPersistenceAdapter implements
     }
 
     @Override
-    public Page<BookingModel> findWithFilters(Pageable pageable, UUID areaId, UUID userId) {
+    public Page<BookingModel> findWithFilters(
+            LocalDate startDate,
+            LocalDate endDate,
+            Pageable pageable,
+            UUID areaId,
+            UUID userId
+    ) {
         Specification<BookingEntity> spec = Specification.where(null);
 
         if (areaId != null && userId != null) {
@@ -96,6 +103,13 @@ public class BookingPersistenceAdapter implements
                     )
                 );
             }
+        }
+        if (startDate != null && endDate != null) {
+            spec = spec.and((root, query, cb) ->
+                cb.between(root.get("startTime"),
+                        LocalDateTime.of(startDate, LocalTime.of(0,0,0)),
+                        LocalDateTime.of(endDate, LocalTime.of(0,0,0)))
+            );
         }
         return bookingRepository.findAll(spec, pageable).map(bookingMapper::toModel);
     }

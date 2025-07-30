@@ -464,11 +464,13 @@ public class BookingService {
     }
 
     public Page<BookingModel> findWithFilters(
+            LocalDate startDate,
+            LocalDate endDate,
             Pageable pageable,
             UUID areaId,
             UUID userId
     ) {
-        return loadBookingPort.findWithFilters(pageable, areaId, userId);
+        return loadBookingPort.findWithFilters(startDate, endDate, pageable, areaId, userId);
     }
 
     public BookingModel updateById(
