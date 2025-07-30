@@ -101,7 +101,7 @@ public class EventControllerV1 {
         UserDetailsImpl currentUser = (UserDetailsImpl) authentication.getPrincipal();
 
         EventModel event = eventService.findById(eventId)
-                                       .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+                                       .orElseThrow(() -> new ResourceNotFoundException("Event " + eventId + " not found"));
 
         return ResponseEntity.ok(eventService.findStatusById(currentUser.getId(), event));
     }
@@ -119,7 +119,7 @@ public class EventControllerV1 {
         }
 
         EventModel event = eventService.findById(eventId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event " + eventId + " not found"));
         eventService.addUser(currentUser.getId(), event);
         EventResponse eventResponse = null;
         try {
@@ -144,7 +144,7 @@ public class EventControllerV1 {
         }
 
         EventModel event = eventService.findById(eventId)
-                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Event " + eventId + " not found"));
         eventService.removeUser(currentUser.getId(), event);
         return ResponseEntity.ok("User removed successfully");
     }
@@ -158,7 +158,7 @@ public class EventControllerV1 {
     ) {
         Optional<EventModel> eventOpt = eventService.findById(eventId);
         if (eventOpt.isEmpty()) {
-            throw new NoSuchElementException("No such event found");
+            throw new NoSuchElementException("Event " + eventId + " not found");
         }
         try {
             return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventOpt.get()));

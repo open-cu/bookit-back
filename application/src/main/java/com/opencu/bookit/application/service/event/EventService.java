@@ -69,7 +69,7 @@ public class EventService {
     }
 
     public void addUser(UUID userId, EventModel eventModel) {
-        UserModel userModel = loadUserPort.findById(userId).orElseThrow(() -> new NoSuchElementException("User not found"));
+        UserModel userModel = loadUserPort.findById(userId).orElseThrow(() -> new NoSuchElementException("User " + userId + " not found"));
         if (eventModel.getUserModels().contains(userModel)) {
             throw new IllegalArgumentException("User " + userModel.getId() + " is already registered for this event");
         }
