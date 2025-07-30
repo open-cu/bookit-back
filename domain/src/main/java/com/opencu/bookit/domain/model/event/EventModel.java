@@ -29,7 +29,7 @@ public class EventModel {
     /**
      * stands for start of the event
      */
-    private LocalDateTime date;
+    private LocalDateTime startTime;
     private LocalDateTime endTime;
     private int available_places;
     private Set<UserModel> userModels = new HashSet<>();

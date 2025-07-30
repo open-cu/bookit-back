@@ -24,7 +24,7 @@ public interface EventRepository extends JpaRepository<EventEntity, UUID>, JpaSp
     FROM EventEntity e 
     JOIN e.tags t 
     WHERE t IN :tags 
-    ORDER BY e.date DESC
+    ORDER BY e.startTime DESC
 """)
     List<EventEntity> findByTagsIn(@Param("tags") Set<ThemeTags> tags);
 

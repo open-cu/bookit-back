@@ -65,7 +65,7 @@ public class EventEntity {
      * stands for start of the event
      */
     @Column(nullable = false)
-    private LocalDateTime date;
+    private LocalDateTime startTime;
 
     @Column
     private LocalDateTime endTime;

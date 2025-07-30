@@ -35,6 +35,11 @@ public class UserPersistenceAdapter implements
     }
 
     @Override
+    public boolean existsById(UUID userId) {
+        return userRepository.existsById(userId);
+    }
+
+    @Override
     public Optional<UserModel> findByUsername(String username) {
         return userRepository.findByUsername(username).map(userMapper::toModel);
     }

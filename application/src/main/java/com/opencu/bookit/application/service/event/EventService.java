@@ -4,21 +4,24 @@ import com.opencu.bookit.application.port.out.event.DeleteEventPort;
 import com.opencu.bookit.application.port.out.event.LoadEventPort;
 import com.opencu.bookit.application.port.out.event.SaveEventPort;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
+import com.opencu.bookit.application.service.nofication.NotificationService;
 import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
 import com.opencu.bookit.domain.model.contentcategory.ContentTime;
 import com.opencu.bookit.domain.model.contentcategory.ParticipationFormat;
 import com.opencu.bookit.domain.model.event.EventModel;
+import com.opencu.bookit.domain.model.event.EventNotification;
 import com.opencu.bookit.domain.model.event.EventStatus;
 import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
 import com.opencu.bookit.domain.model.user.UserModel;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.expression.spel.ast.NullLiteral;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 @Service
@@ -27,12 +30,20 @@ public class EventService {
     private final SaveEventPort saveEventPort;
     private final LoadUserPort loadUserPort;
     private final DeleteEventPort deleteEventPort;
+    private final NotificationService notificationService;
 
-    public EventService(LoadEventPort loadEventPort, SaveEventPort saveEventPort, LoadUserPort loadUserPort, DeleteEventPort deleteEventPort) {
+    @Value("${booking.zone-id}")
+    private ZoneId zoneId;
+
+    @Value("${notification.default-time-before-event-in-days}")
+    private int defaultTimeBeforeEventInDays;
+
+    public EventService(LoadEventPort loadEventPort, SaveEventPort saveEventPort, LoadUserPort loadUserPort, DeleteEventPort deleteEventPort, NotificationService notificationService) {
         this.loadEventPort = loadEventPort;
         this.saveEventPort = saveEventPort;
         this.loadUserPort = loadUserPort;
         this.deleteEventPort = deleteEventPort;
+        this.notificationService = notificationService;
     }
 
     public Optional<EventModel> findById(UUID eventId) {
@@ -58,13 +69,39 @@ public class EventService {
     }
 
     public void addUser(UUID userId, EventModel eventModel) {
-        UserModel userModel = loadUserPort.findById(userId)
-                                          .orElseThrow(() -> new NoSuchElementException("User not found"));
-        if (!eventModel.getUserModels().contains(userModel) && eventModel.getAvailable_places() > 0) {
-            eventModel.getUserModels().add(userModel);
-            eventModel.setAvailable_places(eventModel.getAvailable_places() - 1);
-            saveEventPort.save(eventModel);
+        UserModel userModel = loadUserPort.findById(userId).orElseThrow(() -> new NoSuchElementException("User not found"));
+        if (eventModel.getUserModels().contains(userModel)) {
+            throw new IllegalArgumentException("User is already registered for this event");
         }
+        if (eventModel.getAvailable_places() <= 0) {
+            throw new IllegalArgumentException("There are no available places for this event");
+        }
+        if (eventModel.getStartTime().isBefore(LocalDateTime.now(zoneId))) {
+            throw new IllegalArgumentException("Cannot register for an event that has already occurred");
+        }
+        eventModel.getUserModels().add(userModel);
+        eventModel.setAvailable_places(eventModel.getAvailable_places() - 1);
+        saveEventPort.save(eventModel);
+
+
+        EventNotification eventNotification = new EventNotification(
+                UUID.randomUUID(),
+                userId,
+                userModel.getEmail(),
+                eventModel.getId(),
+                eventModel.getName(),
+                eventModel.getStartTime(),
+                "Вы успешно зарегистрированы на мероприятие: " + eventModel.getName()
+        );
+
+        if (eventModel.getStartTime().isBefore(LocalDateTime.now(zoneId).plusDays(defaultTimeBeforeEventInDays))) {
+            notificationService.sendEventNotificationNow(eventNotification);
+        }
+        else {
+            notificationService.scheduleEventNotification(eventNotification,
+                    eventModel.getStartTime().minusDays(defaultTimeBeforeEventInDays));
+        }
+
     }
 
     public boolean isUserPresent(UUID userId, EventModel eventModel) {
@@ -74,10 +111,10 @@ public class EventService {
     public void removeUser(UUID userId, EventModel eventModel) {
         UserModel userModel = loadUserPort.findById(userId)
                                           .orElseThrow(() -> new NoSuchElementException("User not found"));
-
         if (eventModel.getUserModels().remove(userModel)) {
             eventModel.setAvailable_places(eventModel.getAvailable_places() + 1);
             saveEventPort.save(eventModel);
+            notificationService.cancelNotification(userId, eventModel.getId());
         }
     }
 
@@ -110,7 +147,7 @@ public class EventService {
         eventModel.setTimes(new HashSet<>(times));
         eventModel.setParticipationFormats(new HashSet<>(participationFormats));
         eventModel.setKeys(keys);
-        eventModel.setDate(date);
+        eventModel.setStartTime(date);
         eventModel.setAvailable_places(availablePlaces);
         return saveEventPort.save(eventModel);
     }
@@ -150,7 +187,7 @@ public class EventService {
         eventModel.setTimes(new HashSet<>(times));
         eventModel.setParticipationFormats(new HashSet<>(participationFormats));
         eventModel.setKeys(keys);
-        eventModel.setDate(date);
+        eventModel.setStartTime(date);
         eventModel.setAvailable_places(availablePlaces);
         return saveEventPort.save(eventModel);
     }

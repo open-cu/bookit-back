@@ -67,7 +67,7 @@ public class EventPersistenceAdapter implements LoadEventPort,
 
         if (startDate != null && endDate != null) {
             spec = spec.and((root, query, cb) ->
-                cb.between(root.get("date"),
+                cb.between(root.get("startTime"),
                         LocalDateTime.of(startDate, LocalTime.of(0,0,0)),
                         LocalDateTime.of(endDate, LocalTime.of(0,0,0))
             ));
@@ -120,6 +120,11 @@ public class EventPersistenceAdapter implements LoadEventPort,
     public Optional<EventModel> findByName(String name) {
         return eventRepository.findByName(name)
                 .map(eventMapper::toModel);
+    }
+
+    @Override
+    public boolean existsById(UUID eventId) {
+        return eventRepository.existsById(eventId);
     }
 
     @Override
