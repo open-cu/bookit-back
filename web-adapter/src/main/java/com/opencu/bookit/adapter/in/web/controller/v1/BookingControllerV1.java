@@ -200,6 +200,20 @@ public class BookingControllerV1 {
             @PathVariable UUID bookingId,
             @RequestBody UpdateBookingRequest request) {
         try {
+            if (securityService.hasRequiredRole(securityService.getAdmin()) || securityService.isDev()) {
+                BookingResponse response = bookingResponseMapper.toResponse(
+                        bookingService.updateById(
+                                bookingId,
+                                request.userId(),
+                                request.areaId(),
+                                request.startTime(),
+                                request.endTime(),
+                                request.status()
+                        )
+                );
+                return ResponseEntity.ok(response);
+            }
+
             UserDetailsImpl currentUser = getCurrentUser();
             if (currentUser.getStatus() != UserStatus.VERIFIED) {
                 throw new ProfileNotCompletedException("User profile is not completed. Please complete your profile before updating bookings.");
