@@ -114,11 +114,13 @@ public class BookingControllerV1 {
             @RequestParam(defaultValue = "${pagination.default-size}") int size
                                                             ) {
         UserDetailsImpl currentUser = getCurrentUser();
-        List<BookingModel> bookings;
-        switch (timeline) {
-            case "future" -> bookings = new ArrayList<>(bookingService.getFutureBookings(currentUser.getId()));
-            case "past" -> bookings = new ArrayList<>(bookingService.getPastBookings(currentUser.getId()));
-            default -> bookings = new ArrayList<>(bookingService.getCurrentBookings(currentUser.getId()));
+        List<BookingModel> bookings = new ArrayList<>();
+        if (timeline != null && timeline.isEmpty()) {
+            switch (timeline) {
+                case "future" -> bookings.addAll(bookingService.getFutureBookings(currentUser.getId()));
+                case "past" -> bookings.addAll(bookingService.getPastBookings(currentUser.getId()));
+                default -> bookings.addAll(bookingService.getCurrentBookings(currentUser.getId()));
+            }
         }
         bookings.sort(Comparator.comparing(BookingModel::getStartTime));
         int fromIndex = Math.min(page * size, bookings.size());
