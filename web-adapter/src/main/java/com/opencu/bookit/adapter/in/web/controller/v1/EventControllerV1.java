@@ -62,7 +62,7 @@ public class EventControllerV1 {
             @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "${pagination.default-page}") int page,
             @RequestParam(defaultValue = "${pagination.default-size}") int size,
-            @RequestParam(defaultValue = "date,asc") String sort
+            @RequestParam(defaultValue = "startTime,asc") String sort
                                                            ) {
         String[] sortParams = sort.split(",");
         Sort.Direction direction = sortParams.length > 1 && sortParams[1].equalsIgnoreCase("desc")

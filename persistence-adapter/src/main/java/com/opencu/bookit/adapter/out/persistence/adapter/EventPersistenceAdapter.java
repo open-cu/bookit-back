@@ -67,7 +67,7 @@ public class EventPersistenceAdapter implements LoadEventPort,
 
         if (startDate != null && endDate != null) {
             spec = spec.and((root, query, cb) ->
-                cb.between(root.get("date"),
+                cb.between(root.get("startTime"),
                         LocalDateTime.of(startDate, LocalTime.of(0,0,0)),
                         LocalDateTime.of(endDate, LocalTime.of(0,0,0))
             ));
