@@ -8,6 +8,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface LoadReviewsPort {
-    Page<ReviewsModel> findWithFilters(UUID userId, byte rating, Pageable pageable);
+    Page<ReviewsModel> findWithFilters(UUID userId, Byte rating, Pageable pageable);
     Optional<ReviewsModel> findById(UUID reviewId);
 }
