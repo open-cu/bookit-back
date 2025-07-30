@@ -4,6 +4,7 @@ import com.opencu.bookit.application.port.in.booking.CRUDBookingUseCase;
 import com.opencu.bookit.application.port.out.event.DeleteEventPort;
 import com.opencu.bookit.application.port.out.event.LoadEventPort;
 import com.opencu.bookit.application.port.out.event.SaveEventPort;
+import com.opencu.bookit.application.port.out.user.LoadAuthorizationInfoPort;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.application.service.booking.BookingService;
 import com.opencu.bookit.application.service.nofication.NotificationService;
@@ -35,6 +36,7 @@ public class EventService {
     private final DeleteEventPort deleteEventPort;
     private final NotificationService notificationService;
     private final BookingService bookingService;
+    private final LoadAuthorizationInfoPort loadAuthorizationInfoPort;
 
     @Value("${booking.zone-id}")
     private ZoneId zoneId;
@@ -44,13 +46,14 @@ public class EventService {
 
     public EventService(LoadEventPort loadEventPort, SaveEventPort saveEventPort,
                         LoadUserPort loadUserPort, DeleteEventPort deleteEventPort,
-                        NotificationService notificationService, BookingService bookingService) {
+                        NotificationService notificationService, BookingService bookingService, LoadAuthorizationInfoPort loadAuthorizationInfoPort) {
         this.loadEventPort = loadEventPort;
         this.saveEventPort = saveEventPort;
         this.loadUserPort = loadUserPort;
         this.deleteEventPort = deleteEventPort;
         this.notificationService = notificationService;
         this.bookingService = bookingService;
+        this.loadAuthorizationInfoPort = loadAuthorizationInfoPort;
     }
 
     public Optional<EventModel> findById(UUID eventId) {
@@ -96,6 +99,7 @@ public class EventService {
                 Set.of(Pair.of(eventModel.getStartTime(), eventModel.getEndTime())),
                 1
         );
+        bookingService.createBooking(createBookingCommand, true, false);
 
         EventNotification eventNotification = new EventNotification(
                 UUID.randomUUID(),
@@ -206,6 +210,18 @@ public class EventService {
         eventModel.setStartTime(startTime);
         eventModel.setEndTime(endTime);
         eventModel.setAvailable_places(availablePlaces);
-        return saveEventPort.save(eventModel);
+
+        eventModel = saveEventPort.save(eventModel);
+
+        CRUDBookingUseCase.CreateBookingCommand createBookingCommand = new CRUDBookingUseCase.CreateBookingCommand(
+                loadAuthorizationInfoPort.getCurrentUser().getId(),
+                eventModel.getId(),
+                Set.of(Pair.of(eventModel.getStartTime(), eventModel.getEndTime())),
+                0
+        );
+
+        bookingService.createBooking(createBookingCommand, false, true);
+
+        return eventModel;
     }
 }

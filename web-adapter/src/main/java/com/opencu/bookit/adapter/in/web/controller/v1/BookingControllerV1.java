@@ -177,7 +177,7 @@ public class BookingControllerV1 {
             }
         }
 
-        List<BookingModel> createdBooking = bookingService.createBooking(bookingRequestMapper.toCommand(request), false);
+        List<BookingModel> createdBooking = bookingService.createBooking(bookingRequestMapper.toCommand(request), false, false);
         Set<ResponseEntity<BookingResponse>> result = new HashSet<>();
 
         for (BookingModel b : createdBooking) {

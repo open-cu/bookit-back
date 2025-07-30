@@ -139,7 +139,7 @@ public class BookingController {
                 request.quantity()
         );
 
-        List<BookingModel> createdBooking = bookingService.createBooking(actualRequest, false);
+        List<BookingModel> createdBooking = bookingService.createBooking(actualRequest, false, false);
         List<ResponseEntity<BookingResponse>> result = new ArrayList<>();
 
         for (BookingModel b : createdBooking) {
