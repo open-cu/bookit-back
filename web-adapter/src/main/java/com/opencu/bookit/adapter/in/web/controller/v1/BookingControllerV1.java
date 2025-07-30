@@ -17,10 +17,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.util.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -103,29 +100,45 @@ public class BookingControllerV1 {
 
     @Operation(summary = "Get current user's bookings by timeline")
     @GetMapping
-    public ResponseEntity<List<BookingResponse>> getBookings(
+    public ResponseEntity<Page<BookingResponse>> getBookings(
             @RequestParam(required = false) String timeline,
             @RequestParam(required = false) UUID areaId,
             @RequestParam(required = false) UUID userId,
-            @RequestParam (required = false) String date,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(defaultValue = "${pagination.default-page}") int page,
             @RequestParam(defaultValue = "${pagination.default-size}") int size
                                                             ) {
-        UserDetailsImpl currentUser = getCurrentUser();
+        // timeline if for user-mode only, rest is for admin only
+        if (areaId != null && userId != null && timeline != null) {
+            return ResponseEntity.badRequest().build();
+        }
+
         List<BookingModel> bookings = new ArrayList<>();
-        if (timeline != null && timeline.isEmpty()) {
+        Sort.Direction direction = Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size,
+                Sort.by(direction, "startTime"));
+
+        if (timeline != null && !timeline.isEmpty()) {
+            UserDetailsImpl currentUser = getCurrentUser();
             switch (timeline) {
                 case "future" -> bookings.addAll(bookingService.getFutureBookings(currentUser.getId()));
                 case "past" -> bookings.addAll(bookingService.getPastBookings(currentUser.getId()));
                 default -> bookings.addAll(bookingService.getCurrentBookings(currentUser.getId()));
             }
+            int fromIndex = Math.min(page * size, bookings.size());
+            int toIndex = Math.min(fromIndex + size, bookings.size());
+            List<BookingResponse> responses = bookingResponseMapper.toResponseList(bookings.subList(fromIndex, toIndex));
+            return ResponseEntity.ok(new PageImpl<>(responses, pageable, bookings.size()));
         }
-        bookings.sort(Comparator.comparing(BookingModel::getStartTime));
-        int fromIndex = Math.min(page * size, bookings.size());
-        int toIndex = Math.min(fromIndex + size, bookings.size());
-        return ResponseEntity.ok(bookingResponseMapper.toResponseList(bookings.subList(fromIndex, toIndex)));
+
+        if (securityService.hasRequiredRole(securityService.getAdmin()) || securityService.isDev()) {
+            Page<BookingResponse> bookingResponsePage = bookingService
+                    .findWithFilters(startDate, endDate, pageable, areaId, userId)
+                    .map(bookingResponseMapper::toResponse);
+            return ResponseEntity.ok(bookingResponsePage);
+        }
+        return ResponseEntity.badRequest().build();
     }
 
     @Operation(summary = "Deprecated. Use Get /api/v1/bookings instead")
@@ -143,7 +156,7 @@ public class BookingControllerV1 {
                 Sort.by(direction, "startTime"));
 
         Page<BookingResponse> bookingResponsePage = bookingService
-                .findWithFilters(pageable, areaId, userId)
+                .findWithFilters(null, null, pageable, areaId, userId)
                 .map(bookingResponseMapper::toResponse);
         return ResponseEntity.ok(bookingResponsePage);
     }
@@ -237,7 +250,7 @@ public class BookingControllerV1 {
     public ResponseEntity<?> deleteById(
             @PathVariable UUID bookingId
     ) {
-        if (securityService.hasRequiredRole(securityService.getAdmin())) {
+        if (securityService.hasRequiredRole(securityService.getAdmin()) || securityService.isDev()) {
             bookingService.deleteById(bookingId);
             return ResponseEntity.ok("Booking deleted successfully");
         } else {
