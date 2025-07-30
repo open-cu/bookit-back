@@ -2,6 +2,7 @@ package com.opencu.bookit.adapter.in.web.dto.request;
 
 import com.opencu.bookit.domain.model.user.UserStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Email;
 
 import java.util.List;
 
@@ -40,6 +41,7 @@ public record PatchUserRequest(
                 example = "ivan_ivanov@example.com",
                 accessMode =  Schema.AccessMode.READ_ONLY
         )
+        @Email
         String email,
 
         @Schema(
