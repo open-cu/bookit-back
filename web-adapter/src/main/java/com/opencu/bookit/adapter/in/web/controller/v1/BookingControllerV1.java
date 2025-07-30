@@ -201,17 +201,19 @@ public class BookingControllerV1 {
             @RequestBody UpdateBookingRequest request) {
         try {
             if (securityService.hasRequiredRole(securityService.getAdmin()) || securityService.isDev()) {
-                BookingResponse response = bookingResponseMapper.toResponse(
-                        bookingService.updateById(
-                                bookingId,
-                                request.userId(),
-                                request.areaId(),
-                                request.startTime(),
-                                request.endTime(),
-                                request.status()
-                        )
-                );
-                return ResponseEntity.ok(response);
+                if (request.userId() != null || request.status() != null) {
+                    BookingResponse response = bookingResponseMapper.toResponse(
+                            bookingService.updateById(
+                                    bookingId,
+                                    request.userId(),
+                                    request.areaId(),
+                                    request.startTime(),
+                                    request.endTime(),
+                                    request.status()
+                            )
+                    );
+                    return ResponseEntity.ok(response);
+                }
             }
 
             UserDetailsImpl currentUser = getCurrentUser();
