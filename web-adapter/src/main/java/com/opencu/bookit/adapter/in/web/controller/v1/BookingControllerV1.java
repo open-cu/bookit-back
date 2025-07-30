@@ -104,7 +104,12 @@ public class BookingControllerV1 {
     @Operation(summary = "Get current user's bookings by timeline")
     @GetMapping
     public ResponseEntity<List<BookingResponse>> getBookings(
-            @RequestParam(defaultValue = "current") String timeline,
+            @RequestParam(required = false) String timeline,
+            @RequestParam(required = false) UUID areaId,
+            @RequestParam(required = false) UUID userId,
+            @RequestParam (required = false) String date,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(defaultValue = "${pagination.default-page}") int page,
             @RequestParam(defaultValue = "${pagination.default-size}") int size
                                                             ) {
@@ -121,7 +126,7 @@ public class BookingControllerV1 {
         return ResponseEntity.ok(bookingResponseMapper.toResponseList(bookings.subList(fromIndex, toIndex)));
     }
 
-    @Operation(summary = "Get current area's bookings by user and date")
+    @Operation(summary = "Deprecated. Use Get /api/v1/bookings instead")
     @GetMapping("/advanced")
     public ResponseEntity<Page<BookingResponse>> getBookingsAdvanced(
             @RequestParam (required = false) UUID areaId,
