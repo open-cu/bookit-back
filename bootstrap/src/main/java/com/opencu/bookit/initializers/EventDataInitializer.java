@@ -2,9 +2,10 @@ package com.opencu.bookit.initializers;
 
 import com.opencu.bookit.adapter.out.persistence.entity.EventEntity;
 import com.opencu.bookit.adapter.out.persistence.repository.EventRepository;
-import com.opencu.bookit.adapter.out.persistence.repository.UserRepository;
 import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
-import org.springframework.boot.CommandLineRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,38 +16,56 @@ import java.util.Set;
 @Configuration
 public class EventDataInitializer {
 
+    private static final Logger log = LoggerFactory.getLogger(EventDataInitializer.class);
+
     @Bean
-    CommandLineRunner initEvent(EventRepository eventRepository, UserRepository userRepository) {
+    ApplicationRunner initEvent(EventRepository eventRepository) {
         return args -> {
             if (eventRepository.count() == 0) {
-                // Создаем события
-                EventEntity pitchNight = new EventEntity();
-                pitchNight.setName("Ночь презентаций стартапов");
-                pitchNight.setDescription("Возможность для стартапов представить свои идеи инвесторам.");
-                pitchNight.setTags(Set.of(ThemeTags.IT, ThemeTags.TECHNOLOGY));
-                pitchNight.setDate(LocalDateTime.of(2025, 7, 28, 16, 0, 0));
-                pitchNight.setKeys(List.of("arch.png"));
-                pitchNight.setAvailable_places(30);
+                LocalDateTime date = LocalDateTime.now().plusDays(2);
+                LocalDateTime tommorow = LocalDateTime.now().plusDays(1);
 
-                EventEntity aiWorkshop = new EventEntity();
-                aiWorkshop.setName("Мастерская искусственного интеллекта");
-                aiWorkshop.setDescription("Практический семинар по созданию приложений на базе искусственного интеллекта.");
-                aiWorkshop.setTags(Set.of(ThemeTags.IT, ThemeTags.SCIENCE));
-                aiWorkshop.setDate(LocalDateTime.of(2025, 7, 28, 18, 0, 0));
-                aiWorkshop.setKeys(List.of("arch.png"));
-                aiWorkshop.setAvailable_places(0);
+                List<EventEntity> events = List.of(
+                        buildEvent(
+                                "Ночь презентаций стартапов",
+                                "Возможность для стартапов представить свои идеи инвесторам.",
+                                Set.of(ThemeTags.IT, ThemeTags.TECHNOLOGY),
+                                tommorow.withHour(10),
+                                30,
+                                "arch.png"
+                        ),
+                        buildEvent(
+                                "Мастерская искусственного интеллекта",
+                                "Практический семинар по созданию приложений на базе искусственного интеллекта.",
+                                Set.of(ThemeTags.IT, ThemeTags.SCIENCE),
+                                date.withHour(18),
+                                0,
+                                "arch.png"
+                        ),
+                        buildEvent(
+                                "Мастерская искусственного интеллекта возвращается",
+                                "Возможность для стартапов представить свои идеи инвесторам.",
+                                Set.of(ThemeTags.IT, ThemeTags.TECHNOLOGY),
+                                date.withHour(20),
+                                30,
+                                "arch.png"
+                        )
+                );
 
-                EventEntity aiWorkshop2 = new EventEntity();
-                aiWorkshop2.setName("Мастерская искусственного интеллекта возвращается");
-                aiWorkshop2.setDescription("Возможность для стартапов представить свои идеи инвесторам.");
-                aiWorkshop2.setTags(Set.of(ThemeTags.IT, ThemeTags.TECHNOLOGY));
-                aiWorkshop2.setDate(LocalDateTime.of(2025, 7, 28, 20, 0, 0));
-                aiWorkshop2.setKeys(List.of("arch.png"));
-                aiWorkshop2.setAvailable_places(30);
-
-                eventRepository.saveAll(List.of(pitchNight, aiWorkshop, aiWorkshop2));
-                System.out.println("Initial events created successfully");
+                eventRepository.saveAll(events);
+                log.info("Initial events created successfully");
             }
         };
+    }
+
+    private EventEntity buildEvent(String name, String description, Set<ThemeTags> tags, LocalDateTime startTime, int places, String key) {
+        EventEntity event = new EventEntity();
+        event.setName(name);
+        event.setDescription(description);
+        event.setTags(tags);
+        event.setStartTime(startTime);
+        event.setKeys(List.of(key));
+        event.setAvailable_places(places);
+        return event;
     }
 }
