@@ -40,7 +40,7 @@ public class NewsService {
     public NewsModel findById(UUID newsId) {
         Optional<NewsModel> newsOpt = loadNewsPort.findById(newsId);
         if (newsOpt.isEmpty()) {
-            throw new NoSuchElementException("No such news found");
+            throw new NoSuchElementException("No such news with id " + newsId + " found");
         }
         return newsOpt.get();
     }
@@ -58,7 +58,7 @@ public class NewsService {
     ) {
         Optional<NewsModel> newsOpt = loadNewsPort.findById(newsId);
         if (newsOpt.isEmpty()) {
-            throw  new NoSuchElementException("No such news found");
+            throw  new NoSuchElementException("No such news with id " + newsId + " found");
         }
         NewsModel news = newsOpt.get();
         news.setTitle(title);

@@ -183,7 +183,7 @@ public class BookingService {
             Optional<AreaModel> checkArea = loadAreaPort.findById(areaId.get());
 
             if (checkArea.isEmpty()) {
-                throw new RuntimeException("Area with this UUID doesn't exist!");
+                throw new NoSuchElementException("Area with this UUID " + areaId.get() + " doesn't exist!");
             }
 
             addFreeTimes(availableTime, date, bookingModels, checkArea.get());

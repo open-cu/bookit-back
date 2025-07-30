@@ -69,15 +69,15 @@ public class EventService {
     }
 
     public void addUser(UUID userId, EventModel eventModel) {
-        UserModel userModel = loadUserPort.findById(userId).orElseThrow(() -> new NoSuchElementException("User not found"));
+        UserModel userModel = loadUserPort.findById(userId).orElseThrow(() -> new NoSuchElementException("User " + userId + " not found"));
         if (eventModel.getUserModels().contains(userModel)) {
-            throw new IllegalArgumentException("User is already registered for this event");
+            throw new IllegalArgumentException("User " + userModel.getId() + " is already registered for this event");
         }
         if (eventModel.getAvailable_places() <= 0) {
-            throw new IllegalArgumentException("There are no available places for this event");
+            throw new IllegalArgumentException("There are no available places for this event " + eventModel.getId());
         }
         if (eventModel.getStartTime().isBefore(LocalDateTime.now(zoneId))) {
-            throw new IllegalArgumentException("Cannot register for an event that has already occurred");
+            throw new IllegalArgumentException("Cannot register for an event "  + eventModel.getId() + " that has already occurred");
         }
         eventModel.getUserModels().add(userModel);
         eventModel.setAvailable_places(eventModel.getAvailable_places() - 1);
@@ -110,7 +110,7 @@ public class EventService {
 
     public void removeUser(UUID userId, EventModel eventModel) {
         UserModel userModel = loadUserPort.findById(userId)
-                                          .orElseThrow(() -> new NoSuchElementException("User not found"));
+                                          .orElseThrow(() -> new NoSuchElementException("User " + userId + " not found"));
         if (eventModel.getUserModels().remove(userModel)) {
             eventModel.setAvailable_places(eventModel.getAvailable_places() + 1);
             saveEventPort.save(eventModel);
@@ -137,7 +137,7 @@ public class EventService {
     ) {
         Optional<EventModel> eventOpt = loadEventPort.findById(eventId);
         if (eventOpt.isEmpty()) {
-            throw new NoSuchElementException("No such event found");
+            throw new NoSuchElementException("No such event " + eventId + " found");
         }
         EventModel eventModel = eventOpt.get();
         eventModel.setName(name);

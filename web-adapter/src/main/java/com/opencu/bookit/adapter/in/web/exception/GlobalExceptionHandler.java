@@ -1,5 +1,6 @@
 package com.opencu.bookit.adapter.in.web.exception;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Hidden;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 @Hidden
@@ -58,7 +60,7 @@ public class GlobalExceptionHandler {
                 HttpStatus.NOT_FOUND,
                 ex.getMessage(),
                 request.getDescription(false).replace("uri=", ""),
-                null
+                Map.of("errors", ex.getMessage())
                                       );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
     }
@@ -70,7 +72,7 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 "Internal server error",
                 request.getDescription(false).replace("uri=", ""),
-                null
+                Map.of("errors", ex.getMessage())
                                       );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiError);
     }
@@ -82,8 +84,57 @@ public class GlobalExceptionHandler {
                 HttpStatus.FORBIDDEN,
                 ex.getMessage(),
                 request.getDescription(false).replace("uri=", ""),
-                null
+                Map.of("errors", ex.getMessage())
         );
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(apiError);
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<ApiError> handleNoSuchElementException(NoSuchElementException ex, WebRequest request) {
+        logger.warn("No such element found: {}", ex.getMessage());
+        ApiError apiError = buildError(
+                HttpStatus.NOT_FOUND,
+                ex.getMessage(),
+                request.getDescription(false).replace("uri=", ""),
+                Map.of("errors", ex.getMessage())
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+    }
+
+    @ExceptionHandler(JsonProcessingException.class)
+    public ResponseEntity<ApiError> handleJsonProcessingException(JsonProcessingException ex, WebRequest request) {
+        logger.warn("Internal server error: {}", ex.getMessage());
+        ApiError apiError = buildError(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                ex.getMessage(),
+                request.getDescription(false).replace("uri=", ""),
+                Map.of("errors", ex.getMessage())
+        );
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiError);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiError> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
+        logger.warn("Unprocessable entity: {}", ex.getMessage());
+        ApiError apiError = buildError(
+                HttpStatus.UNPROCESSABLE_ENTITY,
+                ex.getMessage(),
+                request.getDescription(false).replace("uri=", ""),
+                Map.of("errors", ex.getMessage())
+        );
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(apiError);
+    }
+
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiError> handleIllegalStateException(IllegalStateException ex, WebRequest request) {
+        logger.warn("Bad request: {}", ex.getMessage());
+        ApiError apiError = buildError(
+                HttpStatus.BAD_REQUEST,
+                ex.getMessage(),
+                request.getDescription(false).replace("uri=", ""),
+                Map.of("errors", ex.getMessage())
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
     }
 }

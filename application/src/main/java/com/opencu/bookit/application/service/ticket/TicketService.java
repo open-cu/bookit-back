@@ -73,7 +73,7 @@ public class TicketService {
     public TicketModel findById(UUID ticketId) {
         Optional<TicketModel> ticketOpt = loadTicketPort.findById(ticketId);
         if (ticketOpt.isEmpty()) {
-            throw new NoSuchElementException();
+            throw new NoSuchElementException("No such ticket " + ticketId + " found");
         }
         return ticketOpt.get();
     }
