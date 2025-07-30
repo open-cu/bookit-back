@@ -1,12 +1,16 @@
 package com.opencu.bookit.adapter.in.web.controller.v1;
 
+import com.opencu.bookit.adapter.in.web.dto.request.CreateReviewRequest;
 import com.opencu.bookit.adapter.in.web.dto.response.ReviewsResponse;
 import com.opencu.bookit.adapter.in.web.mapper.ReviewsResponseMapper;
 import com.opencu.bookit.application.service.reviews.ReviewsService;
+import com.opencu.bookit.domain.model.reviews.ReviewsModel;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +34,7 @@ public class ReviewsControllerV1 {
     @GetMapping
     public ResponseEntity<Page<ReviewsResponse>> getReviews(
             @RequestParam(required = false) UUID userId,
-            @RequestParam(required = false) byte rating,
+            @RequestParam(required = false) Byte rating,
             @RequestParam(defaultValue = "${pagination.default-page}") int page,
             @RequestParam(defaultValue = "${pagination.default-size}") int size
     ) {
@@ -68,5 +72,24 @@ public class ReviewsControllerV1 {
     ) {
         reviewsService.deleteReview(reviewId);
         return ResponseEntity.ok("Review successfully deleted");
+    }
+
+    @Operation(summary = "Create review")
+    @PostMapping
+    public ResponseEntity<ReviewsResponse> createReview(
+            @RequestBody CreateReviewRequest createReviewRequest
+    ) {
+        try {
+            ReviewsModel model = reviewsService.createReview(
+                    createReviewRequest.userId(),
+                    createReviewRequest.rating(),
+                    createReviewRequest.comment()
+            );
+            return ResponseEntity.status(HttpStatus.CREATED).body(reviewsResponseMapper.toResponse(model));
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

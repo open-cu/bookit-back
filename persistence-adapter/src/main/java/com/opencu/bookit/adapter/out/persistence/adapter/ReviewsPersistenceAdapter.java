@@ -28,10 +28,14 @@ public class ReviewsPersistenceAdapter implements
     private final ReviewMapper reviewMapper;
 
     @Override
-    public Page<ReviewsModel> findWithFilters(UUID userId, byte rating, Pageable pageable) {
+    public Page<ReviewsModel> findWithFilters(UUID userId, Byte rating, Pageable pageable) {
         Specification<ReviewEntity> spec = Specification.where(null);
-        spec = spec.and((root, query, cb) ->
-                cb.equal(root.get("rating"), rating));
+
+        if (rating != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("rating"), rating));
+        }
+
         
         if (userId != null) {
             Optional<UserEntity> userOpt = userRepository.findById(userId);
