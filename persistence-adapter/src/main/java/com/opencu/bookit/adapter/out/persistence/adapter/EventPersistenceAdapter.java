@@ -123,6 +123,11 @@ public class EventPersistenceAdapter implements LoadEventPort,
     }
 
     @Override
+    public boolean existsById(UUID eventId) {
+        return eventRepository.existsById(eventId);
+    }
+
+    @Override
     public EventModel save(EventModel eventModel) {
         EventEntity entity = eventMapper.toEntity(eventModel);
         EventEntity savedEntity = eventRepository.save(eventMapper.toEntity(eventModel));

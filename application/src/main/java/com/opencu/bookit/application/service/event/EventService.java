@@ -76,7 +76,7 @@ public class EventService {
         if (eventModel.getAvailable_places() <= 0) {
             throw new IllegalArgumentException("There are no available places for this event");
         }
-        if (eventModel.getDate().isBefore(LocalDateTime.now(zoneId))) {
+        if (eventModel.getStartTime().isBefore(LocalDateTime.now(zoneId))) {
             throw new IllegalArgumentException("Cannot register for an event that has already occurred");
         }
         eventModel.getUserModels().add(userModel);
@@ -90,16 +90,16 @@ public class EventService {
                 userModel.getEmail(),
                 eventModel.getId(),
                 eventModel.getName(),
-                eventModel.getDate(),
+                eventModel.getStartTime(),
                 "Вы успешно зарегистрированы на мероприятие: " + eventModel.getName()
         );
 
-        if (eventModel.getDate().isBefore(LocalDateTime.now(zoneId).plusDays(defaultTimeBeforeEventInDays))) {
+        if (eventModel.getStartTime().isBefore(LocalDateTime.now(zoneId).plusDays(defaultTimeBeforeEventInDays))) {
             notificationService.sendEventNotificationNow(eventNotification);
         }
         else {
             notificationService.scheduleEventNotification(eventNotification,
-                    eventModel.getDate().minusDays(defaultTimeBeforeEventInDays));
+                    eventModel.getStartTime().minusDays(defaultTimeBeforeEventInDays));
         }
 
     }
@@ -114,6 +114,7 @@ public class EventService {
         if (eventModel.getUserModels().remove(userModel)) {
             eventModel.setAvailable_places(eventModel.getAvailable_places() + 1);
             saveEventPort.save(eventModel);
+            notificationService.cancelNotification(userId, eventModel.getId());
         }
     }
 
@@ -146,7 +147,7 @@ public class EventService {
         eventModel.setTimes(new HashSet<>(times));
         eventModel.setParticipationFormats(new HashSet<>(participationFormats));
         eventModel.setKeys(keys);
-        eventModel.setDate(date);
+        eventModel.setStartTime(date);
         eventModel.setAvailable_places(availablePlaces);
         return saveEventPort.save(eventModel);
     }
@@ -186,7 +187,7 @@ public class EventService {
         eventModel.setTimes(new HashSet<>(times));
         eventModel.setParticipationFormats(new HashSet<>(participationFormats));
         eventModel.setKeys(keys);
-        eventModel.setDate(date);
+        eventModel.setStartTime(date);
         eventModel.setAvailable_places(availablePlaces);
         return saveEventPort.save(eventModel);
     }

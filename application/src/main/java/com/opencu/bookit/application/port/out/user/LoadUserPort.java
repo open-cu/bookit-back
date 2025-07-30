@@ -20,6 +20,7 @@ public interface LoadUserPort {
     boolean existsByUsername(@NotBlank @Size(min = 3, max = 50) String username);
     boolean existsByEmail(@Email String email);
     boolean existsByPhone(@Pattern(regexp = "^(\\+7\\d{10}|8\\d{10})$", message = "Invalid phone") String phone);
+    public boolean existsById(UUID userId);
 
     Page<UserModel> findWithFilters(@Email String email,
                                     @Pattern(regexp = "^(\\+7\\d{10}|8\\d{10})$", message = "Invalid phone") String phone,

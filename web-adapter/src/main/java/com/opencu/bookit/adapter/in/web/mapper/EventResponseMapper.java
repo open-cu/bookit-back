@@ -3,8 +3,6 @@ package com.opencu.bookit.adapter.in.web.mapper;
 import com.opencu.bookit.adapter.in.web.dto.response.EventResponse;
 import com.opencu.bookit.application.service.photo.PhotoService;
 import com.opencu.bookit.domain.model.event.EventModel;
-import org.mapstruct.Mapper;
-import org.mapstruct.ReportingPolicy;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -29,7 +27,7 @@ public class EventResponseMapper {
                 event.getTimes(),
                 event.getParticipationFormats(),
                 service.getImagesFromKeys(event.getKeys()),
-                event.getDate(),
+                event.getStartTime(),
                 event.getEndTime(),
                 event.getAvailable_places()
         );
