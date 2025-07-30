@@ -108,7 +108,7 @@ public class EventControllerV1 {
 
     @Operation(summary = "Register current user for the event")
     @PutMapping("/registrations/{eventId}")
-    public ResponseEntity<EventModel> registerForEvent(@PathVariable UUID eventId) {
+    public ResponseEntity<EventResponse> registerForEvent(@PathVariable UUID eventId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof UserDetailsImpl)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -121,7 +121,13 @@ public class EventControllerV1 {
         EventModel event = eventService.findById(eventId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
         eventService.addUser(currentUser.getId(), event);
-        return ResponseEntity.ok(event);
+        EventResponse eventResponse = null;
+        try {
+            eventResponse = eventResponseMapper.toEventResponse(event);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return ResponseEntity.ok(eventResponse);
     }
 
     @Operation(summary = "Remove current user from event registrations")
