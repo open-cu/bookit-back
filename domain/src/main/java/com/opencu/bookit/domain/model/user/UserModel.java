@@ -23,15 +23,9 @@ public class UserModel {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String username;
-    private boolean subscribedToNotifications;
+    private boolean subscribedToNotifications = true;
     private Set<Role> roles = new HashSet<>();
     private List<Review> reviews = new ArrayList<>();
-    public String getPassword() {
-        return passwordHash;
-    }
-    public String getUsername() {
-        return username;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -44,18 +38,5 @@ public class UserModel {
     @Override
     public int hashCode() {
         return Objects.hash(id);
-    }
-
-    public boolean isAccountNonExpired() {
-        return status != UserStatus.DELETED;
-    }
-    public boolean isAccountNonLocked() {
-        return status != UserStatus.BANNED;
-    }
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-    public boolean isEnabled() {
-        return status == UserStatus.VERIFIED;
     }
 }
