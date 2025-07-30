@@ -74,7 +74,7 @@ public class UserService {
         Optional<UserModel> userOpt = loadUserPort.findById(userId);
         if (userOpt.isEmpty())
         {
-            throw new NoSuchElementException("No such user found");
+            throw new NoSuchElementException("No such user " + userId + " found");
         }
         UserModel user = userOpt.get();
         if (firstName != null) user.setFirstName(firstName);

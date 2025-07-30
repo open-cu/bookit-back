@@ -37,7 +37,7 @@ public class AreaService {
 
     public String findAreaNameById(UUID areaId) {
         AreaModel areaModel = loadAreaPort.findById(areaId)
-                                          .orElseThrow(() -> new NoSuchElementException("Area with Id=" + areaId +" not found"));
+                                          .orElseThrow(() -> new NoSuchElementException("No such area with id " + areaId + " found"));
         return areaModel.getName();
     }
 
@@ -93,7 +93,7 @@ public class AreaService {
     ) {
         Optional<AreaModel> areaOpt = loadAreaPort.findById(areaId);
         if (areaOpt.isEmpty()) {
-            throw new NoSuchElementException();
+            throw new NoSuchElementException("No such area with id " + areaId + " found");
         }
         AreaModel model = areaOpt.get();
         model.setName(name);

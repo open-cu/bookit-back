@@ -41,7 +41,7 @@ public class ReviewsService {
     public ReviewsModel findById(UUID reviewId) {
         Optional<ReviewsModel> reviewsOpt = loadReviewsPort.findById(reviewId);
         if (reviewsOpt.isEmpty()) {
-            throw new NoSuchElementException("No such review found");
+            throw new NoSuchElementException("No such review " + reviewId + " found");
         }
         return reviewsOpt.get();
     }
@@ -61,7 +61,7 @@ public class ReviewsService {
         Review review = new Review();
         Optional<UserModel> userOpt = loadUserPort.findById(userId);
         if (userOpt.isEmpty()) {
-            throw new NoSuchElementException("No such user found");
+            throw new NoSuchElementException("No such user " + userId + " found");
         }
         review.setUserModel(loadUserPort.findById(userId).get());
         review.setRating((byte) rating);
