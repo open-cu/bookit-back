@@ -95,7 +95,7 @@ public class EventService {
 
         CRUDBookingUseCase.CreateBookingCommand createBookingCommand = new CRUDBookingUseCase.CreateBookingCommand(
                 userId,
-                eventModel.getId(),
+                eventModel.getAreaModel().getId(),
                 Set.of(Pair.of(eventModel.getStartTime(), eventModel.getEndTime())),
                 1
         );
@@ -131,6 +131,8 @@ public class EventService {
         if (eventModel.getUserModels().remove(userModel)) {
             eventModel.setAvailable_places(eventModel.getAvailable_places() + 1);
             saveEventPort.save(eventModel);
+            bookingService.deleteBookingAccordingToIndirectParameters(userId, eventModel.getAreaModel().getId(),
+                    eventModel.getStartTime(), eventModel.getEndTime());
             notificationService.cancelNotification(userId, eventModel.getId());
         }
     }
@@ -183,6 +185,13 @@ public class EventService {
 
     @Transactional
     public void deleteById(UUID eventId) {
+        EventModel event = loadEventPort.findById(eventId)
+                .orElseThrow(() -> new NoSuchElementException("No such event " + eventId + " found"));
+        Set<UserModel> users = event.getUserModels();
+        for (UserModel user : users) {
+            bookingService.deleteBookingAccordingToIndirectParameters(user.getId(), event.getAreaModel().getId(), event.getStartTime(), event.getEndTime());
+            notificationService.cancelNotification(user.getId(), eventId);
+        }
         deleteEventPort.delete(eventId);
     }
 
@@ -215,7 +224,7 @@ public class EventService {
 
         CRUDBookingUseCase.CreateBookingCommand createBookingCommand = new CRUDBookingUseCase.CreateBookingCommand(
                 loadAuthorizationInfoPort.getCurrentUser().getId(),
-                eventModel.getId(),
+                eventModel.getAreaModel().getId(),
                 Set.of(Pair.of(eventModel.getStartTime(), eventModel.getEndTime())),
                 0
         );

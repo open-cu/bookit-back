@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -45,4 +46,8 @@ public interface BookingRepository extends JpaRepository<BookingEntity, UUID> {
     List<BookingEntity> findPastBookingsByUser(@Param("userId") UUID userId, @Param("now") LocalDateTime now);
 
     Page<BookingEntity> findAll(Specification<BookingEntity> spec, Pageable pageable);
+
+    @Modifying
+    @Query("DELETE FROM BookingEntity b WHERE b.userEntity.id = :userId AND b.areaEntity.id = :areaId AND b.startTime = :startTime AND b.endTime = :endTime")
+    void deleteByUserIdAndAreaIdAndStartTimeAndEndTime(@Param("userId") UUID userId, @Param("areaId") UUID areaId, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
 }

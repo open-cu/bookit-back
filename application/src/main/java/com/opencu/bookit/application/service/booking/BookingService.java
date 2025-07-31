@@ -508,4 +508,7 @@ public class BookingService {
         deleteBookingPort.deleteById(bookingId);
     }
 
+    public void deleteBookingAccordingToIndirectParameters(UUID userId, UUID areaId, LocalDateTime startTime, LocalDateTime endTime) {
+        deleteBookingPort.deleteBookingAccordingToIndirectParameters(userId, areaId, startTime, endTime);
+    }
 }
