@@ -193,7 +193,8 @@ public class EventControllerV1 {
                     keys,
                     updateEventRequest.startTime(),
                     updateEventRequest.endTime(),
-                    updateEventRequest.available_places()
+                    updateEventRequest.available_places(),
+                    updateEventRequest.areaId()
             );
                 return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventModel));
             } catch (IOException e) {
@@ -227,7 +228,8 @@ public class EventControllerV1 {
                 keys,
                 updateEventRequest.startTime(),
                 updateEventRequest.endTime(),
-                updateEventRequest.available_places()
+                updateEventRequest.available_places(),
+                updateEventRequest.areaId()
         );
             return ResponseEntity.status(HttpStatus.CREATED).body(eventResponseMapper.toEventResponse(eventModel));
         } catch (IOException e) {

@@ -30,7 +30,8 @@ public class EventResponseMapperV1 {
                 service.getImagesFromKeys(event.getKeys()),
                 event.getStartTime(),
                 event.getEndTime(),
-                event.getAvailable_places()
+                event.getAvailable_places(),
+                event.getAreaModel().getId()
         );
     }
 

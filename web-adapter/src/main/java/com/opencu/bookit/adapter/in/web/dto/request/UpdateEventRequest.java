@@ -10,6 +10,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 public record UpdateEventRequest(
         @NotBlank
@@ -25,5 +26,7 @@ public record UpdateEventRequest(
         @NotNull
         LocalDateTime endTime,
         @PositiveOrZero
-        int available_places
+        int available_places,
+        @NotNull
+        UUID areaId
 ) {}

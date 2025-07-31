@@ -1,6 +1,7 @@
 package com.opencu.bookit.application.service.event;
 
 import com.opencu.bookit.application.port.in.booking.CRUDBookingUseCase;
+import com.opencu.bookit.application.port.out.area.LoadAreaPort;
 import com.opencu.bookit.application.port.out.event.DeleteEventPort;
 import com.opencu.bookit.application.port.out.event.LoadEventPort;
 import com.opencu.bookit.application.port.out.event.SaveEventPort;
@@ -37,6 +38,7 @@ public class EventService {
     private final NotificationService notificationService;
     private final BookingService bookingService;
     private final LoadAuthorizationInfoPort loadAuthorizationInfoPort;
+    private final LoadAreaPort loadAreaPort;
 
     @Value("${booking.zone-id}")
     private ZoneId zoneId;
@@ -45,7 +47,7 @@ public class EventService {
     private int defaultTimeBeforeEventInDays;
 
     public EventService(LoadEventPort loadEventPort, SaveEventPort saveEventPort,
-                        LoadUserPort loadUserPort, DeleteEventPort deleteEventPort,
+                        LoadUserPort loadUserPort, DeleteEventPort deleteEventPort, LoadAreaPort loadAreaPort,
                         NotificationService notificationService, BookingService bookingService, LoadAuthorizationInfoPort loadAuthorizationInfoPort) {
         this.loadEventPort = loadEventPort;
         this.saveEventPort = saveEventPort;
@@ -54,6 +56,7 @@ public class EventService {
         this.notificationService = notificationService;
         this.bookingService = bookingService;
         this.loadAuthorizationInfoPort = loadAuthorizationInfoPort;
+        this.loadAreaPort = loadAreaPort;
     }
 
     public Optional<EventModel> findById(UUID eventId) {
@@ -153,7 +156,8 @@ public class EventService {
             List<String> keys,
             LocalDateTime startTime,
             LocalDateTime endTime,
-            int availablePlaces
+            int availablePlaces,
+            UUID areaId
     ) {
         Optional<EventModel> eventOpt = loadEventPort.findById(eventId);
         if (eventOpt.isEmpty()) {
@@ -170,6 +174,8 @@ public class EventService {
         eventModel.setStartTime(startTime);
         eventModel.setAvailable_places(availablePlaces);
         eventModel.setEndTime(endTime);
+        eventModel.setAreaModel(loadAreaPort.findById(areaId)
+                .orElseThrow(() -> new NoSuchElementException("No such area " + areaId + " found")));
         return saveEventPort.save(eventModel);
     }
 
@@ -206,7 +212,8 @@ public class EventService {
             List<String> keys,
             LocalDateTime startTime,
             LocalDateTime endTime,
-            int availablePlaces
+            int availablePlaces,
+            UUID areaId
     ) {
         EventModel eventModel = new EventModel();
         eventModel.setName(name);
@@ -219,6 +226,8 @@ public class EventService {
         eventModel.setStartTime(startTime);
         eventModel.setEndTime(endTime);
         eventModel.setAvailable_places(availablePlaces);
+        eventModel.setAreaModel(loadAreaPort.findById(areaId)
+                .orElseThrow(() -> new NoSuchElementException("No such area " + areaId + " found")));
 
         eventModel = saveEventPort.save(eventModel);
 

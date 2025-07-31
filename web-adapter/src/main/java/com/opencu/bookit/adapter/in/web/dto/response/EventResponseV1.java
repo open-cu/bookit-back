@@ -22,5 +22,6 @@ public record EventResponseV1(
         List<ImageModel> images,
         LocalDateTime startTime,
         LocalDateTime endTime,
-        int availablePlaces
+        int availablePlaces,
+        UUID areaId
 ) {}
