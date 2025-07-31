@@ -256,7 +256,7 @@ public class BookingService {
     }
 
     @Transactional
-    public List<BookingModel> createBooking(CRUDBookingUseCase.CreateBookingCommand createBookingCommand) {
+    public List<BookingModel> createBooking(CRUDBookingUseCase.CreateBookingCommand createBookingCommand, boolean multiplyBooking, boolean isAdmin) {
         UserModel userModel = loadUserPort.findById(createBookingCommand.userId())
                                           .orElseThrow(() -> new NoSuchElementException("User not found with id: " + createBookingCommand.userId()));
 
@@ -270,12 +270,12 @@ public class BookingService {
         for (Pair<LocalDateTime, LocalDateTime> time : createBookingCommand.timePeriods()) {
             Set<LocalDateTime> eachTime = new HashSet<>();
             for (LocalDateTime t = time.getFirst(); t.isBefore(time.getSecond()); t = t.plusHours(1)) {
-                if (!isOnlyOneBooking(t)) {
+                if (!isOnlyOneBooking(t) && !multiplyBooking && !isAdmin) {
                     throw new IllegalArgumentException("You already have a booking at " + t);
                 }
                 eachTime.add(t);
             }
-            if (!findAvailableAreas(eachTime).contains(areaModel.getId())) {
+            if (!findAvailableAreas(eachTime).contains(areaModel.getId()) && !multiplyBooking) {
                 throw new IllegalArgumentException("Area is not available for requested time periods");
             }
         }
@@ -508,4 +508,7 @@ public class BookingService {
         deleteBookingPort.deleteById(bookingId);
     }
 
+    public void deleteBookingAccordingToIndirectParameters(UUID userId, UUID areaId, LocalDateTime startTime, LocalDateTime endTime) {
+        deleteBookingPort.deleteBookingAccordingToIndirectParameters(userId, areaId, startTime, endTime);
+    }
 }

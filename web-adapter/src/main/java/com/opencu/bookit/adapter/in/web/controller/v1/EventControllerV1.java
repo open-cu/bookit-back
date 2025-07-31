@@ -1,9 +1,9 @@
 package com.opencu.bookit.adapter.in.web.controller.v1;
 
 import com.opencu.bookit.adapter.in.web.dto.request.UpdateEventRequest;
-import com.opencu.bookit.adapter.in.web.dto.response.EventResponse;
+import com.opencu.bookit.adapter.in.web.dto.response.EventResponseV1;
 import com.opencu.bookit.adapter.in.web.exception.ResourceNotFoundException;
-import com.opencu.bookit.adapter.in.web.mapper.EventResponseMapper;
+import com.opencu.bookit.adapter.in.web.mapper.EventResponseMapperV1;
 import com.opencu.bookit.application.service.event.EventService;
 import com.opencu.bookit.application.service.photo.PhotoService;
 import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
@@ -38,9 +38,9 @@ import java.util.*;
 public class EventControllerV1 {
     private final EventService eventService;
     private final PhotoService photoService;
-    private final EventResponseMapper eventResponseMapper;
+    private final EventResponseMapperV1 eventResponseMapper;
 
-    public EventControllerV1(EventService eventService, PhotoService photoService, EventResponseMapper eventResponseMapper) {
+    public EventControllerV1(EventService eventService, PhotoService photoService, EventResponseMapperV1 eventResponseMapper) {
         this.eventService = eventService;
         this.photoService = photoService;
         this.eventResponseMapper = eventResponseMapper;
@@ -48,10 +48,10 @@ public class EventControllerV1 {
 
     @Operation(
             summary = "Get all public events with optional filters",
-            description = "startDate and endDate are days event.date is between"
+            description = "startDate and endDate are days event.startTime is between"
     )
     @GetMapping
-    public ResponseEntity<Page<EventResponse>> getAllEvents(
+    public ResponseEntity<Page<EventResponseV1>> getAllEvents(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(required = false) Set<ThemeTags> tags,
@@ -78,7 +78,7 @@ public class EventControllerV1 {
         if ((("registered".equalsIgnoreCase(status) || "available".equalsIgnoreCase(status)) && currentUserId == null)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-            Page<EventResponse> eventsPage = eventService
+            Page<EventResponseV1> eventsPage = eventService
                     .findWithFilters(startDate, endDate, tags, formats, times, participationFormats, search, status, pageable, currentUserId)
                     .map(event -> {
                         try {
@@ -108,7 +108,7 @@ public class EventControllerV1 {
 
     @Operation(summary = "Register current user for the event")
     @PutMapping("/registrations/{eventId}")
-    public ResponseEntity<EventResponse> registerForEvent(@PathVariable UUID eventId) {
+    public ResponseEntity<EventResponseV1> registerForEvent(@PathVariable UUID eventId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof UserDetailsImpl)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -121,7 +121,7 @@ public class EventControllerV1 {
         EventModel event = eventService.findById(eventId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event " + eventId + " not found"));
         eventService.addUser(currentUser.getId(), event);
-        EventResponse eventResponse = null;
+        EventResponseV1 eventResponse = null;
         try {
             eventResponse = eventResponseMapper.toEventResponse(event);
         } catch (IOException e) {
@@ -153,7 +153,7 @@ public class EventControllerV1 {
             "@securityService.hasRequiredRole(@securityService.getAdmin())")
     @Operation(summary = "Get event by id")
     @GetMapping("/{eventId}")
-    public ResponseEntity<EventResponse> getById(
+    public ResponseEntity<EventResponseV1> getById(
         @PathVariable UUID eventId
     ) {
         Optional<EventModel> eventOpt = eventService.findById(eventId);
@@ -174,7 +174,7 @@ public class EventControllerV1 {
             description = "Content-type: multipart/form-data, see Postman tests for more details."
     )
     @PutMapping("/{eventId}")
-    public ResponseEntity<EventResponse> updateEvent(
+    public ResponseEntity<EventResponseV1> updateEvent(
             @PathVariable UUID eventId,
             @RequestPart("updateEventRequest") UpdateEventRequest updateEventRequest,
             @RequestPart("photos") List<MultipartFile> photos
@@ -191,8 +191,10 @@ public class EventControllerV1 {
                     updateEventRequest.times(),
                     updateEventRequest.participationFormats(),
                     keys,
-                    updateEventRequest.date(),
-                    updateEventRequest.available_places()
+                    updateEventRequest.startTime(),
+                    updateEventRequest.endTime(),
+                    updateEventRequest.available_places(),
+                    updateEventRequest.areaId()
             );
                 return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventModel));
             } catch (IOException e) {
@@ -209,7 +211,7 @@ public class EventControllerV1 {
             description = "Content-type: multipart/form-data, see Postman tests for more details."
     )
     @PostMapping
-    public ResponseEntity<EventResponse> createEvent(
+    public ResponseEntity<EventResponseV1> createEvent(
             @RequestPart("updateEventRequest") UpdateEventRequest updateEventRequest,
             @RequestPart("photos") List<MultipartFile> photos
     ) {
@@ -224,8 +226,10 @@ public class EventControllerV1 {
                 updateEventRequest.times(),
                 updateEventRequest.participationFormats(),
                 keys,
-                updateEventRequest.date(),
-                updateEventRequest.available_places()
+                updateEventRequest.startTime(),
+                updateEventRequest.endTime(),
+                updateEventRequest.available_places(),
+                updateEventRequest.areaId()
         );
             return ResponseEntity.status(HttpStatus.CREATED).body(eventResponseMapper.toEventResponse(eventModel));
         } catch (IOException e) {
@@ -237,7 +241,7 @@ public class EventControllerV1 {
             "@securityService.hasRequiredRole(@securityService.getAdmin())")
     @Operation(summary = "Delete event from database")
     @DeleteMapping("/{eventId}")
-    public ResponseEntity<?> deleteEvent(
+    public ResponseEntity<String> deleteEvent(
             @PathVariable UUID eventId
     ) {
         eventService.deleteById(eventId);

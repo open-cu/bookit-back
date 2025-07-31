@@ -1,5 +1,6 @@
 package com.opencu.bookit.domain.model.event;
 
+import com.opencu.bookit.domain.model.area.AreaModel;
 import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
 import com.opencu.bookit.domain.model.contentcategory.ContentTime;
 import com.opencu.bookit.domain.model.contentcategory.ParticipationFormat;
@@ -33,4 +34,5 @@ public class EventModel {
     private LocalDateTime endTime;
     private int available_places;
     private Set<UserModel> userModels = new HashSet<>();
+    private AreaModel areaModel;
 }

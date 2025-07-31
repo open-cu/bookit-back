@@ -1,5 +1,6 @@
 package com.opencu.bookit.adapter.out.persistence.entity;
 
+import com.opencu.bookit.domain.model.area.AreaModel;
 import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
 import com.opencu.bookit.domain.model.contentcategory.ContentTime;
 import com.opencu.bookit.domain.model.contentcategory.ParticipationFormat;
@@ -80,4 +81,8 @@ public class EventEntity {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<UserEntity> users = new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "area_id")
+    private AreaEntity area;
 }

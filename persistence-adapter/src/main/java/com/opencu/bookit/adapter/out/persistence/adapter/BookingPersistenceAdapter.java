@@ -131,4 +131,9 @@ public class BookingPersistenceAdapter implements
     public void deleteById(UUID bookingId) {
         bookingRepository.deleteById(bookingId);
     }
+
+    @Override
+    public void deleteBookingAccordingToIndirectParameters(UUID userId, UUID areaId, LocalDateTime startTime, LocalDateTime endTime) {
+        bookingRepository.deleteByUserIdAndAreaIdAndStartTimeAndEndTime(userId, areaId, startTime, endTime);
+    }
 }

@@ -52,7 +52,7 @@ public class BookingController {
         return bookingService.findAvailableDates(areaId);
     }
 
-    @Operation(description = "Returns list of available time by date separated by ; (start_time;end_time)")
+    @Operation(description = "Returns list of available time by startTime separated by ; (start_time;end_time)")
     @GetMapping("/available-time/{date}")
     public ResponseEntity<List<List<String>>> findAvailableTimeByDate(
             @PathVariable
@@ -76,7 +76,7 @@ public class BookingController {
         return ResponseEntity.ok(result);
     }
 
-    @Operation(description = "Returns information in the list format of String about available time by date")
+    @Operation(description = "Returns information in the list format of String about available time by startTime")
     @GetMapping("/closest-available-time/{areaId}")
     public Set<String> findAvailableTimeByDate(
             @PathVariable UUID areaId) {
@@ -87,7 +87,7 @@ public class BookingController {
 
     @GetMapping("/available-areas")
     @Operation(
-            summary = "Returns information in the list format of UUID about available area on date"
+            summary = "Returns information in the list format of UUID about available area on startTime"
     )
     public ResponseEntity<List<UUID>> findAvailableAreas(
             @RequestParam(required = false)
@@ -139,7 +139,7 @@ public class BookingController {
                 request.quantity()
         );
 
-        List<BookingModel> createdBooking = bookingService.createBooking(actualRequest);
+        List<BookingModel> createdBooking = bookingService.createBooking(actualRequest, false, false);
         List<ResponseEntity<BookingResponse>> result = new ArrayList<>();
 
         for (BookingModel b : createdBooking) {

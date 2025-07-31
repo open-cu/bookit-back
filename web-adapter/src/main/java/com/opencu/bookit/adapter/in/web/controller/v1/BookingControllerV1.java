@@ -55,7 +55,7 @@ public class BookingControllerV1 {
         return bookingService.findAvailableDates(areaId);
     }
 
-    @Operation(summary = "Get available times for a date and area")
+    @Operation(summary = "Get available times for a startTime and area")
     @GetMapping("/availability/times")
     public ResponseEntity<List<List<String>>> findAvailableTimeByDate(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
@@ -177,7 +177,7 @@ public class BookingControllerV1 {
             }
         }
 
-        List<BookingModel> createdBooking = bookingService.createBooking(bookingRequestMapper.toCommand(request));
+        List<BookingModel> createdBooking = bookingService.createBooking(bookingRequestMapper.toCommand(request), false, false);
         Set<ResponseEntity<BookingResponse>> result = new HashSet<>();
 
         for (BookingModel b : createdBooking) {

@@ -1,9 +1,13 @@
 package com.opencu.bookit.application.service.event;
 
+import com.opencu.bookit.application.port.in.booking.CRUDBookingUseCase;
+import com.opencu.bookit.application.port.out.area.LoadAreaPort;
 import com.opencu.bookit.application.port.out.event.DeleteEventPort;
 import com.opencu.bookit.application.port.out.event.LoadEventPort;
 import com.opencu.bookit.application.port.out.event.SaveEventPort;
+import com.opencu.bookit.application.port.out.user.LoadAuthorizationInfoPort;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
+import com.opencu.bookit.application.service.booking.BookingService;
 import com.opencu.bookit.application.service.nofication.NotificationService;
 import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
 import com.opencu.bookit.domain.model.contentcategory.ContentTime;
@@ -16,6 +20,7 @@ import com.opencu.bookit.domain.model.user.UserModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +36,9 @@ public class EventService {
     private final LoadUserPort loadUserPort;
     private final DeleteEventPort deleteEventPort;
     private final NotificationService notificationService;
+    private final BookingService bookingService;
+    private final LoadAuthorizationInfoPort loadAuthorizationInfoPort;
+    private final LoadAreaPort loadAreaPort;
 
     @Value("${booking.zone-id}")
     private ZoneId zoneId;
@@ -38,12 +46,17 @@ public class EventService {
     @Value("${notification.default-time-before-event-in-days}")
     private int defaultTimeBeforeEventInDays;
 
-    public EventService(LoadEventPort loadEventPort, SaveEventPort saveEventPort, LoadUserPort loadUserPort, DeleteEventPort deleteEventPort, NotificationService notificationService) {
+    public EventService(LoadEventPort loadEventPort, SaveEventPort saveEventPort,
+                        LoadUserPort loadUserPort, DeleteEventPort deleteEventPort, LoadAreaPort loadAreaPort,
+                        NotificationService notificationService, BookingService bookingService, LoadAuthorizationInfoPort loadAuthorizationInfoPort) {
         this.loadEventPort = loadEventPort;
         this.saveEventPort = saveEventPort;
         this.loadUserPort = loadUserPort;
         this.deleteEventPort = deleteEventPort;
         this.notificationService = notificationService;
+        this.bookingService = bookingService;
+        this.loadAuthorizationInfoPort = loadAuthorizationInfoPort;
+        this.loadAreaPort = loadAreaPort;
     }
 
     public Optional<EventModel> findById(UUID eventId) {
@@ -83,6 +96,13 @@ public class EventService {
         eventModel.setAvailable_places(eventModel.getAvailable_places() - 1);
         saveEventPort.save(eventModel);
 
+        CRUDBookingUseCase.CreateBookingCommand createBookingCommand = new CRUDBookingUseCase.CreateBookingCommand(
+                userId,
+                eventModel.getAreaModel().getId(),
+                Set.of(Pair.of(eventModel.getStartTime(), eventModel.getEndTime())),
+                1
+        );
+        bookingService.createBooking(createBookingCommand, true, false);
 
         EventNotification eventNotification = new EventNotification(
                 UUID.randomUUID(),
@@ -107,13 +127,15 @@ public class EventService {
     public boolean isUserPresent(UUID userId, EventModel eventModel) {
         return eventModel.getUserModels().stream().anyMatch(u -> u.getId().equals(userId));
     }
-
+    @Transactional
     public void removeUser(UUID userId, EventModel eventModel) {
         UserModel userModel = loadUserPort.findById(userId)
                                           .orElseThrow(() -> new NoSuchElementException("User " + userId + " not found"));
         if (eventModel.getUserModels().remove(userModel)) {
             eventModel.setAvailable_places(eventModel.getAvailable_places() + 1);
             saveEventPort.save(eventModel);
+            bookingService.deleteBookingAccordingToIndirectParameters(userId, eventModel.getAreaModel().getId(),
+                    eventModel.getStartTime(), eventModel.getEndTime());
             notificationService.cancelNotification(userId, eventModel.getId());
         }
     }
@@ -132,8 +154,10 @@ public class EventService {
             List<ContentTime> times,
             List<ParticipationFormat> participationFormats,
             List<String> keys,
-            LocalDateTime date,
-            int availablePlaces
+            LocalDateTime startTime,
+            LocalDateTime endTime,
+            int availablePlaces,
+            UUID areaId
     ) {
         Optional<EventModel> eventOpt = loadEventPort.findById(eventId);
         if (eventOpt.isEmpty()) {
@@ -147,8 +171,11 @@ public class EventService {
         eventModel.setTimes(new HashSet<>(times));
         eventModel.setParticipationFormats(new HashSet<>(participationFormats));
         eventModel.setKeys(keys);
-        eventModel.setStartTime(date);
+        eventModel.setStartTime(startTime);
         eventModel.setAvailable_places(availablePlaces);
+        eventModel.setEndTime(endTime);
+        eventModel.setAreaModel(loadAreaPort.findById(areaId)
+                .orElseThrow(() -> new NoSuchElementException("No such area " + areaId + " found")));
         return saveEventPort.save(eventModel);
     }
 
@@ -164,6 +191,14 @@ public class EventService {
 
     @Transactional
     public void deleteById(UUID eventId) {
+        EventModel event = loadEventPort.findById(eventId)
+                .orElseThrow(() -> new NoSuchElementException("No such event " + eventId + " found"));
+        Set<UserModel> users = event.getUserModels();
+        for (UserModel user : users) {
+            bookingService.deleteBookingAccordingToIndirectParameters(user.getId(), event.getAreaModel().getId(),
+                    event.getStartTime(), event.getEndTime());
+            notificationService.cancelNotification(user.getId(), eventId);
+        }
         deleteEventPort.delete(eventId);
     }
 
@@ -176,8 +211,10 @@ public class EventService {
             List<ContentTime> times,
             List<ParticipationFormat> participationFormats,
             List<String> keys,
-            LocalDateTime date,
-            int availablePlaces
+            LocalDateTime startTime,
+            LocalDateTime endTime,
+            int availablePlaces,
+            UUID areaId
     ) {
         EventModel eventModel = new EventModel();
         eventModel.setName(name);
@@ -187,8 +224,23 @@ public class EventService {
         eventModel.setTimes(new HashSet<>(times));
         eventModel.setParticipationFormats(new HashSet<>(participationFormats));
         eventModel.setKeys(keys);
-        eventModel.setStartTime(date);
+        eventModel.setStartTime(startTime);
+        eventModel.setEndTime(endTime);
         eventModel.setAvailable_places(availablePlaces);
-        return saveEventPort.save(eventModel);
+        eventModel.setAreaModel(loadAreaPort.findById(areaId)
+                .orElseThrow(() -> new NoSuchElementException("No such area " + areaId + " found")));
+
+        eventModel = saveEventPort.save(eventModel);
+
+        CRUDBookingUseCase.CreateBookingCommand createBookingCommand = new CRUDBookingUseCase.CreateBookingCommand(
+                loadAuthorizationInfoPort.getCurrentUser().getId(),
+                eventModel.getAreaModel().getId(),
+                Set.of(Pair.of(eventModel.getStartTime(), eventModel.getEndTime())),
+                0
+        );
+
+        bookingService.createBooking(createBookingCommand, false, true);
+
+        return eventModel;
     }
 }
