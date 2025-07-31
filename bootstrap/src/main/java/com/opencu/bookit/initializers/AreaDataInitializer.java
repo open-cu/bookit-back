@@ -4,6 +4,7 @@ import com.opencu.bookit.adapter.out.persistence.entity.AreaEntity;
 import com.opencu.bookit.adapter.out.persistence.mapper.AreaMapper;
 import com.opencu.bookit.adapter.out.persistence.repository.AreaRepository;
 import com.opencu.bookit.application.config.BookingConfig;
+import com.opencu.bookit.domain.model.area.AreaFeature;
 import com.opencu.bookit.domain.model.area.AreaModel;
 import com.opencu.bookit.domain.model.area.AreaStatus;
 import com.opencu.bookit.domain.model.area.AreaType;
@@ -35,6 +36,7 @@ public class AreaDataInitializer implements ApplicationRunner {
             openSpace.setDescription("Большая открытая зона с общими столами и удобными сиденьями.");
             openSpace.setType(AreaType.WORKPLACE);
             openSpace.setCapacity(bookingConfig.getHallMaxCapacity());
+            openSpace.setFeatures(AreaFeature.CHANCELLERY);
             openSpace.setKeys(List.of("arch.png"));
             openSpace.setStatus(AreaStatus.AVAILABLE);
 
@@ -43,6 +45,7 @@ public class AreaDataInitializer implements ApplicationRunner {
             meetingRoom.setDescription("Отдельная переговорная комната с проектором и конференц-столом.");
             meetingRoom.setType(AreaType.MEETING_ROOM);
             meetingRoom.setKeys(List.of("arch.png"));
+            openSpace.setFeatures(AreaFeature.CHANCELLERY);
             meetingRoom.setCapacity(10);
             meetingRoom.setStatus(AreaStatus.BOOKED);
 
@@ -51,6 +54,7 @@ public class AreaDataInitializer implements ApplicationRunner {
             quietZone.setDescription("Выделенное тихое рабочее место для сосредоточенной работы.");
             quietZone.setType(AreaType.MEETING_ROOM);
             quietZone.setKeys(List.of("arch.png"));
+            openSpace.setFeatures(AreaFeature.CHANCELLERY);
             quietZone.setCapacity(10);
             quietZone.setStatus(AreaStatus.AVAILABLE);
 
