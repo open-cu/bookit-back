@@ -1,6 +1,5 @@
 package com.opencu.bookit.adapter.in.web.mapper;
 
-import com.opencu.bookit.adapter.in.web.dto.response.EventResponse;
 import com.opencu.bookit.adapter.in.web.dto.response.EventResponseV1;
 import com.opencu.bookit.application.service.photo.PhotoService;
 import com.opencu.bookit.domain.model.event.EventModel;

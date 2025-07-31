@@ -127,7 +127,7 @@ public class EventService {
     public boolean isUserPresent(UUID userId, EventModel eventModel) {
         return eventModel.getUserModels().stream().anyMatch(u -> u.getId().equals(userId));
     }
-
+    @Transactional
     public void removeUser(UUID userId, EventModel eventModel) {
         UserModel userModel = loadUserPort.findById(userId)
                                           .orElseThrow(() -> new NoSuchElementException("User " + userId + " not found"));
@@ -195,7 +195,8 @@ public class EventService {
                 .orElseThrow(() -> new NoSuchElementException("No such event " + eventId + " found"));
         Set<UserModel> users = event.getUserModels();
         for (UserModel user : users) {
-            bookingService.deleteBookingAccordingToIndirectParameters(user.getId(), event.getAreaModel().getId(), event.getStartTime(), event.getEndTime());
+            bookingService.deleteBookingAccordingToIndirectParameters(user.getId(), event.getAreaModel().getId(),
+                    event.getStartTime(), event.getEndTime());
             notificationService.cancelNotification(user.getId(), eventId);
         }
         deleteEventPort.delete(eventId);

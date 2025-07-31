@@ -241,7 +241,7 @@ public class EventControllerV1 {
             "@securityService.hasRequiredRole(@securityService.getAdmin())")
     @Operation(summary = "Delete event from database")
     @DeleteMapping("/{eventId}")
-    public ResponseEntity<?> deleteEvent(
+    public ResponseEntity<String> deleteEvent(
             @PathVariable UUID eventId
     ) {
         eventService.deleteById(eventId);
