@@ -28,6 +28,14 @@ services:
       - API_URL=${API_URL}
       - FOLDER_ID=${FOLDER_ID}
       - TZ=Europe/Moscow
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_SENDER_NAME=${MAIL_SENDER_NAME}
+      - MAIL_SSL_ENABLE=${MAIL_SSL_ENABLE}
+      - MAIL_STARTTLS_ENABLE=${MAIL_STARTTLS_ENABLE}
+      - MAIL_FROM_EMAIL=${MAIL_FROM_EMAIL}
       # Добавляем настройки для RabbitMQ
       - SPRING_RABBITMQ_HOST=rabbitmq
       - SPRING_RABBITMQ_PORT=5672
@@ -57,7 +65,10 @@ services:
       - app-network
 
   rabbitmq:
-    image: rabbitmq:3-management
+    container_name: bookit-rabbitmq
+    build:
+      context: .
+      dockerfile: Dockerfile.rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
