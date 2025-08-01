@@ -17,6 +17,7 @@ public interface MeResponseMapper {
     default String extractUsername(String username) {
         if (username == null) return null;
         int idx = username.indexOf(';');
+        if (idx == 0) return null;
         return idx >= 0 ? username.substring(0, idx) : username;
     }
 }
