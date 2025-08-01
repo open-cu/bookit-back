@@ -6,10 +6,17 @@ import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
 @Mapper(
-    componentModel = "spring",
-    unmappedTargetPolicy = ReportingPolicy.IGNORE
+        componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
 public interface MeResponseMapper {
 
+    @org.mapstruct.Mapping(target = "username", expression = "java(extractUsername(userModel.getUsername()))")
     MeResponse toResponse(UserModel userModel);
+
+    default String extractUsername(String username) {
+        if (username == null) return null;
+        int idx = username.indexOf(';');
+        return idx >= 0 ? username.substring(0, idx) : username;
+    }
 }
