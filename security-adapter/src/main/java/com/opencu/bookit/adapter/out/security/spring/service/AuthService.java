@@ -58,9 +58,7 @@ public class AuthService implements LoadAuthorizationInfoPort {
         if (user == null) {
             user = new UserModel();
             user.setTgId(telegramUserRequest.getId());
-            String safeUsername = telegramUserRequest.getUsername() != null
-                    ? telegramUserRequest.getUsername()
-                    : "tg_" + telegramUserRequest.getId();
+            String safeUsername = telegramUserRequest.getUsername() + "tg_" + telegramUserRequest.getId();
             user.setUsername(safeUsername);
             user.setFirstName(telegramUserRequest.getFirstName());
             user.setLastName(telegramUserRequest.getLastName());
