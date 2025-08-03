@@ -23,8 +23,8 @@ jobs:
 
       - name: Start containers with docker-compose
         run: |
-          docker-compose -f docker-dev.yaml down
-          docker-compose -f docker-dev.yaml up -d --build
+          docker-compose -f docker-test.yaml down
+          docker-compose -f docker-test.yaml up -d --build
           sleep 30
         env:
           KEY_ID: ${{ secrets.KEY_ID }}
@@ -44,3 +44,6 @@ jobs:
       - name: Run Postman Tests
         if: always()
         run: npx newman run "https://api.getpostman.com/collections/${{ secrets.COLLECTION_UID }}?access_key=${{ secrets.ACCESS_KEY }}" --working-dir $REMOTE_USER/photos
+
+      - name: Stop containers with docker-compose
+        run: docker-compose -f docker-test.yaml down

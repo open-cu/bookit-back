@@ -54,7 +54,10 @@ public class AreaPersistenceAdapter implements
         }
         if (areaName != null && !areaName.isBlank()) {
             spec = spec.and((root, query, cb) ->
-                    cb.like(cb.lower(root.get("name")), "%" + areaName.toLowerCase() + "%")
+                    cb.or(
+                            cb.like(cb.lower(root.get("name")), "%" + areaName.toLowerCase() + "%"),
+                            cb.like(cb.lower(root.get("description")), "%" + areaName.toLowerCase() + "%")
+                    )
             );
         }
         return areaRepository.findAll(spec, pageable)
