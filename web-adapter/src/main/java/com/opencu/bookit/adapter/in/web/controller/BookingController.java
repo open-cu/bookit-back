@@ -161,7 +161,7 @@ public class BookingController {
                 throw new ProfileNotCompletedException("User profile is not completed. Please complete your profile before updating bookings.");
             }
 
-            BookingModel updatedBooking = bookingService.updateBooking(bookingId, bookingRequestMapper.toQuery(request));
+            BookingModel updatedBooking = bookingService.updateBooking(bookingId, bookingRequestMapper.toQuery(request), false);
             return ResponseEntity.ok(bookingResponseMapper.toResponse(updatedBooking));
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();

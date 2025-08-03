@@ -220,8 +220,11 @@ public class BookingControllerV1 {
             if (currentUser.getStatus() != UserStatus.VERIFIED) {
                 throw new ProfileNotCompletedException("User profile is not completed. Please complete your profile before updating bookings.");
             }
+            if (request.userId() != null && request.userId() != currentUser.getId()) {
+                throw new IllegalStateException("You cannot update booking for another user.");
+            }
 
-            BookingModel updatedBooking = bookingService.updateBooking(bookingId, bookingRequestMapper.toQuery(request));
+            BookingModel updatedBooking = bookingService.updateBooking(bookingId, bookingRequestMapper.toQuery(request), false);
             return ResponseEntity.ok(bookingResponseMapper.toResponse(updatedBooking));
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
@@ -229,35 +232,6 @@ public class BookingControllerV1 {
             return ResponseEntity.badRequest().body(null);
         } catch (ProfileNotCompletedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
-        }
-    }
-
-    @PreAuthorize("@securityService.isDev() or " +
-            "@securityService.hasRequiredRole(@securityService.getAdmin())")
-    @Operation(summary = "Update info about booking. FOR ADMINS ONLY!")
-    @PutMapping("/admin/{bookingId}")
-    public ResponseEntity<BookingResponse> updateById(
-            @PathVariable UUID bookingId,
-            @RequestBody AdminUpdateBookingRequest adminUpdateBookingRequest
-    ) {
-        try {
-            BookingResponse response = bookingResponseMapper.toResponse(
-                    bookingService.updateById(
-                            bookingId,
-                            adminUpdateBookingRequest.userId(),
-                            adminUpdateBookingRequest.areaId(),
-                            adminUpdateBookingRequest.startTime(),
-                            adminUpdateBookingRequest.endTime(),
-                            adminUpdateBookingRequest.status()
-                    )
-            );
-            return ResponseEntity.ok(response);
-        }
-        catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
-        }
-        catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
         }
     }
 

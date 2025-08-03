@@ -362,12 +362,16 @@ public class BookingService {
     }
 
     @Transactional
-    public BookingModel updateBooking(UUID bookingId, CRUDBookingUseCase.UpdateBookingQuery request) {
+    public BookingModel updateBooking(UUID bookingId, CRUDBookingUseCase.UpdateBookingQuery request, boolean isAdmin) {
         UUID areaId = request.areaId();
         LocalDateTime startTime = request.startTime();
         LocalDateTime endTime = request.endTime();
         BookingModel bookingModel = loadBookingPort.findById(bookingId)
                                                    .orElseThrow(() -> new NoSuchElementException("Booking not found with id: " + bookingId));
+        UUID userId = loadAuthorizationInfoPort.getCurrentUser().getId();
+        if (bookingModel.getUserId() != userId && !isAdmin) {
+            throw new IllegalStateException("You can only update your own bookings");
+        }
 
         if (bookingModel.getStatus() == BookingStatus.CANCELED || bookingModel.getStatus() == BookingStatus.COMPLETED) {
             throw new IllegalStateException("Unable to update " + bookingModel.getStatus() + " booking");
