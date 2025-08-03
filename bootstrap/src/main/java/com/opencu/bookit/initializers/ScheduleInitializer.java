@@ -42,7 +42,7 @@ public class ScheduleInitializer implements ApplicationRunner {
 
     private void addDayIfWeekend(LocalDate date) {
         if (loadSchedulePort.findById(date).isEmpty()) {
-            if (date.getDayOfWeek() == DayOfWeek.SUNDAY) {
+            if (date.getDayOfWeek() == DayOfWeek.SATURDAY) {
                 ScheduleModel schedule = new ScheduleModel();
                 schedule.setDay_off(date);
                 schedule.setTag(DayStatus.WEEKEND);
