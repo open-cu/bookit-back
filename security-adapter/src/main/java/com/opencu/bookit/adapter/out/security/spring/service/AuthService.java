@@ -55,10 +55,13 @@ public class AuthService implements LoadAuthorizationInfoPort {
     public JwtResponse authenticateTelegramUser(TelegramUserRequest telegramUserRequest) {
         UserModel user = loadUserPort.findByTgId(telegramUserRequest.getId()).orElse(null);
 
+        String safeUsername = (telegramUserRequest.getUsername() == null || telegramUserRequest.getUsername().isBlank())
+                ? ";tg_id_" + telegramUserRequest.getId()
+                : telegramUserRequest.getUsername() + ";tg_id_" + telegramUserRequest.getId();
+
         if (user == null) {
             user = new UserModel();
             user.setTgId(telegramUserRequest.getId());
-            String safeUsername = telegramUserRequest.getUsername() + ";tg_id_" + telegramUserRequest.getId();
             user.setUsername(safeUsername);
             user.setFirstName(telegramUserRequest.getFirstName());
             user.setLastName(telegramUserRequest.getLastName());
@@ -72,11 +75,8 @@ public class AuthService implements LoadAuthorizationInfoPort {
 
             user = saveUserPort.save(user);
         } else {
-            String newUsername = telegramUserRequest.getUsername() != null
-                    ? telegramUserRequest.getUsername()
-                    : "tg_" + telegramUserRequest.getId();
-            if (!newUsername.equals(user.getUsername())) {
-                user.setUsername(newUsername);
+            if (!safeUsername.equals(user.getUsername())) {
+                user.setUsername(safeUsername);
             }
             if (telegramUserRequest.getFirstName() != null &&
                     !telegramUserRequest.getFirstName().equals(user.getFirstName())) {
