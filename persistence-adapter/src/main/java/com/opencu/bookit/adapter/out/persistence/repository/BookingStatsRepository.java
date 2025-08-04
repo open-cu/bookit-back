@@ -68,23 +68,23 @@ public interface BookingStatsRepository extends JpaRepository<BookingEntity, UUI
 
     @Query(value = """
     SELECT
-        h.hour AS hour_of_day,
+        h.hours AS hour_of_day,
         COUNT(b.id) AS bookings_count
     FROM (
-        SELECT 8 AS hour UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL
+        SELECT 8 AS hours UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL
         SELECT 11 UNION ALL SELECT 12 UNION ALL SELECT 13 UNION ALL
         SELECT 14 UNION ALL SELECT 15 UNION ALL SELECT 16 UNION ALL
         SELECT 17 UNION ALL SELECT 18 UNION ALL SELECT 19 UNION ALL SELECT 20
     ) h
     LEFT JOIN bookings b ON
-        h.hour = EXTRACT(HOUR FROM b.start_time)
+        h.hours = EXTRACT(HOUR FROM b.start_time)
         AND b.start_time BETWEEN CAST(:start AS TIMESTAMP) AND
                 CAST(:end AS TIMESTAMP)
         AND (:areaName IS NULL OR b.area_id IN (
             SELECT id FROM areas WHERE name = :areaName
         ))
-    GROUP BY h.hour
-    ORDER BY h.hour
+    GROUP BY h.hours
+    ORDER BY h.hours
     """, nativeQuery = true)
     List<Object[]> findBusiestHours(
             @Param("start") LocalDateTime start,

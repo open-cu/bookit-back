@@ -89,13 +89,13 @@ public class StatsControllerV1 {
 
         } catch (DataAccessException ex) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
-                    "Database access error");
+                    ex.getMessage());
         } catch (IllegalArgumentException ex) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     ex.getMessage());
         } catch (RuntimeException ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Internal server error");
+                    ex.getMessage());
         }
     }
 
@@ -158,7 +158,7 @@ public class StatsControllerV1 {
             return ResponseEntity.ok(stats);
         } catch (DataAccessException e) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
-                    "Data service unavailable");
+                    e.getMessage());
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     e.getMessage());

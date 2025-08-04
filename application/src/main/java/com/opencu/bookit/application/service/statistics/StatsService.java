@@ -6,6 +6,7 @@ import com.opencu.bookit.domain.model.statistics.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -186,14 +187,14 @@ public class StatsService {
         List<Object[]> overlaps = loadBookingStatsPort.findEventOverlapPercentage();
         return overlaps.stream().map(overlap ->
                 new EventOverlap(
-                        (UUID) overlap[0],
+                        bytesToUUID((byte[]) overlap[0]),
                         (String) overlap[1],
-                        (UUID) overlap[2],
+                        bytesToUUID((byte[]) overlap[2]),
                         (String) overlap[3],
-                        (long) overlap[4],
-                        (long) overlap[5],
-                        (long) overlap[6],
-                        (double) overlap[7]
+                        (Long) overlap[4],
+                        (Long) overlap[5],
+                        (Long) overlap[6],
+                        (BigDecimal) overlap[7]
                 )
         ).collect(Collectors.toList());
     }
@@ -205,5 +206,9 @@ public class StatsService {
                         (String) newUser[0],
                         (long) newUser[1])
         ).collect(Collectors.toList());
+    }
+
+    private UUID bytesToUUID(byte[] bytes) {
+        return UUID.nameUUIDFromBytes(bytes);
     }
 }

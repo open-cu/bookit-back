@@ -4,6 +4,7 @@ import com.opencu.bookit.adapter.out.persistence.entity.AreaEntity;
 import com.opencu.bookit.adapter.out.persistence.entity.EventEntity;
 import com.opencu.bookit.adapter.out.persistence.repository.AreaRepository;
 import com.opencu.bookit.adapter.out.persistence.repository.EventRepository;
+import com.opencu.bookit.adapter.out.persistence.repository.UserRepository;
 import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,10 +24,12 @@ public class EventDataInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(EventDataInitializer.class);
     private final AreaRepository areaRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public EventDataInitializer(AreaRepository areaRepository) {
+    public EventDataInitializer(AreaRepository areaRepository, UserRepository userRepository) {
         this.areaRepository = areaRepository;
+        this.userRepository = userRepository;
     }
 
     @Bean
@@ -66,6 +69,8 @@ public class EventDataInitializer {
                                 areaRepository.findAll().getLast()
                         )
                 );
+                events.getFirst().getUsers().add(userRepository.findAll().getFirst());
+                events.getLast().getUsers().add(userRepository.findAll().getFirst());
 
                 eventRepository.saveAll(events);
                 log.info("Initial events created successfully");
