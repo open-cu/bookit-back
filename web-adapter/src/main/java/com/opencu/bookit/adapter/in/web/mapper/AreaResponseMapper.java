@@ -7,10 +7,7 @@ import com.opencu.bookit.domain.model.area.AreaModel;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class AreaResponseMapper {
@@ -26,7 +23,7 @@ public class AreaResponseMapper {
                 area.getName(),
                 area.getDescription(),
                 area.getType(),
-                Collections.singleton(area.getFeatures()), // TO DO fix singleton
+                Set.copyOf(area.getFeatures()),
                 service.getImagesFromKeys(area.getKeys()),
                 area.getCapacity()
         );

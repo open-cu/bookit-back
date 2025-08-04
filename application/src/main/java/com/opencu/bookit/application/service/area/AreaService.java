@@ -70,7 +70,7 @@ public class AreaService {
         model.setName(name);
         model.setDescription(description);
         model.setType(type);
-        model.setFeatures(features.getFirst());
+        model.setFeatures(features);
         model.setCapacity(capacity);
         model.setKeys(keys);
         model.setStatus(status);
