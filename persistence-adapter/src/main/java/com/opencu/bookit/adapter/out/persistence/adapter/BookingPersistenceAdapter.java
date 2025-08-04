@@ -115,7 +115,7 @@ public class BookingPersistenceAdapter implements
                         LocalDateTime.of(startDate, LocalTime.of(0,0,0)),
                         LocalDateTime.of(endDate, LocalTime.of(0,0,0)))
             );
-        } else {
+        } else if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
             throw new IllegalArgumentException("startDate " + startDate + " should be not empty and be before endDate " + endDate);
         }
         return bookingRepository.findAll(spec, pageable).map(bookingMapper::toModel);
