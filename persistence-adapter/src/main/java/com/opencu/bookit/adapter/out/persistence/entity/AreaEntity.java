@@ -31,8 +31,10 @@ public class AreaEntity {
     @Column(nullable = false)
     private AreaType type;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "area_features", joinColumns = @JoinColumn(name = "area_id"))
     @Enumerated(EnumType.STRING)
-    private AreaFeature features;
+    private List<AreaFeature> features;
 
     @Column(nullable = false)
     private int capacity;

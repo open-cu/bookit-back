@@ -36,7 +36,7 @@ public class AreaDataInitializer implements ApplicationRunner {
             openSpace.setDescription("Большая открытая зона с общими столами и удобными сиденьями.");
             openSpace.setType(AreaType.WORKPLACE);
             openSpace.setCapacity(bookingConfig.getHallMaxCapacity());
-            openSpace.setFeatures(AreaFeature.CHANCELLERY);
+            openSpace.setFeatures(List.of(AreaFeature.CHANCELLERY));
             openSpace.setKeys(List.of("arch.png"));
             openSpace.setStatus(AreaStatus.AVAILABLE);
 
@@ -45,7 +45,7 @@ public class AreaDataInitializer implements ApplicationRunner {
             meetingRoom.setDescription("Отдельная переговорная комната с проектором и конференц-столом.");
             meetingRoom.setType(AreaType.MEETING_ROOM);
             meetingRoom.setKeys(List.of("arch.png"));
-            openSpace.setFeatures(AreaFeature.CHANCELLERY);
+            openSpace.setFeatures(List.of(AreaFeature.CHANCELLERY));
             meetingRoom.setCapacity(10);
             meetingRoom.setStatus(AreaStatus.BOOKED);
 
@@ -54,7 +54,7 @@ public class AreaDataInitializer implements ApplicationRunner {
             quietZone.setDescription("Выделенное тихое рабочее место для сосредоточенной работы.");
             quietZone.setType(AreaType.MEETING_ROOM);
             quietZone.setKeys(List.of("arch.png"));
-            openSpace.setFeatures(AreaFeature.CHANCELLERY);
+            openSpace.setFeatures(List.of(AreaFeature.CHANCELLERY));
             quietZone.setCapacity(10);
             quietZone.setStatus(AreaStatus.AVAILABLE);
 
