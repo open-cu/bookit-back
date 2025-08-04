@@ -109,13 +109,17 @@ public class BookingPersistenceAdapter implements
                 );
             }
         }
-        if (startDate != null && endDate != null && startDate.isBefore(endDate)) {
+        if (startDate != null && endDate != null &&
+                (startDate.isBefore(endDate)
+                || (endDate.isEqual(startDate))
+                )
+        ) {
             spec = spec.and((root, query, cb) ->
                 cb.between(root.get("startTime"),
                         LocalDateTime.of(startDate, LocalTime.of(0,0,0)),
-                        LocalDateTime.of(endDate, LocalTime.of(0,0,0)))
+                        LocalDateTime.of(endDate, LocalTime.of(23,59,59)))
             );
-        } else if (startDate != null && endDate != null && startDate.isAfter(endDate.plusDays(1))) {
+        } else if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
             throw new IllegalArgumentException("startDate " + startDate + " should be not empty and be before endDate " + endDate);
         }
         return bookingRepository.findAll(spec, pageable).map(bookingMapper::toModel);
