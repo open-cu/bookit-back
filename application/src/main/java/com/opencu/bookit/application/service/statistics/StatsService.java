@@ -183,8 +183,17 @@ public class StatsService {
                 .collect(Collectors.toList());
     }
 
-    public List<EventOverlap> eventOverlapStats() {
-        List<Object[]> overlaps = loadBookingStatsPort.findEventOverlapPercentage();
+    public List<EventOverlap> eventOverlapStats(UUID eventId1, UUID eventId2) {
+        List<Object[]> overlaps;
+
+        if (eventId1 != null && eventId2 != null) {
+            overlaps = loadBookingStatsPort.findEventOverlapPercentage(eventId1, eventId2);
+        } else if (eventId1 != null) {
+            overlaps = loadBookingStatsPort.findEventOverlapPercentage(eventId1);
+        } else {
+            overlaps = loadBookingStatsPort.findEventOverlapPercentage();
+        }
+
         return overlaps.stream().map(overlap ->
                 new EventOverlap(
                         bytesToUUID((byte[]) overlap[0]),

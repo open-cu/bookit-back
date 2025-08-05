@@ -93,68 +93,199 @@ public interface BookingStatsRepository extends JpaRepository<BookingEntity, UUI
 
     @Query(value = """
       WITH event_pairs AS (
-          SELECT
-              e1.id AS event_id1,
-              e1.name AS event_name1,
-              e2.id AS event_id2,
-              e2.name AS event_name2
-          FROM
-              events e1
-          CROSS JOIN
-              events e2
-          WHERE
-              e1.id < e2.id
-      ),
-
-      common_users AS (
-          SELECT
-              ep.event_id1,
-              ep.event_name1,
-              ep.event_id2,
-              ep.event_name2,
-              COUNT(DISTINCT eu1.user_id) AS common_users_count
-          FROM
-              event_pairs ep
-          JOIN
-              event_users eu1 ON ep.event_id1 = eu1.event_id
-          JOIN
-              event_users eu2 ON ep.event_id2 = eu2.event_id AND eu1.user_id = eu2.user_id
-          GROUP BY
-              ep.event_id1, ep.event_name1, ep.event_id2, ep.event_name2
-      ),
-
-      event_user_counts AS (
-          SELECT
-              event_id,
-              COUNT(DISTINCT user_id) AS total_users
-          FROM
-              event_users
-          GROUP BY
-              event_id
-      )
-
       SELECT
-          cu.event_id1,
-          cu.event_name1,
-          cu.event_id2,
-          cu.event_name2,
-          cu.common_users_count,
-          euc1.total_users AS event1_total_users,
-          euc2.total_users AS event2_total_users,
-              (cu.common_users_count::FLOAT /
-              GREATEST(euc1.total_users, euc2.total_users)) * 100
-           AS overlap_percentage
-      FROM
-          common_users cu
-      JOIN
-          event_user_counts euc1 ON cu.event_id1 = euc1.event_id
-      JOIN
-          event_user_counts euc2 ON cu.event_id2 = euc2.event_id
-      ORDER BY
-          overlap_percentage DESC;
+                                                  e1.id AS event_id1,
+                                                  e1.name AS event_name1,
+                                                  e2.id AS event_id2,
+                                                  e2.name AS event_name2
+                                              FROM
+                                                  events e1
+                                              CROSS JOIN
+                                                  events e2
+                                              WHERE
+                                                  e1.id <> e2.id  -- Исключаем пару события с самим собой
+                                          ),
+                                          
+                                          event_user_counts AS (
+                                              SELECT
+                                                  event_id,
+                                                  COUNT(DISTINCT user_id) AS total_users
+                                              FROM
+                                                  event_users
+                                              GROUP BY
+                                                  event_id
+                                          ),
+                                          
+                                          common_users AS (
+                                              SELECT
+                                                  ep.event_id1,
+                                                  ep.event_name1,
+                                                  ep.event_id2,
+                                                  ep.event_name2,
+                                                  COUNT(DISTINCT eu1.user_id) AS common_users_count
+                                              FROM
+                                                  event_pairs ep
+                                              LEFT JOIN
+                                                  event_users eu1 ON ep.event_id1 = eu1.event_id
+                                              LEFT JOIN
+                                                  event_users eu2 ON ep.event_id2 = eu2.event_id AND eu1.user_id = eu2.user_id
+                                              GROUP BY
+                                                  ep.event_id1, ep.event_name1, ep.event_id2, ep.event_name2
+                                          )
+
+                                          SELECT
+                                              cu.event_id1,
+                                              cu.event_name1,
+                                              cu.event_id2,
+                                              cu.event_name2,
+                                              COALESCE(cu.common_users_count, 0) AS common_users_count,
+                                              COALESCE(euc1.total_users, 0) AS event1_total_users,
+                                              COALESCE(euc2.total_users, 0) AS event2_total_users,
+                                              CASE
+                                                  WHEN COALESCE(cu.common_users_count, 0) = 0 THEN 0
+                                                  ELSE (cu.common_users_count::FLOAT / GREATEST(euc1.total_users, euc2.total_users)) * 100
+                                              END AS overlap_percentage
+                                          FROM
+                                              common_users cu
+                                          LEFT JOIN
+                                              event_user_counts euc1 ON cu.event_id1 = euc1.event_id
+                                          LEFT JOIN
+                                              event_user_counts euc2 ON cu.event_id2 = euc2.event_id
+                                          ORDER BY
+                                              cu.event_id1, cu.event_id2;
 
     """, nativeQuery = true)
     List<Object[]> findEventOverlapPercentage();
+
+    @Query(value = """
+    WITH event_pairs AS (
+        SELECT
+            e1.id AS event_id1,
+            e1.name AS event_name1,
+            e2.id AS event_id2,
+            e2.name AS event_name2
+        FROM
+            events e1
+        CROSS JOIN
+            events e2
+        WHERE
+            e1.id = :eventId1 AND e2.id = :eventId2
+    ),
+
+    common_users AS (
+        SELECT
+            ep.event_id1,
+            ep.event_name1,
+            ep.event_id2,
+            ep.event_name2,
+            COUNT(DISTINCT eu1.user_id) AS common_users_count
+        FROM
+            event_pairs ep
+        JOIN
+            event_users eu1 ON ep.event_id1 = eu1.event_id
+        JOIN
+            event_users eu2 ON ep.event_id2 = eu2.event_id AND eu1.user_id = eu2.user_id
+        GROUP BY
+            ep.event_id1, ep.event_name1, ep.event_id2, ep.event_name2
+    ),
+
+    event_user_counts AS (
+        SELECT
+            event_id,
+            COUNT(DISTINCT user_id) AS total_users
+        FROM
+            event_users
+        GROUP BY
+            event_id
+    )
+
+    SELECT
+        cu.event_id1,
+        cu.event_name1,
+        cu.event_id2,
+        cu.event_name2,
+        cu.common_users_count,
+        euc1.total_users AS event1_total_users,
+        euc2.total_users AS event2_total_users,
+            (cu.common_users_count::FLOAT /
+            GREATEST(euc1.total_users, euc2.total_users)) * 100
+         AS overlap_percentage
+    FROM
+        common_users cu
+    JOIN
+        event_user_counts euc1 ON cu.event_id1 = euc1.event_id
+    JOIN
+        event_user_counts euc2 ON cu.event_id2 = euc2.event_id
+    ORDER BY
+        overlap_percentage DESC
+    """, nativeQuery = true)
+    List<Object[]> findEventOverlapPercentage(@Param("eventId1") UUID eventId1,
+                                              @Param("eventId2") UUID eventId2);
+
+    @Query(value = """
+    WITH event_pairs AS (
+        SELECT
+            e1.id AS event_id1,
+            e1.name AS event_name1,
+            e2.id AS event_id2,
+            e2.name AS event_name2
+        FROM
+            events e1
+        CROSS JOIN
+            events e2
+        WHERE
+            e1.id < e2.id
+            AND (e1.id = :eventId OR e2.id = :eventId)
+    ),
+
+    common_users AS (
+        SELECT
+            ep.event_id1,
+            ep.event_name1,
+            ep.event_id2,
+            ep.event_name2,
+            COUNT(DISTINCT eu1.user_id) AS common_users_count
+        FROM
+            event_pairs ep
+        JOIN
+            event_users eu1 ON ep.event_id1 = eu1.event_id
+        JOIN
+            event_users eu2 ON ep.event_id2 = eu2.event_id AND eu1.user_id = eu2.user_id
+        GROUP BY
+            ep.event_id1, ep.event_name1, ep.event_id2, ep.event_name2
+    ),
+
+    event_user_counts AS (
+        SELECT
+            event_id,
+            COUNT(DISTINCT user_id) AS total_users
+        FROM
+            event_users
+        GROUP BY
+            event_id
+    )
+
+    SELECT
+        cu.event_id1,
+        cu.event_name1,
+        cu.event_id2,
+        cu.event_name2,
+        cu.common_users_count,
+        euc1.total_users AS event1_total_users,
+        euc2.total_users AS event2_total_users,
+            (cu.common_users_count::FLOAT /
+            GREATEST(euc1.total_users, euc2.total_users)) * 100
+         AS overlap_percentage
+    FROM
+        common_users cu
+    JOIN
+        event_user_counts euc1 ON cu.event_id1 = euc1.event_id
+    JOIN
+        event_user_counts euc2 ON cu.event_id2 = euc2.event_id
+    ORDER BY
+        overlap_percentage DESC
+    """, nativeQuery = true)
+    List<Object[]> findEventOverlapPercentage(@Param("eventId") UUID eventId);
 
     @Query(value = """
         SELECT TO_CHAR(created_at, 'YYYY-MM') as created, COUNT(id) as count FROM users

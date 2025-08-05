@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -45,6 +46,16 @@ public class BookingStatsAdapter implements LoadBookingStatsPort {
     @Override
     public List<Object[]> findEventOverlapPercentage() {
         return bookingStatsRepository.findEventOverlapPercentage();
+    }
+
+    @Override
+    public List<Object[]> findEventOverlapPercentage(UUID eventId1, UUID eventId2) {
+        return bookingStatsRepository.findEventOverlapPercentage(eventId1, eventId2);
+    }
+
+    @Override
+    public List<Object[]> findEventOverlapPercentage(UUID eventId) {
+        return bookingStatsRepository.findEventOverlapPercentage(eventId);
     }
 
     @Override
