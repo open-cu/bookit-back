@@ -23,9 +23,16 @@ public class BookingStatsAdapter implements LoadBookingStatsPort {
     @Override
     public List<Object[]> findBookingStatsBetweenDates(
             LocalDateTime start,
-            LocalDateTime end)
-    {
+            LocalDateTime end) {
         return bookingStatsRepository.findBookingStatsBetweenDates(start, end);
+    }
+
+    @Override
+    public List<Object[]> findBookingStatsBetweenDatesAndAreas(
+            LocalDateTime start,
+            LocalDateTime end,
+            List<String> areaNames) {
+        return bookingStatsRepository.findBookingStatsBetweenDatesAndAreas(start, end, areaNames);
     }
 
     @Override

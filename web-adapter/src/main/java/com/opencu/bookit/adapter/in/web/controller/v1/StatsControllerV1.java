@@ -40,14 +40,15 @@ public class StatsControllerV1 {
     public ResponseEntity<FullStats> getBookingStats(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam(required = false, defaultValue = "false") Boolean includeSummary) {
+            @RequestParam(required = false, defaultValue = "false") Boolean includeSummary,
+            @RequestParam(required = false) List<String> areaNames) {
 
         if (startDate.isAfter(endDate)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start date must be before end date");
         }
 
         try {
-            List<BookingStats> stats = statsService.getBookingStats(startDate, endDate);
+            List<BookingStats> stats = statsService.getBookingStats(startDate, endDate, areaNames);
             StatsSummary summary = includeSummary
                     ? statsService.getStatsSummary(startDate, endDate, stats)
                     : null;
@@ -62,7 +63,8 @@ public class StatsControllerV1 {
     @GetMapping("/bookings-period")
     public ResponseEntity<FullStats> getBookingStatsByPeriod(
             @RequestParam String period,
-            @RequestParam(required = false, defaultValue = "false") Boolean includeSummary) {
+            @RequestParam(required = false, defaultValue = "false") Boolean includeSummary,
+            @RequestParam(required = false) List<String> areaNames) {
 
         if (period == null || period.trim().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -81,7 +83,7 @@ public class StatsControllerV1 {
         final LocalDate startDate = endDate.minusWeeks(statsPeriod.getWeeksCount());
 
         try {
-            List<BookingStats> stats = statsService.getBookingStats(startDate, endDate);
+            List<BookingStats> stats = statsService.getBookingStats(startDate, endDate, areaNames);
             StatsSummary summary = includeSummary
                     ? statsService.getStatsSummary(startDate, endDate, stats)
                     : null;

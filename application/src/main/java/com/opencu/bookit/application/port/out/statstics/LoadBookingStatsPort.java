@@ -7,8 +7,12 @@ import java.util.UUID;
 public interface LoadBookingStatsPort {
     List<Object[]> findBookingStatsBetweenDates(
             LocalDateTime start,
-            LocalDateTime end
-    );
+            LocalDateTime end);
+
+    List<Object[]> findBookingStatsBetweenDatesAndAreas(
+            LocalDateTime start,
+            LocalDateTime end,
+            List<String> areaNames);
 
     List<Object[]> findBookingStatsByDayOfWeek(
             LocalDateTime start,

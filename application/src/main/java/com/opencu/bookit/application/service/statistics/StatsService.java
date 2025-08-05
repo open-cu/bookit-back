@@ -25,11 +25,16 @@ public class StatsService {
     private final LoadHallOccupancyPort  loadHallOccupancyPort;
 
     public List<BookingStats> getBookingStats(LocalDate startDate,
-                                              LocalDate endDate) {
-        List<Object[]> results = loadBookingStatsPort.findBookingStatsBetweenDates(
+                                              LocalDate endDate,
+                                              List<String> areaNames) {
+        List<Object[]> results = areaNames == null || areaNames.isEmpty()
+                ? loadBookingStatsPort.findBookingStatsBetweenDates(
                 startDate.atStartOfDay(),
-                endDate.atTime(23, 59, 59)
-                                                                                  );
+                endDate.atTime(23, 59, 59))
+                : loadBookingStatsPort.findBookingStatsBetweenDatesAndAreas(
+                startDate.atStartOfDay(),
+                endDate.atTime(23, 59, 59),
+                areaNames);
 
         return results.stream()
                 .map(result -> new BookingStats(
