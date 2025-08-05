@@ -3,6 +3,8 @@ package com.opencu.bookit.adapter.in.web.controller.v1;
 import com.opencu.bookit.application.service.statistics.StatsService;
 import com.opencu.bookit.domain.model.statistics.*;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -35,7 +37,18 @@ public class StatsControllerV1 {
     @Value("${booking.zone-id}")
     private ZoneId zoneId;
 
-    @Operation(description = "Returns booking statistics for the specified date range")
+    @Operation(
+            description = "Returns booking statistics for the specified date range",
+            parameters = {
+                    @Parameter(
+                            name = "areaNames",
+                            description = "Optional list of area names to filter by. If not provided, statistics for all areas will be returned",
+                            example = "[\"Meeting Room Alpha\", \"Quiet Zone\"]",
+                            in = ParameterIn.QUERY,
+                            schema = @Schema(type = "array", implementation = String.class)
+                    )
+            }
+    )
     @GetMapping("/bookings")
     public ResponseEntity<FullStats> getBookingStats(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -59,7 +72,18 @@ public class StatsControllerV1 {
         }
     }
 
-    @Operation(description = "Returns booking statistics for the specified period (week, fortnight, month, quarter)")
+    @Operation(
+            description = "Returns booking statistics for the specified period (week, fortnight, month, quarter)",
+            parameters = {
+                    @Parameter(
+                            name = "areaNames",
+                            description = "Optional list of area names to filter by. If not provided, statistics for all areas will be returned",
+                            example = "[\"Meeting Room Alpha\", \"Quiet Zone\"]",
+                            in = ParameterIn.QUERY,
+                            schema = @Schema(type = "array", implementation = String.class)
+                    )
+            }
+    )
     @GetMapping("/bookings-period")
     public ResponseEntity<FullStats> getBookingStatsByPeriod(
             @RequestParam String period,
@@ -102,7 +126,18 @@ public class StatsControllerV1 {
         }
     }
 
-    @Operation(description = "Returns booking statistics grouped by day of week")
+    @Operation(
+            description = "Returns booking statistics grouped by day of week",
+            parameters = {
+                    @Parameter(
+                            name = "areaNames",
+                            description = "Optional list of area names to filter by. If not provided, statistics for all areas will be returned",
+                            example = "[\"Meeting Room Alpha\", \"Quiet Zone\"]",
+                            in = ParameterIn.QUERY,
+                            schema = @Schema(type = "array", implementation = String.class)
+                    )
+            }
+    )
     @GetMapping("/bookings-by-day-of-week")
     public ResponseEntity<List<DayOfWeekStats>> getBookingStatsByDayOfWeek(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -120,7 +155,18 @@ public class StatsControllerV1 {
         }
     }
 
-    @Operation(description = "Returns cancellation statistics by area")
+    @Operation(
+            description = "Returns cancellation statistics by area",
+            parameters = {
+                    @Parameter(
+                            name = "areaNames",
+                            description = "Optional list of area names to filter by. If not provided, statistics for all areas will be returned",
+                            example = "[\"Meeting Room Alpha\", \"Quiet Zone\"]",
+                            in = ParameterIn.QUERY,
+                            schema = @Schema(type = "array", implementation = String.class)
+                    )
+            }
+    )
     @GetMapping("/cancellations-by-area")
     public ResponseEntity<List<CancellationStats>> getCancellationStatsByArea(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -138,7 +184,18 @@ public class StatsControllerV1 {
         }
     }
 
-    @Operation(description = "Returns busiest hours statistics for visualization")
+    @Operation(
+            description = "Returns busiest hours statistics for visualization",
+            parameters = {
+                    @Parameter(
+                            name = "areaName",
+                            description = "Optional area name to filter by. If not provided, statistics for 'Open Space' area will be returned by default",
+                            example = "Meeting Room Alpha",
+                            in = ParameterIn.QUERY,
+                            schema = @Schema(type = "string")
+                    )
+            }
+    )
     @GetMapping("/busiest-hours")
     public ResponseEntity<List<BusiestHours>> getBusiestHours(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
