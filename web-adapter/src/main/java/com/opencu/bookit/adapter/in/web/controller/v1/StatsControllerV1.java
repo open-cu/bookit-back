@@ -24,6 +24,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/stats")
@@ -166,8 +167,10 @@ public class StatsControllerV1 {
     }
 
     @GetMapping("/event-overlaps")
-    public ResponseEntity<List<EventOverlap>> getEventOverlaps() {
-        return ResponseEntity.ok(statsService.eventOverlapStats());
+    public ResponseEntity<List<EventOverlap>> getEventOverlaps(
+            @RequestParam(required = false) UUID eventId1,
+            @RequestParam(required = false) UUID eventId2) {
+        return ResponseEntity.ok(statsService.eventOverlapStats(eventId1, eventId2));
     }
 
     @GetMapping("/new-users-by-year-month")
