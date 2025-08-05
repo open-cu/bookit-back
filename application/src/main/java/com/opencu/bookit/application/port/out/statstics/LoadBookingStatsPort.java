@@ -16,8 +16,12 @@ public interface LoadBookingStatsPort {
 
     List<Object[]> findBookingStatsByDayOfWeek(
             LocalDateTime start,
-            LocalDateTime end
-    );
+            LocalDateTime end);
+
+    List<Object[]> findBookingStatsByDayOfWeekAndAreas(
+            LocalDateTime start,
+            LocalDateTime end,
+            List<String> areaNames);
 
     List<Object[]> findCancellationStatsByArea(
             LocalDateTime start,

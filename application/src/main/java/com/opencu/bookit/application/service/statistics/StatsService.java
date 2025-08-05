@@ -99,12 +99,17 @@ public class StatsService {
 
     public List<DayOfWeekStats> getBookingStatsByDayOfWeek(
             LocalDate startDate,
-            LocalDate endDate
+            LocalDate endDate,
+            List<String> areaNames
     ) {
-        List<Object[]> results = loadBookingStatsPort.findBookingStatsByDayOfWeek(
+        List<Object[]> results = areaNames == null || areaNames.isEmpty()
+                ? loadBookingStatsPort.findBookingStatsByDayOfWeek(
                 startDate.atStartOfDay(),
-                endDate.atTime(23, 59, 59)
-        );
+                endDate.atTime(23, 59, 59))
+                : loadBookingStatsPort.findBookingStatsByDayOfWeekAndAreas(
+                startDate.atStartOfDay(),
+                endDate.atTime(23, 59, 59),
+                areaNames);
 
         return results.stream()
                 .map(result -> new DayOfWeekStats(
