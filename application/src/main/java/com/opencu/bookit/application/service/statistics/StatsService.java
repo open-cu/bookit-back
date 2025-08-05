@@ -35,8 +35,7 @@ public class StatsService {
                 .map(result -> new BookingStats(
                         ((Date) result[0]).toLocalDate(),
                         (String) result[1],
-                        ((Long) result[2]),
-                        null
+                        ((Long) result[2])
                 ))
                 .collect(Collectors.toList());
     }

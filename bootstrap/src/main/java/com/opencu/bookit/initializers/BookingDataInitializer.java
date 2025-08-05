@@ -68,6 +68,7 @@ public class BookingDataInitializer implements ApplicationRunner {
         BookingEntity booking7 = createCurrentBooking(aliceJohnson, areas.getLast());
         BookingEntity booking8 = createCurrentBooking(aliceJohnson, areas.get(1));
         BookingEntity booking9 = createCurrentBooking(aliceJohnson, areas.getFirst());
+        booking9.setStatus(BookingStatus.CANCELED);
 
         bookingRepository.saveAll(List.of(booking1, booking2, booking3, booking4,
                 booking5, booking6, booking7, booking8, booking9));
