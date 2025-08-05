@@ -123,12 +123,17 @@ public class StatsService {
 
     public List<CancellationStats> getCancellationStatsByArea(
             LocalDate startDate,
-            LocalDate endDate
+            LocalDate endDate,
+            List<String> areaNames
     ) {
-        List<Object[]> results = loadBookingStatsPort.findCancellationStatsByArea(
+        List<Object[]> results = areaNames == null || areaNames.isEmpty()
+                ? loadBookingStatsPort.findCancellationStatsByArea(
                 startDate.atStartOfDay(),
-                endDate.atTime(23, 59, 59)
-        );
+                endDate.atTime(23, 59, 59))
+                : loadBookingStatsPort.findCancellationStatsByAreaAndNames(
+                startDate.atStartOfDay(),
+                endDate.atTime(23, 59, 59),
+                areaNames);
 
         return results.stream()
                 .map(result -> new CancellationStats(

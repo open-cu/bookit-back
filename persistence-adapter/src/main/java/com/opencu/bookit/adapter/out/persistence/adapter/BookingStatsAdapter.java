@@ -54,6 +54,14 @@ public class BookingStatsAdapter implements LoadBookingStatsPort {
     }
 
     @Override
+    public List<Object[]> findCancellationStatsByAreaAndNames(
+            LocalDateTime start,
+            LocalDateTime end,
+            List<String> areaNames) {
+        return bookingStatsRepository.findCancellationStatsByAreaAndNames(start, end, areaNames);
+    }
+
+    @Override
     public List<Object[]> findBusiestHours(LocalDateTime start, LocalDateTime end, String areaName) {
         return bookingStatsRepository.findBusiestHours(start, end, areaName);
     }

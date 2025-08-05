@@ -124,14 +124,15 @@ public class StatsControllerV1 {
     @GetMapping("/cancellations-by-area")
     public ResponseEntity<List<CancellationStats>> getCancellationStatsByArea(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) List<String> areaNames) {
 
         if (startDate.isAfter(endDate)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start date must be before end date");
         }
 
         try {
-            return ResponseEntity.ok(statsService.getCancellationStatsByArea(startDate, endDate));
+            return ResponseEntity.ok(statsService.getCancellationStatsByArea(startDate, endDate, areaNames));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to retrieve cancellation statistics", e);
         }

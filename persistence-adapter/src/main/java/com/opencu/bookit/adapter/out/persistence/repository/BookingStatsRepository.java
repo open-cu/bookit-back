@@ -110,6 +110,23 @@ public interface BookingStatsRepository extends JpaRepository<BookingEntity, UUI
 
     @Query(value = """
     SELECT
+        a.name AS area_name,
+        COUNT(*) AS total_bookings,
+        SUM(CASE WHEN b.status = 'CANCELED' THEN 1 ELSE 0 END) AS cancelled_bookings
+    FROM bookings b
+    JOIN areas a ON b.area_id = a.id
+    WHERE b.start_time BETWEEN :start AND :end
+    AND a.name IN :areaNames
+    GROUP BY a.name
+    ORDER BY cancelled_bookings DESC
+    """, nativeQuery = true)
+    List<Object[]> findCancellationStatsByAreaAndNames(
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end,
+            @Param("areaNames") List<String> areaNames);
+
+    @Query(value = """
+    SELECT
         h.hours AS hour_of_day,
         COUNT(b.id) AS bookings_count
     FROM (

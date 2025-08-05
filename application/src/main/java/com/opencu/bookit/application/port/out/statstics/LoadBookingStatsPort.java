@@ -25,8 +25,12 @@ public interface LoadBookingStatsPort {
 
     List<Object[]> findCancellationStatsByArea(
             LocalDateTime start,
-            LocalDateTime end
-    );
+            LocalDateTime end);
+
+    List<Object[]> findCancellationStatsByAreaAndNames(
+            LocalDateTime start,
+            LocalDateTime end,
+            List<String> areaNames);
 
     List<Object[]> findBusiestHours(
             LocalDateTime start,
