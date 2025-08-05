@@ -14,6 +14,12 @@ spring:
           max-attempts: 3
 
   mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    sender-name: ${MAIL_SENDER_NAME:BookIt}
+    from-email: ${MAIL_FROM_EMAIL}
     properties:
       mail:
         smtp:
@@ -52,3 +58,18 @@ booking:
 pagination:
   default-page: 0
   default-size: 10
+
+yandex-cloud:
+  key-id: ${KEY_ID}
+  secret-key: ${SECRET_KEY}
+  region: ${REGION}
+  s3-endpoint: ${S3_ENDPOINT}
+  bucket: ${BUCKET}
+
+yandex-gpt:
+  authorization: ${AUTH:null}
+  api-url: ${API_URL:null}
+  model-uri: ${MODEL_URI:null}
+  folder-id: ${FOLDER_ID:null}
+  system-text: ${SYSTEM_TEXT:null}
+  system-text-analyze: ${SYSTEM_TEXT_ANALYZE:null}
