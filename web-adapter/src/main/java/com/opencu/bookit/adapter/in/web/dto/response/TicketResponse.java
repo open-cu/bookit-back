@@ -1,6 +1,7 @@
 package com.opencu.bookit.adapter.in.web.dto.response;
 
 import com.opencu.bookit.domain.model.ticket.TicketType;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.UUID;
 
