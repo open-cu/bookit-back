@@ -27,7 +27,10 @@ public class TicketController {
                 ticketDTO.userId(),
                 ticketDTO.areaId(),
                 ticketDTO.type(),
-                ticketDTO.description());
+                ticketDTO.description(),
+                ticketDTO.priority(),
+                ticketDTO.status()
+        );
         return ResponseEntity.status(HttpStatus.CREATED).body(ticketResponseMapper.toResponse(createdTicket));
     }
 }

@@ -7,6 +7,8 @@ import com.opencu.bookit.application.port.out.ticket.SaveTicketPort;
 import com.opencu.bookit.application.service.user.UserService;
 import com.opencu.bookit.domain.model.area.AreaModel;
 import com.opencu.bookit.domain.model.ticket.TicketModel;
+import com.opencu.bookit.domain.model.ticket.TicketPriority;
+import com.opencu.bookit.domain.model.ticket.TicketStatus;
 import com.opencu.bookit.domain.model.ticket.TicketType;
 import com.opencu.bookit.domain.model.user.UserModel;
 import org.springframework.data.domain.Page;
@@ -49,7 +51,14 @@ public class TicketService {
     }
 
     @Transactional
-    public TicketModel createTicket(UUID userId, UUID areaId, TicketType type, String description) {
+    public TicketModel createTicket(
+            UUID userId,
+            UUID areaId,
+            TicketType type,
+            String description,
+            TicketPriority priority,
+            TicketStatus status
+            ) {
         UserModel userModel = userService.findById(userId)
                                          .orElseThrow(() -> new NoSuchElementException("User not found"));
 
@@ -61,6 +70,8 @@ public class TicketService {
         ticketModel.setAreaModel(areaModel);
         ticketModel.setType(type);
         ticketModel.setDescription(description);
+        ticketModel.setPriority(priority);
+        ticketModel.setStatus(status);
         ticketModel.setCreatedAt(LocalDateTime.now(zoneId));
 
         return saveTicketPort.save(ticketModel);
