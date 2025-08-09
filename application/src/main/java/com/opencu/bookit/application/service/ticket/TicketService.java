@@ -140,7 +140,6 @@ public class TicketService {
                     "Terminal status " + ticketModel.getStatus() + " is already set and cannot be changed"
             );
         }
-        ticketModel.setStatus(newStatus);
     }
 
     private void handleReason(TicketStatus status, String reason, TicketModel ticketModel) {
