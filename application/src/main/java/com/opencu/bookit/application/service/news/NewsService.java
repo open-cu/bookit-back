@@ -5,12 +5,14 @@ import com.opencu.bookit.application.port.out.news.LoadNewsPort;
 import com.opencu.bookit.application.port.out.news.SaveNewsPort;
 import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
 import com.opencu.bookit.domain.model.news.NewsModel;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 @Service
@@ -18,6 +20,9 @@ public class NewsService {
     private final LoadNewsPort loadNewsPort;
     private final SaveNewsPort saveNewsPort;
     private final DeleteNewsPort deleteNewsPort;
+
+    @Value("${booking.zone-id}")
+    private ZoneId zoneId;
 
     public NewsService(LoadNewsPort loadNewsPort, SaveNewsPort saveNewsPort, DeleteNewsPort deleteNewsPort) {
         this.loadNewsPort = loadNewsPort;
@@ -79,7 +84,7 @@ public class NewsService {
         newsModel.setTitle(title);
         newsModel.setDescription(description);
         newsModel.setTags(new HashSet<>(tags));
-        newsModel.setCreatedAt(LocalDateTime.now());
+        newsModel.setCreatedAt(LocalDateTime.now(zoneId));
         newsModel.setKeys(keys);
         return saveNewsPort.save(newsModel);
     }

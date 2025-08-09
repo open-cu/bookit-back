@@ -7,11 +7,13 @@ import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.domain.model.area.Review;
 import com.opencu.bookit.domain.model.reviews.ReviewsModel;
 import com.opencu.bookit.domain.model.user.UserModel;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,6 +24,9 @@ public class ReviewsService {
     private final SaveReviewsPort saveReviewsPort;
     private final DeleteReviewsPort deleteReviewsPort;
     private final LoadUserPort loadUserPort;
+
+    @Value("${booking.zone-id}")
+    private ZoneId zoneId;
 
     public ReviewsService(LoadReviewsPort loadReviewsPort, SaveReviewsPort saveReviewsPort, DeleteReviewsPort deleteReviewsPort, LoadUserPort loadUserPort) {
         this.loadReviewsPort = loadReviewsPort;
@@ -66,7 +71,7 @@ public class ReviewsService {
         review.setUserModel(loadUserPort.findById(userId).get());
         review.setRating((byte) rating);
         review.setComment(comment);
-        review.setCreatedAt(LocalDateTime.now());
+        review.setCreatedAt(LocalDateTime.now(zoneId));
         return saveReviewsPort.save(review);
     }
 }

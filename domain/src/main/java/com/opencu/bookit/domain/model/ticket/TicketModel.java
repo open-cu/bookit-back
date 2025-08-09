@@ -20,5 +20,12 @@ public class TicketModel {
     private AreaModel areaModel;
     private TicketType type;
     private String description;
+    private TicketPriority priority;
+    private TicketStatus status;
+    private String reason;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private LocalDateTime firstRespondedAt;
+    private LocalDateTime resolvedAt;
+    private LocalDateTime closedAt;
 }
