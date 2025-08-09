@@ -15,5 +15,17 @@ public enum TicketStatus {
     @Schema(description = "Terminal state. Problem is solved, confirmation is received")
     CLOSED,
     @Schema(description = "Ticket is rejected. Providing a reason is required")
-    REJECTED
+    REJECTED;
+
+    public boolean isTerminal() {
+        return this.equals(CLOSED);
+    }
+
+    public boolean needsReason() {
+        return this.equals(REJECTED) ||  this.equals(ON_HOLD);
+    }
+
+    public boolean isResolved() {
+        return this.equals(RESOLVED);
+    }
 }

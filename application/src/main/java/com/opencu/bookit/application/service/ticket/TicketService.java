@@ -98,7 +98,10 @@ public class TicketService {
     public TicketModel patchById(
             UUID ticketId,
             TicketType type,
-            String description
+            String description,
+            TicketPriority priority,
+            TicketStatus status,
+            String reason
     ) {
         Optional<TicketModel> ticketOpt = loadTicketPort.findById(ticketId);
         if (ticketOpt.isEmpty()) {
@@ -107,7 +110,9 @@ public class TicketService {
         TicketModel ticket = ticketOpt.get();
         if (type != null) ticket.setType(type);
         if (description != null) ticket.setDescription(description);
-        ticket.setUpdatedAt(LocalDateTime.now());
+        if (priority != null) ticket.setPriority(priority);
+        if (status != null) setStatusWithAdditionalReason(status, reason, ticket);
+        ticket.setUpdatedAt(LocalDateTime.now(zoneId));
         return saveTicketPort.save(ticket);
     }
 
@@ -119,5 +124,30 @@ public class TicketService {
             Pageable pageable
     ) {
         return loadTicketPort.findWithFilters(startDate, endDate, search, type, pageable);
+    }
+
+    private void setStatusWithAdditionalReason(TicketStatus ticketStatus, String reason, TicketModel ticketModel) {
+        if (ticketModel.getStatus().isTerminal()) {
+            throw new IllegalArgumentException("terminal status " + ticketModel.getStatus() + " is already set and cannot be changed");
+        }
+
+        if (ticketStatus.isTerminal()) {
+            ticketModel.setClosedAt(LocalDateTime.now(zoneId));
+        }
+        if (ticketStatus.needsReason()) {
+            if (reason == null) {
+                throw new IllegalArgumentException("reason cannot be null if status "  + ticketStatus.name() + " is reasonable");
+            }
+            ticketModel.setReason(reason);
+        }
+        if (ticketStatus.isResolved()) {
+            ticketModel.setResolvedAt(LocalDateTime.now(zoneId));
+        }
+
+        ticketModel.setStatus(ticketStatus);
+
+        if (ticketModel.getFirstRespondedAt() == null) {
+            ticketModel.setFirstRespondedAt(LocalDateTime.now(zoneId));
+        }
     }
 }

@@ -8,12 +8,14 @@ import com.opencu.bookit.domain.model.user.Role;
 import com.opencu.bookit.domain.model.user.UserModel;
 import com.opencu.bookit.domain.model.user.UserStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 @Service
@@ -22,6 +24,9 @@ public class UserService {
     private final SaveUserPort saveUserPort;
     private final DeleteUserPort deleteUserPort;
     private final LoadAuthorizationInfoPort loadAuthorizationInfoPort;
+
+    @Value("${booking.zone-id}")
+    private ZoneId zoneId;
 
     @Autowired
     public UserService(LoadUserPort loadUserPort,
@@ -87,7 +92,7 @@ public class UserService {
             user.setRoles(rolesSet);
         }
         if (userStatus != null) user.setStatus(userStatus);
-        user.setUpdatedAt(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now(zoneId));
         return saveUserPort.save(user);
     }
 

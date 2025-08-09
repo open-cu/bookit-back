@@ -106,7 +106,10 @@ public class TicketControllerV1 {
             TicketResponse ticketResponse = ticketResponseMapper.toResponse(ticketService.patchById(
                     ticketId,
                     patchTicketRequest.type(),
-                    patchTicketRequest.description()
+                    patchTicketRequest.description(),
+                    patchTicketRequest.priority(),
+                    patchTicketRequest.status(),
+                    patchTicketRequest.reason()
             ));
             return ResponseEntity.ok(ticketResponse);
         }
