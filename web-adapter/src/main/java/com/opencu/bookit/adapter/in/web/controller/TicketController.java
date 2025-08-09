@@ -4,6 +4,8 @@ import com.opencu.bookit.adapter.in.web.dto.response.TicketResponse;
 import com.opencu.bookit.adapter.in.web.mapper.TicketResponseMapper;
 import com.opencu.bookit.application.service.ticket.TicketService;
 import com.opencu.bookit.domain.model.ticket.TicketModel;
+import com.opencu.bookit.domain.model.ticket.TicketPriority;
+import com.opencu.bookit.domain.model.ticket.TicketStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +22,11 @@ public class TicketController {
         this.ticketResponseMapper = ticketResponseMapper;
     }
 
-    @Operation(description = "Create new ticket")
+    @Operation(
+            summary = "Create new ticket",
+            description = "priority and status are null because they are not" +
+                    " provided in the current API"
+    )
     @PostMapping
     public ResponseEntity<TicketResponse> createTicket(@RequestBody CreateTicketRequest ticketDTO) {
         TicketModel createdTicket = ticketService.createTicket(
@@ -28,8 +34,8 @@ public class TicketController {
                 ticketDTO.areaId(),
                 ticketDTO.type(),
                 ticketDTO.description(),
-                ticketDTO.priority(),
-                ticketDTO.status()
+                TicketPriority.DEFAULT,
+                TicketStatus.OPEN
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(ticketResponseMapper.toResponse(createdTicket));
     }

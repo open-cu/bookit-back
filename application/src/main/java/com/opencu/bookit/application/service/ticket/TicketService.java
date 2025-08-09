@@ -107,6 +107,7 @@ public class TicketService {
         TicketModel ticket = ticketOpt.get();
         if (type != null) ticket.setType(type);
         if (description != null) ticket.setDescription(description);
+        ticket.setUpdatedAt(LocalDateTime.now());
         return saveTicketPort.save(ticket);
     }
 

@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
-public record CreateTicketRequest(
+public record CreateTicketRequestV1(
         @NotNull
         UUID userId,
 
@@ -18,5 +18,11 @@ public record CreateTicketRequest(
         @NotNull
         TicketType type,
 
-        String description
-        ) {}
+        String description,
+
+        @Nullable
+        TicketPriority priority,
+
+        @Nullable
+        TicketStatus status
+) {}

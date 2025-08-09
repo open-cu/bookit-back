@@ -1,6 +1,7 @@
 package com.opencu.bookit.adapter.in.web.controller.v1;
 
 import com.opencu.bookit.adapter.in.web.dto.request.CreateTicketRequest;
+import com.opencu.bookit.adapter.in.web.dto.request.CreateTicketRequestV1;
 import com.opencu.bookit.adapter.in.web.dto.request.PatchTicketRequest;
 import com.opencu.bookit.adapter.in.web.dto.response.TicketResponse;
 import com.opencu.bookit.adapter.in.web.mapper.TicketResponseMapper;
@@ -35,7 +36,7 @@ public class TicketControllerV1 {
 
     @Operation(summary = "Create new ticket")
     @PostMapping
-    public ResponseEntity<TicketResponse> createTicket(@RequestBody CreateTicketRequest ticketDTO) {
+    public ResponseEntity<TicketResponse> createTicket(@RequestBody CreateTicketRequestV1 ticketDTO) {
         TicketModel createdTicket = ticketService.createTicket(
                 ticketDTO.userId(),
                 ticketDTO.areaId(),

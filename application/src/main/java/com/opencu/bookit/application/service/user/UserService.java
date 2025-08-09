@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -86,6 +87,7 @@ public class UserService {
             user.setRoles(rolesSet);
         }
         if (userStatus != null) user.setStatus(userStatus);
+        user.setUpdatedAt(LocalDateTime.now());
         return saveUserPort.save(user);
     }
 
