@@ -126,26 +126,47 @@ public class TicketService {
         return loadTicketPort.findWithFilters(startDate, endDate, search, type, pageable);
     }
 
-    private void setStatusWithAdditionalReason(TicketStatus ticketStatus, String reason, TicketModel ticketModel) {
-        if (ticketModel.getStatus().isTerminal()) {
-            throw new IllegalArgumentException("terminal status " + ticketModel.getStatus() + " is already set and cannot be changed");
-        }
+    private void setStatusWithAdditionalReason(TicketStatus newStatus, String reason, TicketModel ticketModel) {
+        validateStatusChange(ticketModel, newStatus);
+        handleReason(newStatus, reason, ticketModel);
+        updateTimestamps(newStatus, ticketModel);
+        ticketModel.setStatus(newStatus);
+        setFirstRespondedIfNeeded(ticketModel);
+    }
 
-        if (ticketStatus.isTerminal()) {
-            ticketModel.setClosedAt(LocalDateTime.now(zoneId));
+    private void validateStatusChange(TicketModel ticketModel, TicketStatus newStatus) {
+        if (ticketModel.getStatus().isTerminal()) {
+            throw new IllegalArgumentException(
+                    "Terminal status " + ticketModel.getStatus() + " is already set and cannot be changed"
+            );
         }
-        if (ticketStatus.needsReason()) {
-            if (reason == null) {
-                throw new IllegalArgumentException("reason cannot be null if status "  + ticketStatus.name() + " is reasonable");
+        ticketModel.setStatus(newStatus);
+    }
+
+    private void handleReason(TicketStatus status, String reason, TicketModel ticketModel) {
+        if (status.needsReason()) {
+            if (reason == null || reason.isBlank()) {
+                throw new IllegalArgumentException(
+                        "Reason cannot be null or blank if status " + status.name() + " requires reason"
+                );
             }
             ticketModel.setReason(reason);
+        } else {
+            ticketModel.setReason(null);
         }
-        if (ticketStatus.isResolved()) {
+    }
+
+    private void updateTimestamps(TicketStatus status, TicketModel ticketModel) {
+        if (status.isTerminal()) {
+            ticketModel.setClosedAt(LocalDateTime.now(zoneId));
+        }
+        if (status.isResolved()) {
             ticketModel.setResolvedAt(LocalDateTime.now(zoneId));
         }
+        ticketModel.setUpdatedAt(LocalDateTime.now(zoneId));
+    }
 
-        ticketModel.setStatus(ticketStatus);
-
+    private void setFirstRespondedIfNeeded(TicketModel ticketModel) {
         if (ticketModel.getFirstRespondedAt() == null) {
             ticketModel.setFirstRespondedAt(LocalDateTime.now(zoneId));
         }
