@@ -4,6 +4,7 @@ import com.opencu.bookit.application.port.out.statstics.LoadBookingStatsPort;
 import com.opencu.bookit.application.port.out.statstics.LoadHallOccupancyPort;
 import com.opencu.bookit.domain.model.statistics.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,6 +24,12 @@ public class StatsService {
 
     private final LoadBookingStatsPort loadBookingStatsPort;
     private final LoadHallOccupancyPort  loadHallOccupancyPort;
+
+    @Value("${booking.start-work}")
+    private int startWorkHour;
+
+    @Value("${booking.end-work}")
+    private int endWorkHour;
 
     public List<BookingStats> getBookingStats(LocalDate startDate,
                                               LocalDate endDate,
@@ -162,7 +169,7 @@ public class StatsService {
                         result -> ((Number) result[1]).longValue()
                 ));
 
-        return IntStream.rangeClosed(8, 20)
+        return IntStream.range(startWorkHour, endWorkHour)
                 .mapToObj(hour -> new BusiestHours(
                         hour,
                         hourToCountMap.getOrDefault(hour, 0L)
@@ -189,7 +196,7 @@ public class StatsService {
                         Collectors.summingLong(HallOccupancyModel::getReservedPlaces)
                 ));
 
-        return IntStream.rangeClosed(8, 20)
+        return IntStream.range(startWorkHour, endWorkHour)
                 .mapToObj(hour -> new BusiestHours(
                         hour,
                         hourToCountMap.getOrDefault(hour, 0L)
