@@ -188,11 +188,11 @@ public class StatsControllerV1 {
             description = "Returns busiest hours statistics for visualization",
             parameters = {
                     @Parameter(
-                            name = "areaName",
-                            description = "Optional area name to filter by. If not provided, statistics for 'Open Space' area will be returned by default",
-                            example = "Meeting Room Alpha",
+                            name = "areaNames",
+                            description = "Optional list of area names to filter by. If not provided, statistics for all areas will be returned",
+                            example = "[\"Meeting Room Alpha\", \"Quiet Zone\"]",
                             in = ParameterIn.QUERY,
-                            schema = @Schema(type = "string")
+                            schema = @Schema(type = "array", implementation = String.class)
                     )
             }
     )
@@ -200,7 +200,7 @@ public class StatsControllerV1 {
     public ResponseEntity<List<BusiestHours>> getBusiestHours(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam(required = false) String areaName) {
+            @RequestParam(required = false) List<String> areaNames) {
 
         if (startDate.isAfter(endDate)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -208,15 +208,10 @@ public class StatsControllerV1 {
         }
 
         try {
-            List<BusiestHours> stats;
-            if (areaName == null) {
-                stats = statsService.getBusiestHoursForHall(startDate, endDate);
-            } else {
-                stats = statsService.getBusiestHoursStats(
-                        startDate.atStartOfDay(),
-                        endDate.atTime(23, 59, 59),
-                        areaName);
-            }
+            List<BusiestHours> stats = statsService.getBusiestHoursStats(
+                startDate.atStartOfDay(),
+                endDate.atTime(23, 59, 59),
+                areaNames);
             return ResponseEntity.ok(stats);
         } catch (DataAccessException e) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
