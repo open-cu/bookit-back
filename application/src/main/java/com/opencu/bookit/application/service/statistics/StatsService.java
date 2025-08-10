@@ -150,10 +150,11 @@ public class StatsService {
     public List<BusiestHours> getBusiestHoursStats(
             LocalDateTime start,
             LocalDateTime end,
-            String areaName
+            List<String> areaNames
     ) {
-        List<Object[]> results = loadBookingStatsPort.findBusiestHours(
-                start, end, areaName);
+        List<Object[]> results = areaNames == null || areaNames.isEmpty()
+                ? loadBookingStatsPort.findBusiestHoursByArea(start, end)
+                : loadBookingStatsPort.findBusiestHoursByAreaAndNames(start, end, areaNames);
 
         Map<Integer, Long> hourToCountMap = results.stream()
                 .collect(Collectors.toMap(

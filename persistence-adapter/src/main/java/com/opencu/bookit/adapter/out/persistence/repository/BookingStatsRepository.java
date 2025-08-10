@@ -137,18 +137,37 @@ public interface BookingStatsRepository extends JpaRepository<BookingEntity, UUI
     ) h
     LEFT JOIN bookings b ON
         h.hours = EXTRACT(HOUR FROM b.start_time)
-        AND b.start_time BETWEEN CAST(:start AS TIMESTAMP) AND
-                CAST(:end AS TIMESTAMP)
-        AND (:areaName IS NULL OR b.area_id IN (
-            SELECT id FROM areas WHERE name = :areaName
-        ))
+        AND b.start_time BETWEEN :start AND :end
     GROUP BY h.hours
     ORDER BY h.hours
     """, nativeQuery = true)
-    List<Object[]> findBusiestHours(
+    List<Object[]> findBusiestHoursByArea(
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end);
+
+    @Query(value = """
+    SELECT
+        h.hours AS hour_of_day,
+        COUNT(b.id) AS bookings_count
+    FROM (
+        SELECT 8 AS hours UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL
+        SELECT 11 UNION ALL SELECT 12 UNION ALL SELECT 13 UNION ALL
+        SELECT 14 UNION ALL SELECT 15 UNION ALL SELECT 16 UNION ALL
+        SELECT 17 UNION ALL SELECT 18 UNION ALL SELECT 19 UNION ALL SELECT 20
+    ) h
+    LEFT JOIN bookings b ON
+        h.hours = EXTRACT(HOUR FROM b.start_time)
+        AND b.start_time BETWEEN :start AND :end
+        AND b.area_id IN (
+           SELECT id FROM areas WHERE name IN :areaNames
+       )
+    GROUP BY h.hours
+    ORDER BY h.hours
+    """, nativeQuery = true)
+    List<Object[]> findBusiestHoursByAreaAndNames(
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end,
-            @Param("areaName") String areaName);
+            @Param("areaNames") List<String> areaNames);
 
     @Query(value = """
         WITH event_pairs AS (
