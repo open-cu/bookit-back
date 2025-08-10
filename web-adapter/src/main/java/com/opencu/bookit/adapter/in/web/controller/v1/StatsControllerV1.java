@@ -208,15 +208,10 @@ public class StatsControllerV1 {
         }
 
         try {
-            List<BusiestHours> stats;
-            if (areaNames == null || areaNames.isEmpty()) {
-                stats = statsService.getBusiestHoursForHall(startDate, endDate);
-            } else {
-                stats = statsService.getBusiestHoursStats(
-                        startDate.atStartOfDay(),
-                        endDate.atTime(23, 59, 59),
-                        areaNames);
-            }
+            List<BusiestHours> stats = statsService.getBusiestHoursStats(
+                startDate.atStartOfDay(),
+                endDate.atTime(23, 59, 59),
+                areaNames);
             return ResponseEntity.ok(stats);
         } catch (DataAccessException e) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,

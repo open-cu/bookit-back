@@ -136,7 +136,8 @@ public interface BookingStatsRepository extends JpaRepository<BookingEntity, UUI
         SELECT 17 UNION ALL SELECT 18 UNION ALL SELECT 19 UNION ALL SELECT 20
     ) h
     LEFT JOIN bookings b ON
-        h.hours = EXTRACT(HOUR FROM b.start_time)
+        h.hours >= EXTRACT(HOUR FROM b.start_time)
+        AND h.hours < EXTRACT(HOUR FROM b.end_time)
         AND b.start_time BETWEEN :start AND :end
     GROUP BY h.hours
     ORDER BY h.hours
@@ -156,7 +157,8 @@ public interface BookingStatsRepository extends JpaRepository<BookingEntity, UUI
         SELECT 17 UNION ALL SELECT 18 UNION ALL SELECT 19 UNION ALL SELECT 20
     ) h
     LEFT JOIN bookings b ON
-        h.hours = EXTRACT(HOUR FROM b.start_time)
+        h.hours >= EXTRACT(HOUR FROM b.start_time)
+        AND h.hours < EXTRACT(HOUR FROM b.end_time)
         AND b.start_time BETWEEN :start AND :end
         AND b.area_id IN (
            SELECT id FROM areas WHERE name IN :areaNames
