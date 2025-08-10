@@ -128,7 +128,7 @@ public interface BookingStatsRepository extends JpaRepository<BookingEntity, UUI
     @Query(value = """
     SELECT
         h.hours AS hour_of_day,
-        COUNT(b.id) AS bookings_count
+        COALESCE(SUM(b.quantity), 0) AS total_quantity
     FROM (
         SELECT 8 AS hours UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL
         SELECT 11 UNION ALL SELECT 12 UNION ALL SELECT 13 UNION ALL
@@ -149,7 +149,7 @@ public interface BookingStatsRepository extends JpaRepository<BookingEntity, UUI
     @Query(value = """
     SELECT
         h.hours AS hour_of_day,
-        COUNT(b.id) AS bookings_count
+        COALESCE(SUM(b.quantity), 0) AS total_quantity
     FROM (
         SELECT 8 AS hours UNION ALL SELECT 9 UNION ALL SELECT 10 UNION ALL
         SELECT 11 UNION ALL SELECT 12 UNION ALL SELECT 13 UNION ALL
