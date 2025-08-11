@@ -76,16 +76,15 @@ public class BookingValidationService {
             }
             
             Set<LocalDateTime> timeSlots = getHourlySlots(time);
-
-            if (rulesToApply.contains(ValidationRule.VALIDATE_AREA_AVAILABILITY)) {
-                if (!availabilityService.isAreaAvailable(command.areaId(), timeSlots)) {
-                        throw new IllegalArgumentException("Area is not available for booking in the selected time period.");
+            if (rulesToApply.contains(ValidationRule.VALIDATE_USER_BOOKING_CONFLICTS)) {
+                if (hasExistingBookings(command.userId(), timeSlots, Optional.empty())) {
+                    throw new IllegalArgumentException("You already have a booking in the selected time period.");
                 }
             }
 
-            if (rulesToApply.contains(ValidationRule.VALIDATE_USER_BOOKING_CONFLICTS)) {
-                if (hasExistingBookings(command.userId(), timeSlots)) {
-                        throw new IllegalArgumentException("You already have a booking in the selected time period.");
+            if (rulesToApply.contains(ValidationRule.VALIDATE_AREA_AVAILABILITY)) {
+                if (!availabilityService.isAreaAvailable(command.areaId(), timeSlots, Optional.empty())) {
+                        throw new IllegalArgumentException("Area is not available for booking in the selected time period.");
                 }
             }
         }
@@ -99,11 +98,12 @@ public class BookingValidationService {
         return slots;
     }
 
-    private boolean hasExistingBookings(UUID userId, Set<LocalDateTime> times) {
+    private boolean hasExistingBookings(UUID userId, Set<LocalDateTime> times, Optional<BookingModel> excludedBooking) {
         for (LocalDateTime time : times) {
             List<BookingModel> bookingModels = loadBookingPort.findAllIncludingTime(time);
             boolean hasBooking = bookingModels.stream()
-                    .anyMatch(b -> b.getUserId().equals(userId) && b.getStatus() == BookingStatus.CONFIRMED);
+                    .anyMatch(b -> b.getUserId().equals(userId) && b.getStatus() == BookingStatus.CONFIRMED &&
+                                   (excludedBooking.isEmpty() || !b.getId().equals(excludedBooking.get().getId())));
             if (hasBooking) {
                 return true;
             }
@@ -112,11 +112,29 @@ public class BookingValidationService {
     }
 
     public void validateBooking(UUID bookingId, CRUDBookingUseCase.UpdateBookingQuery command, Set<ValidationRule> rulesToApply) {
+        BookingModel bookingModel = loadBookingPort.findById(bookingId).orElseThrow(() -> new IllegalArgumentException("Booking with this id was not found"));
+
+        Set<ValidationRule> modifiedRules = new HashSet<>(rulesToApply);
+
+        Set<LocalDateTime> timeSlots = getHourlySlots(Pair.of(command.startTime(), command.endTime()));
+        if (modifiedRules.contains(ValidationRule.VALIDATE_USER_BOOKING_CONFLICTS)) {
+            modifiedRules.remove(ValidationRule.VALIDATE_USER_BOOKING_CONFLICTS);
+            if (hasExistingBookings(bookingModel.getUserId(), timeSlots, Optional.of(bookingModel))) {
+                throw new IllegalArgumentException("You already have a booking in the selected time period.");
+            }
+        }
+        if (modifiedRules.contains(ValidationRule.VALIDATE_AREA_AVAILABILITY)) {
+            modifiedRules.remove(ValidationRule.VALIDATE_AREA_AVAILABILITY);
+            if (!availabilityService.isAreaAvailable(command.areaId(), timeSlots, Optional.of(bookingModel))) {
+                throw new IllegalArgumentException("Area is not available for booking in the selected time period.");
+            }
+        }
+
         validateBooking(new CRUDBookingUseCase.CreateBookingCommand(
-                loadBookingPort.findById(bookingId).orElseThrow(() -> new IllegalArgumentException("Booking with this id was not found")).getUserId(),
+                bookingModel.getUserId(),
                 command.areaId(),
                 Set.of(Pair.of(command.startTime(), command.endTime())),
                 1
-        ), rulesToApply);
+        ), modifiedRules);
     }
 }

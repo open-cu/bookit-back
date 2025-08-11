@@ -106,7 +106,8 @@ public class AvailabilityService {
         return availableTime;
     }
 
-    private boolean isAreaAvailable(LocalDateTime currHour, List<BookingModel> bookingModels, AreaModel areaModel) {
+    private boolean isAreaAvailable(LocalDateTime currHour, List<BookingModel> bookingModels, AreaModel areaModel, Optional<BookingModel> excludeBooking) {
+        excludeBooking.ifPresent(bookingModel -> bookingModels.removeIf(b -> b.getId().equals(bookingModel.getId())));
         if (areaModel.getType() != AreaType.WORKPLACE) {
             UUID areaId = areaModel.getId();
             return bookingModels.stream().noneMatch(b -> bookingIncludeHour(currHour, b) &&
@@ -116,20 +117,25 @@ public class AvailabilityService {
             UUID userId = loadAuthorizationInfoPort.getCurrentUser().getId();
             if (hallOccupancy.isPresent() && bookingModels.stream().noneMatch(b -> b.getUserId().equals(userId)
                     && bookingIncludeHour(currHour, b))) {
+                if (excludeBooking.isPresent() && excludeBooking.get().getAreaId().equals(areaModel.getId())
+                && bookingIncludeHour(currHour, excludeBooking.get())) {
+                    return hallOccupancy.get().getReservedPlaces() - 1 < bookingConfig.getHallMaxCapacity();
+                }
                 return hallOccupancy.get().getReservedPlaces() < bookingConfig.getHallMaxCapacity();
             }
         }
         return false;
     }
 
-    public boolean isAreaAvailable(UUID areaId, Set<LocalDateTime> timeSlots) {
+    public boolean isAreaAvailable(UUID areaId, Set<LocalDateTime> timeSlots, Optional<BookingModel> excludeBooking) {
         AreaModel area = loadAreaPort.findById(areaId).orElseThrow(() -> new NoSuchElementException("Area not found with id: " + areaId));
         for (LocalDateTime time : timeSlots) {
             List<BookingModel> bookingModels = loadBookingPort.findAllIncludingTime(time);
             if (bookingModels.isEmpty()) {
                 continue;
             }
-            if (!isAreaAvailable(time, bookingModels, area)) {
+
+            if (!isAreaAvailable(time, bookingModels, area, excludeBooking)) {
                 return false;
             }
         }
@@ -213,7 +219,7 @@ public class AvailabilityService {
         for (long i = bookingConfig.getStartWork(); i < bookingConfig.getEndWork(); ++i) {
             LocalDateTime currHour = date.atTime((int)i, 0);
             LocalDateTime nextHour = currHour.plusHours(1);
-            if (isAreaAvailable(currHour, bookingModels, areaModel)) {
+            if (isAreaAvailable(currHour, bookingModels, areaModel, Optional.empty())) {
                 Pair<LocalDateTime, LocalDateTime> pair = Pair.of(currHour, nextHour);
                 List<Pair<LocalDateTime, LocalDateTime>> addList = pair.getFirst().getHour() < 12 ? availableTime.get(0) : pair.getFirst().getHour() < 18 ? availableTime.get(1) : availableTime.get(2);
                 LocalDateTime now = LocalDateTime.now(bookingConfig.getZoneId());
