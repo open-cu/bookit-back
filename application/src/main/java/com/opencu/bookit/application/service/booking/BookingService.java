@@ -276,4 +276,10 @@ public class BookingService {
     public void deleteBookingAccordingToIndirectParameters(UUID userId, UUID areaId, LocalDateTime startTime, LocalDateTime endTime) {
         deleteBookingPort.deleteBookingAccordingToIndirectParameters(userId, areaId, startTime, endTime);
     }
+
+    @Transactional
+    public BookingModel updateBookingAccordingToIndirectParameters(CRUDBookingUseCase.UpdateBookingQuery updateBookingQuery, Set<ValidationRule> rulesToApply, UUID userId, UUID areaId, LocalDateTime startTime, LocalDateTime endTime) {
+        BookingModel bookingModelOptional = loadBookingPort.findByIndirectParameters(userId, areaId, startTime, endTime).orElseThrow(() -> new NoSuchElementException("Booking of user:" + userId + "not found"));
+        return updateBooking(bookingModelOptional.getId(), updateBookingQuery, rulesToApply);
+    }
 }

@@ -179,6 +179,23 @@ public class EventService {
         eventModel.setEndTime(endTime);
         eventModel.setAreaModel(loadAreaPort.findById(areaId)
                 .orElseThrow(() -> new NoSuchElementException("No such area " + areaId + " found")));
+
+        EventModel event = loadEventPort.findById(eventId)
+                .orElseThrow(() -> new NoSuchElementException("No such event " + eventId + " found"));
+        Set<UserModel> users = event.getUserModels();
+
+        CRUDBookingUseCase.UpdateBookingQuery updateBookingQuery = new CRUDBookingUseCase.UpdateBookingQuery(
+                event.getAreaModel().getId(),
+                event.getStartTime(),
+                event.getEndTime()
+        );
+
+        for (UserModel user : users) {
+            bookingService.updateBookingAccordingToIndirectParameters(updateBookingQuery, Set.of(), user.getId(), event.getAreaModel().getId(),
+                    event.getStartTime(), event.getEndTime());
+            notificationService.cancelNotification(user.getId(), eventId);
+        }
+
         return saveEventPort.save(eventModel);
     }
 

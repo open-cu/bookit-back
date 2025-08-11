@@ -115,6 +115,11 @@ public class BookingPersistenceAdapter implements
     }
 
     @Override
+    public Optional<BookingModel> findByIndirectParameters(UUID userId, UUID areaId, LocalDateTime startTime, LocalDateTime endTime) {
+        return bookingRepository.findByUserIdAndAreaIdAndStartTimeAndEndTime(userId, areaId, startTime, endTime).map(bookingMapper::toModel);
+    }
+
+    @Override
     public BookingModel save(BookingModel bookingModel) {
         BookingEntity entity = bookingMapper.toEntity(bookingModel);
         BookingEntity savedEntity = bookingRepository.save(entity);
