@@ -9,6 +9,7 @@ import com.opencu.bookit.application.port.out.user.LoadAuthorizationInfoPort;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.application.service.booking.BookingService;
 import com.opencu.bookit.application.service.nofication.NotificationService;
+import com.opencu.bookit.domain.model.booking.ValidationRule;
 import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
 import com.opencu.bookit.domain.model.contentcategory.ContentTime;
 import com.opencu.bookit.domain.model.contentcategory.ParticipationFormat;
@@ -102,7 +103,9 @@ public class EventService {
                 Set.of(Pair.of(eventModel.getStartTime(), eventModel.getEndTime())),
                 1
         );
-        bookingService.createBooking(createBookingCommand, true, false);
+
+        Set<ValidationRule> rulesToApply = Set.of(ValidationRule.VALIDATE_TIME_RESTRICTIONS);
+        bookingService.createBooking(createBookingCommand, rulesToApply);
 
         EventNotification eventNotification = new EventNotification(
                 UUID.randomUUID(),
@@ -230,16 +233,15 @@ public class EventService {
         eventModel.setAreaModel(loadAreaPort.findById(areaId)
                 .orElseThrow(() -> new NoSuchElementException("No such area " + areaId + " found")));
 
-        eventModel = saveEventPort.save(eventModel);
-
         CRUDBookingUseCase.CreateBookingCommand createBookingCommand = new CRUDBookingUseCase.CreateBookingCommand(
                 loadAuthorizationInfoPort.getCurrentUser().getId(),
                 eventModel.getAreaModel().getId(),
                 Set.of(Pair.of(eventModel.getStartTime(), eventModel.getEndTime())),
                 0
         );
-
-        bookingService.createBooking(createBookingCommand, false, true);
+        Set<ValidationRule> rulesToApply = Set.of(ValidationRule.VALIDATE_TIME_RESTRICTIONS, ValidationRule.VALIDATE_AREA_AVAILABILITY);
+        bookingService.createBooking(createBookingCommand, rulesToApply);
+        eventModel = saveEventPort.save(eventModel);
 
         return eventModel;
     }

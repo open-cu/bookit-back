@@ -1,6 +1,6 @@
 package com.opencu.bookit.initializers;
 
-import com.opencu.bookit.application.port.out.schedule.LoadSchedulePort;
+import com.opencu.bookit.application.port.out.schedule.LoadNonWorkingDaySchedulePort;
 import com.opencu.bookit.application.port.out.schedule.SaveSchedulePort;
 import com.opencu.bookit.domain.model.schedule.DayStatus;
 import com.opencu.bookit.domain.model.schedule.ScheduleModel;
@@ -21,7 +21,7 @@ import java.time.ZoneId;
 @RequiredArgsConstructor
 public class ScheduleInitializer implements ApplicationRunner {
 
-    private final LoadSchedulePort loadSchedulePort;
+    private final LoadNonWorkingDaySchedulePort loadNonWorkingDaySchedulePort;
     private final SaveSchedulePort saveSchedulePort;
 
     @Value("${booking.zone-id}")
@@ -41,7 +41,7 @@ public class ScheduleInitializer implements ApplicationRunner {
     }
 
     private void addDayIfWeekend(LocalDate date) {
-        if (loadSchedulePort.findById(date).isEmpty()) {
+        if (loadNonWorkingDaySchedulePort.findById(date).isEmpty()) {
             if (date.getDayOfWeek() == DayOfWeek.SATURDAY) {
                 ScheduleModel schedule = new ScheduleModel();
                 schedule.setDay_off(date);

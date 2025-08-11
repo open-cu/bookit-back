@@ -9,8 +9,10 @@ import com.opencu.bookit.adapter.in.web.mapper.BookingRequestMapper;
 import com.opencu.bookit.adapter.in.web.mapper.BookingResponseMapper;
 import com.opencu.bookit.application.port.in.booking.CRUDBookingUseCase;
 import com.opencu.bookit.application.port.out.user.LoadAuthorizationInfoPort;
+import com.opencu.bookit.application.service.booking.AvailabilityService;
 import com.opencu.bookit.application.service.booking.BookingService;
 import com.opencu.bookit.domain.model.booking.BookingModel;
+import com.opencu.bookit.domain.model.booking.ValidationRule;
 import com.opencu.bookit.domain.model.user.UserModel;
 import com.opencu.bookit.domain.model.user.UserStatus;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,20 +38,22 @@ public class BookingController {
     private final BookingRequestMapper bookingRequestMapper;
     private final BookingResponseMapper bookingResponseMapper;
     private final LoadAuthorizationInfoPort loadAuthorizationInfoPort;
+    private final AvailabilityService availabilityService;
 
     public BookingController(BookingService bookingService,
                              BookingRequestMapper bookingRequestMapper, BookingResponseMapper bookingResponseMapper,
-                             LoadAuthorizationInfoPort loadAuthorizationInfoPort) {
+                             LoadAuthorizationInfoPort loadAuthorizationInfoPort, AvailabilityService availabilityService) {
         this.bookingService = bookingService;
         this.bookingRequestMapper = bookingRequestMapper;
         this.bookingResponseMapper = bookingResponseMapper;
         this.loadAuthorizationInfoPort = loadAuthorizationInfoPort;
+        this.availabilityService = availabilityService;
     }
 
     @Operation(description = "Returns information in the list format about the available dates")
     @GetMapping("/available-date")
     public List<LocalDate> findAvailableDates(@RequestParam Optional<UUID> areaId) {
-        return bookingService.findAvailableDates(areaId);
+        return availabilityService.findAvailableDates(areaId);
     }
 
     @Operation(description = "Returns list of available time by startTime separated by ; (start_time;end_time)")
@@ -60,7 +64,7 @@ public class BookingController {
             @RequestParam(required = false) Optional<UUID> areaId,
             @RequestParam(required = false) Optional<UUID> bookingId) {
 
-        List<List<Pair<LocalDateTime, LocalDateTime>>> times = bookingService.findAvailableTime(date, areaId, bookingId);
+        List<List<Pair<LocalDateTime, LocalDateTime>>> times = availabilityService.findAvailableTime(date, areaId, bookingId);
         List<List<String>> result = new ArrayList<>();
 
         for (List<Pair<LocalDateTime, LocalDateTime>> l : times) {
@@ -80,7 +84,7 @@ public class BookingController {
     @GetMapping("/closest-available-time/{areaId}")
     public Set<String> findAvailableTimeByDate(
             @PathVariable UUID areaId) {
-        return bookingService.findClosestAvailableTimes(areaId).stream().map(timePair -> {
+        return availabilityService.findClosestAvailableTimes(areaId).stream().map(timePair -> {
             return timePair.getFirst() + ";" + timePair.getSecond();
         }).collect(Collectors.toCollection(TreeSet::new));
     }
@@ -95,7 +99,7 @@ public class BookingController {
         if (startTimes == null) {
             startTimes = new HashSet<>();
         }
-        List<UUID> availableAreas = bookingService.findAvailableAreas(startTimes);
+        List<UUID> availableAreas = availabilityService.findAvailableAreas(startTimes);
         return ResponseEntity.ok(availableAreas);
     }
 
@@ -139,7 +143,9 @@ public class BookingController {
                 request.quantity()
         );
 
-        List<BookingModel> createdBooking = bookingService.createBooking(actualRequest, false, false);
+        Set<ValidationRule> rulesToApply = Set.of(ValidationRule.VALIDATE_TIME_RESTRICTIONS, ValidationRule.VALIDATE_AREA_AVAILABILITY,
+                ValidationRule.VALIDATE_USER_OWNERSHIP, ValidationRule.VALIDATE_USER_BOOKING_CONFLICTS);
+        List<BookingModel> createdBooking = bookingService.createBooking(actualRequest, rulesToApply);
         List<ResponseEntity<BookingResponse>> result = new ArrayList<>();
 
         for (BookingModel b : createdBooking) {
@@ -161,7 +167,9 @@ public class BookingController {
                 throw new ProfileNotCompletedException("User profile is not completed. Please complete your profile before updating bookings.");
             }
 
-            BookingModel updatedBooking = bookingService.updateBooking(bookingId, bookingRequestMapper.toQuery(request), false);
+            Set<ValidationRule> rulesToApply = Set.of(ValidationRule.VALIDATE_AREA_AVAILABILITY, ValidationRule.VALIDATE_TIME_RESTRICTIONS,
+                    ValidationRule.VALIDATE_USER_OWNERSHIP, ValidationRule.VALIDATE_USER_BOOKING_CONFLICTS);
+            BookingModel updatedBooking = bookingService.updateBooking(bookingId, bookingRequestMapper.toQuery(request), rulesToApply);
             return ResponseEntity.ok(bookingResponseMapper.toResponse(updatedBooking));
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
