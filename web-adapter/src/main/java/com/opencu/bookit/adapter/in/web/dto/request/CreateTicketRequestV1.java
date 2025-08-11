@@ -3,17 +3,26 @@ package com.opencu.bookit.adapter.in.web.dto.request;
 import com.opencu.bookit.domain.model.ticket.TicketPriority;
 import com.opencu.bookit.domain.model.ticket.TicketStatus;
 import com.opencu.bookit.domain.model.ticket.TicketType;
-import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotNull;
 
-public record PatchTicketRequest(
-        @Schema(nullable = true)
+import java.util.UUID;
+
+public record CreateTicketRequestV1(
+        @NotNull
+        UUID userId,
+
+        @NotNull
+        UUID areaId,
+
+        @NotNull
         TicketType type,
-        @Schema(nullable = true)
+
         String description,
-        @Schema(nullable = true)
+
+        @Nullable
         TicketPriority priority,
-        @Schema(nullable = true)
-        TicketStatus status,
-        @Schema(nullable = true)
-        String reason
-){}
+
+        @Nullable
+        TicketStatus status
+) {}

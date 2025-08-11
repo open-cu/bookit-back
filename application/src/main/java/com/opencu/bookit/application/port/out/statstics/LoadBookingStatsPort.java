@@ -32,11 +32,14 @@ public interface LoadBookingStatsPort {
             LocalDateTime end,
             List<String> areaNames);
 
-    List<Object[]> findBusiestHours(
+    List<Object[]> findBusiestHoursByArea(
+            LocalDateTime start,
+            LocalDateTime end);
+
+    List<Object[]> findBusiestHoursByAreaAndNames(
             LocalDateTime start,
             LocalDateTime end,
-            String areaName
-    );
+            List<String> areaNames);
 
     List<Object[]> findEventOverlapPercentage();
     List<Object[]> findEventOverlapPercentage(UUID eventId1, UUID eventId2);
