@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  app-dev:
+  app-test:
     container_name: bookit-app-test
     build:
       context: .

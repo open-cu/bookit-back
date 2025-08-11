@@ -90,26 +90,37 @@ public class BookingPersistenceAdapter implements
     ) {
         Specification<BookingEntity> spec = Specification.where(null);
 
-        if (areaId != null && userId != null) {
-            Optional<AreaEntity> areaOpt = areaRepository.findById(areaId);
+        if (userId != null) {
             Optional<UserEntity> userOpt = userRepository.findById(userId);
-            if (areaOpt.isPresent() && userOpt.isPresent()) {
-                AreaEntity area = areaOpt.get();
+            if (userOpt.isPresent()) {
                 UserEntity user = userOpt.get();
                 spec = spec.and((root, query, cb) ->
-                    cb.and(
-                            cb.equal(root.get("areaEntity"), area),
-                            cb.equal(root.get("userEntity"), user)
-                    )
+                        cb.equal(root.get("userEntity"), user)
                 );
             }
         }
-        if (startDate != null && endDate != null) {
+
+        if (areaId != null) {
+            Optional<AreaEntity> areaOpt = areaRepository.findById(areaId);
+            if (areaOpt.isPresent()) {
+                AreaEntity area = areaOpt.get();
+                spec = spec.and((root, query, cb) ->
+                        cb.equal(root.get("areaEntity"), area)
+                );
+            }
+        }
+        if (startDate != null && endDate != null &&
+                (startDate.isBefore(endDate)
+                || (endDate.isEqual(startDate))
+                )
+        ) {
             spec = spec.and((root, query, cb) ->
                 cb.between(root.get("startTime"),
                         LocalDateTime.of(startDate, LocalTime.of(0,0,0)),
-                        LocalDateTime.of(endDate, LocalTime.of(0,0,0)))
+                        LocalDateTime.of(endDate, LocalTime.of(23,59,59)))
             );
+        } else if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("startDate " + startDate + " should be not empty and be before endDate " + endDate);
         }
         return bookingRepository.findAll(spec, pageable).map(bookingMapper::toModel);
     }

@@ -6,6 +6,7 @@ import com.opencu.bookit.domain.model.statistics.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,18 +25,22 @@ public class StatsService {
     private final LoadHallOccupancyPort  loadHallOccupancyPort;
 
     public List<BookingStats> getBookingStats(LocalDate startDate,
-                                              LocalDate endDate) {
-        List<Object[]> results = loadBookingStatsPort.findBookingStatsBetweenDates(
+                                              LocalDate endDate,
+                                              List<String> areaNames) {
+        List<Object[]> results = areaNames == null || areaNames.isEmpty()
+                ? loadBookingStatsPort.findBookingStatsBetweenDates(
                 startDate.atStartOfDay(),
-                endDate.atTime(23, 59, 59)
-                                                                                  );
+                endDate.atTime(23, 59, 59))
+                : loadBookingStatsPort.findBookingStatsBetweenDatesAndAreas(
+                startDate.atStartOfDay(),
+                endDate.atTime(23, 59, 59),
+                areaNames);
 
         return results.stream()
                 .map(result -> new BookingStats(
                         ((Date) result[0]).toLocalDate(),
                         (String) result[1],
-                        ((Long) result[2]),
-                        null
+                        ((Long) result[2])
                 ))
                 .collect(Collectors.toList());
     }
@@ -94,12 +99,17 @@ public class StatsService {
 
     public List<DayOfWeekStats> getBookingStatsByDayOfWeek(
             LocalDate startDate,
-            LocalDate endDate
+            LocalDate endDate,
+            List<String> areaNames
     ) {
-        List<Object[]> results = loadBookingStatsPort.findBookingStatsByDayOfWeek(
+        List<Object[]> results = areaNames == null || areaNames.isEmpty()
+                ? loadBookingStatsPort.findBookingStatsByDayOfWeek(
                 startDate.atStartOfDay(),
-                endDate.atTime(23, 59, 59)
-        );
+                endDate.atTime(23, 59, 59))
+                : loadBookingStatsPort.findBookingStatsByDayOfWeekAndAreas(
+                startDate.atStartOfDay(),
+                endDate.atTime(23, 59, 59),
+                areaNames);
 
         return results.stream()
                 .map(result -> new DayOfWeekStats(
@@ -113,12 +123,17 @@ public class StatsService {
 
     public List<CancellationStats> getCancellationStatsByArea(
             LocalDate startDate,
-            LocalDate endDate
+            LocalDate endDate,
+            List<String> areaNames
     ) {
-        List<Object[]> results = loadBookingStatsPort.findCancellationStatsByArea(
+        List<Object[]> results = areaNames == null || areaNames.isEmpty()
+                ? loadBookingStatsPort.findCancellationStatsByArea(
                 startDate.atStartOfDay(),
-                endDate.atTime(23, 59, 59)
-        );
+                endDate.atTime(23, 59, 59))
+                : loadBookingStatsPort.findCancellationStatsByAreaAndNames(
+                startDate.atStartOfDay(),
+                endDate.atTime(23, 59, 59),
+                areaNames);
 
         return results.stream()
                 .map(result -> new CancellationStats(
@@ -182,18 +197,27 @@ public class StatsService {
                 .collect(Collectors.toList());
     }
 
-    public List<EventOverlap> eventOverlapStats() {
-        List<Object[]> overlaps = loadBookingStatsPort.findEventOverlapPercentage();
+    public List<EventOverlap> eventOverlapStats(UUID eventId1, UUID eventId2) {
+        List<Object[]> overlaps;
+
+        if (eventId1 != null && eventId2 != null) {
+            overlaps = loadBookingStatsPort.findEventOverlapPercentage(eventId1, eventId2);
+        } else if (eventId1 != null) {
+            overlaps = loadBookingStatsPort.findEventOverlapPercentage(eventId1);
+        } else {
+            overlaps = loadBookingStatsPort.findEventOverlapPercentage();
+        }
+
         return overlaps.stream().map(overlap ->
                 new EventOverlap(
-                        (UUID) overlap[0],
+                        bytesToUUID((byte[]) overlap[0]),
                         (String) overlap[1],
-                        (UUID) overlap[2],
+                        bytesToUUID((byte[]) overlap[2]),
                         (String) overlap[3],
-                        (long) overlap[4],
-                        (long) overlap[5],
-                        (long) overlap[6],
-                        (double) overlap[7]
+                        (Long) overlap[4],
+                        (Long) overlap[5],
+                        (Long) overlap[6],
+                        (BigDecimal) overlap[7]
                 )
         ).collect(Collectors.toList());
     }
@@ -205,5 +229,9 @@ public class StatsService {
                         (String) newUser[0],
                         (long) newUser[1])
         ).collect(Collectors.toList());
+    }
+
+    private UUID bytesToUUID(byte[] bytes) {
+        return UUID.nameUUIDFromBytes(bytes);
     }
 }

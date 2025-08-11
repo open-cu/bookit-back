@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -136,5 +137,17 @@ public class GlobalExceptionHandler {
                 Map.of("errors", ex.getMessage())
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+    }
+
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<ApiError> handleDataAccessException(DataAccessException ex, WebRequest request) {
+        logger.warn("DataAccessException: {}", ex.getMessage());
+        ApiError apiError = buildError(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                ex.getMessage(),
+                request.getDescription(false).replace("uri=", ""),
+                Map.of("errors", ex.getMessage())
+        );
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(apiError);
     }
 }

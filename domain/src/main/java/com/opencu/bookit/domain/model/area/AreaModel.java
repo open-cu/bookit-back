@@ -20,7 +20,7 @@ public class AreaModel {
     private String name;
     private String description;
     private AreaType type;
-    private AreaFeature features;
+    private List<AreaFeature> features;
     private int capacity;
     private AreaStatus status;
     private List<String> keys;
