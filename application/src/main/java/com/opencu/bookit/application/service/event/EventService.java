@@ -189,11 +189,24 @@ public class EventService {
                 event.getStartTime(),
                 event.getEndTime()
         );
-
+        Set<ValidationRule> rulesToApply = Set.of(ValidationRule.VALIDATE_TIME_RESTRICTIONS, ValidationRule.VALIDATE_AREA_AVAILABILITY);
+        bookingService.updateBooking(eventModel.getSystemBooking().getId(), updateBookingQuery, rulesToApply);
         for (UserModel user : users) {
             bookingService.updateBookingAccordingToIndirectParameters(updateBookingQuery, Set.of(), user.getId(), event.getAreaModel().getId(),
                     event.getStartTime(), event.getEndTime());
             notificationService.cancelNotification(user.getId(), eventId);
+            EventNotification eventNotification = new EventNotification(
+                    UUID.randomUUID(),
+                    user.getId(),
+                    user.getEmail(),
+                    eventModel.getId(),
+                    eventModel.getName(),
+                    eventModel.getStartTime(),
+                    "Изменения в проведении мероприятия: " + eventModel.getName() +
+                            ". Новое время: " + eventModel.getStartTime() +
+                            ". Новое место: " + eventModel.getAreaModel().getName()
+            );
+            notificationService.sendEventNotificationNow(eventNotification);
         }
 
         return saveEventPort.save(eventModel);
@@ -213,11 +226,24 @@ public class EventService {
     public void deleteById(UUID eventId) {
         EventModel event = loadEventPort.findById(eventId)
                 .orElseThrow(() -> new NoSuchElementException("No such event " + eventId + " found"));
+
+        bookingService.deleteById(event.getSystemBooking().getId());
+
         Set<UserModel> users = event.getUserModels();
         for (UserModel user : users) {
             bookingService.deleteBookingAccordingToIndirectParameters(user.getId(), event.getAreaModel().getId(),
                     event.getStartTime(), event.getEndTime());
             notificationService.cancelNotification(user.getId(), eventId);
+            EventNotification eventNotification = new EventNotification(
+                    UUID.randomUUID(),
+                    user.getId(),
+                    user.getEmail(),
+                    event.getId(),
+                    event.getName(),
+                    event.getStartTime(),
+                    "Отменено мероприятие: " + event.getName()
+            );
+            notificationService.sendEventNotificationNow(eventNotification);
         }
         deleteEventPort.delete(eventId);
     }
@@ -256,10 +282,9 @@ public class EventService {
                 Set.of(Pair.of(eventModel.getStartTime(), eventModel.getEndTime())),
                 0
         );
-        Set<ValidationRule> rulesToApply = Set.of(ValidationRule.VALIDATE_TIME_RESTRICTIONS, ValidationRule.VALIDATE_AREA_AVAILABILITY);
-        bookingService.createBooking(createBookingCommand, rulesToApply);
-        eventModel = saveEventPort.save(eventModel);
 
-        return eventModel;
+        Set<ValidationRule> rulesToApply = Set.of(ValidationRule.VALIDATE_TIME_RESTRICTIONS, ValidationRule.VALIDATE_AREA_AVAILABILITY);
+        eventModel.setSystemBooking(bookingService.createBooking(createBookingCommand, rulesToApply).getFirst());
+        return saveEventPort.save(eventModel);
     }
 }
