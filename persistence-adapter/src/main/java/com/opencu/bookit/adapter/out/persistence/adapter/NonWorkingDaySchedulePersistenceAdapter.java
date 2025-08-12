@@ -2,7 +2,7 @@ package com.opencu.bookit.adapter.out.persistence.adapter;
 
 import com.opencu.bookit.adapter.out.persistence.mapper.ScheduleMapper;
 import com.opencu.bookit.adapter.out.persistence.repository.ScheduleRepository;
-import com.opencu.bookit.application.port.out.schedule.LoadSchedulePort;
+import com.opencu.bookit.application.port.out.schedule.LoadNonWorkingDaySchedulePort;
 import com.opencu.bookit.application.port.out.schedule.SaveSchedulePort;
 import com.opencu.bookit.domain.model.schedule.ScheduleModel;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class SchedulePersistenceAdapter implements LoadSchedulePort, SaveSchedulePort {
+public class NonWorkingDaySchedulePersistenceAdapter implements LoadNonWorkingDaySchedulePort, SaveSchedulePort {
 
     private final ScheduleRepository scheduleRepository;
     private final ScheduleMapper scheduleMapper;

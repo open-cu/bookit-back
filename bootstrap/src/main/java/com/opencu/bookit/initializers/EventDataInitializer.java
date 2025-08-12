@@ -1,10 +1,13 @@
 package com.opencu.bookit.initializers;
 
 import com.opencu.bookit.adapter.out.persistence.entity.AreaEntity;
+import com.opencu.bookit.adapter.out.persistence.entity.BookingEntity;
 import com.opencu.bookit.adapter.out.persistence.entity.EventEntity;
 import com.opencu.bookit.adapter.out.persistence.repository.AreaRepository;
+import com.opencu.bookit.adapter.out.persistence.repository.BookingRepository;
 import com.opencu.bookit.adapter.out.persistence.repository.EventRepository;
 import com.opencu.bookit.adapter.out.persistence.repository.UserRepository;
+import com.opencu.bookit.domain.model.booking.BookingStatus;
 import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,11 +28,13 @@ public class EventDataInitializer {
     private static final Logger log = LoggerFactory.getLogger(EventDataInitializer.class);
     private final AreaRepository areaRepository;
     private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
 
     @Autowired
-    public EventDataInitializer(AreaRepository areaRepository, UserRepository userRepository) {
+    public EventDataInitializer(AreaRepository areaRepository, UserRepository userRepository, BookingRepository bookingRepository) {
         this.areaRepository = areaRepository;
         this.userRepository = userRepository;
+        this.bookingRepository = bookingRepository;
     }
 
     @Bean
@@ -91,6 +96,17 @@ public class EventDataInitializer {
         event.setTimes(Set.of());
         event.setParticipationFormats(Set.of());
         event.setArea(area);
+
+        BookingEntity booking = new BookingEntity();
+        booking.setAreaEntity(area);
+        booking.setStartTime(startTime);
+        booking.setEndTime(startTime.plusHours(1));
+        booking.setQuantity(0);
+        booking.setUserEntity(userRepository.findAll().getFirst());
+        booking.setStatus(BookingStatus.CONFIRMED);
+        booking.setCreatedAt(LocalDateTime.now());
+
+        event.setSystemBooking(bookingRepository.save(booking));
         return event;
     }
 }

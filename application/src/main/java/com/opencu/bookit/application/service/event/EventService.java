@@ -9,6 +9,7 @@ import com.opencu.bookit.application.port.out.user.LoadAuthorizationInfoPort;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.application.service.booking.BookingService;
 import com.opencu.bookit.application.service.nofication.NotificationService;
+import com.opencu.bookit.domain.model.booking.ValidationRule;
 import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
 import com.opencu.bookit.domain.model.contentcategory.ContentTime;
 import com.opencu.bookit.domain.model.contentcategory.ParticipationFormat;
@@ -102,7 +103,9 @@ public class EventService {
                 Set.of(Pair.of(eventModel.getStartTime(), eventModel.getEndTime())),
                 1
         );
-        bookingService.createBooking(createBookingCommand, true, false);
+
+        Set<ValidationRule> rulesToApply = Set.of(ValidationRule.VALIDATE_TIME_RESTRICTIONS);
+        bookingService.createBooking(createBookingCommand, rulesToApply);
 
         EventNotification eventNotification = new EventNotification(
                 UUID.randomUUID(),
@@ -176,6 +179,36 @@ public class EventService {
         eventModel.setEndTime(endTime);
         eventModel.setAreaModel(loadAreaPort.findById(areaId)
                 .orElseThrow(() -> new NoSuchElementException("No such area " + areaId + " found")));
+
+        EventModel event = loadEventPort.findById(eventId)
+                .orElseThrow(() -> new NoSuchElementException("No such event " + eventId + " found"));
+        Set<UserModel> users = event.getUserModels();
+
+        CRUDBookingUseCase.UpdateBookingQuery updateBookingQuery = new CRUDBookingUseCase.UpdateBookingQuery(
+                event.getAreaModel().getId(),
+                event.getStartTime(),
+                event.getEndTime()
+        );
+        Set<ValidationRule> rulesToApply = Set.of(ValidationRule.VALIDATE_TIME_RESTRICTIONS, ValidationRule.VALIDATE_AREA_AVAILABILITY);
+        bookingService.updateBooking(eventModel.getSystemBooking().getId(), updateBookingQuery, rulesToApply);
+        for (UserModel user : users) {
+            bookingService.updateBookingAccordingToIndirectParameters(updateBookingQuery, Set.of(), user.getId(), event.getAreaModel().getId(),
+                    event.getStartTime(), event.getEndTime());
+            notificationService.cancelNotification(user.getId(), eventId);
+            EventNotification eventNotification = new EventNotification(
+                    UUID.randomUUID(),
+                    user.getId(),
+                    user.getEmail(),
+                    eventModel.getId(),
+                    eventModel.getName(),
+                    eventModel.getStartTime(),
+                    "Изменения в проведении мероприятия: " + eventModel.getName() +
+                            ". Новое время: " + eventModel.getStartTime() +
+                            ". Новое место: " + eventModel.getAreaModel().getName()
+            );
+            notificationService.sendEventNotificationNow(eventNotification);
+        }
+
         return saveEventPort.save(eventModel);
     }
 
@@ -193,11 +226,24 @@ public class EventService {
     public void deleteById(UUID eventId) {
         EventModel event = loadEventPort.findById(eventId)
                 .orElseThrow(() -> new NoSuchElementException("No such event " + eventId + " found"));
+
+        bookingService.deleteById(event.getSystemBooking().getId());
+
         Set<UserModel> users = event.getUserModels();
         for (UserModel user : users) {
             bookingService.deleteBookingAccordingToIndirectParameters(user.getId(), event.getAreaModel().getId(),
                     event.getStartTime(), event.getEndTime());
             notificationService.cancelNotification(user.getId(), eventId);
+            EventNotification eventNotification = new EventNotification(
+                    UUID.randomUUID(),
+                    user.getId(),
+                    user.getEmail(),
+                    event.getId(),
+                    event.getName(),
+                    event.getStartTime(),
+                    "Отменено мероприятие: " + event.getName()
+            );
+            notificationService.sendEventNotificationNow(eventNotification);
         }
         deleteEventPort.delete(eventId);
     }
@@ -230,8 +276,6 @@ public class EventService {
         eventModel.setAreaModel(loadAreaPort.findById(areaId)
                 .orElseThrow(() -> new NoSuchElementException("No such area " + areaId + " found")));
 
-        eventModel = saveEventPort.save(eventModel);
-
         CRUDBookingUseCase.CreateBookingCommand createBookingCommand = new CRUDBookingUseCase.CreateBookingCommand(
                 loadAuthorizationInfoPort.getCurrentUser().getId(),
                 eventModel.getAreaModel().getId(),
@@ -239,8 +283,8 @@ public class EventService {
                 0
         );
 
-        bookingService.createBooking(createBookingCommand, false, true);
-
-        return eventModel;
+        Set<ValidationRule> rulesToApply = Set.of(ValidationRule.VALIDATE_TIME_RESTRICTIONS, ValidationRule.VALIDATE_AREA_AVAILABILITY);
+        eventModel.setSystemBooking(bookingService.createBooking(createBookingCommand, rulesToApply).getFirst());
+        return saveEventPort.save(eventModel);
     }
 }

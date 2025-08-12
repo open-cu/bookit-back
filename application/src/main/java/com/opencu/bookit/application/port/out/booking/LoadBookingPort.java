@@ -27,4 +27,6 @@ public interface LoadBookingPort {
             UUID areaId,
             UUID userId
     );
+
+    Optional<BookingModel> findByIndirectParameters(UUID userId, UUID areaId, LocalDateTime startTime, LocalDateTime endTime);
 }

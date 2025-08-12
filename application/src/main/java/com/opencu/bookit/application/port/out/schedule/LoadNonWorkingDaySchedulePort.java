@@ -5,7 +5,7 @@ import com.opencu.bookit.domain.model.schedule.ScheduleModel;
 import java.time.LocalDate;
 import java.util.Optional;
 
-public interface LoadSchedulePort {
+public interface LoadNonWorkingDaySchedulePort {
     Optional<ScheduleModel> findByDate(LocalDate date);
     Optional<ScheduleModel> findById(LocalDate date);
 }

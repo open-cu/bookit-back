@@ -50,4 +50,7 @@ public interface BookingRepository extends JpaRepository<BookingEntity, UUID> {
     @Modifying
     @Query("DELETE FROM BookingEntity b WHERE b.userEntity.id = :userId AND b.areaEntity.id = :areaId AND b.startTime = :startTime AND b.endTime = :endTime")
     void deleteByUserIdAndAreaIdAndStartTimeAndEndTime(@Param("userId") UUID userId, @Param("areaId") UUID areaId, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
+
+    @Query("SELECT b FROM BookingEntity b WHERE b.userEntity.id = :userId AND b.areaEntity.id = :areaId AND b.startTime = :startTime AND b.endTime = :endTime")
+    Optional<BookingEntity> findByUserIdAndAreaIdAndStartTimeAndEndTime(@Param("userId") UUID userId, @Param("areaId") UUID areaId, @Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
 }

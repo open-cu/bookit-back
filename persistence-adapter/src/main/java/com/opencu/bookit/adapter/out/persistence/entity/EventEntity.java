@@ -60,8 +60,6 @@ public class EventEntity {
     @CollectionTable(name = "event_keys", joinColumns = @JoinColumn(name = "event_id"))
     @Column(nullable = false)
     private List<String> keys;
-
-
     /**
      * stands for start of the event
      */
@@ -85,4 +83,8 @@ public class EventEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "area_id")
     private AreaEntity area;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "system_booking_id")
+    private BookingEntity systemBooking;
 }

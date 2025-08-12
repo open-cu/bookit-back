@@ -9,9 +9,11 @@ import com.opencu.bookit.adapter.in.web.exception.ProfileNotCompletedException;
 import com.opencu.bookit.adapter.in.web.mapper.BookingRequestMapper;
 import com.opencu.bookit.adapter.in.web.mapper.BookingResponseMapper;
 import com.opencu.bookit.adapter.out.security.spring.service.SecurityService;
+import com.opencu.bookit.application.service.booking.AvailabilityService;
 import com.opencu.bookit.application.service.booking.BookingService;
 import com.opencu.bookit.adapter.out.security.spring.service.UserDetailsImpl;
 import com.opencu.bookit.domain.model.booking.BookingModel;
+import com.opencu.bookit.domain.model.booking.ValidationRule;
 import com.opencu.bookit.domain.model.user.UserStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -22,7 +24,6 @@ import org.springframework.data.util.Pair;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -37,13 +38,15 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v1/bookings")
 public class BookingControllerV1 {
     private final BookingService bookingService;
+    private final AvailabilityService availabilityService;
     private final BookingResponseMapper bookingResponseMapper;
     private final BookingRequestMapper bookingRequestMapper;
     private final SecurityService securityService;
 
-    public BookingControllerV1(BookingService bookingService,
+    public BookingControllerV1(BookingService bookingService, AvailabilityService availabilityService,
                                BookingResponseMapper bookingResponseMapper, BookingRequestMapper bookingRequestMapper, SecurityService securityService) {
         this.bookingService = bookingService;
+        this.availabilityService = availabilityService;
         this.bookingResponseMapper = bookingResponseMapper;
         this.bookingRequestMapper = bookingRequestMapper;
         this.securityService = securityService;
@@ -52,7 +55,7 @@ public class BookingControllerV1 {
     @Operation(summary = "Get available dates for area")
     @GetMapping("/availability/dates")
     public List<LocalDate> findAvailableDates(@RequestParam Optional<UUID> areaId) {
-        return bookingService.findAvailableDates(areaId);
+        return availabilityService.findAvailableDates(areaId);
     }
 
     @Operation(summary = "Get available times for a startTime and area")
@@ -62,7 +65,7 @@ public class BookingControllerV1 {
             @RequestParam Optional<UUID> areaId,
             @RequestParam(required = false) Optional<UUID> bookingId) {
 
-        List<List<Pair<LocalDateTime, LocalDateTime>>> times = bookingService.findAvailableTime(date, areaId, bookingId);
+        List<List<Pair<LocalDateTime, LocalDateTime>>> times = availabilityService.findAvailableTime(date, areaId, bookingId);
         List<List<String>> result = new ArrayList<>();
         for (List<Pair<LocalDateTime, LocalDateTime>> l : times) {
             List<String> formattedTimes = l.stream()
@@ -76,7 +79,7 @@ public class BookingControllerV1 {
     @Operation(summary = "Get closest available times for area")
     @GetMapping("/availability/closest-times")
     public Set<String> findClosestAvailableTimes(@RequestParam UUID areaId) {
-        return bookingService.findClosestAvailableTimes(areaId).stream()
+        return availabilityService.findClosestAvailableTimes(areaId).stream()
                              .map(timePair -> timePair.getFirst() + ";" + timePair.getSecond())
                              .collect(Collectors.toCollection(TreeSet::new));
     }
@@ -94,7 +97,7 @@ public class BookingControllerV1 {
         if (startTimes == null) {
             startTimes = new HashSet<>();
         }
-        List<UUID> availableAreas = bookingService.findAvailableAreas(startTimes);
+        List<UUID> availableAreas = availabilityService.findAvailableAreas(startTimes);
         return ResponseEntity.ok(availableAreas);
     }
 
@@ -177,7 +180,9 @@ public class BookingControllerV1 {
             }
         }
 
-        List<BookingModel> createdBooking = bookingService.createBooking(bookingRequestMapper.toCommand(request), false, false);
+        Set<ValidationRule> validationRules = Set.of(ValidationRule.VALIDATE_AREA_AVAILABILITY, ValidationRule.VALIDATE_TIME_RESTRICTIONS,
+                ValidationRule.VALIDATE_USER_OWNERSHIP, ValidationRule.VALIDATE_USER_BOOKING_CONFLICTS);
+        List<BookingModel> createdBooking = bookingService.createBooking(bookingRequestMapper.toCommand(request), validationRules);
         Set<ResponseEntity<BookingResponse>> result = new HashSet<>();
 
         for (BookingModel b : createdBooking) {
@@ -224,7 +229,8 @@ public class BookingControllerV1 {
                 throw new IllegalStateException("You cannot update booking for another user.");
             }
 
-            BookingModel updatedBooking = bookingService.updateBooking(bookingId, bookingRequestMapper.toQuery(request), false);
+            Set<ValidationRule> validateAreaAvailability = Set.of(ValidationRule.VALIDATE_AREA_AVAILABILITY, ValidationRule.VALIDATE_TIME_RESTRICTIONS, ValidationRule.VALIDATE_USER_OWNERSHIP, ValidationRule.VALIDATE_USER_BOOKING_CONFLICTS);
+            BookingModel updatedBooking = bookingService.updateBooking(bookingId, bookingRequestMapper.toQuery(request), validateAreaAvailability);
             return ResponseEntity.ok(bookingResponseMapper.toResponse(updatedBooking));
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();

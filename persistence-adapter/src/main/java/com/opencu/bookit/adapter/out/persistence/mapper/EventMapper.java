@@ -10,7 +10,7 @@ import java.util.List;
 
 @Mapper(componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
-        uses = {UserMapper.class, AreaMapper.class})
+        uses = {UserMapper.class, AreaMapper.class, BookingMapper.class})
 public interface EventMapper {
 
     @Mapping(target = "userModels", source = "users")
@@ -18,6 +18,7 @@ public interface EventMapper {
     @Mapping(target = "times", source = "times")
     @Mapping(target = "participationFormats", source = "participationFormats")
     @Mapping(target = "areaModel", source = "area")
+    @Mapping(target = "systemBooking", source = "systemBooking")
     EventModel toModel(EventEntity entity);
 
     @Mapping(target = "users", source = "userModels")
@@ -25,6 +26,7 @@ public interface EventMapper {
     @Mapping(target = "times", source = "times")
     @Mapping(target = "participationFormats", source = "participationFormats")
     @Mapping(target = "area", source = "areaModel")
+    @Mapping(target = "systemBooking", source = "systemBooking")
     EventEntity toEntity(EventModel model);
 
     List<EventModel> toModelList(List<EventEntity> entities);
