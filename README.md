@@ -1,5 +1,11 @@
 # bookit
 
+## Оглавление
+  * [Summary](/summary)
+  * [Режимы запуска](/режимы-запуска)
+  * [Настройка окружения](/настройка-окружения)
+  * [Technology Stack](/technology-stack)
+
 ## Summary
 Это - репозиторий с исходным кодом для серверной части приложения для удаленного бронирования мест в коворкинге
 
@@ -14,6 +20,8 @@
 
 ``` docker-compose -f docker-test.yaml up```
 
+## Настройка окружения
+Переменные окружения, как правило, "пробрасываются" с помощью github secrets. В случае, если проект запускается локально, необходимо "пробросить" переменные окружения вручную (например, создав профиль запуска в Intellij idea или поместив все переменные окружения в .env и введя команду ```source .env```)
 
 ## Technology Stack
 * ### Контейнеризация
@@ -26,6 +34,10 @@
   ![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
 
   Версия java (JDK) - 21
+
+* ### Вспомогательныет утилиты
+  ![Lombok](https://img.shields.io/badge/Lombok-%23FF6600?style=for-the-badge&logo=Lombok&logoColor=white)
+  ![MapStruct](https://img.shields.io/badge/MapStruct-%23FF6600?style=for-the-badge&logo=MapStruct&logoColor=white)
 
 * ### СУБД
   ![PostgreSQL](https://img.shields.io/badge/postgresql-4169e1?style=for-the-badge&logo=postgresql&logoColor=white)
