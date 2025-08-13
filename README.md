@@ -5,6 +5,7 @@
   * [Summary](#summary)
   * [Режимы запуска](#режимы-запуска)
   * [Настройка окружения](#настройка-окружения)
+  * [Ссылки на README.md в модулях](#ссылки-на-readmemd-в-модулях)
   * [Technology Stack](#technology-stack)
 
 ## Summary
@@ -23,6 +24,10 @@
 
 ## Настройка окружения
 Переменные окружения, как правило, "пробрасываются" с помощью github secrets. В случае, если проект запускается локально, необходимо "пробросить" переменные окружения вручную (например, создав профиль запуска в Intellij idea или поместив все переменные окружения в .env и введя команду ```source .env```)
+
+## Ссылки на README.MD в модулях
+ * [Ai-agent](/ai-agent-adapter/README.md)
+ * [Yandex Object Storage](/s3-adapter/src/main/java/com/opencu/bookit/adapter/out/s3_adapter/README.md)
 
 ## Technology Stack
 * ### Контейнеризация
