@@ -64,7 +64,7 @@ public class AiAgentAdapter implements SendAiRequestPort {
      */
     @Override
     public String sendPromptForHumanizing(String jsonString) {
-        ResponseEntity<AIResponse> response = getResponseEntity(jsonString, systemText);
+        ResponseEntity<AIResponse> response = getResponseEntity(jsonString, systemTextAnalyze);
         if (response.getStatusCode() == HttpStatus.OK) {
             return response.getBody() != null ? response.getBody().result().alternatives().getFirst().message().text() : null;
         }
