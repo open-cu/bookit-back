@@ -136,7 +136,9 @@ public class EventService {
                                           .orElseThrow(() -> new NoSuchElementException("User " + userId + " not found"));
         if (eventModel.getUserModels().remove(userModel)) {
             eventModel.setAvailable_places(eventModel.getAvailable_places() + 1);
+            eventModel.setSystemBooking(null);
             saveEventPort.save(eventModel);
+            saveEventPort.flush();
             bookingService.deleteBookingAccordingToIndirectParameters(userId, eventModel.getAreaModel().getId(),
                     eventModel.getStartTime(), eventModel.getEndTime());
             notificationService.cancelNotification(userId, eventModel.getId());
@@ -227,8 +229,9 @@ public class EventService {
         EventModel event = loadEventPort.findById(eventId)
                 .orElseThrow(() -> new NoSuchElementException("No such event " + eventId + " found"));
 
-        bookingService.deleteById(event.getSystemBooking().getId());
-
+        if (event.getSystemBooking() != null) {
+            bookingService.deleteById(event.getSystemBooking().getId());
+        }
         Set<UserModel> users = event.getUserModels();
         for (UserModel user : users) {
             bookingService.deleteBookingAccordingToIndirectParameters(user.getId(), event.getAreaModel().getId(),

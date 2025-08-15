@@ -134,6 +134,14 @@ public class EventPersistenceAdapter implements LoadEventPort,
         return eventMapper.toModel(savedEntity);
     }
 
+    /**
+     *
+     */
+    @Override
+    public void flush() {
+        eventRepository.flush();
+    }
+
     @Override
     public void delete(UUID eventId) {
         eventRepository.delete(eventId);
