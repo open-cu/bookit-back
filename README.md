@@ -45,7 +45,7 @@
   ![Docker](https://img.shields.io/badge/docker-257bd6?style=for-the-badge&logo=docker&logoColor=white)
   ![Docker Compose](https://img.shields.io/badge/docker--compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
-* ### Веб-фреймворк
+* ### Фреймворки
   ![Spring](https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=spring&logoColor=white)
   ![Spring Security](https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=spring-security&logoColor=white)
   ![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
@@ -56,10 +56,12 @@
 
 * ### Система сборки
   ![Maven](https://img.shields.io/badge/Maven-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white)
+  
 * ### Вспомогательныет утилиты
   ![Lombok](https://img.shields.io/badge/Lombok-%23FF6600?style=for-the-badge&logo=Lombok&logoColor=white)
   ![MapStruct](https://img.shields.io/badge/MapStruct-%23FF6600?style=for-the-badge&logo=MapStruct&logoColor=white)
   ![Logback](https://img.shields.io/badge/Logback-%23FF6600?style=for-the-badge&logo=Logback&logoColor=white)
+  ![Google ZXing](https://img.shields.io/badge/Google_ZXing-%23FF6600?style=for-the-badge&logo=google&logoColor=white)
 
 * ### СУБД
   ![PostgreSQL](https://img.shields.io/badge/postgresql-4169e1?style=for-the-badge&logo=postgresql&logoColor=white)
@@ -72,6 +74,7 @@
   ![Yandex Cloud](https://img.shields.io/badge/Yandex_Cloud-5282FF?style=for-the-badge&logo=yandexcloud&logoColor=white)
   ![Yandex Gpt](https://img.shields.io/badge/Yandex_Gpt-5282FF?style=for-the-badge&logo=yandexcloud&logoColor=white)
   ![Yandex Object Storage](https://img.shields.io/badge/Yandex_Object_Storage-5282FF?style=for-the-badge&logo=yandexcloud&logoColor=white)
+  ![Yandex Cloud Postbox](https://img.shields.io/badge/Yandex_cloud_postbox-5282FF?style=for-the-badge&logo=yandexcloud&logoColor=white)
 
 * ### Сбор и визуализация метрик и логов
   ![Grafana](https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white)
