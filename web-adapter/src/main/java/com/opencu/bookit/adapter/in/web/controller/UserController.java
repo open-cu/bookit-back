@@ -15,6 +15,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/user")
+@Deprecated
 public class UserController {
     private final UserService userService;
     private final LoadAuthorizationInfoPort loadAuthorizationInfoPort;

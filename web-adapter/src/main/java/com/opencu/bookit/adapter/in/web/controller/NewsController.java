@@ -11,6 +11,7 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/news")
+@Deprecated
 public class NewsController {
     private final NewsService newsService;
 
