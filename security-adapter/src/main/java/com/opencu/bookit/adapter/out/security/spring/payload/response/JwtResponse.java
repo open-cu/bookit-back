@@ -1,5 +1,6 @@
 package com.opencu.bookit.adapter.out.security.spring.payload.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.UUID;
@@ -10,6 +11,7 @@ public class JwtResponse {
     private final String type = "Bearer";
     private final UUID id;
     private final String username;
+    @Schema(nullable = true, description = "Email may be null")
     private final String email;
     private final String firstName;
     private final String lastName;
