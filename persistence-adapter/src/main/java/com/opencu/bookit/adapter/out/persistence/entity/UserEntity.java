@@ -65,6 +65,12 @@ public class UserEntity {
     @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewEntity> reviewEntities = new ArrayList<>();
 
+    @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BookingEntity> bookingEntities = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "users")
+    private Set<EventEntity> events = new HashSet<>();
+
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {
@@ -72,6 +78,15 @@ public class UserEntity {
         }
         if (status == null) {
             status = UserStatus.CREATED;
+        }
+    }
+
+    @PreRemove
+    private void removeUserFromEvents() {
+        for (EventEntity event : events) {
+            if (event.getUsers().remove(this)) {
+                event.setAvailable_places(event.getAvailable_places() + 1);
+            }
         }
     }
 }
