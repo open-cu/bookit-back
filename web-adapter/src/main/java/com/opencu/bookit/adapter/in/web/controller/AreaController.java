@@ -18,6 +18,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/areas")
+@Deprecated
 public class AreaController {
     private final AreaService areaService;
     private final AreaResponseMapper areaResponseMapper;

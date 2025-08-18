@@ -23,6 +23,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/events")
+@Deprecated
 public class EventController {
     private final EventService eventService;
     private final EventResponseMapper eventResponseMapper;

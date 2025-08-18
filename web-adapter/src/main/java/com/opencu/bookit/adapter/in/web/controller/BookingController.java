@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/booking-menu")
+@Deprecated
 public class BookingController {
     private final BookingService bookingService;
     private final BookingRequestMapper bookingRequestMapper;

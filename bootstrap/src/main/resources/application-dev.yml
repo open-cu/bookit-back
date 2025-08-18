@@ -1,17 +1,25 @@
 spring:
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:testdb
+    url: jdbc:h2:file:./bootstrap/src/main/resources/testdb
     username: sa
     password:
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
         format_sql: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration/dev
+    validate-on-migrate: true
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:file:./bootstrap/src/main/resources/testdb
+    user: sa
+    password:
 
   h2:
     console:
