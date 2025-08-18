@@ -8,6 +8,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+    env_file:
+      - .env
     volumes:
       - ~/.m2:/root/.m2
     networks:
