@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/ticket")
+@Deprecated
 public class TicketController {
     TicketService ticketService;
     TicketResponseMapper ticketResponseMapper;

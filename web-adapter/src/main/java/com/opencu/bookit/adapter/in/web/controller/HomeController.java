@@ -26,6 +26,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/home")
+@Deprecated
 public class HomeController {
     private final UserService userService;
     private final GenerateQrCodePort generateQrCodePort;
