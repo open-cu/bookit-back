@@ -4,7 +4,7 @@
 
 [Основное приложение](https://github.com/open-cu/bookit-back/wiki/User-Guide)
 
-[Админ-панель](https://github.com/open-cu/bookit-back/wiki/админ-панель)
+[Админ-панель](https://github.com/open-cu/bookit-back/wiki/Admin-panel-guide)
 
 ---
 
