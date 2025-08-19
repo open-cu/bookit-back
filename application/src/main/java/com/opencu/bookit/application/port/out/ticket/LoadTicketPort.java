@@ -1,6 +1,8 @@
 package com.opencu.bookit.application.port.out.ticket;
 
 import com.opencu.bookit.domain.model.ticket.TicketModel;
+import com.opencu.bookit.domain.model.ticket.TicketPriority;
+import com.opencu.bookit.domain.model.ticket.TicketStatus;
 import com.opencu.bookit.domain.model.ticket.TicketType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,5 +22,7 @@ public interface LoadTicketPort {
                                       LocalDate endDate,
                                       String  search,
                                       TicketType type,
+                                      TicketPriority priority,
+                                      TicketStatus status,
                                       Pageable pageable);
 }
