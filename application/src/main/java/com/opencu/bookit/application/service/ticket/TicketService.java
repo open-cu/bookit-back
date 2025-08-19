@@ -121,9 +121,11 @@ public class TicketService {
             LocalDate endDate,
             String search,
             TicketType type,
+            TicketPriority priority,
+            TicketStatus status,
             Pageable pageable
     ) {
-        return loadTicketPort.findWithFilters(startDate, endDate, search, type, pageable);
+        return loadTicketPort.findWithFilters(startDate, endDate, search, type, priority, status, pageable);
     }
 
     private void setStatusWithAdditionalReason(TicketStatus newStatus, String reason, TicketModel ticketModel) {

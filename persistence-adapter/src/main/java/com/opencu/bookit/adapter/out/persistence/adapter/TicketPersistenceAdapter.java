@@ -7,6 +7,8 @@ import com.opencu.bookit.application.port.out.ticket.DeleteTicketPort;
 import com.opencu.bookit.application.port.out.ticket.LoadTicketPort;
 import com.opencu.bookit.application.port.out.ticket.SaveTicketPort;
 import com.opencu.bookit.domain.model.ticket.TicketModel;
+import com.opencu.bookit.domain.model.ticket.TicketPriority;
+import com.opencu.bookit.domain.model.ticket.TicketStatus;
 import com.opencu.bookit.domain.model.ticket.TicketType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -47,7 +49,15 @@ public class TicketPersistenceAdapter implements SaveTicketPort, LoadTicketPort,
     }
 
     @Override
-    public Page<TicketModel> findWithFilters(LocalDate startDate, LocalDate endDate, String search, TicketType type, Pageable pageable) {
+    public Page<TicketModel> findWithFilters(
+            LocalDate startDate,
+            LocalDate endDate,
+            String search,
+            TicketType type,
+            TicketPriority priority,
+            TicketStatus status,
+            Pageable pageable
+    ) {
         Specification<TicketEntity> spec = Specification.where(null);
         if (type != null) {
             spec = spec.and((root, query, cb) ->
@@ -68,6 +78,19 @@ public class TicketPersistenceAdapter implements SaveTicketPort, LoadTicketPort,
                 cb.like(cb.lower(root.get("description")), "%" + search.toLowerCase() + "%")
             );
         }
+
+        if (status != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("status"), status)
+            );
+        }
+
+        if  (priority != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("priority"), priority)
+            );
+        }
+        
         return ticketRepository.findAll(spec, pageable)
                 .map(ticketMapper::toModel);
     }

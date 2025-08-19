@@ -7,6 +7,8 @@ import com.opencu.bookit.adapter.in.web.dto.response.TicketResponse;
 import com.opencu.bookit.adapter.in.web.mapper.TicketResponseMapper;
 import com.opencu.bookit.application.service.ticket.TicketService;
 import com.opencu.bookit.domain.model.ticket.TicketModel;
+import com.opencu.bookit.domain.model.ticket.TicketPriority;
+import com.opencu.bookit.domain.model.ticket.TicketStatus;
 import com.opencu.bookit.domain.model.ticket.TicketType;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Page;
@@ -55,12 +57,14 @@ public class TicketControllerV1 {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) TicketType type,
+            @RequestParam(required = false) TicketPriority priority,
+            @RequestParam(required = false) TicketStatus status,
             @RequestParam(defaultValue = "${pagination.default-page}") int page,
             @RequestParam(defaultValue = "${pagination.default-size}") int size
             ) {
         Sort.Direction direction = Sort.Direction.ASC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "type"));
-        Page<TicketResponse> tickets = ticketService.findWithFilters(startDate, endDate, search, type, pageable)
+        Page<TicketResponse> tickets = ticketService.findWithFilters(startDate, endDate, search, type, priority, status, pageable)
                 .map(ticketResponseMapper::toResponse);
         
         return ResponseEntity.ok(tickets);
