@@ -32,8 +32,14 @@ public class NotificationService {
 
     @Value("${booking.zone-id}")
     ZoneId zoneId;
+
+    @Value("${messaging.enabled}")
+    private boolean messagingEnabled;
     
     public void scheduleEventNotification(EventNotification notification, LocalDateTime notificationTime) {
+        if (!messagingEnabled) {
+            return;
+        }
         if (userPreferencesPort.isSubscribedToNotifications(notification.getUserId())) {
             long delayInMillis = notificationTime.isAfter(LocalDateTime.now())
                 ? java.time.Duration.between(LocalDateTime.now(), notificationTime).toMillis()
@@ -47,6 +53,10 @@ public class NotificationService {
     }
     
     public void sendEventNotificationNow(EventNotification notification) {
+        if (!messagingEnabled) {
+            return;
+        }
+
         if (loadEventPort.existsById(notification.getEventId())) {
             log.debug("Event with ID {} exists, proceeding with notification", notification.getEventId());
         }
