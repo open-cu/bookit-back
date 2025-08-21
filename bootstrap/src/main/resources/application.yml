@@ -55,6 +55,9 @@ booking:
   hall-max-capacity: 4
   zone-id: Europe/Moscow
 
+messaging:
+  enabled: ${MESSAGING_ENABLED:false}
+
 pagination:
   default-page: 0
   default-size: 10
