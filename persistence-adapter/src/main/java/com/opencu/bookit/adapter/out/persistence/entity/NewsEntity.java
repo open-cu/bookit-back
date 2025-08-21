@@ -29,7 +29,7 @@ public class NewsEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String description;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
             name = "news_tags",
             joinColumns = @JoinColumn(name = "news_id")
@@ -38,7 +38,7 @@ public class NewsEntity {
     @Column(name = "tag")
     private Set<ThemeTags> tags = new HashSet<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "news_keys", joinColumns = @JoinColumn(name = "news_id"))
     @Column(nullable = false)
     private List<String> keys;

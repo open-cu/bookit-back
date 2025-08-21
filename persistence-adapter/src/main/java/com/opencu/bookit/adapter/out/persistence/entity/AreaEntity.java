@@ -31,7 +31,7 @@ public class AreaEntity {
     @Column(nullable = false)
     private AreaType type;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "area_features", joinColumns = @JoinColumn(name = "area_id"))
     @Enumerated(EnumType.STRING)
     private List<AreaFeature> features;
@@ -43,7 +43,7 @@ public class AreaEntity {
     @Column(nullable = false)
     private AreaStatus status;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "area_keys", joinColumns = @JoinColumn(name = "area_id"))
     @Column(nullable = false)
     private List<String> keys;
