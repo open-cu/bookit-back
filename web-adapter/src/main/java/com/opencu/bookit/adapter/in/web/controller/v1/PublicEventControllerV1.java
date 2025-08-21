@@ -44,6 +44,7 @@ public class PublicEventControllerV1 {
             @RequestParam(required = false) Set<ContentTime> times,
             @RequestParam(required = false) Set<ParticipationFormat> participationFormats,
             @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "true") Boolean sendPhotos,
             @RequestParam(defaultValue = "${pagination.default-page}") int page,
             @RequestParam(defaultValue = "${pagination.default-size}") int size,
             @RequestParam(defaultValue = "startTime,asc") String sort
@@ -60,7 +61,7 @@ public class PublicEventControllerV1 {
                 search, null, pageable, null
         ).map(event -> {
             try {
-                return eventResponseMapper.toEventResponse(event);
+                return eventResponseMapper.toEventResponse(event, sendPhotos);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

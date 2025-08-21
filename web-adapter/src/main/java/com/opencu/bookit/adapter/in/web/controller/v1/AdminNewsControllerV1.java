@@ -47,6 +47,7 @@ public class AdminNewsControllerV1 {
     public ResponseEntity<Page<NewsResponse>> getAllNews(
             @RequestParam(required = false) Set<ThemeTags> tags,
             @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "true") Boolean sendPhotos,
             @RequestParam(defaultValue = "${pagination.default-page}") int page,
             @RequestParam(defaultValue = "${pagination.default-size}") int size,
             @RequestParam(defaultValue = "createdAt,desc") String sort
@@ -59,7 +60,7 @@ public class AdminNewsControllerV1 {
         Page<NewsModel> newsPage = newsService.findWithFilters(tags, search, pageable);
         return ResponseEntity.ok(newsPage.map(model -> {
             try {
-                return newsResponseMapper.toResponse(model);
+                return newsResponseMapper.toResponse(model, sendPhotos);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -71,11 +72,12 @@ public class AdminNewsControllerV1 {
     @Operation(summary = "Get news by id")
     @GetMapping("/{newsId}")
     public ResponseEntity<NewsResponse> getById(
+            @RequestParam(defaultValue = "true") Boolean sendPhotos,
             @PathVariable UUID newsId
     ) {
         try {
             try {
-                return ResponseEntity.ok(newsResponseMapper.toResponse(newsService.findById(newsId)));
+                return ResponseEntity.ok(newsResponseMapper.toResponse(newsService.findById(newsId), sendPhotos));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -104,6 +106,7 @@ public class AdminNewsControllerV1 {
     )
     @PutMapping("/{newsId}")
     public ResponseEntity<NewsResponse> updateNews(
+            @RequestParam(defaultValue = "true") Boolean sendPhotos,
             @PathVariable UUID newsId,
             @RequestPart("newsUpdateRequest") NewsUpdateRequest newsUpdateRequest,
             @RequestPart("photos") List<MultipartFile> photos
@@ -118,7 +121,7 @@ public class AdminNewsControllerV1 {
                     newsUpdateRequest.tags(),
                     keys
             );
-                return ResponseEntity.ok(newsResponseMapper.toResponse(news));
+                return ResponseEntity.ok(newsResponseMapper.toResponse(news, sendPhotos));
 
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
@@ -135,6 +138,7 @@ public class AdminNewsControllerV1 {
     )
     @PostMapping
     public ResponseEntity<NewsResponse> createNews(
+            @RequestParam(defaultValue = "true") Boolean sendPhotos,
             @RequestPart("newsUpdateRequest") NewsUpdateRequest newsUpdateRequest,
             @RequestPart("photos") List<MultipartFile> photos
     ) {
@@ -147,7 +151,7 @@ public class AdminNewsControllerV1 {
                 newsUpdateRequest.tags(),
                 keys
         );
-            return ResponseEntity.status(HttpStatus.CREATED).body(newsResponseMapper.toResponse(news));
+            return ResponseEntity.status(HttpStatus.CREATED).body(newsResponseMapper.toResponse(news, sendPhotos));
         } catch (IOException e) {
             return ResponseEntity.badRequest().build();
         }

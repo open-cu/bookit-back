@@ -19,8 +19,8 @@ public class PhotoService {
         this.saveS3Port = saveS3Port;
     }
 
-    public List<ImageModel> getImagesFromKeys(List<String> keys) throws IOException {
-        return loadS3Port.getImagesFromKeys(keys);
+    public List<ImageModel> getImagesFromKeys(List<String> keys, Boolean sendPhotos) throws IOException {
+        return loadS3Port.getImagesFromKeys(keys, sendPhotos);
     }
 
     public List<String> upload(List<MultipartFile> photos) throws IOException {

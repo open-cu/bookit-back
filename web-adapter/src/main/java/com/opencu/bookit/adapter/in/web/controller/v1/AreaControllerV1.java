@@ -34,6 +34,7 @@ public class AreaControllerV1 {
     public ResponseEntity<Page<AreaResponse>> getAllAreas(
             @RequestParam(required = false) String areaName,
             @RequestParam(required = false) AreaType type,
+            @RequestParam(defaultValue = "true") Boolean sendPhotos,
             @RequestParam(defaultValue = "${pagination.default-page}") int page,
             @RequestParam(defaultValue = "${pagination.default-size}") int size
     ) {
@@ -43,7 +44,7 @@ public class AreaControllerV1 {
                 .findWithFilters(areaName, type, pageable)
                 .map(area -> {
                     try {
-                        return areaMapper.toAreaResponse(area);
+                        return areaMapper.toAreaResponse(area, sendPhotos);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -53,13 +54,16 @@ public class AreaControllerV1 {
 
     @Operation(summary = "Get area by ID")
     @GetMapping("/{areaId}")
-    public ResponseEntity<AreaResponse> getAreaById(@PathVariable UUID areaId) {
+    public ResponseEntity<AreaResponse> getAreaById(
+            @RequestParam(defaultValue = "true") Boolean sendPhotos,
+            @PathVariable UUID areaId
+    ) {
         Optional<AreaModel> area = areaService.findById(areaId);
 
         AreaResponse areaResponse = area
                 .map(area1 -> {
                     try {
-                        return areaMapper.toAreaResponse(area1);
+                        return areaMapper.toAreaResponse(area1, sendPhotos);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }

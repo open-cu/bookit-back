@@ -21,21 +21,21 @@ public class NewsResponseMapper {
         this.service = service;
     }
 
-    public NewsResponse toResponse(NewsModel model) throws IOException {
+    public NewsResponse toResponse(NewsModel model, Boolean sendPhotos) throws IOException {
         return new NewsResponse(
             model.getId(),
             model.getTitle(),
             model.getDescription(),
             model.getTags(),
-            service.getImagesFromKeys(model.getKeys()),
+            service.getImagesFromKeys(model.getKeys(), sendPhotos),
             model.getCreatedAt()
         );
     }
 
-    public List<NewsResponse> toNewsResponseList(List<NewsModel> newsModels) throws IOException {
+    public List<NewsResponse> toNewsResponseList(List<NewsModel> newsModels, Boolean sendPhotos) throws IOException {
         List<NewsResponse> newsResponseList = new ArrayList<>();
         for (var news:  newsModels) {
-            newsResponseList.add(toResponse(news));
+            newsResponseList.add(toResponse(news, sendPhotos));
         }
         return newsResponseList;
     }

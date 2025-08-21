@@ -35,10 +35,12 @@ public class EventController {
 
     @Operation(description = "Returns information in the list format about all events")
     @GetMapping()
-    public ResponseEntity<List<EventResponse>> getAllEvents() {
+    public ResponseEntity<List<EventResponse>> getAllEvents(
+            @RequestParam(defaultValue = "true") Boolean sendPhotos
+    ) {
         List<EventResponse> event = null;
         try {
-            event = eventResponseMapper.toEventResponseList(eventService.findAll());
+            event = eventResponseMapper.toEventResponseList(eventService.findAll(), sendPhotos);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -48,10 +50,12 @@ public class EventController {
     @Operation(description = "Returns information in list format about all events for a specific tag")
     @GetMapping("/by-tags")
     public ResponseEntity<List<EventResponse>> getAllEventsByTags(
-            @RequestParam Set<ThemeTags> tags) {
+            @RequestParam(defaultValue = "true") Boolean sendPhotos,
+            @RequestParam Set<ThemeTags> tags
+    ) {
         List<EventResponse> event = null;
         try {
-            event = eventResponseMapper.toEventResponseList(eventService.findByTags(tags));
+            event = eventResponseMapper.toEventResponseList(eventService.findByTags(tags), sendPhotos);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -68,7 +72,10 @@ public class EventController {
 
     @Operation(description = "Registers (by entering the guest list of the event) the user for this event")
     @PutMapping("/{eventId}/registrations/{userId}")
-    public ResponseEntity<EventResponse> addUserInList(@PathVariable UUID eventId, @PathVariable UUID userId){
+    public ResponseEntity<EventResponse> addUserInList(
+            @RequestParam(defaultValue = "true") Boolean sendPhotos,
+            @PathVariable UUID eventId,
+            @PathVariable UUID userId){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof UserDetailsImpl)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -85,7 +92,7 @@ public class EventController {
 
         eventService.addUser(userId, event);
         try {
-            return ResponseEntity.ok(eventResponseMapper.toEventResponse(event));
+            return ResponseEntity.ok(eventResponseMapper.toEventResponse(event, sendPhotos));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -93,10 +100,13 @@ public class EventController {
 
     @Operation(description = "Returns information about the created event")
     @PostMapping("/event")
-    public ResponseEntity<EventResponse> createEvent(@RequestBody EventModel event) {
+    public ResponseEntity<EventResponse> createEvent(
+            @RequestParam(defaultValue = "true") Boolean sendPhotos,
+            @RequestBody EventModel event
+    ) {
         EventModel savedEvent = eventService.saveEvent(event);
         try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(eventResponseMapper.toEventResponse(savedEvent));
+            return ResponseEntity.status(HttpStatus.CREATED).body(eventResponseMapper.toEventResponse(savedEvent, sendPhotos));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
