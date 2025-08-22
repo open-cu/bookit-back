@@ -14,11 +14,7 @@ public enum AppFeatures implements Feature {
 
     @Label("Booking meeting rooms, lecture halls, etc., as well as displaying them in the list of available areas.")
     @EnabledByDefault
-    BOOKING_MEETING_SPACES,
-
-    @Label("Creating a system reservation for a selected location when creating an event")
-    @EnabledByDefault
-    SYSTEM_BOOKING_FOR_EVENT;
+    BOOKING_MEETING_SPACES;
 
     public boolean isActive() {
         return FeatureContext.getFeatureManager().isActive(this);
