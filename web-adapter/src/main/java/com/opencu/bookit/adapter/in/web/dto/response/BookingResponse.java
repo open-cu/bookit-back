@@ -8,6 +8,7 @@ public record BookingResponse(
         UUID id,
         UUID userId,
         UUID areaId,
+        String areaName,
         LocalDateTime startTime,
         LocalDateTime endTime,
         int quantity,
