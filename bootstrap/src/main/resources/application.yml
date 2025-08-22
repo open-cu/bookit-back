@@ -76,3 +76,9 @@ yandex-gpt:
   folder-id: ${FOLDER_ID:null}
   system-text: ${SYSTEM_TEXT:null}
   system-text-analyze: ${SYSTEM_TEXT_ANALYZE:null}
+
+togglz:
+  console:
+    enabled: true
+    use-management-port: false
+  feature-enums: com.opencu.bookit.application.feature.AppFeatures
