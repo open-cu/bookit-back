@@ -7,7 +7,9 @@ import org.togglz.core.context.FeatureContext;
 public enum AppFeatures implements Feature {
 
     @EnabledByDefault
-    EMAIL_NOTIFICATIONS;
+    EMAIL_NOTIFICATIONS,
+
+    TELEGRAM_NOTIFICATIONS;
 
     public boolean isActive() {
         return FeatureContext.getFeatureManager().isActive(this);

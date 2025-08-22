@@ -1,5 +1,6 @@
-package com.opencu.bookit.adapter.out.telegram;
+package com.opencu.bookit.adapter.out.telegram.config;
 
+import com.opencu.bookit.adapter.out.telegram.BotImplementation.MyTelegramBot;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
