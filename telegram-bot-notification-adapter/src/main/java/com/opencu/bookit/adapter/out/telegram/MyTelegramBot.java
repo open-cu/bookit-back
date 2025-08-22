@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -76,7 +77,34 @@ public class MyTelegramBot extends TelegramLongPollingBot {
                 } catch (TelegramApiException e) {
                     log.error(e.getMessage());
                 }
+            } else {
+                // TO DO: remove this part
+                SendMessage message = new SendMessage();
+                message.setChatId(String.valueOf(chatId));
+                message.setText("Your chatId is " + chatId  + " and your id " + update.getMessage().getFrom().getId());
+                try {
+                    execute(message);
+                } catch (TelegramApiException e) {
+                    log.error(e.getMessage());
+                }
             }
+        }
+    }
+
+    /**
+     * @param chatId stands for tgId of a user in string format. You should check if the user present in DB
+     *               before sending a message.
+     * @param messageText stands for a message you want to send to a user.
+     */
+    public void sendMessage(String chatId, String messageText) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText(messageText);
+
+        try {
+            execute(message);
+        } catch (TelegramApiException e) {
+            log.error(e.getMessage());
         }
     }
 
