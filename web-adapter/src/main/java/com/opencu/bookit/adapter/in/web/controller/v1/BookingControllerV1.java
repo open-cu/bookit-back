@@ -1,6 +1,5 @@
 package com.opencu.bookit.adapter.in.web.controller.v1;
 
-import com.opencu.bookit.adapter.in.web.dto.request.AdminUpdateBookingRequest;
 import com.opencu.bookit.adapter.in.web.dto.request.CreateBookingRequest;
 import com.opencu.bookit.adapter.in.web.dto.request.UpdateBookingRequest;
 import com.opencu.bookit.adapter.in.web.dto.response.BookingResponse;

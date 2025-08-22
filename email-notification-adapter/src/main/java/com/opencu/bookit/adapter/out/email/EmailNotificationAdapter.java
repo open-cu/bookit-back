@@ -1,17 +1,18 @@
 package com.opencu.bookit.adapter.out.email;
 
 import com.opencu.bookit.adapter.out.email.spi.EmailProvider;
-import com.opencu.bookit.application.port.out.nofication.NotificationPort;
 import com.opencu.bookit.domain.model.event.EventNotification;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
+@ConditionalOnProperty(prefix = "email", name = "enabled", havingValue = "true")
 public class EmailNotificationAdapter implements EmailProvider {
 
     private final JavaMailSender mailSender;
