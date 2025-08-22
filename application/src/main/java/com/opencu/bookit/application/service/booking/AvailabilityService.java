@@ -60,7 +60,7 @@ public class AvailabilityService {
             AreaModel area = loadAreaPort.findById(areaId.get()).orElseThrow(() -> new NoSuchElementException("Area not found with id: " + areaId.get()));
 
             if (!AppFeatures.BOOKING_MEETING_SPACES.isActive() && !area.getType().equals(AreaType.WORKPLACE)) {
-                throw new FeatureUnavailableException("Booking meeting spaces is not enabled in the application features.");
+                throw new FeatureUnavailableException(AppFeatures.BOOKING_MEETING_SPACES);
             }
 
             addFreeTimes(availableTime, date, bookingModels, area);
@@ -241,7 +241,7 @@ public class AvailabilityService {
             AreaModel area = loadAreaPort.findById(areaId.get()).orElseThrow(() -> new NoSuchElementException("Area not found with id: " + areaId.get()));
             AreaType type = area.getType();
             if (!AppFeatures.BOOKING_MEETING_SPACES.isActive() && !type.equals(AreaType.WORKPLACE)) {
-                throw new FeatureUnavailableException("Booking meeting spaces is not enabled in the application features.");
+                throw new FeatureUnavailableException(AppFeatures.BOOKING_MEETING_SPACES);
             }
             if(type.equals(AreaType.WORKPLACE)) {
                 return findHallAvailableDates();

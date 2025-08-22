@@ -1,6 +1,7 @@
 package com.opencu.bookit.adapter.in.web.exception;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.opencu.bookit.application.exception.FeatureUnavailableException;
 import io.swagger.v3.oas.annotations.Hidden;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -148,6 +149,22 @@ public class GlobalExceptionHandler {
                 request.getDescription(false).replace("uri=", ""),
                 Map.of("errors", ex.getMessage())
         );
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(apiError);
+    }
+
+    @ExceptionHandler(FeatureUnavailableException.class)
+    public ResponseEntity<ApiError> handleFeatureUnavailableException(FeatureUnavailableException ex, WebRequest request) {
+        logger.warn("Feature unavailable: {}", ex.getMessage());
+
+        Map<String, Object> details = new HashMap<>();
+        details.put("errorCode", "FEATURE_UNAVAILABLE");
+        details.put("feature", ex.getFeatureName());
+
+        ApiError apiError = buildError(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                ex.getMessage(),
+                request.getDescription(false).replace("uri=", ""),
+                details);
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(apiError);
     }
 }

@@ -98,7 +98,7 @@ public class BookingService {
                                           .orElseThrow(() -> new NoSuchElementException("Area not found with id: " + createBookingCommand.areaId()));
 
         if (!AppFeatures.BOOKING_MEETING_SPACES.isActive() && !areaModel.getType().equals(AreaType.WORKPLACE)) {
-            throw new FeatureUnavailableException("Booking meeting spaces is not enabled in the application features.");
+            throw new FeatureUnavailableException(AppFeatures.BOOKING_MEETING_SPACES);
         }
 
         bookingValidationService.validateBooking(createBookingCommand, validationRules);
@@ -260,7 +260,7 @@ public class BookingService {
         }
 
         if (!AppFeatures.BOOKING_MEETING_SPACES.isActive() && !areaOpt.get().getType().equals(AreaType.WORKPLACE)) {
-            throw new FeatureUnavailableException("Booking meeting spaces is not enabled in the application features.");
+            throw new FeatureUnavailableException(AppFeatures.BOOKING_MEETING_SPACES);
         }
 
         BookingModel model = bookingOpt.get();
