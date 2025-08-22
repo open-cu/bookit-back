@@ -1,0 +1,2 @@
+UPDATE "PUBLIC"."USERS"
+SET "TG_ID" = 0;

@@ -77,5 +77,15 @@
             <version>2.29.33</version>
             <scope>compile</scope>
         </dependency>
+
+        <!-- Togglz -->
+        <dependency>
+            <groupId>org.togglz</groupId>
+            <artifactId>togglz-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.togglz</groupId>
+            <artifactId>togglz-console</artifactId>
+        </dependency>
     </dependencies>
 </project>

@@ -27,7 +27,8 @@
 		<module>notification-queue-adapter</module>
         <module>ai-agent-adapter</module>
 		<module>s3-adapter</module>
-	</modules>
+        <module>telegram-bot-notification-adapter</module>
+    </modules>
 
 	<properties>
 		<java.version>21</java.version>
@@ -38,6 +39,7 @@
 		<springdoc.version>2.2.0</springdoc.version>
 		<zxing.version>3.5.1</zxing.version>
 		<logstash.version>7.4</logstash.version>
+		<togglz.version>4.4.0</togglz.version>
 	</properties>
 
 	<dependencyManagement>
@@ -136,6 +138,18 @@
 				<groupId>net.logstash.logback</groupId>
 				<artifactId>logstash-logback-encoder</artifactId>
 				<version>${logstash.version}</version>
+			</dependency>
+
+			<!-- Togglz -->
+			<dependency>
+				<groupId>org.togglz</groupId>
+				<artifactId>togglz-spring-boot-starter</artifactId>
+				<version>${togglz.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.togglz</groupId>
+				<artifactId>togglz-console</artifactId>
+				<version>${togglz.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

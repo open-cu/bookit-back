@@ -14,6 +14,7 @@ public class EventNotification {
     private UUID id;
     private UUID userId;
     private String userEmail;
+    private Long userTgId;
     private UUID eventId;
     private String eventTitle;
     private LocalDateTime eventDateTime;

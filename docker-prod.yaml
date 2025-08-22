@@ -42,6 +42,14 @@ services:
       - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USER:-guest}
       - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-guest}
       - MESSAGING_ENABLED=true
+
+      #  tg-bot
+      - TG_BOT_ENABLED=true
+      - BOT_TOKEN=${BOT_TOKEN}
+      - PHOTO_URL=${PHOTO_URL}
+      - WEBSITE=${WEBSITE}
+      - BOT_USERNAME=${BOT_USERNAME}
+
     networks:
       - app-network
 
