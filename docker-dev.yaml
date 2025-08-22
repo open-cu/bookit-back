@@ -40,6 +40,7 @@ services:
       - SPRING_RABBITMQ_PORT=5672
       - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USER:-guest}
       - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-guest}
+      - MESSAGING_ENABLED=true
     depends_on:
       rabbitmq-dev:
         condition: service_healthy
