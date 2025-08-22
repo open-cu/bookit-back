@@ -20,27 +20,51 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.opencu.bookit.adapter.out.security.spring.jwt.AuthEntryPointJwt;
 import com.opencu.bookit.adapter.out.security.spring.service.UserDetailsServiceImpl;
 
-//Конфигурация Spring Security Определяет настройки безопасности, фильтры и правила доступа
+
+/**
+ * Spring Security Configuration. Defines security settings, filters and access rules
+ */
 @Configuration
 @EnableMethodSecurity
 public class WebSecurityConfig {
 
-    @Autowired
-    UserDetailsServiceImpl userDetailsService;
+    private final UserDetailsServiceImpl userDetailsService;
 
-    @Autowired
-    private AuthEntryPointJwt unauthorizedHandler;
+    private final AuthEntryPointJwt unauthorizedHandler;
 
-    @Autowired
-    private SecurityService securityService;
+    private final SecurityService securityService;
 
-    //Создает JWT фильтр аутентификации
+    public WebSecurityConfig(
+            UserDetailsServiceImpl userDetailsService,
+            AuthEntryPointJwt unauthorizedHandler,
+            SecurityService securityService
+    ) {
+        this.userDetailsService = userDetailsService;
+        this.unauthorizedHandler = unauthorizedHandler;
+        this.securityService = securityService;
+    }
+
+
+    /**
+     * @return JWT authentication filter
+     */
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
         return new AuthTokenFilter();
     }
 
-    //Настраивает провайдер аутентификации для работы с нашим UserDetailsService и PasswordEncoder
+    /**
+     * Creates and returns a DaoAuthenticationProvider bean configured to integrate
+     * with the application's UserDetailsService and PasswordEncoder.
+     * <p>
+     *     The DaoAuthenticationProvider is a standard Spring Security authentication provider
+     *     that retrieves user details from the configured UserDetailsService and uses the
+     *     PasswordEncoder to verify passwords during authentication.
+     * <p>
+     * By exposing this as a Spring Bean, it can be plugged into the authentication manager
+     * to handle user authentication based on database-backed user information.
+     * @return a fully configured DaoAuthenticationProvider bean for authenticating users
+     **/
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -51,19 +75,51 @@ public class WebSecurityConfig {
         return authProvider;
     }
 
-    //Создает AuthenticationManager для аутентификации пользователей
+
+    /**
+     * Creates and returns the AuthenticationManager bean used to authenticate users.
+     * <p>
+     *     This method obtains the AuthenticationManager instance from the given AuthenticationConfiguration,
+     *     which is a central interface that holds the configuration for authentication in Spring Security.
+     *     The AuthenticationManager is responsible for processing authentication requests,
+     *     verifying user credentials, and establishing the security context.
+     * <p>
+     * By exposing AuthenticationManager as a Spring Bean, it can be injected into other components
+     * (e.g., authentication filters or services) that require authentication capability.
+     * @param authConfig the AuthenticationConfiguration containing the authentication setup
+     * @return the AuthenticationManager used by the application for authenticating users
+     * @throws Exception if an error occurs while retrieving the AuthenticationManager
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
-    //Определяет алгоритм хеширования паролей
+
+    /**
+     * @return An encoder that defines password hashing algorithm
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    //Настраивает правила безопасности HTTP
+
+    /**
+     * Configures and returns the security filter chain bean that defines the HTTP security rules for the application.
+     * <p>
+     *     This method customizes Spring Security's HttpSecurity object to:
+     *     Disable CSRF protection (commonly disabled for stateless APIs)
+     *     Set a custom authentication entry point to handle unauthorized access attempts
+     *     Configure session management to be stateless, suitable for token-based authentication
+     *     Define authorization rules for different HTTP request patterns (not fully shown here)
+     * <p>
+     * The returned SecurityFilterChain bean is used by Spring Security to process incoming requests
+     * according to the configured security policies.
+     * @param http the HttpSecurity instance to configure restrictions and behaviors on HTTP requests
+     * @return a configured SecurityFilterChain for the application's security processing
+     * @throws Exception if an error occurs during configuration
+     **/
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
