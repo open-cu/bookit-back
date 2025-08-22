@@ -20,7 +20,7 @@ import java.util.List;
 
 @Component
 @Slf4j
-@ConditionalOnProperty(value = "tg-bot.enabled")
+@ConditionalOnProperty(prefix = "tg-bot", name = "enabled", havingValue = "true")
 public class MyTelegramBot extends TelegramLongPollingBot {
     private final String photoUrl;
     private final String webSite;

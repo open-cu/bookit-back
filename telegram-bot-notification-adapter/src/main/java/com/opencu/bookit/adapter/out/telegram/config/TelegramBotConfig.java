@@ -9,7 +9,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 @Configuration
-@ConditionalOnProperty(value = "tg-bot.enabled")
+@ConditionalOnProperty(prefix = "tg-bot", name = "enabled", havingValue = "true")
 public class TelegramBotConfig {
 
     private final MyTelegramBot myTelegramBot;

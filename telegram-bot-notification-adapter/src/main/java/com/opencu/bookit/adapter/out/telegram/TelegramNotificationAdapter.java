@@ -4,10 +4,12 @@ import com.opencu.bookit.adapter.out.telegram.BotImplementation.MyTelegramBot;
 import com.opencu.bookit.adapter.out.telegram.spi.TelegramProvider;
 import com.opencu.bookit.domain.model.event.EventNotification;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
+@ConditionalOnProperty(prefix = "tg-bot", name = "enabled", havingValue = "true")
 public class TelegramNotificationAdapter implements TelegramProvider {
     private final MyTelegramBot myTelegramBot;
 
