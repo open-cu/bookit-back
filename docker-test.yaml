@@ -40,6 +40,9 @@ services:
       - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-guest}
       - MESSAGING_ENABLED=false
 
+      #  tg-bot
+      - TG_BOT_ENABLED=false
+
 
 networks:
   bookit-test:
