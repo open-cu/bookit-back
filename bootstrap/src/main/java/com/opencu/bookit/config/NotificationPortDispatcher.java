@@ -7,28 +7,23 @@ import com.opencu.bookit.domain.model.event.EventNotification;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 @Component
 @Primary
 public class NotificationPortDispatcher implements NotificationPort {
-    private final NotificationPort emailAdapter;
+    private final Map<AppFeatures, NotificationPort> adapters;
 
     public NotificationPortDispatcher(EmailProvider emailAdapter) {
-        this.emailAdapter = emailAdapter;
+        this.adapters = Map.of(AppFeatures.EMAIL_NOTIFICATIONS, emailAdapter);
     }
 
     @Override
     public void sendNotification(EventNotification notification) {
-        resolveActiveAdapters().forEach(adapter -> adapter.sendNotification(notification));
-    }
-
-    private List<NotificationPort> resolveActiveAdapters() {
-        List<NotificationPort> activeAdapters = new ArrayList<>();
-        if (AppFeatures.EMAIL_NOTIFICATIONS.isActive()) {
-            activeAdapters.add(emailAdapter);
-        }
-        return activeAdapters;
+        adapters.forEach((feature, adapter) -> {
+            if (feature.isActive()) {
+                adapter.sendNotification(notification);
+            }
+        });
     }
 }
