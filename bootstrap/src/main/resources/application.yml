@@ -76,3 +76,10 @@ yandex-gpt:
   folder-id: ${FOLDER_ID:null}
   system-text: ${SYSTEM_TEXT:null}
   system-text-analyze: ${SYSTEM_TEXT_ANALYZE:null}
+
+tg-bot:
+  enabled: ${TG_BOT_ENABLED:false}
+  token: ${BOT_TOKEN}
+  photo-url: ${PHOTO_URL}
+  website: ${WEBSITE}
+  username: ${BOT_USERNAME}
