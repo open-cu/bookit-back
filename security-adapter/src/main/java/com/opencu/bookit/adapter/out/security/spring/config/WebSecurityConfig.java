@@ -77,7 +77,11 @@ public class WebSecurityConfig {
                             "/swagger-ui.html",
                             "/swagger-resources/**",
                             "/webjars/**",
-                            "/h2-console/**").permitAll();
+                            "/h2-console/**",
+                            "/togglz-console/**").permitAll();
+                    }
+                    else {
+                        auth.requestMatchers("/togglz-console/**").hasRole(SecurityService.getAdmin());
                     }
                     auth.requestMatchers(
                         "/api/v1/public/**",

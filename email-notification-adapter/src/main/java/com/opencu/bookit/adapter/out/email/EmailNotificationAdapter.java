@@ -1,8 +1,7 @@
 package com.opencu.bookit.adapter.out.email;
 
-import com.opencu.bookit.application.port.out.event.LoadEventPort;
+import com.opencu.bookit.adapter.out.email.spi.EmailProvider;
 import com.opencu.bookit.application.port.out.nofication.NotificationPort;
-import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.domain.model.event.EventNotification;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +12,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class EmailNotificationAdapter implements NotificationPort {
+public class EmailNotificationAdapter implements EmailProvider {
 
     private final JavaMailSender mailSender;
-    private final LoadEventPort loadEventPort;
-    private final LoadUserPort loadUserPort;
 
     @Value("${spring.mail.from-email}")
     private String fromEmail;
@@ -26,10 +23,8 @@ public class EmailNotificationAdapter implements NotificationPort {
     private String senderName;
 
     @Autowired
-    public EmailNotificationAdapter(JavaMailSender mailSender, LoadEventPort loadEventPort, LoadUserPort loadUserPort) {
+    public EmailNotificationAdapter(JavaMailSender mailSender) {
         this.mailSender = mailSender;
-        this.loadEventPort = loadEventPort;
-        this.loadUserPort = loadUserPort;
     }
 
     @Override
