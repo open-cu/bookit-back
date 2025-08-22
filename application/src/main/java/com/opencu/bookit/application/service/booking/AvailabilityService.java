@@ -1,6 +1,8 @@
 package com.opencu.bookit.application.service.booking;
 
 import com.opencu.bookit.application.config.BookingConfig;
+import com.opencu.bookit.application.exception.FeatureUnavailableException;
+import com.opencu.bookit.application.feature.AppFeatures;
 import com.opencu.bookit.application.port.out.area.LoadAreaPort;
 import com.opencu.bookit.application.port.out.booking.LoadBookingPort;
 import com.opencu.bookit.application.port.out.schedule.LoadNonWorkingDaySchedulePort;
@@ -54,13 +56,14 @@ public class AvailabilityService {
 
         if (areaId.isPresent()) {
             List<BookingModel> bookingModels = loadBookingPort.findByDateAndArea(date, areaId.get());
-            Optional<AreaModel> checkArea = loadAreaPort.findById(areaId.get());
 
-            if (checkArea.isEmpty()) {
-                throw new NoSuchElementException("Area with this UUID " + areaId.get() + " doesn't exist!");
+            AreaModel area = loadAreaPort.findById(areaId.get()).orElseThrow(() -> new NoSuchElementException("Area not found with id: " + areaId.get()));
+
+            if (!AppFeatures.BOOKING_MEETING_SPACES.isActive() && !area.getType().equals(AreaType.WORKPLACE)) {
+                throw new FeatureUnavailableException("Booking meeting spaces is not enabled in the application features.");
             }
 
-            addFreeTimes(availableTime, date, bookingModels, checkArea.get());
+            addFreeTimes(availableTime, date, bookingModels, area);
         } else {
             List<UUID> availableAreas = loadAreaPort.findAll().stream()
                     .map(AreaModel::getId)
@@ -167,15 +170,17 @@ public class AvailabilityService {
     }
 
     public List<UUID> findAvailableAreas(Set<LocalDateTime> requestedTimes) {
-        HashSet<UUID> availableAreas = loadAreaPort.findAll().stream().map(AreaModel::getId)
-                .collect(Collectors.toCollection(HashSet::new));
-        for (LocalDateTime time : requestedTimes) {
-            List<BookingModel> bookingModels = loadBookingPort.findAllIncludingTime(time);
-            Set<UUID> bookedAreaIds = bookingModels.stream().filter(b -> b.getStatus() == BookingStatus.CONFIRMED)
-                    .map(BookingModel::getAreaId).collect(Collectors.toSet());
-            availableAreas.removeAll(bookedAreaIds);
+        HashSet<UUID> availableAreas = new HashSet<>();
+        if (AppFeatures.BOOKING_MEETING_SPACES.isActive()) {
+            availableAreas.addAll(loadAreaPort.findAll().stream().map(AreaModel::getId)
+                                                       .collect(Collectors.toCollection(HashSet::new)));
+            for (LocalDateTime time : requestedTimes) {
+                List<BookingModel> bookingModels = loadBookingPort.findAllIncludingTime(time);
+                Set<UUID> bookedAreaIds = bookingModels.stream().filter(b -> b.getStatus() == BookingStatus.CONFIRMED)
+                                                       .map(BookingModel::getAreaId).collect(Collectors.toSet());
+                availableAreas.removeAll(bookedAreaIds);
+            }
         }
-
         UUID workplaceId = loadAreaPort.findByType(AreaType.WORKPLACE).getFirst().getId();
         availableAreas.remove(workplaceId);
         if (requestedTimes.stream().allMatch(this::isWorkplaceAvailable)) {
@@ -233,8 +238,12 @@ public class AvailabilityService {
 
     public List<LocalDate> findAvailableDates(Optional<UUID> areaId) {
         if (areaId.isPresent()) {
-            Optional<AreaModel> area = loadAreaPort.findById(areaId.get());
-            if(area.isPresent() && area.get().getType().equals(AreaType.WORKPLACE)) {
+            AreaModel area = loadAreaPort.findById(areaId.get()).orElseThrow(() -> new NoSuchElementException("Area not found with id: " + areaId.get()));
+            AreaType type = area.getType();
+            if (!AppFeatures.BOOKING_MEETING_SPACES.isActive() && !type.equals(AreaType.WORKPLACE)) {
+                throw new FeatureUnavailableException("Booking meeting spaces is not enabled in the application features.");
+            }
+            if(type.equals(AreaType.WORKPLACE)) {
                 return findHallAvailableDates();
             }
             return findAvailableDatesByArea(areaId);

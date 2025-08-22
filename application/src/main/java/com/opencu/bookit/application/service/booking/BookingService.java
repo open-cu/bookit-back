@@ -1,6 +1,8 @@
 package com.opencu.bookit.application.service.booking;
 
 import com.opencu.bookit.application.config.BookingConfig;
+import com.opencu.bookit.application.exception.FeatureUnavailableException;
+import com.opencu.bookit.application.feature.AppFeatures;
 import com.opencu.bookit.application.port.out.area.LoadAreaPort;
 import com.opencu.bookit.application.port.in.booking.CRUDBookingUseCase;
 import com.opencu.bookit.application.port.out.booking.DeleteBookingPort;
@@ -94,6 +96,10 @@ public class BookingService {
 
         AreaModel areaModel = loadAreaPort.findById(createBookingCommand.areaId())
                                           .orElseThrow(() -> new NoSuchElementException("Area not found with id: " + createBookingCommand.areaId()));
+
+        if (!AppFeatures.BOOKING_MEETING_SPACES.isActive() && !areaModel.getType().equals(AreaType.WORKPLACE)) {
+            throw new FeatureUnavailableException("Booking meeting spaces is not enabled in the application features.");
+        }
 
         bookingValidationService.validateBooking(createBookingCommand, validationRules);
 
@@ -252,6 +258,11 @@ public class BookingService {
         if (bookingOpt.isEmpty() || userOpt.isEmpty() || areaOpt.isEmpty()) {
             throw new NoSuchElementException();
         }
+
+        if (!AppFeatures.BOOKING_MEETING_SPACES.isActive() && !areaOpt.get().getType().equals(AreaType.WORKPLACE)) {
+            throw new FeatureUnavailableException("Booking meeting spaces is not enabled in the application features.");
+        }
+
         BookingModel model = bookingOpt.get();
         model.setAreaModel(areaOpt.get());
         model.setUserModel(userOpt.get());
