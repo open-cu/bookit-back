@@ -39,6 +39,9 @@ public class UserService {
     }
 
     public Optional<UserModel> findById(UUID id) {
+        if (loadUserPort.getSystemUser().getId().equals(id)) {
+            return Optional.empty();
+        }
         return loadUserPort.findById(id);
     }
 
@@ -104,6 +107,9 @@ public class UserService {
     }
 
     public void deleteById(UUID userId) {
+        if (loadUserPort.getSystemUser().getId().equals(userId)) {
+            throw new IllegalStateException("System users cannot be deleted");
+        }
         deleteUserPort.deleteById(userId);
     }
 }

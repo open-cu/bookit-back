@@ -7,6 +7,7 @@ import com.opencu.bookit.adapter.in.web.exception.ProfileNotCompletedException;
 import com.opencu.bookit.adapter.in.web.mapper.MeResponseMapper;
 import com.opencu.bookit.application.port.out.qr.GenerateQrCodePort;
 import com.opencu.bookit.application.port.out.user.LoadAuthorizationInfoPort;
+import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.application.service.user.UserService;
 import com.opencu.bookit.domain.model.user.UserModel;
 import com.opencu.bookit.domain.model.user.UserStatus;
@@ -38,7 +39,7 @@ public class UserControllerV1 {
     private final MeResponseMapper meResponseMapper;
 
     public UserControllerV1(UserService userService, GenerateQrCodePort generateQrCodePort,
-                            LoadAuthorizationInfoPort loadAuthorizationInfoPort, MeResponseMapper meResponseMapper) {
+                            LoadAuthorizationInfoPort loadAuthorizationInfoPort, MeResponseMapper meResponseMapper, LoadUserPort loadUserPort) {
         this.userService = userService;
         this.generateQrCodePort = generateQrCodePort;
         this.loadAuthorizationInfoPort = loadAuthorizationInfoPort;
