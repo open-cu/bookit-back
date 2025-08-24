@@ -1,0 +1,38 @@
+CREATE CACHED TABLE "PUBLIC"."USER_ROLES_NEW" (
+    "USER_ID" UUID NOT NULL,
+    "ROLES" ENUM('ROLE_ADMIN', 'ROLE_SUPERADMIN', 'ROLE_USER', 'ROLE_SYSTEM_USER') NOT NULL
+);
+
+INSERT INTO "PUBLIC"."USER_ROLES_NEW" ("USER_ID", "ROLES")
+SELECT "USER_ID", "ROLES" FROM "PUBLIC"."USER_ROLES";
+
+DROP TABLE "PUBLIC"."USER_ROLES";
+
+ALTER TABLE "PUBLIC"."USER_ROLES_NEW" RENAME TO "USER_ROLES";
+
+-- Добавление пользователя с UUID '00000000-0000-0000-0000-000000000001' (UUID 1)
+INSERT INTO "PUBLIC"."USERS" (
+    "ID", "CREATED_AT", "EMAIL", "FIRST_NAME", "LAST_NAME", "PASSWORD_HASH",
+    "PHONE", "PHOTO_URL", "STATUS", "SUBSCRIBED_TO_NOTIFICATIONS", "TG_ID",
+    "UPDATED_AT", "USERNAME"
+) VALUES (
+             UUID '00000000-0000-0000-0000-000000000001',
+             CURRENT_TIMESTAMP,
+             'systemuser@example.com',
+             'System',
+             'User',
+             'ваш_хэш_пароля',
+             '+70000000000',
+             NULL,
+             'VERIFIED',
+             TRUE,
+             NULL,
+             NULL,
+             'systemuser'
+         );
+
+-- Добавление ролей пользователя
+INSERT INTO "PUBLIC"."USER_ROLES" ("USER_ID", "ROLES") VALUES
+                                                           (UUID '00000000-0000-0000-0000-000000000001', 'ROLE_SYSTEM_USER'),
+                                                           (UUID '00000000-0000-0000-0000-000000000001', 'ROLE_ADMIN'),
+                                                           (UUID '00000000-0000-0000-0000-000000000001', 'ROLE_SUPERADMIN');

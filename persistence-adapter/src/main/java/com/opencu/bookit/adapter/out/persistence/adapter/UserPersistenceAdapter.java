@@ -28,6 +28,8 @@ public class UserPersistenceAdapter implements
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
+    private final UUID SYSTEM_USER_UUID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+
     @Override
     public Optional<UserModel> findByName(String name) {
         var userEntity = userRepository.findByName(name);
@@ -55,6 +57,11 @@ public class UserPersistenceAdapter implements
     }
 
     @Override
+    public UserModel getSystemUser() {
+        return userMapper.toModel(userRepository.getReferenceById(SYSTEM_USER_UUID));
+    }
+
+    @Override
     public boolean existsByUsername(String username) {
         return userRepository.existsByUsername(username);
     }
@@ -79,6 +86,11 @@ public class UserPersistenceAdapter implements
                 roles.add(Role.fromString(roleStr));
             }
         }
+
+        spec = spec.and((root, query, cb) ->
+                cb.not(cb.isMember(Role.ROLE_SYSTEM_USER, root.get("roles")))
+        );
+
         if (email != null && !email.isBlank()) {
             spec = spec.and((root, query, cb) ->
                 cb.equal(cb.lower(root.get("email")), email.toLowerCase())
@@ -100,8 +112,10 @@ public class UserPersistenceAdapter implements
         }
         if (!roles.isEmpty()) {
             spec = spec.and((root, query, cb) ->
-                    root.join("roles").in(roles));
+                    root.join("roles").in(roles)
+            );
         }
+
         return userRepository.findAll(spec, pageable)
                 .map(userMapper::toModel);
     }

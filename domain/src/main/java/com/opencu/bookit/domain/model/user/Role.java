@@ -1,6 +1,7 @@
 package com.opencu.bookit.domain.model.user;
 
 public enum Role {
+    ROLE_SYSTEM_USER,
     ROLE_USER,
     ROLE_ADMIN,
     ROLE_SUPERADMIN;

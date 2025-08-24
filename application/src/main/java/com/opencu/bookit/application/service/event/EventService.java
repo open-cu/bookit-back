@@ -168,14 +168,7 @@ public class EventService {
             throw new NoSuchElementException("No such event " + eventId + " found");
         }
         EventModel eventModel = eventOpt.get();
-        eventModel.setName(name);
-        eventModel.setDescription(description);
-        eventModel.setTags(new HashSet<>(tags));
-        eventModel.setFormats(new HashSet<>(formats));
-        eventModel.setTimes(new HashSet<>(times));
-        eventModel.setParticipationFormats(new HashSet<>(participationFormats));
-        eventModel.setKeys(keys);
-        eventModel.setStartTime(startTime);
+        setEventModelValues(name, description, tags, formats, times, participationFormats, keys, startTime, eventModel);
         eventModel.setAvailable_places(availablePlaces);
         eventModel.setEndTime(endTime);
         eventModel.setAreaModel(loadAreaPort.findById(areaId)
@@ -212,6 +205,17 @@ public class EventService {
         }
 
         return saveEventPort.save(eventModel);
+    }
+
+    private void setEventModelValues(String name, String description, List<ThemeTags> tags, List<ContentFormat> formats, List<ContentTime> times, List<ParticipationFormat> participationFormats, List<String> keys, LocalDateTime startTime, EventModel eventModel) {
+        eventModel.setName(name);
+        eventModel.setDescription(description);
+        eventModel.setTags(new HashSet<>(tags));
+        eventModel.setFormats(new HashSet<>(formats));
+        eventModel.setTimes(new HashSet<>(times));
+        eventModel.setParticipationFormats(new HashSet<>(participationFormats));
+        eventModel.setKeys(keys);
+        eventModel.setStartTime(startTime);
     }
 
     public Page<EventModel> findWithFilters(
@@ -266,21 +270,14 @@ public class EventService {
             UUID areaId
     ) {
         EventModel eventModel = new EventModel();
-        eventModel.setName(name);
-        eventModel.setDescription(description);
-        eventModel.setTags(new HashSet<>(tags));
-        eventModel.setFormats(new HashSet<>(formats));
-        eventModel.setTimes(new HashSet<>(times));
-        eventModel.setParticipationFormats(new HashSet<>(participationFormats));
-        eventModel.setKeys(keys);
-        eventModel.setStartTime(startTime);
+        setEventModelValues(name, description, tags, formats, times, participationFormats, keys, startTime, eventModel);
         eventModel.setEndTime(endTime);
         eventModel.setAvailable_places(availablePlaces);
         eventModel.setAreaModel(loadAreaPort.findById(areaId)
                 .orElseThrow(() -> new NoSuchElementException("No such area " + areaId + " found")));
 
         CRUDBookingUseCase.CreateBookingCommand createBookingCommand = new CRUDBookingUseCase.CreateBookingCommand(
-                loadAuthorizationInfoPort.getCurrentUser().getId(),
+                loadUserPort.getSystemUser().getId(),
                 eventModel.getAreaModel().getId(),
                 Set.of(Pair.of(eventModel.getStartTime(), eventModel.getEndTime())),
                 0
