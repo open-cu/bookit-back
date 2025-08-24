@@ -83,6 +83,9 @@ public class UserService {
             throw new NoSuchElementException("No such user " + userId + " found");
         }
         UserModel user = userOpt.get();
+        if (user.getRoles().contains(Role.ROLE_SYSTEM_USER)) {
+            throw new IllegalStateException("System users cannot be patched");
+        }
         if (firstName != null) user.setFirstName(firstName);
         if (lastname != null) user.setLastName(lastname);
         if (email != null) user.setEmail(email);

@@ -28,6 +28,8 @@ public class UserPersistenceAdapter implements
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
+    private UUID SYSTEM_USER_UUID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+
     @Override
     public Optional<UserModel> findByName(String name) {
         var userEntity = userRepository.findByName(name);
@@ -52,6 +54,11 @@ public class UserPersistenceAdapter implements
     @Override
     public Optional<UserModel> findByTgId(Long tgId) {
         return userRepository.findByTgId(tgId).map(userMapper::toModel);
+    }
+
+    @Override
+    public UserModel getSystemUser() {
+        return userMapper.toModel(userRepository.getReferenceById(SYSTEM_USER_UUID));
     }
 
     @Override
