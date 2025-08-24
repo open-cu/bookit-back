@@ -98,6 +98,9 @@ public class UserService {
         if (lastname != null) user.setLastName(lastname);
         if (email != null) user.setEmail(email);
         if (roles != null && !roles.isEmpty()) {
+            if (roles.contains("ROLE_SYSTEM_USER")) {
+                throw new IllegalArgumentException("Users can't be patched by roles other than ROLE_SYSTEM_USER");
+            }
             Set<Role> rolesSet = new HashSet<>();
             roles.forEach(role -> rolesSet.add(Role.valueOf(role)));
             user.setRoles(rolesSet);
