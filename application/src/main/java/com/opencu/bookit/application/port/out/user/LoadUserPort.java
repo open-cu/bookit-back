@@ -17,6 +17,7 @@ public interface LoadUserPort {
     Optional<UserModel> findByUsername(String username);
     Optional<UserModel> findById(UUID id);
     Optional<UserModel> findByTgId(Long tgId);
+    UserModel getSystemUser();
     boolean existsByUsername(@NotBlank @Size(min = 3, max = 50) String username);
     boolean existsByEmail(@Email String email);
     boolean existsByPhone(@Pattern(regexp = "^(\\+7\\d{10}|8\\d{10})$", message = "Invalid phone") String phone);

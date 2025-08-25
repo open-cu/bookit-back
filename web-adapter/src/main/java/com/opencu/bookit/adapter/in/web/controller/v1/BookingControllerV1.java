@@ -1,6 +1,5 @@
 package com.opencu.bookit.adapter.in.web.controller.v1;
 
-import com.opencu.bookit.adapter.in.web.dto.request.AdminUpdateBookingRequest;
 import com.opencu.bookit.adapter.in.web.dto.request.CreateBookingRequest;
 import com.opencu.bookit.adapter.in.web.dto.request.UpdateBookingRequest;
 import com.opencu.bookit.adapter.in.web.dto.response.BookingResponse;
@@ -101,7 +100,7 @@ public class BookingControllerV1 {
         return ResponseEntity.ok(availableAreas);
     }
 
-    @Operation(summary = "Get current user's bookings by timeline")
+    @Operation(summary = "Get current user's bookings by timeline. timeline if for user-mode only, rest is for admin only")
     @GetMapping
     public ResponseEntity<Page<BookingResponse>> getBookings(
             @RequestParam(required = false) String timeline,
@@ -112,7 +111,7 @@ public class BookingControllerV1 {
             @RequestParam(defaultValue = "${pagination.default-page}") int page,
             @RequestParam(defaultValue = "${pagination.default-size}") int size
                                                             ) {
-        // timeline if for user-mode only, rest is for admin only
+
         if (areaId != null && userId != null && timeline != null) {
             return ResponseEntity.badRequest().build();
         }
@@ -146,6 +145,7 @@ public class BookingControllerV1 {
 
     @Operation(summary = "Deprecated. Use Get /api/v1/bookings instead")
     @GetMapping("/advanced")
+    @Deprecated
     public ResponseEntity<Page<BookingResponse>> getBookingsAdvanced(
             @RequestParam (required = false) UUID areaId,
             @RequestParam (required = false) UUID userId,

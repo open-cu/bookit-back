@@ -19,11 +19,11 @@ public class SecurityService {
         return PROFILE_DEV.equalsIgnoreCase(activeProfile);
     }
 
-    public String getAdmin() {
+    public static String getAdmin() {
         return ADMIN;
     }
 
-    public String getSuperadmin() {
+    public static String getSuperadmin() {
         return SUPERADMIN;
     }
 
