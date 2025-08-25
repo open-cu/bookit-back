@@ -60,6 +60,7 @@ public class EventControllerV1 {
             @RequestParam(required = false) Set<ParticipationFormat> participationFormats,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "true") Boolean sendPhotos,
             @RequestParam(defaultValue = "${pagination.default-page}") int page,
             @RequestParam(defaultValue = "${pagination.default-size}") int size,
             @RequestParam(defaultValue = "startTime,asc") String sort
@@ -82,7 +83,7 @@ public class EventControllerV1 {
                     .findWithFilters(startDate, endDate, tags, formats, times, participationFormats, search, status, pageable, currentUserId)
                     .map(event -> {
                         try {
-                            return eventResponseMapper.toEventResponse(event);
+                            return eventResponseMapper.toEventResponse(event, sendPhotos);
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
@@ -108,7 +109,10 @@ public class EventControllerV1 {
 
     @Operation(summary = "Register current user for the event")
     @PutMapping("/registrations/{eventId}")
-    public ResponseEntity<EventResponseV1> registerForEvent(@PathVariable UUID eventId) {
+    public ResponseEntity<EventResponseV1> registerForEvent(
+            @RequestParam(defaultValue = "true") Boolean sendPhotos,
+            @PathVariable UUID eventId
+    ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof UserDetailsImpl)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -123,7 +127,7 @@ public class EventControllerV1 {
         eventService.addUser(currentUser.getId(), event);
         EventResponseV1 eventResponse = null;
         try {
-            eventResponse = eventResponseMapper.toEventResponse(event);
+            eventResponse = eventResponseMapper.toEventResponse(event, sendPhotos);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -154,6 +158,7 @@ public class EventControllerV1 {
     @Operation(summary = "Get event by id")
     @GetMapping("/{eventId}")
     public ResponseEntity<EventResponseV1> getById(
+        @RequestParam(defaultValue = "true") Boolean sendPhotos,
         @PathVariable UUID eventId
     ) {
         Optional<EventModel> eventOpt = eventService.findById(eventId);
@@ -161,7 +166,7 @@ public class EventControllerV1 {
             throw new NoSuchElementException("Event " + eventId + " not found");
         }
         try {
-            return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventOpt.get()));
+            return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventOpt.get(), sendPhotos));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -175,6 +180,7 @@ public class EventControllerV1 {
     )
     @PutMapping("/{eventId}")
     public ResponseEntity<EventResponseV1> updateEvent(
+            @RequestParam(defaultValue = "true") Boolean sendPhotos,
             @PathVariable UUID eventId,
             @RequestPart("updateEventRequest") UpdateEventRequest updateEventRequest,
             @RequestPart("photos") List<MultipartFile> photos
@@ -196,7 +202,7 @@ public class EventControllerV1 {
                     updateEventRequest.available_places(),
                     updateEventRequest.areaId()
             );
-                return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventModel));
+                return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventModel, sendPhotos));
             } catch (IOException e) {
             return ResponseEntity.badRequest().build();
             } catch (NoSuchElementException e) {
@@ -212,6 +218,7 @@ public class EventControllerV1 {
     )
     @PostMapping
     public ResponseEntity<EventResponseV1> createEvent(
+            @RequestParam(defaultValue = "true") Boolean sendPhotos,
             @RequestPart("updateEventRequest") UpdateEventRequest updateEventRequest,
             @RequestPart("photos") List<MultipartFile> photos
     ) {
@@ -231,7 +238,7 @@ public class EventControllerV1 {
                 updateEventRequest.available_places(),
                 updateEventRequest.areaId()
         );
-            return ResponseEntity.status(HttpStatus.CREATED).body(eventResponseMapper.toEventResponse(eventModel));
+            return ResponseEntity.status(HttpStatus.CREATED).body(eventResponseMapper.toEventResponse(eventModel, sendPhotos));
         } catch (IOException e) {
             return ResponseEntity.badRequest().build();
         }

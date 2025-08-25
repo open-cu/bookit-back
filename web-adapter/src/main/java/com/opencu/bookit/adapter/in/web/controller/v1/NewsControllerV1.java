@@ -29,6 +29,7 @@ public class NewsControllerV1 {
     public ResponseEntity<Page<NewsResponse>> getAllPublicNews(
             @RequestParam(required = false) Set<ThemeTags> tags,
             @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "true") Boolean sendPhotos,
             @RequestParam(defaultValue = "${pagination.default-page}") int page,
             @RequestParam(defaultValue = "${pagination.default-size}") int size,
             @RequestParam(defaultValue = "createdAt,desc") String sort
@@ -41,7 +42,7 @@ public class NewsControllerV1 {
         Page<NewsModel> newsPage = newsService.findWithFilters(tags, search, pageable);
         return ResponseEntity.ok(newsPage.map(model -> {
             try {
-                return newsResponseMapper.toResponse(model);
+                return newsResponseMapper.toResponse(model, sendPhotos);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

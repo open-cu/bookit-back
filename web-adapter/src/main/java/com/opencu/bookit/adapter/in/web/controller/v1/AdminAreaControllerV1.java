@@ -48,6 +48,7 @@ public class AdminAreaControllerV1 {
     public ResponseEntity<Page<AreaResponse>> getAllAreas(
             @RequestParam(required = false) String areaName,
             @RequestParam(required = false) AreaType type,
+            @RequestParam(defaultValue = "true") Boolean sendPhotos,
             @RequestParam(defaultValue = "${pagination.default-page}") int page,
             @RequestParam(defaultValue = "${pagination.default-size}") int size
     ) {
@@ -57,7 +58,7 @@ public class AdminAreaControllerV1 {
                 .findWithFilters(areaName, type, pageable)
                 .map(area -> {
                     try {
-                        return areaMapper.toAreaResponse(area);
+                        return areaMapper.toAreaResponse(area, sendPhotos);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -69,13 +70,16 @@ public class AdminAreaControllerV1 {
             "@securityService.hasRequiredRole(@securityService.getAdmin())")
     @Operation(summary = "Get area by id")
     @GetMapping("/{areaId}")
-    public ResponseEntity<AreaResponse> getAreaById(@PathVariable UUID areaId) {
+    public ResponseEntity<AreaResponse> getAreaById(
+            @RequestParam(defaultValue = "true") Boolean sendPhotos,
+            @PathVariable UUID areaId
+    ) {
         Optional<AreaModel> area = areaService.findById(areaId);
 
         AreaResponse areaResponse = area
                 .map(area1 -> {
                     try {
-                        return areaMapper.toAreaResponse(area1);
+                        return areaMapper.toAreaResponse(area1, sendPhotos);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -92,6 +96,7 @@ public class AdminAreaControllerV1 {
     )
     @PostMapping
     public ResponseEntity<AreaResponse> createArea(
+            @RequestParam(defaultValue = "true") Boolean sendPhotos,
             @RequestPart("createAreaRequest") CreateAreaRequest createAreaRequest,
             @RequestPart("photos") List<MultipartFile> photos
     ) {
@@ -109,7 +114,7 @@ public class AdminAreaControllerV1 {
         );
 
             return ResponseEntity.status(HttpStatus.CREATED).body(
-                    areaMapper.toAreaResponse(model)
+                    areaMapper.toAreaResponse(model, sendPhotos)
             );
         } catch (IOException e) {
             return ResponseEntity.badRequest().build();
@@ -135,6 +140,7 @@ public class AdminAreaControllerV1 {
     )
     @PutMapping("/{areaId}")
     public ResponseEntity<AreaResponse> updateById(
+            @RequestParam(defaultValue = "true") Boolean sendPhotos,
             @PathVariable UUID areaId,
             @RequestPart("updateAreaRequest") UpdateAreaRequest updateAreaRequest,
             @RequestPart("photos") List<MultipartFile> photos
@@ -151,7 +157,7 @@ public class AdminAreaControllerV1 {
                                 updateAreaRequest.type(),
                                 keys,
                                 updateAreaRequest.capacity()
-                        )
+                        ), sendPhotos
                 );
             } catch (IOException e) {
                 return ResponseEntity.badRequest().build();

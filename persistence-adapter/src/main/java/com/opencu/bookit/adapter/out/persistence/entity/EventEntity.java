@@ -32,31 +32,31 @@ public class EventEntity {
     @Column(nullable = false)
     private String description;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "event_tags", joinColumns = @JoinColumn(name = "event_id"))
     @Enumerated(EnumType.STRING)
     @Column(name = "tag")
     private Set<ThemeTags> tags = new HashSet<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "event_formats", joinColumns = @JoinColumn(name = "event_id"))
     @Enumerated(EnumType.STRING)
     @Column(name = "format")
     private Set<ContentFormat> formats = new HashSet<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "event_times", joinColumns = @JoinColumn(name = "event_id"))
     @Enumerated(EnumType.STRING)
     @Column(name = "time")
     private Set<ContentTime> times = new HashSet<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "event_participation_formats", joinColumns = @JoinColumn(name = "event_id"))
     @Enumerated(EnumType.STRING)
     @Column(name = "participation_format")
     private Set<ParticipationFormat> participationFormats = new HashSet<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "event_keys", joinColumns = @JoinColumn(name = "event_id"))
     @Column(nullable = false)
     private List<String> keys;

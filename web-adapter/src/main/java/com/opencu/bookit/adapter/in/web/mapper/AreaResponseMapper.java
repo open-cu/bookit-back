@@ -17,22 +17,22 @@ public class AreaResponseMapper {
         this.service = service;
     }
 
-    public AreaResponse toAreaResponse(AreaModel area) throws IOException {
+    public AreaResponse toAreaResponse(AreaModel area, Boolean sendPhotos) throws IOException {
         return new AreaResponse(
                 area.getId(),
                 area.getName(),
                 area.getDescription(),
                 area.getType(),
                 Set.copyOf(area.getFeatures()),
-                service.getImagesFromKeys(area.getKeys()),
+                service.getImagesFromKeys(area.getKeys(), sendPhotos),
                 area.getCapacity()
         );
     }
 
-    public List<AreaResponse> toAreaResponseList(List<AreaModel> areas) throws IOException {
+    public List<AreaResponse> toAreaResponseList(List<AreaModel> areas, Boolean sendPhotos) throws IOException {
         List<AreaResponse> areaResponseList = new ArrayList<>();
         for (AreaModel area : areas) {
-            areaResponseList.add(toAreaResponse(area));
+            areaResponseList.add(toAreaResponse(area, sendPhotos));
         }
         return areaResponseList;
     }

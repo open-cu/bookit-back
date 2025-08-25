@@ -6,5 +6,5 @@ import java.io.IOException;
 import java.util.List;
 
 public interface LoadS3Port {
-    List<ImageModel> getImagesFromKeys(List<String> keys) throws IOException;
+    List<ImageModel> getImagesFromKeys(List<String> keys, Boolean sendPhotos) throws IOException;
 }

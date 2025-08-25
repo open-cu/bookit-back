@@ -61,7 +61,10 @@ public class S3Adapter implements LoadS3Port, SaveS3Port {
      * @return list of photos related to some object (e.g. NewsResponse)
      */
     @Override
-    public List<ImageModel> getImagesFromKeys(List<String> keys) throws IOException {
+    public List<ImageModel> getImagesFromKeys(List<String> keys, Boolean sendPhotos) throws IOException {
+        if (sendPhotos == null || !sendPhotos) {
+            return List.of();
+        }
         List<ImageModel> imageModels = new ArrayList<>();
         for (String key : keys) {
             imageModels.add(getImageFromKey(key));

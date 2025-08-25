@@ -30,12 +30,14 @@ public class AreaController {
 
     @Operation(summary = "Get all areas")
     @GetMapping
-    public List<AreaResponse> getAllAreas() {
+    public List<AreaResponse> getAllAreas(
+            @RequestParam(defaultValue = "true") Boolean sendPhotos
+    ) {
         return areaService.findAll()
                 .stream()
                 .map(area -> {
                     try {
-                        return areaResponseMapper.toAreaResponse(area);
+                        return areaResponseMapper.toAreaResponse(area, sendPhotos);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -45,13 +47,16 @@ public class AreaController {
 
     @Operation(summary = "Get area by ID")
     @GetMapping("/{areaId}")
-    public ResponseEntity<AreaResponse> getAreaById(@PathVariable UUID areaId) {
+    public ResponseEntity<AreaResponse> getAreaById(
+            @RequestParam(defaultValue = "true") Boolean sendPhotos,
+            @PathVariable UUID areaId
+    ) {
         Optional<AreaModel> area = areaService.findById(areaId);
 
         AreaResponse areaResponse = area
                 .map(area1 -> {
                     try {
-                        return areaResponseMapper.toAreaResponse(area1);
+                        return areaResponseMapper.toAreaResponse(area1, sendPhotos);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -62,12 +67,15 @@ public class AreaController {
 
     @GetMapping("/by-type")
     @Operation(summary = "Get areas by type")
-    public List<AreaResponse> getAreasByType(@RequestParam AreaType type) {
+    public List<AreaResponse> getAreasByType(
+            @RequestParam(defaultValue = "true") Boolean sendPhotos,
+            @RequestParam AreaType type
+    ) {
         return areaService.findByType(type)
                           .stream()
                           .map(area -> {
                               try {
-                                  return areaResponseMapper.toAreaResponse(area);
+                                  return areaResponseMapper.toAreaResponse(area, sendPhotos);
                               } catch (IOException e) {
                                   throw new RuntimeException(e);
                               }

@@ -17,7 +17,7 @@ public class EventResponseMapperV1 {
         this.service = service;
     }
 
-    public EventResponseV1 toEventResponse(EventModel event) throws IOException {
+    public EventResponseV1 toEventResponse(EventModel event, Boolean sendPhotos) throws IOException {
         return new EventResponseV1(
                 event.getId(),
                 event.getName(),
@@ -26,7 +26,7 @@ public class EventResponseMapperV1 {
                 event.getFormats(),
                 event.getTimes(),
                 event.getParticipationFormats(),
-                service.getImagesFromKeys(event.getKeys()),
+                service.getImagesFromKeys(event.getKeys(), sendPhotos),
                 event.getStartTime(),
                 event.getEndTime(),
                 event.getAvailable_places(),
@@ -34,10 +34,10 @@ public class EventResponseMapperV1 {
         );
     }
 
-    public List<EventResponseV1> toEventResponseList(List<EventModel> events) throws IOException {
+    public List<EventResponseV1> toEventResponseList(List<EventModel> events, Boolean sendPhotos) throws IOException {
         List<EventResponseV1> eventResponseList = new ArrayList<>();
         for (var event:  events) {
-            eventResponseList.add(toEventResponse(event));
+            eventResponseList.add(toEventResponse(event, sendPhotos));
         }
         return eventResponseList;
     }

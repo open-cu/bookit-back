@@ -29,4 +29,6 @@ public class BookingModel {
     }
 
     public UUID getUserId() {return userModel != null ? userModel.getId() : null;}
+
+    public String getAreaName() {return areaModel != null ? areaModel.getName() : null;}
 }
