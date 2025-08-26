@@ -14,7 +14,6 @@ import com.opencu.bookit.domain.model.user.UserModel;
 import com.opencu.bookit.domain.model.user.UserStatus;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,85 +23,89 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Set;
-import java.util.UUID;
 
 @Service
-public class AuthService implements LoadAuthorizationInfoPort {
-    private final AuthenticationManager authenticationManager;
+public class AuthService implements LoadAuthorizationInfoPort{
     private final LoadUserPort loadUserPort;
     private final SaveUserPort saveUserPort;
-    private final PasswordEncoder passwordEncoder;
-    private final TelegramAuthService telegramAuthService;
     private final JwtUtils jwtUtils;
-    @Value("${booking.zone-id}")
-    private ZoneId zoneId;
+    private final TelegramAuthService telegramAuthService;
+    private final ZoneId zoneId;
 
     public AuthService(
-            AuthenticationManager authenticationManager,
-            LoadUserPort userRepository, SaveUserPort saveUserPort,
-            PasswordEncoder passwordEncoder, TelegramAuthService telegramAuthService,
-            JwtUtils jwtUtils
-                      ) {
-        this.authenticationManager = authenticationManager;
-        this.loadUserPort = userRepository;
+            LoadUserPort loadUserPort,
+            SaveUserPort saveUserPort,
+            PasswordEncoder passwordEncoder,
+            JwtUtils jwtUtils,
+            TelegramAuthService telegramAuthService,
+            @Value("${booking.zone-id}") ZoneId zoneId
+            ) {
+        this.loadUserPort = loadUserPort;
         this.saveUserPort = saveUserPort;
-        this.passwordEncoder = passwordEncoder;
-        this.telegramAuthService = telegramAuthService;
         this.jwtUtils = jwtUtils;
+        this.telegramAuthService = telegramAuthService;
+        this.zoneId = zoneId;
     }
 
     @Transactional
-    public JwtResponse authenticateTelegramUser(TelegramUserRequest telegramUserRequest) {
-        telegramAuthService.validate(telegramUserRequest);
+    public JwtResponse authenticateTelegramUser(TelegramUserRequest telegramRequest) {
+        telegramAuthService.validate(telegramRequest);
 
-        UserModel user = loadUserPort.findByTgId(telegramUserRequest.id()).orElse(null);
+        UserModel user = findOrCreateUser(telegramRequest);
 
-        String safeUsername = (telegramUserRequest.username() == null || telegramUserRequest.username().isBlank())
-                ? ";tg_id_" + telegramUserRequest.id()
-                : telegramUserRequest.username() + ";tg_id_" + telegramUserRequest.id();
-
-        if (user == null) {
-            user = new UserModel();
-            user.setTgId(telegramUserRequest.id());
-            user.setUsername(safeUsername);
-            user.setFirstName(telegramUserRequest.firstName());
-            user.setLastName(telegramUserRequest.lastName());
-            user.setPhotoUrl(telegramUserRequest.photoUrl());
-            user.setStatus(UserStatus.CREATED);
-            user.setRoles(Set.of(Role.ROLE_USER));
-            user.setCreatedAt(LocalDateTime.now(zoneId));
-
-            String randomPassword = generateRandomPassword();
-            user.setPasswordHash(passwordEncoder.encode(randomPassword));
-
-            user = saveUserPort.save(user);
-        } else {
-            if (!safeUsername.equals(user.getUsername())) {
-                user.setUsername(safeUsername);
-            }
-            if (telegramUserRequest.firstName() != null &&
-                    !telegramUserRequest.firstName().equals(user.getFirstName())) {
-                user.setFirstName(telegramUserRequest.firstName());
-            }
-            if (telegramUserRequest.lastName() != null &&
-                    !telegramUserRequest.lastName().equals(user.getLastName())) {
-                user.setLastName(telegramUserRequest.lastName());
-            }
-            if (telegramUserRequest.photoUrl() != null &&
-                    !telegramUserRequest.photoUrl().equals(user.getPhotoUrl())) {
-                user.setPhotoUrl(telegramUserRequest.photoUrl());
-            }
-            user.setUpdatedAt(LocalDateTime.now(zoneId));
-            saveUserPort.save(user);
-        }
-
-        UserDetailsImpl userDetails = UserDetailsImpl.build(user);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                userDetails, null, userDetails.getAuthorities());
+        Authentication authentication = createAuthentication(user);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String jwt = jwtUtils.generateJwtToken(authentication);
+        return generateJwtForUser(user, authentication);
+    }
 
+    private UserModel findOrCreateUser(TelegramUserRequest telegramRequest) {
+        return loadUserPort.findByTgId(telegramRequest.id())
+                           .map(existingUser -> updateUserFromTelegramData(existingUser, telegramRequest))
+                           .orElseGet(() -> createNewUserFromTelegramData(telegramRequest));
+    }
+
+    private UserModel createNewUserFromTelegramData(TelegramUserRequest telegramRequest) {
+        UserModel user = new UserModel();
+        user.setTgId(telegramRequest.id());
+        user.setRoles(Set.of(Role.ROLE_USER));
+        user.setStatus(UserStatus.CREATED);
+        user.setCreatedAt(LocalDateTime.now(zoneId));
+
+        updateUserFromTelegramData(user, telegramRequest);
+        return saveUserPort.save(user);
+    }
+
+    private UserModel updateUserFromTelegramData(UserModel user, TelegramUserRequest telegramRequest) {
+        boolean updated = false;
+
+        updated |= updateField(user.getUsername(), buildSafeUsername(telegramRequest), user::setUsername);
+        updated |= updateField(user.getFirstName(), telegramRequest.firstName(), user::setFirstName);
+        updated |= updateField(user.getLastName(), telegramRequest.lastName(), user::setLastName);
+        updated |= updateField(user.getPhotoUrl(), telegramRequest.photoUrl(), user::setPhotoUrl);
+
+        if (updated) {
+            user.setUpdatedAt(LocalDateTime.now(zoneId));
+            return saveUserPort.save(user);
+        }
+        return user;
+    }
+
+    private <T> boolean updateField(T currentValue, T newValue, java.util.function.Consumer<T> setter) {
+        if (!java.util.Objects.equals(currentValue, newValue)) {
+            setter.accept(newValue);
+            return true;
+        }
+        return false;
+    }
+
+    private Authentication createAuthentication(UserModel user) {
+        UserDetailsImpl userDetails = UserDetailsImpl.build(user);
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    }
+
+    private JwtResponse generateJwtForUser(UserModel user, Authentication authentication) {
+        String jwt = jwtUtils.generateJwtToken(authentication);
         return new JwtResponse(
                 jwt,
                 user.getId(),
@@ -113,13 +116,19 @@ public class AuthService implements LoadAuthorizationInfoPort {
         );
     }
 
+    private String buildSafeUsername(TelegramUserRequest request) {
+        return (request.username() == null || request.username().isBlank())
+                ? ";tg_id_" + request.id()
+                : request.username() + ";tg_id_" + request.id();
+    }
+
     @Transactional
     public MessageResponse completeUserProfile(UserProfileUpdateRequest profileRequest) {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UserModel currentUser = loadUserPort.findByTgId(userDetails.getTgId())
                                             .orElseThrow(() -> new IllegalStateException("User not found"));
 
-        if (currentUser.getStatus() != UserStatus.CREATED) {
+        if (currentUser.getStatus() == UserStatus.VERIFIED) {
             return new MessageResponse("The profile is verified");
         }
         if (profileRequest.getFirstName() == null || profileRequest.getLastName() == null ||
@@ -166,14 +175,5 @@ public class AuthService implements LoadAuthorizationInfoPort {
                                .orElseThrow(() -> new RuntimeException("User not found (tgId): " + tgId));
         }
         throw new RuntimeException("Unknown principal: " + principal);
-    }
-
-    private String generateRandomPassword() {
-        return UUID.randomUUID().toString();
-    }
-
-    @Override
-    public String getCurrentUsername() {
-        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 }
