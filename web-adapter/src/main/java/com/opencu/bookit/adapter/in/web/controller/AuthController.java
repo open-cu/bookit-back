@@ -1,7 +1,5 @@
 package com.opencu.bookit.adapter.in.web.controller;
 
-import com.opencu.bookit.adapter.out.security.spring.payload.request.LoginRequest;
-import com.opencu.bookit.adapter.out.security.spring.payload.request.SignupRequest;
 import com.opencu.bookit.adapter.out.security.spring.payload.request.TelegramUserRequest;
 import com.opencu.bookit.adapter.out.security.spring.payload.request.UserProfileUpdateRequest;
 import com.opencu.bookit.adapter.out.security.spring.payload.response.JwtResponse;
@@ -43,17 +41,5 @@ public class AuthController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserProfileResponse> getUserProfile() {
         return ResponseEntity.ok(authService.getCurrentUserProfile());
-    }
-
-    @Operation(summary = "User login")
-    @PostMapping("/login")
-    public ResponseEntity<JwtResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
-        return ResponseEntity.ok(authService.login(loginRequest));
-    }
-
-    @Operation(summary = "User registration")
-    @PostMapping("/signup")
-    public ResponseEntity<MessageResponse> register(@Valid @RequestBody SignupRequest signupRequest) {
-        return ResponseEntity.ok(authService.register(signupRequest));
     }
 }

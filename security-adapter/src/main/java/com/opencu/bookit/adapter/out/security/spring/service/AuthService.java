@@ -1,8 +1,6 @@
 package com.opencu.bookit.adapter.out.security.spring.service;
 
 import com.opencu.bookit.adapter.out.security.spring.jwt.JwtUtils;
-import com.opencu.bookit.adapter.out.security.spring.payload.request.LoginRequest;
-import com.opencu.bookit.adapter.out.security.spring.payload.request.SignupRequest;
 import com.opencu.bookit.adapter.out.security.spring.payload.request.TelegramUserRequest;
 import com.opencu.bookit.adapter.out.security.spring.payload.request.UserProfileUpdateRequest;
 import com.opencu.bookit.adapter.out.security.spring.payload.response.JwtResponse;
@@ -168,60 +166,6 @@ public class AuthService implements LoadAuthorizationInfoPort {
                                .orElseThrow(() -> new RuntimeException("User not found (tgId): " + tgId));
         }
         throw new RuntimeException("Unknown principal: " + principal);
-    }
-
-    @Transactional
-    public JwtResponse login(LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getUsername(),
-                        loginRequest.getPassword()
-                )
-                                                                          );
-
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        UserModel user = loadUserPort.findByUsername(userDetails.getUsername())
-                                     .orElseThrow(() -> new IllegalStateException("User not found"));
-
-        String jwt = jwtUtils.generateJwtToken(authentication);
-
-        return new JwtResponse(
-                jwt,
-                user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getFirstName(),
-                user.getLastName()
-        );
-    }
-
-    @Transactional
-    public MessageResponse register(SignupRequest signUpRequest) {
-        if (loadUserPort.existsByUsername(signUpRequest.getUsername())) {
-            return new MessageResponse("The user name is already in use");
-        }
-        if (signUpRequest.getEmail() != null && loadUserPort.existsByEmail(signUpRequest.getEmail())) {
-            return new MessageResponse("The email address is already in use");
-        }
-        if (signUpRequest.getPhone() != null && loadUserPort.existsByPhone(signUpRequest.getPhone())) {
-            return new MessageResponse("The telephone is already in use");
-        }
-
-        UserModel user = new UserModel();
-        user.setUsername(signUpRequest.getUsername());
-        user.setFirstName(signUpRequest.getFirstName());
-        user.setLastName(signUpRequest.getLastName());
-        user.setEmail(signUpRequest.getEmail());
-        user.setPhone(signUpRequest.getPhone());
-        user.setTgId(signUpRequest.getTgId());
-        user.setPhotoUrl(signUpRequest.getPhotoUrl());
-        user.setPasswordHash(passwordEncoder.encode(signUpRequest.getPassword()));
-        user.setStatus(UserStatus.CREATED);
-        user.setCreatedAt(LocalDateTime.now(zoneId));
-
-        saveUserPort.save(user);
-
-        return new MessageResponse("The registration has been completed");
     }
 
     private String generateRandomPassword() {
