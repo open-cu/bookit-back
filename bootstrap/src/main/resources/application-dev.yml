@@ -29,6 +29,9 @@ spring:
         trace: true
         web-allow-others: true
 
+  mvc:
+    log-request-details: true
+
 bookit:
   app:
     jwtSecret: bookItSecretKey123456789012345678901234567890123456789012345678901234567890
