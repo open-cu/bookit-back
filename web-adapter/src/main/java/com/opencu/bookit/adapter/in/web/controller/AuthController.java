@@ -1,17 +1,17 @@
 package com.opencu.bookit.adapter.in.web.controller;
 
-import com.opencu.bookit.adapter.out.security.spring.payload.request.TelegramUserRequest;
 import com.opencu.bookit.adapter.out.security.spring.payload.request.UserProfileUpdateRequest;
 import com.opencu.bookit.adapter.out.security.spring.payload.response.JwtResponse;
 import com.opencu.bookit.adapter.out.security.spring.payload.response.MessageResponse;
 import com.opencu.bookit.adapter.out.security.spring.payload.response.UserProfileResponse;
 import com.opencu.bookit.adapter.out.security.spring.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -25,8 +25,8 @@ public class AuthController {
 
     @Operation(summary = "Telegram user basic authentication")
     @PostMapping("/tgUser")
-    public ResponseEntity<JwtResponse> authenticateTelegramUser(@Valid @RequestBody TelegramUserRequest telegramUserRequest) {
-        return ResponseEntity.ok(authService.authenticateTelegramUser(telegramUserRequest));
+    public ResponseEntity<JwtResponse> authenticateTelegramUser(@RequestParam Map<String, String> telegramUserData) {
+        return ResponseEntity.ok(authService.authorizeTelegramUser(telegramUserData));
     }
 
     @Operation(summary = "Complete user profile with additional information")

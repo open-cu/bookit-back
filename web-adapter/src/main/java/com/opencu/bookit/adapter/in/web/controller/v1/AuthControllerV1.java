@@ -1,6 +1,5 @@
 package com.opencu.bookit.adapter.in.web.controller.v1;
 
-import com.opencu.bookit.adapter.out.security.spring.payload.request.TelegramUserRequest;
 import com.opencu.bookit.adapter.out.security.spring.payload.request.UserProfileUpdateRequest;
 import com.opencu.bookit.adapter.out.security.spring.payload.response.JwtResponse;
 import com.opencu.bookit.adapter.out.security.spring.payload.response.MessageResponse;
@@ -11,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -23,8 +24,8 @@ public class AuthControllerV1 {
 
     @Operation(summary = "Telegram user basic authentication")
     @PostMapping("/telegram")
-    public ResponseEntity<JwtResponse> authenticateTelegramUser(@Valid @RequestBody TelegramUserRequest telegramUserRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(authService.authenticateTelegramUser(telegramUserRequest));
+    public ResponseEntity<JwtResponse> authenticateTelegramUser(@RequestParam Map<String, String> telegramUserData) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.authorizeTelegramUser(telegramUserData));
     }
 
     @Operation(summary = "Complete user profile with additional information")

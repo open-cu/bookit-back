@@ -19,9 +19,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Map;
 import java.util.Set;
 
 @Service
@@ -48,8 +50,10 @@ public class AuthService implements LoadAuthorizationInfoPort{
     }
 
     @Transactional
-    public JwtResponse authenticateTelegramUser(TelegramUserRequest telegramRequest) {
-        telegramAuthService.validate(telegramRequest);
+    public JwtResponse authorizeTelegramUser(@RequestParam Map<String, String> telegramUserData) {
+        telegramAuthService.validate(telegramUserData);
+        
+        TelegramUserRequest telegramRequest = TelegramUserRequest.fromMap(telegramUserData);
 
         UserModel user = findOrCreateUser(telegramRequest);
 

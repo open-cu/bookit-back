@@ -4,6 +4,7 @@ import com.opencu.bookit.adapter.out.security.spring.exception.TelegramValidatio
 import com.opencu.bookit.adapter.out.security.spring.payload.request.TelegramUserRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -26,26 +27,31 @@ public class TelegramAuthService {
      * Validates the authentication data received from Telegram.
      * Throws an exception if validation fails.
      *
-     * @param authData The DTO containing all fields from the Telegram login widget.
+     * @param telegramUserData The map of query parameters from Telegram.
      */
-    public void validate(TelegramUserRequest authData) {
-        final String dataCheckString = buildDataCheckString(authData);
+    public void validate(@RequestParam Map<String, String> telegramUserData) {
+        String hash = telegramUserData.get("hash");
+
+        if (hash == null || hash.isEmpty()) {
+            throw new TelegramValidationException("Missing hash parameter in Telegram data.");
+        }
+
+        final String dataCheckString = buildDataCheckString(telegramUserData);
         final String computedHash = computeHash(dataCheckString);
 
-        if (!computedHash.equals(authData.hash())) {
-            throw new TelegramValidationException("Hash validation failed. The data may be tampered with.");
+        if (!computedHash.equals(hash)) {
+            throw new TelegramValidationException("Telegram hash validation failed.");
         }
     }
 
-    private String buildDataCheckString(TelegramUserRequest authData) {
+    private String buildDataCheckString(@RequestParam Map<String, String> telegramUserData) {
         Map<String, String> dataMap = new TreeMap<>();
-        dataMap.put("id", String.valueOf(authData.id()));
-        dataMap.put("first_name", authData.firstName());
-        dataMap.put("auth_date", String.valueOf(authData.authDate()));
 
-        if (authData.lastName() != null) dataMap.put("last_name", authData.lastName());
-        if (authData.username() != null) dataMap.put("username", authData.username());
-        if (authData.photoUrl() != null) dataMap.put("photo_url", authData.photoUrl());
+        telegramUserData.forEach((key, value) -> {
+            if (!key.equals("hash")) {
+                dataMap.put(key, value);
+            }
+        });
 
         return dataMap.entrySet().stream()
                       .map(entry -> entry.getKey() + "=" + entry.getValue())
