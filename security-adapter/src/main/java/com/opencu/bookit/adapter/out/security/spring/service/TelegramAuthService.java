@@ -1,7 +1,6 @@
 package com.opencu.bookit.adapter.out.security.spring.service;
 
 import com.opencu.bookit.adapter.out.security.spring.exception.TelegramValidationException;
-import com.opencu.bookit.adapter.out.security.spring.payload.request.TelegramUserRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -10,7 +9,6 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 import java.util.Map;

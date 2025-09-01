@@ -1,7 +1,7 @@
 package com.opencu.bookit.adapter.out.security.spring.service;
 
 import com.opencu.bookit.adapter.out.security.spring.jwt.JwtUtils;
-import com.opencu.bookit.adapter.out.security.spring.payload.request.TelegramUserRequest;
+import com.opencu.bookit.adapter.out.security.spring.payload.request.TelegramUser;
 import com.opencu.bookit.adapter.out.security.spring.payload.request.UserProfileUpdateRequest;
 import com.opencu.bookit.adapter.out.security.spring.payload.response.JwtResponse;
 import com.opencu.bookit.adapter.out.security.spring.payload.response.MessageResponse;
@@ -19,7 +19,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -28,7 +27,6 @@ import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 @Service
 public class AuthService implements LoadAuthorizationInfoPort{
@@ -60,7 +58,7 @@ public class AuthService implements LoadAuthorizationInfoPort{
 
         telegramAuthService.validate(preparedTelegramData);
         
-        TelegramUserRequest telegramRequest = TelegramUserRequest.fromMap(preparedTelegramData);
+        TelegramUser telegramRequest = TelegramUser.fromMap(preparedTelegramData);
         UserModel user = findOrCreateUser(telegramRequest);
         Authentication authentication = createAuthentication(user);
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -88,13 +86,13 @@ public class AuthService implements LoadAuthorizationInfoPort{
         return result;
     }
 
-    private UserModel findOrCreateUser(TelegramUserRequest telegramRequest) {
+    private UserModel findOrCreateUser(TelegramUser telegramRequest) {
         return loadUserPort.findByTgId(telegramRequest.id())
                            .map(existingUser -> updateUserFromTelegramData(existingUser, telegramRequest))
                            .orElseGet(() -> createNewUserFromTelegramData(telegramRequest));
     }
 
-    private UserModel createNewUserFromTelegramData(TelegramUserRequest telegramRequest) {
+    private UserModel createNewUserFromTelegramData(TelegramUser telegramRequest) {
         UserModel user = new UserModel();
         user.setTgId(telegramRequest.id());
         user.setRoles(Set.of(Role.ROLE_USER));
@@ -104,7 +102,7 @@ public class AuthService implements LoadAuthorizationInfoPort{
         return updateUserFromTelegramData(user, telegramRequest);
     }
 
-    private UserModel updateUserFromTelegramData(UserModel user, TelegramUserRequest telegramRequest) {
+    private UserModel updateUserFromTelegramData(UserModel user, TelegramUser telegramRequest) {
         boolean updated = false;
 
         updated |= updateField(user.getUsername(), buildSafeUsername(telegramRequest), user::setUsername);
@@ -144,7 +142,7 @@ public class AuthService implements LoadAuthorizationInfoPort{
         );
     }
 
-    private String buildSafeUsername(TelegramUserRequest request) {
+    private String buildSafeUsername(TelegramUser request) {
         return (request.username() == null || request.username().isBlank())
                 ? ";tg_id_" + request.id()
                 : request.username() + ";tg_id_" + request.id();
