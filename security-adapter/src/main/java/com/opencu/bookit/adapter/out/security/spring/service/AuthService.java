@@ -21,10 +21,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 @Service
 public class AuthService implements LoadAuthorizationInfoPort{
@@ -50,17 +54,38 @@ public class AuthService implements LoadAuthorizationInfoPort{
     }
 
     @Transactional
-    public JwtResponse authorizeTelegramUser(@RequestParam Map<String, String> telegramUserData) {
-        telegramAuthService.validate(telegramUserData);
+    public JwtResponse authorizeTelegramUser(String initDataRaw) {
+
+        Map<String, String> preparedTelegramData = parseTelegramInitData(initDataRaw);
+
+        telegramAuthService.validate(preparedTelegramData);
         
-        TelegramUserRequest telegramRequest = TelegramUserRequest.fromMap(telegramUserData);
-
+        TelegramUserRequest telegramRequest = TelegramUserRequest.fromMap(preparedTelegramData);
         UserModel user = findOrCreateUser(telegramRequest);
-
         Authentication authentication = createAuthentication(user);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         return generateJwtForUser(user, authentication);
+    }
+
+    private Map<String, String> parseTelegramInitData(String initDataRaw) {
+        Map<String, String> result = new HashMap<>();
+        String[] pairs = initDataRaw.split("&");
+
+        for (String pair : pairs) {
+            int idx = pair.indexOf("=");
+            if (idx > 0) {
+                try {
+                    String key = URLDecoder.decode(pair.substring(0, idx), StandardCharsets.UTF_8);
+                    String value = URLDecoder.decode(pair.substring(idx + 1), StandardCharsets.UTF_8);
+                    result.put(key, value);
+                }
+                catch (Exception e) {
+                    throw new IllegalArgumentException("Failed to decode Telegram init data", e);
+                }
+            }
+        }
+        return result;
     }
 
     private UserModel findOrCreateUser(TelegramUserRequest telegramRequest) {

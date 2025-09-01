@@ -25,8 +25,8 @@ public class AuthController {
 
     @Operation(summary = "Telegram user basic authentication")
     @PostMapping("/tgUser")
-    public ResponseEntity<JwtResponse> authenticateTelegramUser(@RequestParam Map<String, String> telegramUserData) {
-        return ResponseEntity.ok(authService.authorizeTelegramUser(telegramUserData));
+    public ResponseEntity<JwtResponse> authenticateTelegramUser(@RequestHeader(name = "Authorization") String authorizationHeader) {
+        return ResponseEntity.ok(authService.authorizeTelegramUser(authorizationHeader));
     }
 
     @Operation(summary = "Complete user profile with additional information")

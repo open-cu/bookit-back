@@ -58,16 +58,25 @@ public class TelegramAuthService {
                       .collect(Collectors.joining("\n"));
     }
 
+    /**
+     * @param dataCheckString is a chain of all received fields, sorted alphabetically, in the format key=<value> with a line feed character ('\n', 0x0A) used as separator – e.g., 'auth_date=<auth_date>\nquery_id=<query_id>\nuser=<user>'
+     * @return calculated hash is in the form of a hexadecimal string.
+     * @see <a href="https://docs.telegram-mini-apps.com/platform/init-data#using-telegram-bot-token">
+     *      Telegram Mini Apps Documentation</a>
+     */
     private String computeHash(String dataCheckString) {
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] secretKey = digest.digest(botToken.getBytes(StandardCharsets.UTF_8));
+            byte[] webAppDataKey = "WebAppData".getBytes(StandardCharsets.UTF_8);
+            SecretKeySpec secretKeySpec1 = new SecretKeySpec(webAppDataKey, "HmacSHA256");
+            Mac hmacInstance1 = Mac.getInstance("HmacSHA256");
+            hmacInstance1.init(secretKeySpec1);
 
-            Mac hmacInstance = Mac.getInstance("HmacSHA256");
-            SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey, "HmacSHA256");
-            hmacInstance.init(secretKeySpec);
+            byte[] secretKey = hmacInstance1.doFinal(botToken.getBytes(StandardCharsets.UTF_8));
 
-            byte[] computedHashBytes = hmacInstance.doFinal(dataCheckString.getBytes(StandardCharsets.UTF_8));
+            SecretKeySpec secretKeySpec2 = new SecretKeySpec(secretKey, "HmacSHA256");
+            Mac hmacInstance2 = Mac.getInstance("HmacSHA256");
+            hmacInstance2.init(secretKeySpec2);
+            byte[] computedHashBytes = hmacInstance2.doFinal(dataCheckString.getBytes(StandardCharsets.UTF_8));
 
             return HexFormat.of().formatHex(computedHashBytes);
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
