@@ -1,6 +1,9 @@
 package com.opencu.bookit.adapter.out.security.spring.payload.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
@@ -32,18 +35,30 @@ public record TelegramUserRequest(
         @URL(message = "Photo URL must be a valid URL")
         @JsonProperty("photo_url") String photoUrl
 ) {
-    public static TelegramUserRequest fromMap(Map<String, String> telegramUserData) {
-        long id = Long.parseLong(telegramUserData.get("id"));
-        String firstName = telegramUserData.get("first_name");
-        String lastName = telegramUserData.get("last_name");
-        String username = telegramUserData.get("username");
-        String photoUrl = telegramUserData.get("photo_url");
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final Validator VALIDATOR;
 
-        TelegramUserRequest request = new TelegramUserRequest(id, firstName, lastName, username, photoUrl);
+    static {
+        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+            VALIDATOR = factory.getValidator();
+        }
+        OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
 
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
-        Set<ConstraintViolation<TelegramUserRequest>> violations = validator.validate(request);
+    public static TelegramUserRequest fromMap(Map<String, String> telegramInitData) {
+        String userJson = telegramInitData.get("user");
+        if (userJson == null) {
+            throw new IllegalArgumentException("User data not found in Telegram init data.");
+        }
+
+        TelegramUserRequest request;
+        try {
+            request = OBJECT_MAPPER.readValue(userJson, TelegramUserRequest.class);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Failed to parse user JSON from Telegram init data", e);
+        }
+
+        Set<ConstraintViolation<TelegramUserRequest>> violations = VALIDATOR.validate(request);
 
         if (!violations.isEmpty()) {
             throw new ConstraintViolationException("Telegram data validation failed.", violations);

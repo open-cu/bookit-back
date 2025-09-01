@@ -101,8 +101,7 @@ public class AuthService implements LoadAuthorizationInfoPort{
         user.setStatus(UserStatus.CREATED);
         user.setCreatedAt(LocalDateTime.now(zoneId));
 
-        updateUserFromTelegramData(user, telegramRequest);
-        return saveUserPort.save(user);
+        return updateUserFromTelegramData(user, telegramRequest);
     }
 
     private UserModel updateUserFromTelegramData(UserModel user, TelegramUserRequest telegramRequest) {
