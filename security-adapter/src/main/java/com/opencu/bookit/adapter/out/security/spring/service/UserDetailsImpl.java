@@ -22,20 +22,22 @@ public class UserDetailsImpl implements UserDetails {
     private Long tgId;
     private String username;
     private String email;
-    @JsonIgnore
-    private String password;
     private Collection<? extends GrantedAuthority> authorities;
     private UserStatus status;
 
-    public UserDetailsImpl(UUID id, Long tgId, String username, String email, String password,
+    public UserDetailsImpl(UUID id, Long tgId, String username, String email,
                            Collection<? extends GrantedAuthority> authorities, UserStatus status) {
         this.id = id;
         this.tgId = tgId;
         this.username = username;
         this.email = email;
-        this.password = password;
         this.authorities = authorities;
         this.status = status;
+    }
+
+    @Override
+    public String getPassword() {
+        return null;
     }
 
     public static UserDetailsImpl build(UserModel user) {
@@ -48,7 +50,6 @@ public class UserDetailsImpl implements UserDetails {
                 user.getTgId(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getPasswordHash(),
                 authorities,
                 user.getStatus());
     }

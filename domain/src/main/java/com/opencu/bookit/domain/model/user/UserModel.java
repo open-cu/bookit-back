@@ -17,7 +17,6 @@ public class UserModel {
     private String lastName;
     private String photoUrl;
     private String email;
-    private String passwordHash;
     private String phone;
     private UserStatus status;
     private LocalDateTime createdAt;
