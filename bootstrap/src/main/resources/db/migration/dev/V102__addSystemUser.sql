@@ -12,7 +12,7 @@ ALTER TABLE "PUBLIC"."USER_ROLES_NEW" RENAME TO "USER_ROLES";
 
 -- Добавление пользователя с UUID '00000000-0000-0000-0000-000000000001' (UUID 1)
 INSERT INTO "PUBLIC"."USERS" (
-    "ID", "CREATED_AT", "EMAIL", "FIRST_NAME", "LAST_NAME", "PASSWORD_HASH",
+    "ID", "CREATED_AT", "EMAIL", "FIRST_NAME", "LAST_NAME",
     "PHONE", "PHOTO_URL", "STATUS", "SUBSCRIBED_TO_NOTIFICATIONS", "TG_ID",
     "UPDATED_AT", "USERNAME"
 ) VALUES (
@@ -21,7 +21,6 @@ INSERT INTO "PUBLIC"."USERS" (
              'systemuser@example.com',
              'System',
              'User',
-             'ваш_хэш_пароля',
              '+70000000000',
              NULL,
              'VERIFIED',

@@ -627,7 +627,6 @@ CREATE CACHED TABLE "PUBLIC"."USERS"(
     "EMAIL" CHARACTER VARYING(255),
     "FIRST_NAME" CHARACTER VARYING(255) NOT NULL,
     "LAST_NAME" CHARACTER VARYING(255),
-    "PASSWORD_HASH" CHARACTER VARYING(255) NOT NULL,
     "PHONE" CHARACTER VARYING(255),
     "PHOTO_URL" CHARACTER VARYING(255),
     "STATUS" ENUM('BANNED', 'CREATED', 'DELETED', 'VERIFIED') NOT NULL,
@@ -639,10 +638,10 @@ CREATE CACHED TABLE "PUBLIC"."USERS"(
 ALTER TABLE "PUBLIC"."USERS" ADD CONSTRAINT "PUBLIC"."CONSTRAINT_4D" PRIMARY KEY("ID");
 -- 4 +/- SELECT COUNT(*) FROM PUBLIC.USERS;
 INSERT INTO "PUBLIC"."USERS" VALUES
-                                 (UUID '763e08db-7f0b-4e0e-bfb5-5c77404211f7', TIMESTAMP '2025-04-03 12:00:00', 'alice@example.com', 'Alice', 'Johnson', '$2b$12$abcdefghijklmnopqrstuv', '+79123456789', NULL, 'CREATED', FALSE, 1234567890, NULL, 'alicejohnson'),
-                                 (UUID '3c26f460-2177-456f-92fc-c284c91a711d', TIMESTAMP '2025-04-03 12:05:00', 'bob@example.com', 'Bob', 'Smith', '$2b$12$zyxwvutsrqponmlkjihgfedc', '+79219876543', NULL, 'CREATED', FALSE, 1987654321, NULL, 'bobsmith'),
-                                 (UUID '66e2ee9e-72c0-40ea-b8bf-0bd1eae89d67', TIMESTAMP '2025-04-03 12:10:00', 'charlie@example.com', 'Charlie Davis', 'Davis', '$2b$12$1234567890abcdefgijklmn', '+79219876542', NULL, 'BANNED', FALSE, 8987654325, NULL, 'charliedavis'),
-                                 (UUID '7f313358-746a-4bf2-83fa-28cd229e49fe', TIMESTAMP '2025-08-18 23:09:25.510123', 'kogav74753@efpaper.com', 'Ivan', 'Ivanov', '$2a$10$t4oFEtejs5c17vbgKz8QqeMHUTQd9VVADlmFpXcfzMioAhn9QqauG', '88005553535', 'https://t.me/i/userpic/320/ivanov_ivan.jpg', 'VERIFIED', TRUE, 123458999, TIMESTAMP '2025-08-18 23:09:28.044649', 'ivanov_ietoto;tg_id_123458999');
+                                 (UUID '763e08db-7f0b-4e0e-bfb5-5c77404211f7', TIMESTAMP '2025-04-03 12:00:00', 'alice@example.com', 'Alice', 'Johnson', '+79123456789', NULL, 'CREATED', FALSE, 1234567890, NULL, 'alicejohnson'),
+                                 (UUID '3c26f460-2177-456f-92fc-c284c91a711d', TIMESTAMP '2025-04-03 12:05:00', 'bob@example.com', 'Bob', 'Smith', '+79219876543', NULL, 'CREATED', FALSE, 1987654321, NULL, 'bobsmith'),
+                                 (UUID '66e2ee9e-72c0-40ea-b8bf-0bd1eae89d67', TIMESTAMP '2025-04-03 12:10:00', 'charlie@example.com', 'Charlie Davis', 'Davis', '+79219876542', NULL, 'BANNED', FALSE, 8987654325, NULL, 'charliedavis'),
+                                 (UUID '7f313358-746a-4bf2-83fa-28cd229e49fe', TIMESTAMP '2025-08-18 23:09:25.510123', 'kogav74753@efpaper.com', 'Ivan', 'Ivanov', '88005553535', 'https://t.me/i/userpic/320/ivanov_ivan.jpg', 'VERIFIED', TRUE, 123458999, TIMESTAMP '2025-08-18 23:09:28.044649', 'ivanov_ietoto;tg_id_123458999');
 ALTER TABLE "PUBLIC"."TICKETS" ADD CONSTRAINT "PUBLIC"."CONSTRAINT_DB" CHECK("TYPE" BETWEEN 0 AND 3) NOCHECK;
 ALTER TABLE "PUBLIC"."USERS" ADD CONSTRAINT "PUBLIC"."UK6DOTKOTT2KJSP8VW4D0M25FB7" UNIQUE NULLS DISTINCT ("EMAIL");
 ALTER TABLE "PUBLIC"."USERS" ADD CONSTRAINT "PUBLIC"."UKR43AF9AP4EDM43MMTQ01ODDJ6" UNIQUE NULLS DISTINCT ("USERNAME");

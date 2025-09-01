@@ -37,9 +37,6 @@ public class UserEntity {
     @Column(unique = true)
     private String email;
 
-    @Column(nullable = false)
-    private String passwordHash;
-
     @Column(unique = true)
     private String phone;
 
