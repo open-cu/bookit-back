@@ -27,9 +27,9 @@ public class TelegramAuthService {
      * Validates the authentication data received from Telegram.
      * Throws an exception if validation fails.
      *
-     * @param telegramUserData The map of query parameters from Telegram.
+     * @param telegramUserData The map of Telegram mini app initData keys and values in the decoded format.
      */
-    public void validate(@RequestParam Map<String, String> telegramUserData) {
+    public void validate(Map<String, String> telegramUserData) {
         String hash = telegramUserData.get("hash");
 
         if (hash == null || hash.isEmpty()) {
