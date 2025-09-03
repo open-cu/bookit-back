@@ -89,3 +89,9 @@ tg-bot:
   photo-url: ${PHOTO_URL}
   website: ${WEBSITE}
   username: ${BOT_USERNAME}
+
+tinkoff-id:
+  client-id: ${TINKOFF_CLIENT_ID}
+  client-secret: ${TINKOFF_CLIENT_SECRET}
+  redirect-uri: ${TINKOFF_REDIRECT_URI}
+  api-base-url: https://api.tinkoff.ru/id/v1
