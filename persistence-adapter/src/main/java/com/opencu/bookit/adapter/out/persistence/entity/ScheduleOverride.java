@@ -30,7 +30,6 @@ public class ScheduleOverride {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", updatable = false, nullable = false)
-    @JdbcTypeCode(SqlTypes.VARCHAR)
     private UUID id;
 
     @Column(name = "override_date", nullable = false, unique = true)

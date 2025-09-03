@@ -19,7 +19,7 @@ import java.time.LocalTime;
  * These rules can be overridden by {@link ScheduleOverride} for specific dates.
  */
 @Entity
-@Table(name = "weekly_schedules")
+@Table(name = "WEEKLY_SCHEDULE")
 @Getter
 @Setter
 @NoArgsConstructor
