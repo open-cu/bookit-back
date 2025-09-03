@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class NonWorkingDaySchedulePersistenceAdapter implements LoadNonWorkingDaySchedulePort, SaveSchedulePort {
+public class ScheduleAdapter implements LoadNonWorkingDaySchedulePort, SaveSchedulePort {
 
     private final ScheduleRepository scheduleRepository;
     private final ScheduleMapper scheduleMapper;

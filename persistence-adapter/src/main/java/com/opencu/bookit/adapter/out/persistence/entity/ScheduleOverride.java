@@ -70,9 +70,6 @@ public class ScheduleOverride {
             if (openingTime == null || closingTime == null) {
                 throw new IllegalStateException("Opening and closing times must be set for a working day override.");
             }
-            if (openingTime.isAfter(closingTime)) {
-                throw new IllegalStateException("Opening time must be before closing time.");
-            }
         }
     }
 }
