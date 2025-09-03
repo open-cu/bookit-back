@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -16,7 +14,7 @@ import java.util.UUID;
  * Represents an exception or override to the regular weekly schedule for a specific date.
  * <p>
  * This entity is used for public holidays, special events, or any day when the
- * working hours differ from the default {@link WeeklySchedule}.
+ * working hours differ from the default {@link WeeklyScheduleEntity}.
  * An entry in this table for a given date takes precedence over the weekly rule.
  */
 @Entity
@@ -25,7 +23,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @ToString
-public class ScheduleOverride {
+public class ScheduleOverrideEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -52,7 +50,7 @@ public class ScheduleOverride {
     @Column(name = "closing_time")
     private LocalTime closingTime;
 
-    @Column(name = "description", length = 255)
+    @Column(name = "description")
     private String description;
 
     /**

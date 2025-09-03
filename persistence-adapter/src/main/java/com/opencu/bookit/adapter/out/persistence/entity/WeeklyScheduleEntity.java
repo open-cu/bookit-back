@@ -16,7 +16,7 @@ import java.time.LocalTime;
  * It uses the {@link DayOfWeek} enum as its natural primary key, ensuring
  * that there is exactly one, unique entry per day.
  * <p>
- * These rules can be overridden by {@link ScheduleOverride} for specific dates.
+ * These rules can be overridden by {@link ScheduleOverrideEntity} for specific dates.
  */
 @Entity
 @Table(name = "WEEKLY_SCHEDULE")
@@ -24,7 +24,7 @@ import java.time.LocalTime;
 @Setter
 @NoArgsConstructor
 @ToString
-public class WeeklySchedule {
+public class WeeklyScheduleEntity {
 
     @Id
     @Enumerated(EnumType.STRING)
@@ -48,7 +48,7 @@ public class WeeklySchedule {
     @Column(name = "closing_time")
     private LocalTime closingTime;
 
-    public WeeklySchedule(DayOfWeek dayOfWeek, boolean isDayOff, LocalTime openingTime, LocalTime closingTime) {
+    public WeeklyScheduleEntity(DayOfWeek dayOfWeek, boolean isDayOff, LocalTime openingTime, LocalTime closingTime) {
         this.dayOfWeek = dayOfWeek;
         this.isDayOff = isDayOff;
         this.openingTime = openingTime;
