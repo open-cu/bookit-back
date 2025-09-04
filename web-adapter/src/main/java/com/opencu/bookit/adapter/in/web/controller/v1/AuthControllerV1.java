@@ -7,6 +7,7 @@ import com.opencu.bookit.adapter.out.security.spring.payload.response.TBankUserI
 import com.opencu.bookit.adapter.out.security.spring.service.AuthService;
 import com.opencu.bookit.adapter.out.security.spring.service.TBankIdService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,21 +46,33 @@ public class AuthControllerV1 {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.completeUserProfile(profileRequest));
     }
 
-    @Operation(summary = "Get TBank ID login URL")
+    @Operation(summary = "Get TBank ID login URL and save state in session")
     @GetMapping("/tbank-login")
-    public ResponseEntity<Map<String, String>> getTBankLoginUrl() {
-        return ResponseEntity.ok(tBankIdService.generateLoginData());
+    public ResponseEntity<Map<String, String>> getTBankLoginUrl(HttpSession session) {
+        Map<String, String> loginData = tBankIdService.generateLoginData();
+        session.setAttribute("TBANK_OAUTH_STATE", loginData.get("state"));
+        return ResponseEntity.ok(loginData);
     }
 
-    @Operation(summary = "Exchange TBank authorization code for access token")
+    @Operation(summary = "Exchange TBank authorization code for access token, validating state")
     @PostMapping("/tbank-token")
-    public ResponseEntity<String> getTinkoffAccessToken(@RequestParam String code) {
-        return ResponseEntity.ok(tBankIdService.getAccessToken(code));
+    public ResponseEntity<String> getTBankAccessToken(
+            @RequestParam String code,
+            @RequestParam String state,
+            HttpSession session
+    ) {
+        String savedState = (String) session.getAttribute("TBANK_OAUTH_STATE");
+        if (savedState == null || !savedState.equals(state)) {
+            throw new IllegalArgumentException("Invalid state parameter");
+        }
+        session.removeAttribute("TBANK_OAUTH_STATE");
+        String token = tBankIdService.getAccessToken(code);
+        return ResponseEntity.ok(token);
     }
 
     @Operation(summary = "Get TBank user info by access token")
     @PostMapping("/userinfo")
-    public ResponseEntity<TBankUserInfoResponse> getTinkoffUserInfo(@RequestParam String accessToken) {
+    public ResponseEntity<TBankUserInfoResponse> getTBankUserInfo(@RequestParam String accessToken) {
         return ResponseEntity.ok(tBankIdService.getUserInfo(accessToken));
     }
 }
