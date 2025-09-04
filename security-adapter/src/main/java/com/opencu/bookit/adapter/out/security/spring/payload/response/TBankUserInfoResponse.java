@@ -1,6 +1,6 @@
 package com.opencu.bookit.adapter.out.security.spring.payload.response;
 
-public record TinkoffUserInfoResponse(
+public record TBankUserInfoResponse(
         String sub,
         String name,
         String gender,

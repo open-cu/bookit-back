@@ -90,8 +90,8 @@ tg-bot:
   website: ${WEBSITE}
   username: ${BOT_USERNAME}
 
-tinkoff-id:
-  client-id: ${TINKOFF_CLIENT_ID}
-  client-secret: ${TINKOFF_CLIENT_SECRET}
-  redirect-uri: ${TINKOFF_REDIRECT_URI}
-  api-base-url: https://api.tinkoff.ru/id/v1
+tbank-id:
+  client-id: ${TBANK_CLIENT_ID}
+  client-secret: ${TBANK_CLIENT_SECRET}
+  redirect-uri: ${TBANK_REDIRECT_URI}
+  api-base-url: https://id.tbank.ru
