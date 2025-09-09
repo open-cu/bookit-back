@@ -246,7 +246,7 @@ public class BookingControllerV1 {
     public ResponseEntity<?> deleteById(
             @PathVariable UUID bookingId
     ) {
-        if (securityService.hasRequiredRole(securityService.getAdmin()) || securityService.isDev()) {
+        if (securityService.hasRequiredRole(securityService.getAdmin())) {
             bookingService.deleteById(bookingId);
             return ResponseEntity.ok("Booking deleted successfully");
         } else {
