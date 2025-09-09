@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -20,6 +21,7 @@ public class BookingModel {
     private AreaModel areaModel;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+    private List<UUID> participants;
     private int quantity;
     private BookingStatus status;
     private LocalDateTime createdAt;
