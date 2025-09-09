@@ -15,7 +15,7 @@ COPY ai-agent-adapter ./ai-agent-adapter
 COPY s3-adapter ./s3-adapter
 COPY web-adapter ./web-adapter
 COPY telegram-bot-notification-adapter ./telegram-bot-notification-adapter
-RUN  mvn clean package -s settings.xml -DskipTests
+RUN  mvn clean package  -DskipTests
 
 
 FROM eclipse-temurin:21-jre-jammy
