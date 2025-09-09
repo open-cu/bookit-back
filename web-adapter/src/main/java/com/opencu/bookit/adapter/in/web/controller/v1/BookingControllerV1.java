@@ -123,10 +123,13 @@ public class BookingControllerV1 {
 
         if (timeline != null && !timeline.isEmpty()) {
             UserDetailsImpl currentUser = getCurrentUser();
-            switch (timeline) {
+            switch (timeline.toLowerCase()) {
                 case "future" -> bookings.addAll(bookingService.getFutureBookings(currentUser.getId()));
                 case "past" -> bookings.addAll(bookingService.getPastBookings(currentUser.getId()));
-                default -> bookings.addAll(bookingService.getCurrentBookings(currentUser.getId()));
+                case "current" -> bookings.addAll(bookingService.getCurrentBookings(currentUser.getId()));
+                default -> {
+                    throw new IllegalArgumentException("timeline " + timeline + " is not recognized, use future, past or current");
+                }
             }
             int fromIndex = Math.min(page * size, bookings.size());
             int toIndex = Math.min(fromIndex + size, bookings.size());
@@ -246,7 +249,7 @@ public class BookingControllerV1 {
     public ResponseEntity<?> deleteById(
             @PathVariable UUID bookingId
     ) {
-        if (securityService.hasRequiredRole(securityService.getAdmin()) || securityService.isDev()) {
+        if (securityService.hasRequiredRole(securityService.getAdmin())) {
             bookingService.deleteById(bookingId);
             return ResponseEntity.ok("Booking deleted successfully");
         } else {

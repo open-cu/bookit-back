@@ -35,6 +35,7 @@ public class AuthService implements LoadAuthorizationInfoPort{
     private final JwtUtils jwtUtils;
     private final TelegramAuthService telegramAuthService;
     private final ZoneId zoneId;
+    private final String activeProfile;
 
     public AuthService(
             LoadUserPort loadUserPort,
@@ -42,13 +43,15 @@ public class AuthService implements LoadAuthorizationInfoPort{
             PasswordEncoder passwordEncoder,
             JwtUtils jwtUtils,
             TelegramAuthService telegramAuthService,
-            @Value("${booking.zone-id}") ZoneId zoneId
+            @Value("${booking.zone-id}") ZoneId zoneId,
+            @Value("${spring.profiles.active:}") String activeProfile
             ) {
         this.loadUserPort = loadUserPort;
         this.saveUserPort = saveUserPort;
         this.jwtUtils = jwtUtils;
         this.telegramAuthService = telegramAuthService;
         this.zoneId = zoneId;
+        this.activeProfile = activeProfile;
     }
 
     @Transactional
@@ -56,7 +59,9 @@ public class AuthService implements LoadAuthorizationInfoPort{
 
         Map<String, String> preparedTelegramData = parseTelegramInitData(initDataRaw);
 
-        telegramAuthService.validate(preparedTelegramData);
+        if ("prod".equalsIgnoreCase(activeProfile)) {
+            telegramAuthService.validate(preparedTelegramData);
+        }
         
         TelegramUser telegramRequest = TelegramUser.fromMap(preparedTelegramData);
         UserModel user = findOrCreateUser(telegramRequest);
