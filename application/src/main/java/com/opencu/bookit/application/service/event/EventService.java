@@ -73,7 +73,9 @@ public class EventService {
     }
 
     public EventStatus findStatusById(UUID userId, EventModel eventModel){
-        if (isUserPresent(userId, eventModel)) {
+        if (eventModel.getEndTime().isBefore(LocalDateTime.now(zoneId))) {
+            return EventStatus.COMPLETED;
+        } else if (isUserPresent(userId, eventModel)) {
             return EventStatus.REGISTERED;
         } else if (eventModel.getAvailable_places() > 0) {
             return EventStatus.AVAILABLE;
