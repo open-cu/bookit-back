@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 
 @RestController
-@RequestMapping("/api/schedule")
+@RequestMapping("/api/v1/schedule")
 @Tag(name = "Schedule Management", description = "Working schedule configuration and information")
 public class ScheduleController {
 
@@ -24,7 +24,7 @@ public class ScheduleController {
         this.scheduleService = scheduleService;
     }
 
-    @GetMapping("/working-day/{date}")
+    @GetMapping("/working-day-config/{date}")
     @Operation(
         summary = "Get working day configuration",
         description = "Returns working hours, booking interval, and holiday status for the specified date"

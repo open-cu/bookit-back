@@ -11,14 +11,23 @@ import java.time.LocalTime;
 
 @Service
 public class ScheduleService {
-    @Value("${booking.end-work}")
     LocalTime workingDayStart;
-    @Value("${booking.start-work}")
     LocalTime workingDayEnd;
-    @Value("${booking.booking-slot-duration}")
     Long bookingSlotDuration;
 
+    public ScheduleService(@Value("${booking.start-work}") int workingDayStartHour,
+                           @Value("${booking.end-work}") int workingDayEndHour,
+                           @Value("${booking.booking-slot-duration}") Long bookingSlotDuration) {
+        this.workingDayStart = LocalTime.of(workingDayStartHour, 0);
+        this.workingDayEnd = LocalTime.of(workingDayEndHour, 0);
+        this.bookingSlotDuration = bookingSlotDuration;
+
+    }
+
     public WorkingDayConfig getWorkingDayConfig(LocalDate date) {
-        return new WorkingDayConfig(workingDayStart, workingDayEnd, bookingSlotDuration, date.getDayOfWeek() == DayOfWeek.SUNDAY);
+        if (date.getDayOfWeek() == DayOfWeek.SUNDAY) {
+            return new WorkingDayConfig(null, null, null, true);
+        }
+        return new WorkingDayConfig(workingDayStart, workingDayEnd, bookingSlotDuration, false);
     }
 }
