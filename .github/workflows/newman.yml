@@ -9,8 +9,6 @@ on:
 
 env:
   REMOTE_USER: ${{ secrets.SSH_USER }}
-  BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-  BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
 
 jobs:
   newman-tests:
@@ -34,6 +32,8 @@ jobs:
           REGION: ${{ secrets.REGION }}
           S3_ENDPOINT: ${{ secrets.S3_ENDPOINT }}
           BUCKET: ${{ secrets.BUCKET }}
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
           AUTH: "null"
           MODEL_URI: "null"
           SYSTEM_TEXT: "null"
@@ -44,8 +44,8 @@ jobs:
         run: npm install newman@latest
 
       - name: Run Postman Tests
-        if: always()
         run: npx newman run "https://api.getpostman.com/collections/${{ secrets.COLLECTION_UID }}?access_key=${{ secrets.ACCESS_KEY }}" --working-dir $REMOTE_USER/photos
 
       - name: Stop containers with docker-compose
+        if: always()
         run: docker-compose -f docker-test.yaml down
