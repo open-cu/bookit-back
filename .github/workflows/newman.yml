@@ -9,6 +9,8 @@ on:
 
 env:
   REMOTE_USER: ${{ secrets.SSH_USER }}
+  BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+  BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
 
 jobs:
   newman-tests:
