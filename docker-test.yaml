@@ -41,7 +41,11 @@ services:
       - MESSAGING_ENABLED=false
 
       #  tg-bot
-      - TG_BOT_ENABLED=false
+      - TG_BOT_ENABLED=true
+      - BOT_TOKEN=${BOT_TOKEN}
+      - PHOTO_URL=${PHOTO_URL}
+      - WEBSITE=${WEBSITE}
+      - BOT_USERNAME=${BOT_USERNAME}
 
 
 networks:
