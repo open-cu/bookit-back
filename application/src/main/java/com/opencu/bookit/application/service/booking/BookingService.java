@@ -8,6 +8,7 @@ import com.opencu.bookit.application.port.in.booking.CRUDBookingUseCase;
 import com.opencu.bookit.application.port.out.booking.DeleteBookingPort;
 import com.opencu.bookit.application.port.out.booking.LoadBookingPort;
 import com.opencu.bookit.application.port.out.booking.SaveBookingPort;
+import com.opencu.bookit.application.port.out.event.LoadEventPort;
 import com.opencu.bookit.application.port.out.user.LoadAuthorizationInfoPort;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.application.port.out.statstics.LoadHallOccupancyPort;
@@ -18,6 +19,7 @@ import com.opencu.bookit.domain.model.booking.BookingModel;
 import com.opencu.bookit.domain.model.booking.BookingStatus;
 import com.opencu.bookit.domain.model.booking.TimeTag;
 import com.opencu.bookit.domain.model.booking.ValidationRule;
+import com.opencu.bookit.domain.model.event.EventModel;
 import com.opencu.bookit.domain.model.statistics.HallOccupancyModel;
 import com.opencu.bookit.domain.model.user.UserModel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,12 +46,13 @@ public class BookingService {
 
     private final BookingConfig bookingConfig;
     private final BookingValidationService bookingValidationService;
+    private final LoadEventPort loadEventPort;
 
     @Autowired
     public BookingService(LoadBookingPort loadBookingPort, SaveBookingPort saveBookingPort, DeleteBookingPort deleteBookingPort,
                           LoadHallOccupancyPort loadHallOccupancyPort, SaveHallOccupancyPort saveHallOccupancyPort,
                           BookingConfig bookingConfig, LoadAreaPort loadAreaPort, LoadUserPort loadUserPort,
-                          LoadAuthorizationInfoPort loadAuthorizationInfoPort, BookingValidationService bookingValidationService) {
+                          LoadAuthorizationInfoPort loadAuthorizationInfoPort, BookingValidationService bookingValidationService, LoadEventPort loadEventPort) {
         this.loadBookingPort = loadBookingPort;
         this.saveBookingPort = saveBookingPort;
         this.deleteBookingPort = deleteBookingPort;
@@ -60,6 +63,7 @@ public class BookingService {
         this.loadUserPort = loadUserPort;
         this.loadAuthorizationInfoPort = loadAuthorizationInfoPort;
         this.bookingValidationService = bookingValidationService;
+        this.loadEventPort = loadEventPort;
     }
 
     public Optional<BookingModel> findBooking(UUID bookingId) {
@@ -101,6 +105,15 @@ public class BookingService {
             throw new FeatureUnavailableException(AppFeatures.BOOKING_MEETING_SPACES);
         }
 
+        EventModel eventModel;
+        if (createBookingCommand.eventId() == null) {
+            eventModel = null;
+        } else {
+            eventModel = loadEventPort.findById(createBookingCommand.eventId())
+                    .orElseThrow(() -> new NoSuchElementException("Event not found with id: " + createBookingCommand.eventId()));
+        }
+
+
         bookingValidationService.validateBooking(createBookingCommand, validationRules);
 
         ArrayList<Pair<LocalDateTime, LocalDateTime>> times = new ArrayList<>(createBookingCommand.timePeriods());
@@ -127,6 +140,7 @@ public class BookingService {
             BookingModel bookingModel = new BookingModel();
             bookingModel.setUserModel(userModel);
             bookingModel.setAreaModel(areaModel);
+            bookingModel.setEventModel(eventModel);
 
             bookingModel.setStartTime(time.getFirst());
             bookingModel.setEndTime(time.getSecond());
