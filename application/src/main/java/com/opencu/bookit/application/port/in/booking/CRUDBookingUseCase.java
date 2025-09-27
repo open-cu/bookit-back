@@ -11,6 +11,7 @@ public interface CRUDBookingUseCase {
     record CreateBookingCommand(
             UUID userId,
             UUID areaId,
+            UUID eventId,
             Set<Pair<LocalDateTime, LocalDateTime>> timePeriods,
             int quantity) {}
 

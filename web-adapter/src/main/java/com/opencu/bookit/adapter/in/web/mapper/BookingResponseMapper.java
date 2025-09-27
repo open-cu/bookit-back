@@ -17,6 +17,7 @@ public interface BookingResponseMapper {
     
     @Mapping(target = "userId", expression = "java(bookingModel.getUserId())")
     @Mapping(target = "areaId", expression = "java(bookingModel.getAreaId())")
+    @Mapping(target = "eventId", expression = "java(bookingModel.getEventId())")
     BookingResponse toResponse(BookingModel bookingModel);
     
     List<BookingResponse> toResponseList(List<BookingModel> bookingModels);
