@@ -238,7 +238,7 @@ public class BookingControllerV1 {
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().build();
         } catch (ProfileNotCompletedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }

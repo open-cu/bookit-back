@@ -106,11 +106,11 @@ public class BookingService {
         }
 
         EventModel eventModel;
-        if (createBookingCommand.eventId() == null) {
+        if (createBookingCommand.eventId().isEmpty()) {
             eventModel = null;
         } else {
-            eventModel = loadEventPort.findById(createBookingCommand.eventId())
-                    .orElseThrow(() -> new NoSuchElementException("Event not found with id: " + createBookingCommand.eventId()));
+            eventModel = loadEventPort.findById(createBookingCommand.eventId().get())
+                    .orElseThrow(() -> new NoSuchElementException("Event not found with id: " + createBookingCommand.eventId().get()));
         }
 
 
@@ -210,6 +210,10 @@ public class BookingService {
 
         UUID userId = loadAuthorizationInfoPort.getCurrentUser().getId();
 
+        if (bookingModel.getEventId() != null) {
+            throw new IllegalStateException(String.format("Booking with id: %s cannot be changed since it related to event with id: %s", bookingId,
+                    bookingModel.getEventId()));
+        }
         if (bookingModel.getStatus() == BookingStatus.CANCELED || bookingModel.getStatus() == BookingStatus.COMPLETED) {
             throw new IllegalStateException("Unable to update " + bookingModel.getStatus() + " booking");
         }
@@ -258,6 +262,7 @@ public class BookingService {
         return loadBookingPort.findWithFilters(startDate, endDate, pageable, areaId, userId);
     }
 
+    @Transactional
     public BookingModel updateById(
             UUID bookingId,
             UUID userId,
@@ -278,6 +283,10 @@ public class BookingService {
         }
 
         BookingModel model = bookingOpt.get();
+        if (model.getEventId() != null) {
+            throw new IllegalArgumentException("You cannot update the booking " + bookingId + " related to event " + model.getEventId());
+        }
+
         model.setAreaModel(areaOpt.get());
         model.setUserModel(userOpt.get());
 

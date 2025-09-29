@@ -113,7 +113,6 @@ public class BookingValidationService {
         return false;
     }
 
-    // TO DO: There's no ways to validate and update eventId when booking. We need to check this out.
     public void validateBooking(UUID bookingId, CRUDBookingUseCase.UpdateBookingQuery command, Set<ValidationRule> rulesToApply) {
         BookingModel bookingModel = loadBookingPort.findById(bookingId).orElseThrow(() -> new IllegalArgumentException("Booking with this id was not found"));
 
@@ -136,7 +135,7 @@ public class BookingValidationService {
         validateBooking(new CRUDBookingUseCase.CreateBookingCommand(
                 bookingModel.getUserId(),
                 command.areaId(),
-                null,
+                Optional.empty(),
                 Set.of(Pair.of(command.startTime(), command.endTime())),
                 1
         ), modifiedRules);

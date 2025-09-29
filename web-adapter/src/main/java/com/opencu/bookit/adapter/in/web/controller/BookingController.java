@@ -141,7 +141,7 @@ public class BookingController {
         CRUDBookingUseCase.CreateBookingCommand actualRequest = new CRUDBookingUseCase.CreateBookingCommand(
                 currentUser.getId(),
                 request.areaId(),
-                null,
+                Optional.empty(),
                 request.timePeriods(),
                 request.quantity()
         );

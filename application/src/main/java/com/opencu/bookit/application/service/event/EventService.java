@@ -102,7 +102,7 @@ public class EventService {
         CRUDBookingUseCase.CreateBookingCommand createBookingCommand = new CRUDBookingUseCase.CreateBookingCommand(
                 userId,
                 eventModel.getAreaModel().getId(),
-                eventModel.getId(),
+                Optional.of(eventModel.getId()),
                 Set.of(Pair.of(eventModel.getStartTime(), eventModel.getEndTime())),
                 1
         );
@@ -279,11 +279,10 @@ public class EventService {
         eventModel.setAreaModel(loadAreaPort.findById(areaId)
                 .orElseThrow(() -> new NoSuchElementException("No such area " + areaId + " found")));
 
-        // TO DO: is it okay to not provide an id?
         CRUDBookingUseCase.CreateBookingCommand createBookingCommand = new CRUDBookingUseCase.CreateBookingCommand(
                 loadUserPort.getSystemUser().getId(),
                 eventModel.getAreaModel().getId(),
-                null,
+                Optional.empty(),
                 Set.of(Pair.of(eventModel.getStartTime(), eventModel.getEndTime())),
                 0
         );
