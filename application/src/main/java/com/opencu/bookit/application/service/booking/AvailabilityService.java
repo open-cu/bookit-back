@@ -111,6 +111,7 @@ public class AvailabilityService {
 
     private boolean isAreaAvailable(LocalDateTime currHour, List<BookingModel> bookingModels, AreaModel areaModel, Optional<BookingModel> excludeBooking) {
         excludeBooking.ifPresent(bookingModel -> bookingModels.removeIf(b -> b.getId().equals(bookingModel.getId())));
+        bookingModels.removeIf(b -> b.getStatus() != BookingStatus.CONFIRMED);
         if (areaModel.getType() != AreaType.WORKPLACE) {
             UUID areaId = areaModel.getId();
             return bookingModels.stream().noneMatch(b -> bookingIncludeHour(currHour, b) &&
