@@ -77,6 +77,10 @@ public class BookingService {
             throw new IllegalStateException("Booking already cancelled");
         }
 
+        if (bookingModel.getEventId() != null) {
+            throw new IllegalStateException("Please ask an administrator to cancel your booking");
+        }
+
         if (bookingModel.getStartTime().isBefore(LocalDateTime.now(bookingConfig.getZoneId()))) {
             bookingModel.setStatus(BookingStatus.COMPLETED);
         }
