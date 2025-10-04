@@ -51,7 +51,8 @@ public class NewsPersistenceAdapter implements LoadNewsPort, SaveNewsPort,
             spec = spec.and((root, query, cb) ->
                     cb.or(
                             cb.like(cb.lower(root.get("title")), "%" + search.toLowerCase() + "%"),
-                            cb.like(root.get("description"), "%" + search + "%")
+                            cb.like(root.get("short_description"), "%" + search + "%"),
+                            cb.like(root.get("full_description"), "%" + search + "%")
                          )
            );
         }

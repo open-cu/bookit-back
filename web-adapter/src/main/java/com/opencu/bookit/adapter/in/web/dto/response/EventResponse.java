@@ -14,7 +14,8 @@ import java.util.UUID;
 public record EventResponse(
         UUID id,
         String name,
-        String description,
+        String shortDescription,
+        String fullDescription,
         Set<ThemeTags> tags,
         Set<ContentFormat> formats,
         Set<ContentTime> times,

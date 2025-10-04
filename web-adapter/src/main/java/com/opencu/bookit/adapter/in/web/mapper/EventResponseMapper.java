@@ -21,7 +21,8 @@ public class EventResponseMapper {
         return new EventResponse(
                 event.getId(),
                 event.getName(),
-                event.getDescription(),
+                event.getShortDescription(),
+                event.getFullDescription(),
                 event.getTags(),
                 event.getFormats(),
                 event.getTimes(),

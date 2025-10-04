@@ -154,7 +154,8 @@ public class EventService {
     public EventModel updateEvent(
             UUID eventId,
             String name,
-            String description,
+            String shortDescription,
+            String fullDescription,
             List<ThemeTags> tags,
             List<ContentFormat> formats,
             List<ContentTime> times,
@@ -170,7 +171,7 @@ public class EventService {
             throw new NoSuchElementException("No such event " + eventId + " found");
         }
         EventModel eventModel = eventOpt.get();
-        setEventModelValues(name, description, tags, formats, times, participationFormats, keys, startTime, eventModel);
+        setEventModelValues(name, shortDescription, fullDescription, tags, formats, times, participationFormats, keys, startTime, eventModel);
         eventModel.setAvailable_places(availablePlaces);
         eventModel.setEndTime(endTime);
         eventModel.setAreaModel(loadAreaPort.findById(areaId)
@@ -209,9 +210,10 @@ public class EventService {
         return saveEventPort.save(eventModel);
     }
 
-    private void setEventModelValues(String name, String description, List<ThemeTags> tags, List<ContentFormat> formats, List<ContentTime> times, List<ParticipationFormat> participationFormats, List<String> keys, LocalDateTime startTime, EventModel eventModel) {
+    private void setEventModelValues(String name, String shortDescription, String fullDescription, List<ThemeTags> tags, List<ContentFormat> formats, List<ContentTime> times, List<ParticipationFormat> participationFormats, List<String> keys, LocalDateTime startTime, EventModel eventModel) {
         eventModel.setName(name);
-        eventModel.setDescription(description);
+        eventModel.setShortDescription(shortDescription);
+        eventModel.setFullDescription(fullDescription);
         eventModel.setTags(new HashSet<>(tags));
         eventModel.setFormats(new HashSet<>(formats));
         eventModel.setTimes(new HashSet<>(times));
@@ -260,7 +262,8 @@ public class EventService {
     @Transactional
     public EventModel createEvent(
             String name,
-            String description,
+            String shortDescription,
+            String fullDescription,
             List<ThemeTags> tags,
             List<ContentFormat> formats,
             List<ContentTime> times,
@@ -272,7 +275,7 @@ public class EventService {
             UUID areaId
     ) {
         EventModel eventModel = new EventModel();
-        setEventModelValues(name, description, tags, formats, times, participationFormats, keys, startTime, eventModel);
+        setEventModelValues(name, shortDescription, fullDescription, tags, formats, times, participationFormats, keys, startTime, eventModel);
         eventModel.setEndTime(endTime);
         eventModel.setAvailable_places(availablePlaces);
         eventModel.setAreaModel(loadAreaPort.findById(areaId)

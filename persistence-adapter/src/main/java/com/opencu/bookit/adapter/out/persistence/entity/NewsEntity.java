@@ -27,7 +27,10 @@ public class NewsEntity {
 
     @Lob
     @Column(nullable = false, columnDefinition = "TEXT")
-    private String description;
+    private String full_description;
+
+    @Column
+    private String short_description;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
