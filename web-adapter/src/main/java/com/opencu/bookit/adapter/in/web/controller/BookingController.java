@@ -137,9 +137,11 @@ public class BookingController {
             }
         }
 
+        // TO DO: if we create a booking with no connections to any events, we just provide null instead of eventId, is that okay?
         CRUDBookingUseCase.CreateBookingCommand actualRequest = new CRUDBookingUseCase.CreateBookingCommand(
                 currentUser.getId(),
                 request.areaId(),
+                Optional.empty(),
                 request.timePeriods(),
                 request.quantity()
         );

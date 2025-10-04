@@ -8,6 +8,7 @@ import com.opencu.bookit.application.port.in.booking.CRUDBookingUseCase;
 import com.opencu.bookit.application.port.out.booking.DeleteBookingPort;
 import com.opencu.bookit.application.port.out.booking.LoadBookingPort;
 import com.opencu.bookit.application.port.out.booking.SaveBookingPort;
+import com.opencu.bookit.application.port.out.event.LoadEventPort;
 import com.opencu.bookit.application.port.out.user.LoadAuthorizationInfoPort;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.application.port.out.statstics.LoadHallOccupancyPort;
@@ -18,6 +19,7 @@ import com.opencu.bookit.domain.model.booking.BookingModel;
 import com.opencu.bookit.domain.model.booking.BookingStatus;
 import com.opencu.bookit.domain.model.booking.TimeTag;
 import com.opencu.bookit.domain.model.booking.ValidationRule;
+import com.opencu.bookit.domain.model.event.EventModel;
 import com.opencu.bookit.domain.model.statistics.HallOccupancyModel;
 import com.opencu.bookit.domain.model.user.UserModel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,12 +46,13 @@ public class BookingService {
 
     private final BookingConfig bookingConfig;
     private final BookingValidationService bookingValidationService;
+    private final LoadEventPort loadEventPort;
 
     @Autowired
     public BookingService(LoadBookingPort loadBookingPort, SaveBookingPort saveBookingPort, DeleteBookingPort deleteBookingPort,
                           LoadHallOccupancyPort loadHallOccupancyPort, SaveHallOccupancyPort saveHallOccupancyPort,
                           BookingConfig bookingConfig, LoadAreaPort loadAreaPort, LoadUserPort loadUserPort,
-                          LoadAuthorizationInfoPort loadAuthorizationInfoPort, BookingValidationService bookingValidationService) {
+                          LoadAuthorizationInfoPort loadAuthorizationInfoPort, BookingValidationService bookingValidationService, LoadEventPort loadEventPort) {
         this.loadBookingPort = loadBookingPort;
         this.saveBookingPort = saveBookingPort;
         this.deleteBookingPort = deleteBookingPort;
@@ -60,6 +63,7 @@ public class BookingService {
         this.loadUserPort = loadUserPort;
         this.loadAuthorizationInfoPort = loadAuthorizationInfoPort;
         this.bookingValidationService = bookingValidationService;
+        this.loadEventPort = loadEventPort;
     }
 
     public Optional<BookingModel> findBooking(UUID bookingId) {
@@ -71,6 +75,10 @@ public class BookingService {
 
         if (bookingModel.getStatus() == BookingStatus.CANCELED) {
             throw new IllegalStateException("Booking already cancelled");
+        }
+
+        if (bookingModel.getEventId() != null) {
+            throw new IllegalStateException("Please ask an administrator to cancel your booking");
         }
 
         if (bookingModel.getStartTime().isBefore(LocalDateTime.now(bookingConfig.getZoneId()))) {
@@ -101,6 +109,15 @@ public class BookingService {
             throw new FeatureUnavailableException(AppFeatures.BOOKING_MEETING_SPACES);
         }
 
+        EventModel eventModel;
+        if (createBookingCommand.eventId().isEmpty()) {
+            eventModel = null;
+        } else {
+            eventModel = loadEventPort.findById(createBookingCommand.eventId().get())
+                    .orElseThrow(() -> new NoSuchElementException("Event not found with id: " + createBookingCommand.eventId().get()));
+        }
+
+
         bookingValidationService.validateBooking(createBookingCommand, validationRules);
 
         ArrayList<Pair<LocalDateTime, LocalDateTime>> times = new ArrayList<>(createBookingCommand.timePeriods());
@@ -127,6 +144,7 @@ public class BookingService {
             BookingModel bookingModel = new BookingModel();
             bookingModel.setUserModel(userModel);
             bookingModel.setAreaModel(areaModel);
+            bookingModel.setEventModel(eventModel);
 
             bookingModel.setStartTime(time.getFirst());
             bookingModel.setEndTime(time.getSecond());
@@ -186,21 +204,40 @@ public class BookingService {
 
     @Transactional
     public BookingModel updateBooking(UUID bookingId, CRUDBookingUseCase.UpdateBookingQuery request, Set<ValidationRule> rulesToApply) {
-        UUID areaId = request.areaId();
-        LocalDateTime startTime = request.startTime();
-        LocalDateTime endTime = request.endTime();
+
         BookingModel bookingModel = loadBookingPort.findById(bookingId)
                                                    .orElseThrow(() -> new NoSuchElementException("Booking not found with id: " + bookingId));
 
-        bookingValidationService.validateBooking(bookingId, request, rulesToApply);
+        return updateBookingImpl(bookingModel, request, rulesToApply);
+    }
+
+    @Transactional
+    public BookingModel updateEventBooking(BookingModel bookingModel, CRUDBookingUseCase.UpdateBookingQuery request, Set<ValidationRule> rulesToApply) {
+        return updateBookingImpl(bookingModel, request, rulesToApply);
+    }
+
+    private BookingModel updateBookingImpl(BookingModel bookingModel, CRUDBookingUseCase.UpdateBookingQuery request, Set<ValidationRule> rulesToApply) {
+        UUID areaId = request.areaId();
+        LocalDateTime startTime = request.startTime();
+        LocalDateTime endTime = request.endTime();
+
+        bookingValidationService.validateBooking(bookingModel.getId(), request, rulesToApply);
 
         UUID userId = loadAuthorizationInfoPort.getCurrentUser().getId();
 
+        if (bookingModel.getEventId() != null && !bookingModel.getStatus().equals(BookingStatus.PENDING)) {
+            throw new IllegalStateException(String.format("Booking with id: %s cannot be changed since it related to event with id: %s", bookingModel.getId(),
+                    bookingModel.getEventId()));
+        }
         if (bookingModel.getStatus() == BookingStatus.CANCELED || bookingModel.getStatus() == BookingStatus.COMPLETED) {
             throw new IllegalStateException("Unable to update " + bookingModel.getStatus() + " booking");
         }
         if (startTime.isAfter(endTime)) {
             throw new IllegalArgumentException("Start time cannot be after end time");
+        }
+
+        if (bookingModel.getStatus().equals(BookingStatus.PENDING)) {
+            bookingModel.setStatus(BookingStatus.CONFIRMED);
         }
 
         boolean sameArea = bookingModel.getAreaId().equals(areaId);
@@ -212,7 +249,7 @@ public class BookingService {
 
         AreaModel areaModel = !sameArea
                 ? loadAreaPort.findById(areaId)
-                              .orElseThrow(() -> new NoSuchElementException("Area not found id: " + areaId))
+                .orElseThrow(() -> new NoSuchElementException("Area not found id: " + areaId))
                 : bookingModel.getAreaModel();
 
         if (!sameArea) {
@@ -244,6 +281,7 @@ public class BookingService {
         return loadBookingPort.findWithFilters(startDate, endDate, pageable, areaId, userId);
     }
 
+    @Transactional
     public BookingModel updateById(
             UUID bookingId,
             UUID userId,
@@ -264,6 +302,10 @@ public class BookingService {
         }
 
         BookingModel model = bookingOpt.get();
+        if (model.getEventId() != null) {
+            throw new IllegalArgumentException("You cannot update the booking " + bookingId + " related to event " + model.getEventId());
+        }
+
         model.setAreaModel(areaOpt.get());
         model.setUserModel(userOpt.get());
 
@@ -291,6 +333,7 @@ public class BookingService {
     @Transactional
     public BookingModel updateBookingAccordingToIndirectParameters(CRUDBookingUseCase.UpdateBookingQuery updateBookingQuery, Set<ValidationRule> rulesToApply, UUID userId, UUID areaId, LocalDateTime startTime, LocalDateTime endTime) {
         BookingModel bookingModelOptional = loadBookingPort.findByIndirectParameters(userId, areaId, startTime, endTime).orElseThrow(() -> new NoSuchElementException("Booking of user:" + userId + "not found"));
-        return updateBooking(bookingModelOptional.getId(), updateBookingQuery, rulesToApply);
+        bookingModelOptional.setStatus(BookingStatus.PENDING);
+        return updateEventBooking(bookingModelOptional, updateBookingQuery, rulesToApply);
     }
 }
