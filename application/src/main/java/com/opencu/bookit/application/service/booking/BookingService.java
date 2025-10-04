@@ -204,18 +204,29 @@ public class BookingService {
 
     @Transactional
     public BookingModel updateBooking(UUID bookingId, CRUDBookingUseCase.UpdateBookingQuery request, Set<ValidationRule> rulesToApply) {
-        UUID areaId = request.areaId();
-        LocalDateTime startTime = request.startTime();
-        LocalDateTime endTime = request.endTime();
+
         BookingModel bookingModel = loadBookingPort.findById(bookingId)
                                                    .orElseThrow(() -> new NoSuchElementException("Booking not found with id: " + bookingId));
 
-        bookingValidationService.validateBooking(bookingId, request, rulesToApply);
+        return updateBookingImpl(bookingModel, request, rulesToApply);
+    }
+
+    @Transactional
+    public BookingModel updateEventBooking(BookingModel bookingModel, CRUDBookingUseCase.UpdateBookingQuery request, Set<ValidationRule> rulesToApply) {
+        return updateBookingImpl(bookingModel, request, rulesToApply);
+    }
+
+    private BookingModel updateBookingImpl(BookingModel bookingModel, CRUDBookingUseCase.UpdateBookingQuery request, Set<ValidationRule> rulesToApply) {
+        UUID areaId = request.areaId();
+        LocalDateTime startTime = request.startTime();
+        LocalDateTime endTime = request.endTime();
+
+        bookingValidationService.validateBooking(bookingModel.getId(), request, rulesToApply);
 
         UUID userId = loadAuthorizationInfoPort.getCurrentUser().getId();
 
-        if (bookingModel.getEventId() != null) {
-            throw new IllegalStateException(String.format("Booking with id: %s cannot be changed since it related to event with id: %s", bookingId,
+        if (bookingModel.getEventId() != null && !bookingModel.getStatus().equals(BookingStatus.PENDING)) {
+            throw new IllegalStateException(String.format("Booking with id: %s cannot be changed since it related to event with id: %s", bookingModel.getId(),
                     bookingModel.getEventId()));
         }
         if (bookingModel.getStatus() == BookingStatus.CANCELED || bookingModel.getStatus() == BookingStatus.COMPLETED) {
@@ -223,6 +234,10 @@ public class BookingService {
         }
         if (startTime.isAfter(endTime)) {
             throw new IllegalArgumentException("Start time cannot be after end time");
+        }
+
+        if (bookingModel.getStatus().equals(BookingStatus.PENDING)) {
+            bookingModel.setStatus(BookingStatus.CONFIRMED);
         }
 
         boolean sameArea = bookingModel.getAreaId().equals(areaId);
@@ -234,7 +249,7 @@ public class BookingService {
 
         AreaModel areaModel = !sameArea
                 ? loadAreaPort.findById(areaId)
-                              .orElseThrow(() -> new NoSuchElementException("Area not found id: " + areaId))
+                .orElseThrow(() -> new NoSuchElementException("Area not found id: " + areaId))
                 : bookingModel.getAreaModel();
 
         if (!sameArea) {
@@ -318,6 +333,7 @@ public class BookingService {
     @Transactional
     public BookingModel updateBookingAccordingToIndirectParameters(CRUDBookingUseCase.UpdateBookingQuery updateBookingQuery, Set<ValidationRule> rulesToApply, UUID userId, UUID areaId, LocalDateTime startTime, LocalDateTime endTime) {
         BookingModel bookingModelOptional = loadBookingPort.findByIndirectParameters(userId, areaId, startTime, endTime).orElseThrow(() -> new NoSuchElementException("Booking of user:" + userId + "not found"));
-        return updateBooking(bookingModelOptional.getId(), updateBookingQuery, rulesToApply);
+        bookingModelOptional.setStatus(BookingStatus.PENDING);
+        return updateEventBooking(bookingModelOptional, updateBookingQuery, rulesToApply);
     }
 }
