@@ -10,13 +10,10 @@ import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.application.service.booking.BookingService;
 import com.opencu.bookit.application.service.nofication.NotificationService;
 import com.opencu.bookit.domain.model.booking.ValidationRule;
-import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
-import com.opencu.bookit.domain.model.contentcategory.ContentTime;
-import com.opencu.bookit.domain.model.contentcategory.ParticipationFormat;
+import com.opencu.bookit.domain.model.contentcategory.*;
 import com.opencu.bookit.domain.model.event.EventModel;
 import com.opencu.bookit.domain.model.event.EventNotification;
 import com.opencu.bookit.domain.model.event.EventStatus;
-import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
 import com.opencu.bookit.domain.model.user.UserModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -159,6 +156,7 @@ public class EventService {
             List<ContentFormat> formats,
             List<ContentTime> times,
             List<ParticipationFormat> participationFormats,
+            List<TargetAudience> targetAudiences,
             List<String> keys,
             LocalDateTime startTime,
             LocalDateTime endTime,
@@ -170,7 +168,7 @@ public class EventService {
             throw new NoSuchElementException("No such event " + eventId + " found");
         }
         EventModel eventModel = eventOpt.get();
-        setEventModelValues(name, description, tags, formats, times, participationFormats, keys, startTime, eventModel);
+        setEventModelValues(name, description, tags, formats, times, participationFormats, targetAudiences, keys, startTime, eventModel);
         eventModel.setAvailable_places(availablePlaces);
         eventModel.setEndTime(endTime);
         eventModel.setAreaModel(loadAreaPort.findById(areaId)
@@ -209,13 +207,14 @@ public class EventService {
         return saveEventPort.save(eventModel);
     }
 
-    private void setEventModelValues(String name, String description, List<ThemeTags> tags, List<ContentFormat> formats, List<ContentTime> times, List<ParticipationFormat> participationFormats, List<String> keys, LocalDateTime startTime, EventModel eventModel) {
+    private void setEventModelValues(String name, String description, List<ThemeTags> tags, List<ContentFormat> formats, List<ContentTime> times, List<ParticipationFormat> participationFormats, List<TargetAudience> targetAudiences, List<String> keys, LocalDateTime startTime, EventModel eventModel) {
         eventModel.setName(name);
         eventModel.setDescription(description);
         eventModel.setTags(new HashSet<>(tags));
         eventModel.setFormats(new HashSet<>(formats));
         eventModel.setTimes(new HashSet<>(times));
         eventModel.setParticipationFormats(new HashSet<>(participationFormats));
+        eventModel.setTargetAudiences(new HashSet<>(targetAudiences));
         eventModel.setKeys(keys);
         eventModel.setStartTime(startTime);
     }
@@ -223,10 +222,10 @@ public class EventService {
     public Page<EventModel> findWithFilters(
             LocalDate startDate, LocalDate endDate,
             Set<ThemeTags> tags, Set<ContentFormat> formats, Set<ContentTime> times,
-            Set<ParticipationFormat> participationFormats,
+            Set<ParticipationFormat> participationFormats, Set<TargetAudience> targetAudiences,
             String search, String status, Pageable pageable, UUID currentUserId
     ) {
-        return loadEventPort.findWithFilters(startDate, endDate, tags, formats, times, participationFormats,
+        return loadEventPort.findWithFilters(startDate, endDate, tags, formats, times, participationFormats, targetAudiences,
                 search, status, pageable, currentUserId);
     }
 
@@ -265,6 +264,7 @@ public class EventService {
             List<ContentFormat> formats,
             List<ContentTime> times,
             List<ParticipationFormat> participationFormats,
+            List<TargetAudience> targetAudiences,
             List<String> keys,
             LocalDateTime startTime,
             LocalDateTime endTime,
@@ -272,7 +272,7 @@ public class EventService {
             UUID areaId
     ) {
         EventModel eventModel = new EventModel();
-        setEventModelValues(name, description, tags, formats, times, participationFormats, keys, startTime, eventModel);
+        setEventModelValues(name, description, tags, formats, times, participationFormats, targetAudiences, keys, startTime, eventModel);
         eventModel.setEndTime(endTime);
         eventModel.setAvailable_places(availablePlaces);
         eventModel.setAreaModel(loadAreaPort.findById(areaId)
