@@ -11,7 +11,8 @@ import java.util.UUID;
 public record NewsResponse(
     UUID id,
     String title,
-    String description,
+    String shortDescription,
+    String fullDescription,
     Set<ThemeTags> tags,
     List<ImageModel> images,
     LocalDateTime createdAt

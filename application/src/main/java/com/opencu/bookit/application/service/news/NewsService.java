@@ -57,7 +57,8 @@ public class NewsService {
     public NewsModel udpateNews(
             UUID newsId,
             String title,
-            String description,
+            String shortDescription,
+            String fullDescription,
             List<ThemeTags> tags,
             List<String> keys
     ) {
@@ -67,7 +68,8 @@ public class NewsService {
         }
         NewsModel news = newsOpt.get();
         news.setTitle(title);
-        news.setDescription(description);
+        news.setShortDescription(shortDescription);
+        news.setFullDescription(fullDescription);
         news.setTags(new HashSet<>(tags));
         news.setKeys(new ArrayList<>(keys));
         return saveNewsPort.save(news);
@@ -76,13 +78,15 @@ public class NewsService {
     @Transactional
     public NewsModel createNews(
             String title,
-            String description,
+            String shortDescription,
+            String fullDescription,
             List<ThemeTags> tags,
             List<String> keys
     ) {
         NewsModel newsModel = new NewsModel();
         newsModel.setTitle(title);
-        newsModel.setDescription(description);
+        newsModel.setShortDescription(shortDescription);
+        newsModel.setFullDescription(fullDescription);
         newsModel.setTags(new HashSet<>(tags));
         newsModel.setCreatedAt(LocalDateTime.now(zoneId));
         newsModel.setKeys(keys);

@@ -15,8 +15,9 @@ import java.util.UUID;
 public record UpdateEventRequest(
         @NotBlank
         String name,
+        String shortDescription,
         @NotBlank
-        String description,
+        String fullDescription,
         List<ThemeTags> tags,
         List<ContentFormat> formats,
         List<ContentTime> times,
