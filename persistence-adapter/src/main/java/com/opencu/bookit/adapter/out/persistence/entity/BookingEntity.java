@@ -31,6 +31,11 @@ public class BookingEntity {
     @JsonIgnore
     private AreaEntity areaEntity;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_id")
+    @JsonIgnore
+    private EventEntity eventEntity;
+
     @Column(nullable = false)
     private LocalDateTime startTime;
 
@@ -52,4 +57,6 @@ public class BookingEntity {
     }
 
     public UUID getUserId() {return userEntity != null ? userEntity.getId() : null;}
+
+    public UUID getEventId() {return eventEntity != null ? eventEntity.getId() : null;}
 }

@@ -207,41 +207,33 @@ public class BookingControllerV1 {
     public ResponseEntity<BookingResponse> updateBooking(
             @PathVariable UUID bookingId,
             @RequestBody UpdateBookingRequest request) {
-        try {
-            if (securityService.hasRequiredRole(securityService.getAdmin()) || securityService.isDev()) {
-                if (request.userId() != null || request.status() != null) {
-                    BookingResponse response = bookingResponseMapper.toResponse(
-                            bookingService.updateById(
-                                    bookingId,
-                                    request.userId(),
-                                    request.areaId(),
-                                    request.startTime(),
-                                    request.endTime(),
-                                    request.status()
-                            )
-                    );
-                    return ResponseEntity.ok(response);
-                }
+        if (securityService.hasRequiredRole(securityService.getAdmin()) || securityService.isDev()) {
+            if (request.userId() != null || request.status() != null) {
+                BookingResponse response = bookingResponseMapper.toResponse(
+                        bookingService.updateById(
+                                bookingId,
+                                request.userId(),
+                                request.areaId(),
+                                request.startTime(),
+                                request.endTime(),
+                                request.status()
+                        )
+                );
+                return ResponseEntity.ok(response);
             }
-
-            UserDetailsImpl currentUser = getCurrentUser();
-            if (currentUser.getStatus() != UserStatus.VERIFIED) {
-                throw new ProfileNotCompletedException("User profile is not completed. Please complete your profile before updating bookings.");
-            }
-            if (request.userId() != null && request.userId() != currentUser.getId()) {
-                throw new IllegalStateException("You cannot update booking for another user.");
-            }
-
-            Set<ValidationRule> validateAreaAvailability = Set.of(ValidationRule.VALIDATE_AREA_AVAILABILITY, ValidationRule.VALIDATE_TIME_RESTRICTIONS, ValidationRule.VALIDATE_USER_OWNERSHIP, ValidationRule.VALIDATE_USER_BOOKING_CONFLICTS);
-            BookingModel updatedBooking = bookingService.updateBooking(bookingId, bookingRequestMapper.toQuery(request), validateAreaAvailability);
-            return ResponseEntity.ok(bookingResponseMapper.toResponse(updatedBooking));
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
-        } catch (IllegalStateException e) {
-            return ResponseEntity.badRequest().body(null);
-        } catch (ProfileNotCompletedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
+
+        UserDetailsImpl currentUser = getCurrentUser();
+        if (currentUser.getStatus() != UserStatus.VERIFIED) {
+            throw new ProfileNotCompletedException("User profile is not completed. Please complete your profile before updating bookings.");
+        }
+        if (request.userId() != null && request.userId() != currentUser.getId()) {
+            throw new IllegalStateException("You cannot update booking for another user.");
+        }
+
+        Set<ValidationRule> validateAreaAvailability = Set.of(ValidationRule.VALIDATE_AREA_AVAILABILITY, ValidationRule.VALIDATE_TIME_RESTRICTIONS, ValidationRule.VALIDATE_USER_OWNERSHIP, ValidationRule.VALIDATE_USER_BOOKING_CONFLICTS);
+        BookingModel updatedBooking = bookingService.updateBooking(bookingId, bookingRequestMapper.toQuery(request), validateAreaAvailability);
+        return ResponseEntity.ok(bookingResponseMapper.toResponse(updatedBooking));
     }
 
     @DeleteMapping("/{bookingId}")

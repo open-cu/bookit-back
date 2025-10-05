@@ -99,6 +99,7 @@ public class EventService {
         CRUDBookingUseCase.CreateBookingCommand createBookingCommand = new CRUDBookingUseCase.CreateBookingCommand(
                 userId,
                 eventModel.getAreaModel().getId(),
+                Optional.of(eventModel.getId()),
                 Set.of(Pair.of(eventModel.getStartTime(), eventModel.getEndTime())),
                 1
         );
@@ -281,6 +282,7 @@ public class EventService {
         CRUDBookingUseCase.CreateBookingCommand createBookingCommand = new CRUDBookingUseCase.CreateBookingCommand(
                 loadUserPort.getSystemUser().getId(),
                 eventModel.getAreaModel().getId(),
+                Optional.empty(),
                 Set.of(Pair.of(eventModel.getStartTime(), eventModel.getEndTime())),
                 0
         );

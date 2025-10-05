@@ -87,6 +87,8 @@ public class BookingValidationService {
                         throw new IllegalArgumentException("Area is not available for booking in the selected time period.");
                 }
             }
+
+            // TO DO: check out if checking event availability is necessary
         }
     }
 
@@ -133,6 +135,7 @@ public class BookingValidationService {
         validateBooking(new CRUDBookingUseCase.CreateBookingCommand(
                 bookingModel.getUserId(),
                 command.areaId(),
+                Optional.empty(),
                 Set.of(Pair.of(command.startTime(), command.endTime())),
                 1
         ), modifiedRules);

@@ -1,6 +1,7 @@
 package com.opencu.bookit.domain.model.booking;
 
 import com.opencu.bookit.domain.model.area.AreaModel;
+import com.opencu.bookit.domain.model.event.EventModel;
 import com.opencu.bookit.domain.model.user.UserModel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,6 +20,7 @@ public class BookingModel {
     private UUID id;
     private UserModel userModel;
     private AreaModel areaModel;
+    private EventModel eventModel;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private int quantity;
@@ -30,6 +32,8 @@ public class BookingModel {
     }
 
     public UUID getUserId() {return userModel != null ? userModel.getId() : null;}
+
+    public UUID getEventId() {return eventModel != null ? eventModel.getId() : null;}
 
     public String getAreaName() {return areaModel != null ? areaModel.getName() : null;}
 }

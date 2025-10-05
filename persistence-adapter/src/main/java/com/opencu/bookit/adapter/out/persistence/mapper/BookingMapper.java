@@ -22,10 +22,12 @@ public abstract class BookingMapper {
 
     @Mapping(target = "userModel", source = "userEntity")
     @Mapping(target = "areaModel", source = "areaEntity")
+    @Mapping(target = "eventModel", source = "eventEntity")
     public abstract BookingModel toModel(BookingEntity entity);
 
     @Mapping(target = "userEntity", source = "userModel")
     @Mapping(target = "areaEntity", source = "areaModel")
+    @Mapping(target = "eventEntity", source = "eventModel")
     public abstract BookingEntity toEntity(BookingModel model);
 
     public abstract List<BookingModel> toModelList(List<BookingEntity> entities);
