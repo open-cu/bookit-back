@@ -2,10 +2,7 @@ package com.opencu.bookit.domain.model.event;
 
 import com.opencu.bookit.domain.model.area.AreaModel;
 import com.opencu.bookit.domain.model.booking.BookingModel;
-import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
-import com.opencu.bookit.domain.model.contentcategory.ContentTime;
-import com.opencu.bookit.domain.model.contentcategory.ParticipationFormat;
-import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
+import com.opencu.bookit.domain.model.contentcategory.*;
 import com.opencu.bookit.domain.model.user.UserModel;
 import lombok.*;
 
@@ -27,6 +24,7 @@ public class EventModel {
     private Set<ContentFormat> formats = new HashSet<>();
     private Set<ContentTime> times = new HashSet<>();
     private Set<ParticipationFormat> participationFormats = new HashSet<>();
+    private Set<TargetAudience> targetAudiences = new HashSet<>();
     private List<String> keys;
     /**
      * stands for start of the event
