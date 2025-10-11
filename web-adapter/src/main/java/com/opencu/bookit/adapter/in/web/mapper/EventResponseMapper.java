@@ -27,6 +27,7 @@ public class EventResponseMapper {
                 event.getFormats(),
                 event.getTimes(),
                 event.getParticipationFormats(),
+                event.getTargetAudiences(),
                 service.getImagesFromKeys(event.getKeys(), sendPhotos),
                 event.getStartTime(),
                 event.getEndTime(),

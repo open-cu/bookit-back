@@ -1,10 +1,7 @@
 package com.opencu.bookit.adapter.out.persistence.entity;
 
 import com.opencu.bookit.domain.model.area.AreaModel;
-import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
-import com.opencu.bookit.domain.model.contentcategory.ContentTime;
-import com.opencu.bookit.domain.model.contentcategory.ParticipationFormat;
-import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
+import com.opencu.bookit.domain.model.contentcategory.*;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -58,6 +55,12 @@ public class EventEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "participation_format")
     private Set<ParticipationFormat> participationFormats = new HashSet<>();
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "event_target_audiences", joinColumns = @JoinColumn(name = "event_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "target_audience")
+    private Set<TargetAudience> targetAudiences = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "event_keys", joinColumns = @JoinColumn(name = "event_id"))

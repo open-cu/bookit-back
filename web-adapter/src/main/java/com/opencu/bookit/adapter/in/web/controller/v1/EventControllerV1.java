@@ -6,12 +6,9 @@ import com.opencu.bookit.adapter.in.web.exception.ResourceNotFoundException;
 import com.opencu.bookit.adapter.in.web.mapper.EventResponseMapperV1;
 import com.opencu.bookit.application.service.event.EventService;
 import com.opencu.bookit.application.service.photo.PhotoService;
-import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
-import com.opencu.bookit.domain.model.contentcategory.ContentTime;
-import com.opencu.bookit.domain.model.contentcategory.ParticipationFormat;
+import com.opencu.bookit.domain.model.contentcategory.*;
 import com.opencu.bookit.domain.model.event.EventModel;
 import com.opencu.bookit.domain.model.event.EventStatus;
-import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
 import com.opencu.bookit.domain.model.user.UserStatus;
 import com.opencu.bookit.adapter.out.security.spring.service.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -58,6 +55,7 @@ public class EventControllerV1 {
             @RequestParam(required = false) Set<ContentFormat> formats,
             @RequestParam(required = false) Set<ContentTime> times,
             @RequestParam(required = false) Set<ParticipationFormat> participationFormats,
+            @RequestParam(required = false) Set<TargetAudience> targetAudiences,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "true") Boolean sendPhotos,
@@ -80,7 +78,7 @@ public class EventControllerV1 {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
             Page<EventResponseV1> eventsPage = eventService
-                    .findWithFilters(startDate, endDate, tags, formats, times, participationFormats, search, status, pageable, currentUserId)
+                    .findWithFilters(startDate, endDate, tags, formats, times, participationFormats, targetAudiences, search, status, pageable, currentUserId)
                     .map(event -> {
                         try {
                             return eventResponseMapper.toEventResponse(event, sendPhotos);
@@ -197,6 +195,7 @@ public class EventControllerV1 {
                     updateEventRequest.formats(),
                     updateEventRequest.times(),
                     updateEventRequest.participationFormats(),
+                    updateEventRequest.targetAudiences(),
                     keys,
                     updateEventRequest.startTime(),
                     updateEventRequest.endTime(),
@@ -234,6 +233,7 @@ public class EventControllerV1 {
                 updateEventRequest.formats(),
                 updateEventRequest.times(),
                 updateEventRequest.participationFormats(),
+                updateEventRequest.targetAudiences(),
                 keys,
                 updateEventRequest.startTime(),
                 updateEventRequest.endTime(),

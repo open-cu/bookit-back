@@ -1,10 +1,7 @@
 package com.opencu.bookit.application.port.out.event;
 
-import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
-import com.opencu.bookit.domain.model.contentcategory.ContentTime;
-import com.opencu.bookit.domain.model.contentcategory.ParticipationFormat;
+import com.opencu.bookit.domain.model.contentcategory.*;
 import com.opencu.bookit.domain.model.event.EventModel;
-import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -25,6 +22,7 @@ public interface LoadEventPort {
             Set<ContentFormat> formats,
             Set<ContentTime> times,
             Set<ParticipationFormat> participationFormats,
+            Set<TargetAudience> targetAudiences,
             String search,
             String status,
             Pageable pageable,

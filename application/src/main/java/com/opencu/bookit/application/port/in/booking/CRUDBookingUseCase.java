@@ -3,6 +3,7 @@ package com.opencu.bookit.application.port.in.booking;
 import org.springframework.data.util.Pair;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -11,6 +12,7 @@ public interface CRUDBookingUseCase {
     record CreateBookingCommand(
             UUID userId,
             UUID areaId,
+            Optional<UUID> eventId,
             Set<Pair<LocalDateTime, LocalDateTime>> timePeriods,
             int quantity) {}
 

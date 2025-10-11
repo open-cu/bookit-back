@@ -1,9 +1,6 @@
 package com.opencu.bookit.adapter.in.web.dto.response;
 
-import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
-import com.opencu.bookit.domain.model.contentcategory.ContentTime;
-import com.opencu.bookit.domain.model.contentcategory.ParticipationFormat;
-import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
+import com.opencu.bookit.domain.model.contentcategory.*;
 import com.opencu.bookit.domain.model.image.ImageModel;
 
 import java.time.LocalDateTime;
@@ -20,6 +17,7 @@ public record EventResponse(
         Set<ContentFormat> formats,
         Set<ContentTime> times,
         Set<ParticipationFormat> participationFormats,
+        Set<TargetAudience> targetAudiences,
         List<ImageModel> images,
         LocalDateTime date,
         LocalDateTime endTime,
