@@ -57,7 +57,7 @@ public class NewsService {
     public NewsModel udpateNews(
             UUID newsId,
             String title,
-            String shortDescription,
+            Optional<String> shortDescription,
             String fullDescription,
             List<ThemeTags> tags,
             List<String> keys
@@ -78,7 +78,7 @@ public class NewsService {
     @Transactional
     public NewsModel createNews(
             String title,
-            String shortDescription,
+            Optional<String> shortDescription,
             String fullDescription,
             List<ThemeTags> tags,
             List<String> keys

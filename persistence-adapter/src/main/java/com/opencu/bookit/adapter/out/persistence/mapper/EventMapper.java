@@ -7,10 +7,12 @@ import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
+import java.util.Optional;
 
 @Mapper(componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
-        uses = {UserMapper.class, AreaMapper.class, BookingMapper.class})
+        uses = {UserMapper.class, AreaMapper.class, BookingMapper.class,
+        }, imports = Optional.class)
 public interface EventMapper {
 
     @Mapping(target = "userModels", source = "users")
@@ -20,7 +22,8 @@ public interface EventMapper {
     @Mapping(target = "areaModel", source = "area")
     @Mapping(target = "systemBooking", source = "systemBooking")
     @Mapping(target = "fullDescription", source = "full_description")
-    @Mapping(target = "shortDescription", source = "short_description")
+    @Mapping(target = "shortDescription",
+            expression = "java(Optional.ofNullable(entity.getShort_description()))")
     EventModel toModel(EventEntity entity);
 
     @Mapping(target = "users", source = "userModels")
@@ -30,7 +33,8 @@ public interface EventMapper {
     @Mapping(target = "area", source = "areaModel")
     @Mapping(target = "systemBooking", source = "systemBooking")
     @Mapping(target = "full_description", source = "fullDescription")
-    @Mapping(target = "short_description", source = "shortDescription")
+    @Mapping(target = "short_description",
+            expression = "java(model.getShortDescription().orElse(null))")
     EventEntity toEntity(EventModel model);
 
     List<EventModel> toModelList(List<EventEntity> entities);

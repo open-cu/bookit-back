@@ -152,7 +152,7 @@ public class EventService {
     public EventModel updateEvent(
             UUID eventId,
             String name,
-            String shortDescription,
+            Optional<String> shortDescription,
             String fullDescription,
             List<ThemeTags> tags,
             List<ContentFormat> formats,
@@ -209,7 +209,7 @@ public class EventService {
         return saveEventPort.save(eventModel);
     }
 
-    private void setEventModelValues(String name, String shortDescription, String fullDescription, List<ThemeTags> tags, List<ContentFormat> formats, List<ContentTime> times, List<ParticipationFormat> participationFormats, List<TargetAudience> targetAudiences, List<String> keys, LocalDateTime startTime, EventModel eventModel) {
+    private void setEventModelValues(String name, Optional<String> shortDescription, String fullDescription, List<ThemeTags> tags, List<ContentFormat> formats, List<ContentTime> times, List<ParticipationFormat> participationFormats, List<TargetAudience> targetAudiences, List<String> keys, LocalDateTime startTime, EventModel eventModel) {
         eventModel.setName(name);
         eventModel.setShortDescription(shortDescription);
         eventModel.setFullDescription(fullDescription);
@@ -262,7 +262,7 @@ public class EventService {
     @Transactional
     public EventModel createEvent(
             String name,
-            String shortDescription,
+            Optional<String> shortDescription,
             String fullDescription,
             List<ThemeTags> tags,
             List<ContentFormat> formats,

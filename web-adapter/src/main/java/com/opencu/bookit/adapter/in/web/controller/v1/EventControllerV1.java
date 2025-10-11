@@ -189,7 +189,7 @@ public class EventControllerV1 {
             EventModel eventModel = eventService.updateEvent(
                     eventId,
                     updateEventRequest.name(),
-                    updateEventRequest.shortDescription(),
+                    Optional.ofNullable(updateEventRequest.shortDescription()),
                     updateEventRequest.fullDescription(),
                     updateEventRequest.tags(),
                     updateEventRequest.formats(),
@@ -227,7 +227,7 @@ public class EventControllerV1 {
             keys = photoService.upload(photos);
             EventModel eventModel = eventService.createEvent(
                 updateEventRequest.name(),
-                updateEventRequest.shortDescription(),
+                Optional.ofNullable(updateEventRequest.shortDescription()),
                 updateEventRequest.fullDescription(),
                 updateEventRequest.tags(),
                 updateEventRequest.formats(),

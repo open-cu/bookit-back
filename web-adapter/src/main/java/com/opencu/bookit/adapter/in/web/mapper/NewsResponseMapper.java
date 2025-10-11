@@ -25,7 +25,7 @@ public class NewsResponseMapper {
         return new NewsResponse(
             model.getId(),
             model.getTitle(),
-            model.getShortDescription(),
+            model.getShortDescription().get(),
             model.getFullDescription(),
             model.getTags(),
             service.getImagesFromKeys(model.getKeys(), sendPhotos),
