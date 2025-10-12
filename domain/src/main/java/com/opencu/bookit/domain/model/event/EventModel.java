@@ -6,10 +6,12 @@ import com.opencu.bookit.domain.model.contentcategory.*;
 import com.opencu.bookit.domain.model.user.UserModel;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
-import org.springframework.lang.Nullable;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -18,7 +20,7 @@ import java.util.*;
 public class EventModel {
     private UUID id;
     private String name;
-    private Optional<String> shortDescription;
+    private String shortDescription;
     private String fullDescription;
     private Set<ThemeTags> tags = new HashSet<>();
     private Set<ContentFormat> formats = new HashSet<>();

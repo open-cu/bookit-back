@@ -20,7 +20,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.UUID;
 
 @Tag(name = "admin-news-controller-v-1", description = "For admins only")
 @RestController
@@ -114,7 +117,7 @@ public class AdminNewsControllerV1 {
             NewsModel news = newsService.udpateNews(
                     newsId,
                     newsUpdateRequest.title(),
-                    Optional.ofNullable(newsUpdateRequest.shortDescription()),
+                    newsUpdateRequest.shortDescription(),
                     newsUpdateRequest.fullDescription(),
                     newsUpdateRequest.tags(),
                     keys
@@ -145,7 +148,7 @@ public class AdminNewsControllerV1 {
             keys = photoService.upload(photos);
         NewsModel news = newsService.createNews(
                 newsUpdateRequest.title(),
-                Optional.ofNullable(newsUpdateRequest.shortDescription()),
+                newsUpdateRequest.shortDescription(),
                 newsUpdateRequest.fullDescription(),
                 newsUpdateRequest.tags(),
                 keys
