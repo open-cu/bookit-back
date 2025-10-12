@@ -117,7 +117,8 @@ public class AdminNewsControllerV1 {
             NewsModel news = newsService.udpateNews(
                     newsId,
                     newsUpdateRequest.title(),
-                    newsUpdateRequest.description(),
+                    newsUpdateRequest.shortDescription(),
+                    newsUpdateRequest.fullDescription(),
                     newsUpdateRequest.tags(),
                     keys
             );
@@ -147,7 +148,8 @@ public class AdminNewsControllerV1 {
             keys = photoService.upload(photos);
         NewsModel news = newsService.createNews(
                 newsUpdateRequest.title(),
-                newsUpdateRequest.description(),
+                newsUpdateRequest.shortDescription(),
+                newsUpdateRequest.fullDescription(),
                 newsUpdateRequest.tags(),
                 keys
         );

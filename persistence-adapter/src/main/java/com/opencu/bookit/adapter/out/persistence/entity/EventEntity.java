@@ -27,7 +27,10 @@ public class EventEntity {
     private String name;
 
     @Column(nullable = false)
-    private String description;
+    private String full_description;
+
+    @Column
+    private String short_description;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "event_tags", joinColumns = @JoinColumn(name = "event_id"))

@@ -16,7 +16,8 @@ import java.util.UUID;
 public class NewsModel {
     private UUID id;
     private String title;
-    private String description;
+    private String shortDescription;
+    private String fullDescription;
     private Set<ThemeTags> tags = new HashSet<>();
     private List<String> keys;
     private LocalDateTime createdAt;

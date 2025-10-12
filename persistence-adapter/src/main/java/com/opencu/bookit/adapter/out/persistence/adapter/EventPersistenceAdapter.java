@@ -95,7 +95,8 @@ public class EventPersistenceAdapter implements LoadEventPort,
             spec = spec.and((root, query, cb) ->
                     cb.or(
                             cb.like(cb.lower(root.get("name")), "%" + search.toLowerCase() + "%"),
-                            cb.like(cb.lower(root.get("description")), "%" + search.toLowerCase() + "%")
+                            cb.like(cb.lower(root.get("short_description")), "%" + search.toLowerCase() + "%"),
+                            cb.like(cb.lower(root.get("full_description")), "%" + search.toLowerCase() + "%")
                     )
             );
         }
