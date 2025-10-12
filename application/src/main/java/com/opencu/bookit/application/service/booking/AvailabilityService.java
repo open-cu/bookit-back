@@ -111,6 +111,7 @@ public class AvailabilityService {
 
     private boolean isAreaAvailable(LocalDateTime currHour, List<BookingModel> bookingModels, AreaModel areaModel, Optional<BookingModel> excludeBooking) {
         excludeBooking.ifPresent(bookingModel -> bookingModels.removeIf(b -> b.getId().equals(bookingModel.getId())));
+        bookingModels.removeIf(b -> b.getStatus() != BookingStatus.CONFIRMED);
         if (areaModel.getType() != AreaType.WORKPLACE) {
             UUID areaId = areaModel.getId();
             return bookingModels.stream().noneMatch(b -> bookingIncludeHour(currHour, b) &&
@@ -118,6 +119,8 @@ public class AvailabilityService {
         } else {
             Optional<HallOccupancyModel> hallOccupancy = loadHallOccupancyPort.findById(currHour);
             UUID userId = loadAuthorizationInfoPort.getCurrentUser().getId();
+            // bookingModels.stream().noneMatch(b -> b.getUserId().equals(userId) - из-за этого условия не дает изменить ивент, если лицо,
+            // создавшее мероприятие, записалось на него. Необходимо сперва отписаться от мероприятия
             if (hallOccupancy.isPresent() && bookingModels.stream().noneMatch(b -> b.getUserId().equals(userId)
                     && bookingIncludeHour(currHour, b))) {
                 if (excludeBooking.isPresent() && excludeBooking.get().getAreaId().equals(areaModel.getId())

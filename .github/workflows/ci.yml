@@ -10,6 +10,8 @@ on:
 env:
   SSH_HOST: ${{ secrets.SSH_HOST }}
   SSH_USER: ${{ secrets.SSH_USER }}
+  BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+  BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
 jobs:
   build:
     runs-on: self-hosted

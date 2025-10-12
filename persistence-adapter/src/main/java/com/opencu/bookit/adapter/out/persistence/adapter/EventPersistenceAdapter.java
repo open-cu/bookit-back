@@ -8,11 +8,8 @@ import com.opencu.bookit.adapter.out.persistence.repository.UserRepository;
 import com.opencu.bookit.application.port.out.event.DeleteEventPort;
 import com.opencu.bookit.application.port.out.event.LoadEventPort;
 import com.opencu.bookit.application.port.out.event.SaveEventPort;
-import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
-import com.opencu.bookit.domain.model.contentcategory.ContentTime;
-import com.opencu.bookit.domain.model.contentcategory.ParticipationFormat;
+import com.opencu.bookit.domain.model.contentcategory.*;
 import com.opencu.bookit.domain.model.event.EventModel;
-import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -58,6 +55,7 @@ public class EventPersistenceAdapter implements LoadEventPort,
             Set<ContentFormat> formats,
             Set<ContentTime> times,
             Set<ParticipationFormat> participationFormats,
+            Set<TargetAudience> targetAudiences,
             String search,
             String status,
             Pageable pageable,
@@ -88,11 +86,17 @@ public class EventPersistenceAdapter implements LoadEventPort,
             spec = spec.and((root, query, cb) ->
                     root.join("participationFormats").in(participationFormats));
         }
+
+        if (targetAudiences != null && !targetAudiences.isEmpty()) {
+            spec = spec.and((root, query, cb) ->
+                    root.join("targetAudiences").in(targetAudiences));
+        }
         if (search != null && !search.isBlank()) {
             spec = spec.and((root, query, cb) ->
                     cb.or(
                             cb.like(cb.lower(root.get("name")), "%" + search.toLowerCase() + "%"),
-                            cb.like(cb.lower(root.get("description")), "%" + search.toLowerCase() + "%")
+                            cb.like(cb.lower(root.get("short_description")), "%" + search.toLowerCase() + "%"),
+                            cb.like(cb.lower(root.get("full_description")), "%" + search.toLowerCase() + "%")
                     )
             );
         }

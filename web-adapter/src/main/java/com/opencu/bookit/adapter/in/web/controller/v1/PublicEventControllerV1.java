@@ -3,10 +3,7 @@ package com.opencu.bookit.adapter.in.web.controller.v1;
 import com.opencu.bookit.adapter.in.web.dto.response.EventResponse;
 import com.opencu.bookit.adapter.in.web.mapper.EventResponseMapper;
 import com.opencu.bookit.application.service.event.EventService;
-import com.opencu.bookit.domain.model.contentcategory.ContentFormat;
-import com.opencu.bookit.domain.model.contentcategory.ContentTime;
-import com.opencu.bookit.domain.model.contentcategory.ParticipationFormat;
-import com.opencu.bookit.domain.model.contentcategory.ThemeTags;
+import com.opencu.bookit.domain.model.contentcategory.*;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -43,6 +40,7 @@ public class PublicEventControllerV1 {
             @RequestParam(required = false) Set<ContentFormat> formats,
             @RequestParam(required = false) Set<ContentTime> times,
             @RequestParam(required = false) Set<ParticipationFormat> participationFormats,
+            @RequestParam(required = false) Set<TargetAudience> targetAudiences,
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "true") Boolean sendPhotos,
             @RequestParam(defaultValue = "${pagination.default-page}") int page,
@@ -57,7 +55,7 @@ public class PublicEventControllerV1 {
 
         Page<EventResponse> events = eventService.findWithFilters(
                 startDate, endDate,
-                tags, formats, times, participationFormats,
+                tags, formats, times, participationFormats, targetAudiences,
                 search, null, pageable, null
         ).map(event -> {
             try {
