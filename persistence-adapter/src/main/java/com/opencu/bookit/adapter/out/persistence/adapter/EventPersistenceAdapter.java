@@ -5,6 +5,7 @@ import com.opencu.bookit.adapter.out.persistence.entity.UserEntity;
 import com.opencu.bookit.adapter.out.persistence.mapper.EventMapper;
 import com.opencu.bookit.adapter.out.persistence.repository.EventRepository;
 import com.opencu.bookit.adapter.out.persistence.repository.UserRepository;
+import com.opencu.bookit.adapter.out.persistence.specifications.EventSpecifications;
 import com.opencu.bookit.application.port.out.event.DeleteEventPort;
 import com.opencu.bookit.application.port.out.event.LoadEventPort;
 import com.opencu.bookit.application.port.out.event.SaveEventPort;
@@ -61,62 +62,15 @@ public class EventPersistenceAdapter implements LoadEventPort,
             Pageable pageable,
             UUID currentUserId
     ) {
-        Specification<EventEntity> spec = Specification.where(null);
-
-        if (startDate != null && endDate != null) {
-            spec = spec.and((root, query, cb) ->
-                cb.between(root.get("startTime"),
-                        LocalDateTime.of(startDate, LocalTime.of(0,0,0)),
-                        LocalDateTime.of(endDate, LocalTime.of(0,0,0))
-            ));
-        }
-        if (tags != null && !tags.isEmpty()) {
-            spec = spec.and((root, query, cb) ->
-                    root.join("tags").in(tags));
-        }
-        if (formats != null && !formats.isEmpty()) {
-            spec = spec.and((root, query, cb) ->
-                    root.join("formats").in(formats));
-        }
-        if (times != null && !times.isEmpty()) {
-            spec = spec.and((root, query, cb) ->
-                    root.join("times").in(times));
-        }
-        if (participationFormats != null && !participationFormats.isEmpty()) {
-            spec = spec.and((root, query, cb) ->
-                    root.join("participationFormats").in(participationFormats));
-        }
-
-        if (targetAudiences != null && !targetAudiences.isEmpty()) {
-            spec = spec.and((root, query, cb) ->
-                    root.join("targetAudiences").in(targetAudiences));
-        }
-        if (search != null && !search.isBlank()) {
-            spec = spec.and((root, query, cb) ->
-                    cb.or(
-                            cb.like(cb.lower(root.get("name")), "%" + search.toLowerCase() + "%"),
-                            cb.like(cb.lower(root.get("short_description")), "%" + search.toLowerCase() + "%"),
-                            cb.like(cb.lower(root.get("full_description")), "%" + search.toLowerCase() + "%")
-                    )
-            );
-        }
-
-        if (status != null && currentUserId != null) {
-            Optional<UserEntity> userOpt = userRepository.findById(currentUserId);
-            if (userOpt.isPresent()) {
-                UserEntity user = userOpt.get();
-                if (status.equalsIgnoreCase("registered")) {
-                    spec = spec.and((root, query, cb) ->
-                            cb.isMember(user, root.get("users")));
-                } else if (status.equalsIgnoreCase("available")) {
-                    spec = spec.and((root, query, cb) -> cb.and(
-                            cb.greaterThan(root.get("available_places"), 0),
-                            cb.not(cb.isMember(user, root.get("users")))
-                    ));
-                }
-            }
-        }
-
+        Specification<EventEntity> spec = Specification
+            .where(EventSpecifications.startBetweenInclusive(startDate, endDate))
+            .and(EventSpecifications.hasAnyTags(tags))
+            .and(EventSpecifications.hasAnyFormats(formats))
+            .and(EventSpecifications.hasAnyTimes(times))
+            .and(EventSpecifications.hasAnyParticipationFormats(participationFormats))
+            .and(EventSpecifications.hasAnyTargetAudiences(targetAudiences))
+            .and(EventSpecifications.search(search))
+            .and(EventSpecifications.withStatus(status, currentUserId));
         return eventRepository.findAll(spec, pageable).map(eventMapper::toModel);
     }
 

@@ -25,8 +25,7 @@ public class NewsEntity {
     @Column(nullable = false)
     private String title;
 
-    @Lob
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(nullable = false)
     private String full_description;
 
     @Column

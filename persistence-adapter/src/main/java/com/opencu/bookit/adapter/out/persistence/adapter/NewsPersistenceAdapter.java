@@ -3,6 +3,7 @@ package com.opencu.bookit.adapter.out.persistence.adapter;
 import com.opencu.bookit.adapter.out.persistence.entity.NewsEntity;
 import com.opencu.bookit.adapter.out.persistence.mapper.NewsMapper;
 import com.opencu.bookit.adapter.out.persistence.repository.NewsRepository;
+import com.opencu.bookit.adapter.out.persistence.specifications.NewsSpecifications;
 import com.opencu.bookit.application.port.out.news.DeleteNewsPort;
 import com.opencu.bookit.application.port.out.news.LoadNewsPort;
 import com.opencu.bookit.application.port.out.news.SaveNewsPort;
@@ -38,25 +39,11 @@ public class NewsPersistenceAdapter implements LoadNewsPort, SaveNewsPort,
     }
     @Override
     public Page<NewsModel> findWithFilters(Set<ThemeTags> tags, String search, Pageable pageable) {
-        var spec = buildSpecification(tags, search);
-        return newsRepository.findAll(spec, pageable).map(newsMapper::toModel);
-    }
+        Specification<NewsEntity> spec = Specification
+           .where(NewsSpecifications.hasAnyTags(tags))
+           .and(NewsSpecifications.search(search));
 
-    public Specification<NewsEntity> buildSpecification(Set<ThemeTags> tags, String search) {
-        Specification<NewsEntity> spec = Specification.where(null);
-        if (tags != null && !tags.isEmpty()) {
-            spec = spec.and((root, query, cb) -> root.join("tags").in(tags));
-        }
-        if (search != null && !search.isBlank()) {
-            spec = spec.and((root, query, cb) ->
-                    cb.or(
-                            cb.like(cb.lower(root.get("title")), "%" + search.toLowerCase() + "%"),
-                            cb.like(root.get("short_description"), "%" + search + "%"),
-                            cb.like(root.get("full_description"), "%" + search + "%")
-                         )
-           );
-        }
-        return spec;
+        return newsRepository.findAll(spec, pageable).map(newsMapper::toModel);
     }
 
     @Override
