@@ -23,8 +23,4 @@ public class AiService {
     public String getNaturalized(String prompt) throws JsonProcessingException {
         return sendAiRequestPort.sendPromptForHumanizing(getJson(prompt));
     }
-
-    public String getSystemText() {
-        return sendAiRequestPort.getSystemText();
-    }
 }

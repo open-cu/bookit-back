@@ -34,7 +34,6 @@ public class AiAgentAdapter implements SendAiRequestPort {
     @Value("${yandex-gpt.model-uri}")
     private String modelUri;
 
-    @Getter
     @Value("${yandex-gpt.system-text}")
     private String systemText;
 
@@ -47,16 +46,14 @@ public class AiAgentAdapter implements SendAiRequestPort {
 
     @PostConstruct
     public void init() throws SQLException, JsonProcessingException {
-        // Получаем структуру таблиц
         List<Map<String, Object>> tables = schemaService.getTables();
 
-        // Преобразуем в JSON (можно использовать Jackson)
         ObjectMapper mapper = new ObjectMapper();
-        this.systemText = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(Map.of("tables", tables));
+        this.systemText = "Ответь на запрос пользователя, опираясь на информацию о структуре таблицы для правильного составления SQL-запроса." +
+                "Учти, что запрос НЕ ДОЛЖЕН модифицировать таблицу, только читать. На выходе должен получиться SQL-запрос\n";
 
-        System.out.println("✅ Схема БД загружена в systemText:");
-        System.out.println(systemText);
-    }
+        this.systemText += mapper.writerWithDefaultPrettyPrinter().writeValueAsString(Map.of("tables", tables));
+        }
 
     /**
      * @param prompt is a prompt from user in natural language 
