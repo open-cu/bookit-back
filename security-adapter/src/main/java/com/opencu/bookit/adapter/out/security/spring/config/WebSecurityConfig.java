@@ -137,7 +137,7 @@ public class WebSecurityConfig {
                             "/togglz-console/**").permitAll();
                     }
                     else {
-                        auth.requestMatchers("/togglz-console/**").hasRole(SecurityService.getAdmin());
+                        auth.requestMatchers("/togglz-console/**").hasAnyAuthority(SecurityService.getAdmin());
                     }
                     auth.requestMatchers(
                         "/api/v1/public/**",

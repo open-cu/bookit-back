@@ -69,6 +69,12 @@ yandex-cloud:
   s3-endpoint: ${S3_ENDPOINT}
   bucket: ${BUCKET}
 
+
+app:
+  database:
+    metadata:
+      enabled: true  # false в prod для производительности
+
 yandex-gpt:
   authorization: ${AUTH:null}
   api-url: ${API_URL:null}

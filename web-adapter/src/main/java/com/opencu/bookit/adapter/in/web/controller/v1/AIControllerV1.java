@@ -35,4 +35,9 @@ public class AIControllerV1 {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @GetMapping
+    public ResponseEntity<String> getAiResponse() {
+        return ResponseEntity.ok(aiService.getSystemText());
+    }
 }

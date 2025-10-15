@@ -1,0 +1,103 @@
+version: '3.9'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=devpg
+      - KEY_ID=${KEY_ID}
+      - SECRET_KEY=${SECRET_KEY}
+      - REGION=${REGION}
+      - S3_ENDPOINT=${S3_ENDPOINT}
+      - BUCKET=${BUCKET}
+      - AUTH=${AUTH}
+      - MODEL_URI=${MODEL_URI}
+      - SYSTEM_TEXT=${SYSTEM_TEXT}
+      - SYSTEM_TEXT_ANALYZE=${SYSTEM_TEXT_ANALYZE}
+      - API_URL=${API_URL}
+      - FOLDER_ID=${FOLDER_ID}
+      - TZ=Europe/Moscow
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_PORT=${MAIL_PORT}
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_SENDER_NAME=${MAIL_SENDER_NAME}
+      - MAIL_SSL_ENABLE=${MAIL_SSL_ENABLE}
+      - MAIL_STARTTLS_ENABLE=${MAIL_STARTTLS_ENABLE}
+      - MAIL_FROM_EMAIL=${MAIL_FROM_EMAIL}
+      # Добавляем настройки для RabbitMQ
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_USER:-guest}
+      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-guest}
+      - MESSAGING_ENABLED=true
+
+      #  tg-bot
+      - TG_BOT_ENABLED=true
+      - BOT_TOKEN=${BOT_TOKEN}
+      - PHOTO_URL=${PHOTO_URL}
+      - WEBSITE=${WEBSITE}
+      - BOT_USERNAME=${BOT_USERNAME}
+
+    networks:
+      - app-network
+
+  db:
+    image: postgres:16
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  rabbitmq:
+    container_name: bookit-rabbitmq
+    build:
+      context: .
+      dockerfile: Dockerfile.rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER:-guest}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-guest}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+  rabbitmq_data:
+
+networks:
+  app-network:
+    driver: bridge

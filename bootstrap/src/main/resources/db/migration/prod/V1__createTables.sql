@@ -161,7 +161,7 @@ CREATE TABLE public.users (
                               email character varying(255),
                               first_name character varying(255) NOT NULL,
                               last_name character varying(255),
-                              password_hash character varying(255) NOT NULL,
+                              password_hash character varying(255),
                               phone character varying(255),
                               photo_url character varying(255),
                               status character varying(255) NOT NULL,

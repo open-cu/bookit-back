@@ -14,4 +14,6 @@ public interface SendAiRequestPort {
      * a sentence in natural language)
      */
     String sendPromptForHumanizing(String jsonString);
+
+    String getSystemText();
 }
