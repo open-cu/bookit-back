@@ -49,9 +49,6 @@ public class AiAgentAdapter implements SendAiRequestPort {
         List<Map<String, Object>> tables = schemaService.getTables();
 
         ObjectMapper mapper = new ObjectMapper();
-        this.systemText = "Ответь на запрос пользователя, опираясь на информацию о структуре таблицы для правильного составления SQL-запроса." +
-                "Учти, что запрос НЕ ДОЛЖЕН модифицировать таблицу, только читать. На выходе должен получиться SQL-запрос\n";
-
         this.systemText += mapper.writerWithDefaultPrettyPrinter().writeValueAsString(Map.of("tables", tables));
         }
 

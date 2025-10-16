@@ -29,14 +29,13 @@ public class DatabaseSchemaService {
 
         try (Connection conn = dataSource.getConnection()) {
             DatabaseMetaData metaData = conn.getMetaData();
-            String schema = "public"; // фильтруем только схему public
+            String schema = "public";
 
             try (ResultSet tablesRs = metaData.getTables(conn.getCatalog(), schema, "%", new String[]{"TABLE"})) {
                 while (tablesRs.next()) {
                     String tableName = tablesRs.getString("TABLE_NAME");
                     String tableSchema = tablesRs.getString("TABLE_SCHEM");
 
-                    // на всякий случай проверим, что действительно public
                     if (!"public".equalsIgnoreCase(tableSchema)) {
                         continue;
                     }
