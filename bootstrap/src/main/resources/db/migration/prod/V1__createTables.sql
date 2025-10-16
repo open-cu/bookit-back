@@ -1,175 +1,175 @@
 CREATE TABLE public.area_features (
-                                      area_id uuid NOT NULL,
-                                      features character varying(255),
-                                      CONSTRAINT area_features_features_check CHECK (((features)::text = ANY ((ARRAY['SILENT'::character varying, 'LIGHT'::character varying, 'PROJECTOR'::character varying, 'WHITEBOARD'::character varying, 'TV'::character varying, 'CHANCELLERY'::character varying, 'CONDITIONER'::character varying, 'SPEAKER_SYSTEM'::character varying])::text[])))
+  area_id uuid NOT NULL,
+  features character varying(255),
+  CONSTRAINT area_features_features_check CHECK (((features)::text = ANY ((ARRAY['SILENT'::character varying, 'LIGHT'::character varying, 'PROJECTOR'::character varying, 'WHITEBOARD'::character varying, 'TV'::character varying, 'CHANCELLERY'::character varying, 'CONDITIONER'::character varying, 'SPEAKER_SYSTEM'::character varying])::text[])))
 );
 
 CREATE TABLE public.area_keys (
-                                  area_id uuid NOT NULL,
-                                  keys character varying(255) NOT NULL
+  area_id uuid NOT NULL,
+  keys character varying(255) NOT NULL
 );
 
 CREATE TABLE public.areas (
-                              id uuid NOT NULL,
-                              capacity integer NOT NULL,
-                              description character varying(255),
-                              name character varying(255) NOT NULL,
-                              status character varying(255) NOT NULL,
-                              type character varying(255) NOT NULL,
-                              CONSTRAINT areas_status_check CHECK (((status)::text = ANY ((ARRAY['AVAILABLE'::character varying, 'UNAVAILABLE'::character varying, 'BOOKED'::character varying])::text[]))),
-    CONSTRAINT areas_type_check CHECK (((type)::text = ANY ((ARRAY['LECTURE_HALL'::character varying, 'MEETING_ROOM'::character varying, 'WORKPLACE'::character varying])::text[])))
+  id uuid NOT NULL,
+  capacity integer NOT NULL,
+  description character varying(255),
+  name character varying(255) NOT NULL,
+  status character varying(255) NOT NULL,
+  type character varying(255) NOT NULL,
+  CONSTRAINT areas_status_check CHECK (((status)::text = ANY ((ARRAY['AVAILABLE'::character varying, 'UNAVAILABLE'::character varying, 'BOOKED'::character varying])::text[]))),
+  CONSTRAINT areas_type_check CHECK (((type)::text = ANY ((ARRAY['LECTURE_HALL'::character varying, 'MEETING_ROOM'::character varying, 'WORKPLACE'::character varying])::text[])))
 );
 
 CREATE TABLE public.bookings (
-                                 id uuid NOT NULL,
-                                 created_at timestamp(6) without time zone NOT NULL,
-                                 end_time timestamp(6) without time zone NOT NULL,
-                                 quantity integer NOT NULL,
-                                 start_time timestamp(6) without time zone NOT NULL,
-                                 status character varying(255) NOT NULL,
-                                 area_id uuid NOT NULL,
-                                 user_id uuid NOT NULL,
-                                 CONSTRAINT bookings_status_check CHECK (((status)::text = ANY ((ARRAY['PENDING'::character varying, 'CONFIRMED'::character varying, 'CANCELED'::character varying, 'COMPLETED'::character varying])::text[])))
+ id uuid NOT NULL,
+ created_at timestamp(6) without time zone NOT NULL,
+ end_time timestamp(6) without time zone NOT NULL,
+ quantity integer NOT NULL,
+ start_time timestamp(6) without time zone NOT NULL,
+ status character varying(255) NOT NULL,
+ area_id uuid NOT NULL,
+ user_id uuid NOT NULL,
+ CONSTRAINT bookings_status_check CHECK (((status)::text = ANY ((ARRAY['PENDING'::character varying, 'CONFIRMED'::character varying, 'CANCELED'::character varying, 'COMPLETED'::character varying])::text[])))
 );
 
 CREATE TABLE public.event_formats (
-                                      event_id uuid NOT NULL,
-                                      format character varying(255),
-                                      CONSTRAINT event_formats_format_check CHECK (((format)::text = ANY ((ARRAY['WORKSHOP'::character varying, 'NETWORKING'::character varying, 'LECTURE'::character varying, 'MEETUP'::character varying, 'HACKATHON'::character varying, 'RELAX'::character varying, 'GAMES'::character varying])::text[])))
+  event_id uuid NOT NULL,
+  format character varying(255),
+  CONSTRAINT event_formats_format_check CHECK (((format)::text = ANY ((ARRAY['WORKSHOP'::character varying, 'NETWORKING'::character varying, 'LECTURE'::character varying, 'MEETUP'::character varying, 'HACKATHON'::character varying, 'RELAX'::character varying, 'GAMES'::character varying])::text[])))
 );
 
 CREATE TABLE public.event_keys (
-                                   event_id uuid NOT NULL,
-                                   keys character varying(255) NOT NULL
+   event_id uuid NOT NULL,
+   keys character varying(255) NOT NULL
 );
 
 CREATE TABLE public.event_notifications (
-                                            id uuid NOT NULL,
-                                            event_date_time timestamp(6) without time zone,
-                                            event_id uuid NOT NULL,
-                                            event_title character varying(255),
-                                            message character varying(255),
-                                            user_email character varying(255),
-                                            user_id uuid NOT NULL
+    id uuid NOT NULL,
+    event_date_time timestamp(6) without time zone,
+    event_id uuid NOT NULL,
+    event_title character varying(255),
+    message character varying(255),
+    user_email character varying(255),
+    user_id uuid NOT NULL
 );
 
 CREATE TABLE public.event_participation_formats (
-                                                    event_id uuid NOT NULL,
-                                                    participation_format character varying(255),
-                                                    CONSTRAINT event_participation_formats_participation_format_check CHECK (((participation_format)::text = ANY ((ARRAY['ONLINE'::character varying, 'OFFLINE'::character varying, 'INDIVIDUAL'::character varying, 'HYBRID'::character varying, 'RECORDING'::character varying])::text[])))
+    event_id uuid NOT NULL,
+    participation_format character varying(255),
+    CONSTRAINT event_participation_formats_participation_format_check CHECK (((participation_format)::text = ANY ((ARRAY['ONLINE'::character varying, 'OFFLINE'::character varying, 'INDIVIDUAL'::character varying, 'HYBRID'::character varying, 'RECORDING'::character varying])::text[])))
 );
 
 CREATE TABLE public.event_tags (
-                                   event_id uuid NOT NULL,
-                                   tag character varying(255),
-                                   CONSTRAINT event_tags_tag_check CHECK (((tag)::text = ANY ((ARRAY['PSYCHOLOGY'::character varying, 'ART'::character varying, 'MARKETING'::character varying, 'TECHNOLOGY'::character varying, 'BUSINESS'::character varying, 'SCIENCE'::character varying, 'IT'::character varying, 'SUCCESS_STORY'::character varying])::text[])))
+   event_id uuid NOT NULL,
+   tag character varying(255),
+   CONSTRAINT event_tags_tag_check CHECK (((tag)::text = ANY ((ARRAY['PSYCHOLOGY'::character varying, 'ART'::character varying, 'MARKETING'::character varying, 'TECHNOLOGY'::character varying, 'BUSINESS'::character varying, 'SCIENCE'::character varying, 'IT'::character varying, 'SUCCESS_STORY'::character varying])::text[])))
 );
 
 CREATE TABLE public.event_times (
-                                    event_id uuid NOT NULL,
-                                    "time" character varying(255),
-                                    CONSTRAINT event_times_time_check CHECK ((("time")::text = ANY ((ARRAY['MORNING'::character varying, 'DAY'::character varying, 'EVENING'::character varying, 'NIGHT'::character varying, 'WEEKDAYS'::character varying, 'WEEKENDS'::character varying])::text[])))
+    event_id uuid NOT NULL,
+    "time" character varying(255),
+    CONSTRAINT event_times_time_check CHECK ((("time")::text = ANY ((ARRAY['MORNING'::character varying, 'DAY'::character varying, 'EVENING'::character varying, 'NIGHT'::character varying, 'WEEKDAYS'::character varying, 'WEEKENDS'::character varying])::text[])))
 );
 
 CREATE TABLE public.event_users (
-                                    event_id uuid NOT NULL,
-                                    user_id uuid NOT NULL
+    event_id uuid NOT NULL,
+    user_id uuid NOT NULL
 );
 
 
 CREATE TABLE public.events (
-                               id uuid NOT NULL,
-                               available_places integer NOT NULL,
-                               description character varying(255) NOT NULL,
-                               end_time timestamp(6) without time zone,
-                               name character varying(255) NOT NULL,
-                               start_time timestamp(6) without time zone NOT NULL,
-                               area_id uuid,
-                               system_booking_id uuid
+   id uuid NOT NULL,
+   available_places integer NOT NULL,
+   description character varying(255) NOT NULL,
+   end_time timestamp(6) without time zone,
+   name character varying(255) NOT NULL,
+   start_time timestamp(6) without time zone NOT NULL,
+   area_id uuid,
+   system_booking_id uuid
 );
 
 CREATE TABLE public.hall_occupancy (
-                                       date_time timestamp(6) without time zone NOT NULL,
-                                       reserved_places integer NOT NULL
+   date_time timestamp(6) without time zone NOT NULL,
+   reserved_places integer NOT NULL
 );
 
 CREATE TABLE public.news (
-                             id uuid NOT NULL,
-                             created_at timestamp(6) without time zone NOT NULL,
-                             description text NOT NULL,
-                             title character varying(255) NOT NULL
+ id uuid NOT NULL,
+ created_at timestamp(6) without time zone NOT NULL,
+ description text NOT NULL,
+ title character varying(255) NOT NULL
 );
 
 
 CREATE TABLE public.news_keys (
-                                  news_id uuid NOT NULL,
-                                  keys character varying(255) NOT NULL
+  news_id uuid NOT NULL,
+  keys character varying(255) NOT NULL
 );
 
 CREATE TABLE public.news_tags (
-                                  news_id uuid NOT NULL,
-                                  tag character varying(255),
-                                  CONSTRAINT news_tags_tag_check CHECK (((tag)::text = ANY ((ARRAY['PSYCHOLOGY'::character varying, 'ART'::character varying, 'MARKETING'::character varying, 'TECHNOLOGY'::character varying, 'BUSINESS'::character varying, 'SCIENCE'::character varying, 'IT'::character varying, 'SUCCESS_STORY'::character varying])::text[])))
+  news_id uuid NOT NULL,
+  tag character varying(255),
+  CONSTRAINT news_tags_tag_check CHECK (((tag)::text = ANY ((ARRAY['PSYCHOLOGY'::character varying, 'ART'::character varying, 'MARKETING'::character varying, 'TECHNOLOGY'::character varying, 'BUSINESS'::character varying, 'SCIENCE'::character varying, 'IT'::character varying, 'SUCCESS_STORY'::character varying])::text[])))
 );
 
 
 CREATE TABLE public.reviews (
-                                id uuid NOT NULL,
-                                comment character varying(255),
-                                created_at timestamp(6) without time zone NOT NULL,
-                                rating smallint NOT NULL,
-                                user_id uuid NOT NULL
+    id uuid NOT NULL,
+    comment character varying(255),
+    created_at timestamp(6) without time zone NOT NULL,
+    rating smallint NOT NULL,
+    user_id uuid NOT NULL
 );
 
 CREATE TABLE public.schedule (
-                                 day_off date NOT NULL,
-                                 description character varying(255),
-                                 start_time time(6) without time zone,
-                                 stop_time time(6) without time zone,
-                                 tag character varying(255) NOT NULL,
-                                 CONSTRAINT schedule_tag_check CHECK (((tag)::text = ANY ((ARRAY['WEEKEND'::character varying, 'HOLIDAY'::character varying, 'TECHNICAL_WORK'::character varying, 'SANITARY_DAY'::character varying, 'PRIVATE_EVENT'::character varying, 'WEATHER_EMERGENCY'::character varying, 'QUARANTINE'::character varying, 'ELECTRICITY_OUTAGE'::character varying, 'UNDEFINED_REASON'::character varying])::text[])))
+ day_off date NOT NULL,
+ description character varying(255),
+ start_time time(6) without time zone,
+ stop_time time(6) without time zone,
+ tag character varying(255) NOT NULL,
+ CONSTRAINT schedule_tag_check CHECK (((tag)::text = ANY ((ARRAY['WEEKEND'::character varying, 'HOLIDAY'::character varying, 'TECHNICAL_WORK'::character varying, 'SANITARY_DAY'::character varying, 'PRIVATE_EVENT'::character varying, 'WEATHER_EMERGENCY'::character varying, 'QUARANTINE'::character varying, 'ELECTRICITY_OUTAGE'::character varying, 'UNDEFINED_REASON'::character varying])::text[])))
 );
 
 CREATE TABLE public.tickets (
-                                id uuid NOT NULL,
-                                closed_at timestamp(6) without time zone,
-                                created_at timestamp(6) without time zone NOT NULL,
-                                description text NOT NULL,
-                                first_responded_at timestamp(6) without time zone,
-                                priority character varying(255) NOT NULL,
-                                reason character varying(255),
-                                resolved_at timestamp(6) without time zone,
-                                status character varying(255) NOT NULL,
-                                type smallint NOT NULL,
-                                updated_at timestamp(6) without time zone,
-                                area_id uuid NOT NULL,
-                                user_id uuid NOT NULL,
-                                CONSTRAINT tickets_priority_check CHECK (((priority)::text = ANY ((ARRAY['DEFAULT'::character varying, 'LOW'::character varying, 'MEDIUM'::character varying, 'HIGH'::character varying, 'CRITICAL'::character varying])::text[]))),
+    id uuid NOT NULL,
+    closed_at timestamp(6) without time zone,
+    created_at timestamp(6) without time zone NOT NULL,
+    description text NOT NULL,
+    first_responded_at timestamp(6) without time zone,
+    priority character varying(255) NOT NULL,
+    reason character varying(255),
+    resolved_at timestamp(6) without time zone,
+    status character varying(255) NOT NULL,
+    type smallint NOT NULL,
+    updated_at timestamp(6) without time zone,
+    area_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    CONSTRAINT tickets_priority_check CHECK (((priority)::text = ANY ((ARRAY['DEFAULT'::character varying, 'LOW'::character varying, 'MEDIUM'::character varying, 'HIGH'::character varying, 'CRITICAL'::character varying])::text[]))),
     CONSTRAINT tickets_status_check CHECK (((status)::text = ANY ((ARRAY['OPEN'::character varying, 'IN_PROGRESS'::character varying, 'ON_HOLD'::character varying, 'RESOLVED'::character varying, 'CLOSED'::character varying, 'REJECTED'::character varying])::text[]))),
     CONSTRAINT tickets_type_check CHECK (((type >= 0) AND (type <= 3)))
 );
 
 CREATE TABLE public.user_roles (
-                                   user_id uuid NOT NULL,
-                                   roles character varying(255) NOT NULL,
-                                   CONSTRAINT user_roles_roles_check CHECK (((roles)::text = ANY ((ARRAY['ROLE_USER'::character varying, 'ROLE_ADMIN'::character varying, 'ROLE_SUPERADMIN'::character varying])::text[])))
+   user_id uuid NOT NULL,
+   roles character varying(255) NOT NULL,
+   CONSTRAINT user_roles_roles_check CHECK (((roles)::text = ANY ((ARRAY['ROLE_USER'::character varying, 'ROLE_ADMIN'::character varying, 'ROLE_SUPERADMIN'::character varying])::text[])))
 );
 
 CREATE TABLE public.users (
-                              id uuid NOT NULL,
-                              created_at timestamp(6) without time zone NOT NULL,
-                              email character varying(255),
-                              first_name character varying(255) NOT NULL,
-                              last_name character varying(255),
-                              password_hash character varying(255) NOT NULL,
-                              phone character varying(255),
-                              photo_url character varying(255),
-                              status character varying(255) NOT NULL,
-                              subscribed_to_notifications boolean DEFAULT true NOT NULL,
-                              tg_id bigint,
-                              updated_at timestamp(6) without time zone,
-                              username character varying(255) NOT NULL,
-                              CONSTRAINT users_status_check CHECK (((status)::text = ANY ((ARRAY['CREATED'::character varying, 'VERIFIED'::character varying, 'BANNED'::character varying, 'DELETED'::character varying])::text[])))
+  id uuid NOT NULL,
+  created_at timestamp(6) without time zone NOT NULL,
+  email character varying(255),
+  first_name character varying(255) NOT NULL,
+  last_name character varying(255),
+  password_hash character varying(255),
+  phone character varying(255),
+  photo_url character varying(255),
+  status character varying(255) NOT NULL,
+  subscribed_to_notifications boolean DEFAULT true NOT NULL,
+  tg_id bigint,
+  updated_at timestamp(6) without time zone,
+  username character varying(255) NOT NULL,
+  CONSTRAINT users_status_check CHECK (((status)::text = ANY ((ARRAY['CREATED'::character varying, 'VERIFIED'::character varying, 'BANNED'::character varying, 'DELETED'::character varying])::text[])))
 );
 
 COPY public.area_features (area_id, features) FROM stdin;

@@ -15,7 +15,7 @@ services:
       rabbitmq:
         condition: service_healthy
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_PROFILES_ACTIVE=devpg
       - KEY_ID=${KEY_ID}
       - SECRET_KEY=${SECRET_KEY}
       - REGION=${REGION}

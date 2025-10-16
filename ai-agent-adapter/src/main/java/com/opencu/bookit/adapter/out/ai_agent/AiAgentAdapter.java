@@ -1,19 +1,29 @@
 package com.opencu.bookit.adapter.out.ai_agent;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencu.bookit.adapter.out.ai_agent.dto.request.AIRequest;
 import com.opencu.bookit.adapter.out.ai_agent.dto.request.AIRequestBuilder;
 import com.opencu.bookit.adapter.out.ai_agent.dto.response.AIResponse;
 import com.opencu.bookit.application.port.out.ai.SendAiRequestPort;
+import com.opencu.bookit.application.service.db.DatabaseSchemaService;
+import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+
 @Component
 @RequiredArgsConstructor
 public class AiAgentAdapter implements SendAiRequestPort {
     private final RestTemplate restTemplate = new RestTemplate();
+    private final DatabaseSchemaService schemaService;
     
     @Value("${yandex-gpt.api-url}")
     private String url;
@@ -33,6 +43,14 @@ public class AiAgentAdapter implements SendAiRequestPort {
      */
     @Value("${yandex-gpt.system-text-analyze}")
     private String systemTextAnalyze;
+
+    @PostConstruct
+    public void init() throws SQLException, JsonProcessingException {
+        List<Map<String, Object>> tables = schemaService.getTables();
+
+        ObjectMapper mapper = new ObjectMapper();
+        this.systemText += mapper.writerWithDefaultPrettyPrinter().writeValueAsString(Map.of("tables", tables));
+        }
 
     /**
      * @param prompt is a prompt from user in natural language 

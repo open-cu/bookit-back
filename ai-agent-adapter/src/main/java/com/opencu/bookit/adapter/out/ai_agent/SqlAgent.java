@@ -26,8 +26,8 @@ public class SqlAgent implements LoadSqlPort {
     @Override
     public String sendSqlPrompt(String sql) throws JsonProcessingException {
         if (!isReadOnlyQuery(sql)) {
-            return "Your request show be read-only";
         }
+
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql);
         SqlResponse sqlResponseDTO = new SqlResponse(results);
         ObjectMapper objectMapper = new ObjectMapper();
@@ -39,7 +39,7 @@ public class SqlAgent implements LoadSqlPort {
             Statement statement = CCJSqlParserUtil.parse(sql);
             return statement instanceof Select;
         } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid SQL syntax", e);
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
     }
 }
