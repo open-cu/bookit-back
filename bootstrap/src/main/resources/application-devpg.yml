@@ -25,20 +25,21 @@ spring:
 
 bookit:
   app:
-    jwtSecret: bookItSecretKey123456789012345678901234567890123456789012345678901234567890
-    jwtExpirationMs: 18000000
+    jwtSecret: ${JWT_SECRET_KEY}
+    jwtExpirationMs: ${JWT_EXPIRATION_MS}
 
 logging:
   level:
-    org.springframework: WARN
-    org.springframework.web: WARN
-    org.springframework.transaction: WARN
-    org.springframework.security: WARN
-    org.springframework.security.web.FilterChainProxy: WARN
-    org.hibernate.SQL: WARN
-    org.hibernate.type.descriptor.sql: OFF
-    org.hibernate.stat: OFF
-    org.springframework.jdbc.core.JdbcTemplate: WARN
-    org.springframework.jdbc.core.StatementCreatorUtils: OFF
-    org.flywaydb: OFF
-    ru.tbank.bookit: INFO
+    org.springframework: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.transaction: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.security.web.FilterChainProxy: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
+    org.hibernate.stat: DEBUG
+    org.springframework.jdbc.core.JdbcTemplate: DEBUG
+    org.springframework.jdbc.core.StatementCreatorUtils: TRACE
+    org.flywaydb: DEBUG
+    com.opencu.bookit: DEBUG
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG

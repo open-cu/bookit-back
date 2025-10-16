@@ -73,7 +73,7 @@ yandex-cloud:
 app:
   database:
     metadata:
-      enabled: true  # false в prod для производительности
+      enabled: ${METADATA_ENABLED:true}
 
 yandex-gpt:
   authorization: ${AUTH:null}

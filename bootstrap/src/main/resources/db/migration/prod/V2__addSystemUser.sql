@@ -3,8 +3,8 @@ DROP TYPE IF EXISTS user_role CASCADE;
 
 -- Создаем новую таблицу с VARCHAR вместо ENUM
 CREATE TABLE IF NOT EXISTS "public"."user_roles_new" (
-                                                         "user_id" UUID NOT NULL,
-                                                         "roles" VARCHAR(50) NOT NULL CHECK (roles IN ('ROLE_ADMIN', 'ROLE_SUPERADMIN', 'ROLE_USER', 'ROLE_SYSTEM_USER'))
+     "user_id" UUID NOT NULL,
+     "roles" VARCHAR(50) NOT NULL CHECK (roles IN ('ROLE_ADMIN', 'ROLE_SUPERADMIN', 'ROLE_USER', 'ROLE_SYSTEM_USER'))
     );
 
 -- Копируем данные

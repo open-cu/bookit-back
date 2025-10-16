@@ -25,8 +25,8 @@ spring:
 
 bookit:
   app:
-    jwtSecret: bookItSecretKey123456789012345678901234567890123456789012345678901234567890
-    jwtExpirationMs: 18000000
+    jwtSecret: ${JWT_SECRET_KEY}
+    jwtExpirationMs: ${JWT_EXPIRATION_MS}
 
 logging:
   level:
@@ -41,4 +41,4 @@ logging:
     org.springframework.jdbc.core.JdbcTemplate: WARN
     org.springframework.jdbc.core.StatementCreatorUtils: OFF
     org.flywaydb: OFF
-    ru.tbank.bookit: INFO
+    com.opencu.bookit: INFO
