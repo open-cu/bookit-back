@@ -40,6 +40,8 @@ jobs:
           SYSTEM_TEXT_ANALYZE: "null"
           API_URL: "null"
           FOLDER_ID: "null"
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+          JWT_EXPIRATION_MS: ${{ secrets.JWT_EXPIRATION_MS }}
       - name: Install Newman
         run: npm install newman@latest
 
