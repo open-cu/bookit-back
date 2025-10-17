@@ -3,8 +3,13 @@ package com.opencu.bookit.adapter.out.persistence.adapter;
 import com.opencu.bookit.adapter.out.persistence.entity.EventApplicationEntity;
 import com.opencu.bookit.adapter.out.persistence.mapper.EventApplicationMapper;
 import com.opencu.bookit.adapter.out.persistence.repository.EventApplicationRepository;
+import com.opencu.bookit.application.port.out.event.LoadEventApplicationPort;
 import com.opencu.bookit.domain.model.event.EventApplicationModel;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -13,11 +18,10 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class EventApplicationPersistenceAdapter {
+public class EventApplicationPersistenceAdapter implements LoadEventApplicationPort {
 
     private final EventApplicationRepository eventApplicationRepository;
     private final EventApplicationMapper eventApplicationMapper;
-
 
     public EventApplicationModel save(EventApplicationModel eventApplicationModel) {
         EventApplicationEntity entity = eventApplicationMapper.toEntity(eventApplicationModel);
@@ -25,13 +29,48 @@ public class EventApplicationPersistenceAdapter {
         return eventApplicationMapper.toModel(savedEntity);
     }
 
-
+    @Override
     public Optional<EventApplicationModel> findById(UUID id) {
         return eventApplicationRepository.findById(id).map(eventApplicationMapper::toModel);
     }
 
+    @Override
+    public Page<EventApplicationModel> findWithFilters(EventApplicationFilter filter, Pageable pageable) {
+        Specification<EventApplicationEntity> spec = (root, query, cb) -> {
+            Predicate predicate = cb.conjunction();
 
-    public List<EventApplicationModel> findAll() {
-        return eventApplicationMapper.toModelList(eventApplicationRepository.findAll());
+            if (filter.userId() != null) {
+                predicate = cb.and(predicate, cb.equal(root.get("user").get("id"), filter.userId()));
+            }
+
+            if (filter.eventId() != null) {
+                predicate = cb.and(predicate, cb.equal(root.get("event").get("id"), filter.eventId()));
+            }
+
+            if (filter.birthDateFromInclusive() != null && filter.birthDateToInclusive() != null) {
+                predicate = cb.and(predicate, cb.between(root.get("dateOfBirth"), filter.birthDateFromInclusive(), filter.birthDateToInclusive()));
+            } else if (filter.birthDateFromInclusive() != null) {
+                predicate = cb.and(predicate, cb.greaterThanOrEqualTo(root.get("dateOfBirth"), filter.birthDateFromInclusive()));
+            } else if (filter.birthDateToInclusive() != null) {
+                predicate = cb.and(predicate, cb.lessThanOrEqualTo(root.get("dateOfBirth"), filter.birthDateToInclusive()));
+            }
+
+            if (filter.cityOfResidence() != null && !filter.cityOfResidence().isBlank()) {
+                predicate = cb.and(predicate, cb.like(cb.lower(root.get("cityOfResidence")), "%" + filter.cityOfResidence().toLowerCase() + "%"));
+            }
+
+            if (filter.detailsFilter() != null && !filter.detailsFilter().isNull()) {
+                predicate = cb.and(predicate, cb.isTrue(cb.function(
+                        "jsonb_contains",
+                        Boolean.class,
+                        root.get("activityDetails"),
+                        cb.literal(filter.detailsFilter().toString())
+                )));
+            }
+
+            return predicate;
+        };
+
+        return eventApplicationRepository.findAll(spec, pageable).map(eventApplicationMapper::toModel);
     }
 }

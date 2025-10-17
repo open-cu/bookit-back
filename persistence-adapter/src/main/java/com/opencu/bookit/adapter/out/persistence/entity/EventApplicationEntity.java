@@ -1,10 +1,13 @@
 package com.opencu.bookit.adapter.out.persistence.entity;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -34,6 +37,7 @@ public class EventApplicationEntity {
     @Column(name = "date_of_birth", nullable = false)
     private LocalDate dateOfBirth;
 
-    @Column(name = "activity_details", nullable = false, columnDefinition = "jsonb")
-    private String activityDetails;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "activity_details", columnDefinition = "jsonb", nullable = false)
+    private JsonNode activityDetails;
 }
