@@ -3,8 +3,11 @@ package com.opencu.bookit.adapter.out.persistence.adapter;
 import com.opencu.bookit.adapter.out.persistence.entity.EventApplicationEntity;
 import com.opencu.bookit.adapter.out.persistence.mapper.EventApplicationMapper;
 import com.opencu.bookit.adapter.out.persistence.repository.EventApplicationRepository;
+import com.opencu.bookit.application.port.out.event.DeleteEventApplicationPort;
 import com.opencu.bookit.application.port.out.event.LoadEventApplicationPort;
+import com.opencu.bookit.application.port.out.event.SaveEventApplicationPort;
 import com.opencu.bookit.domain.model.event.EventApplicationModel;
+import com.opencu.bookit.domain.model.event.EventApplicationStatus;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,15 +21,25 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class EventApplicationPersistenceAdapter implements LoadEventApplicationPort {
+public class EventApplicationPersistenceAdapter implements LoadEventApplicationPort, SaveEventApplicationPort,
+        DeleteEventApplicationPort {
 
     private final EventApplicationRepository eventApplicationRepository;
     private final EventApplicationMapper eventApplicationMapper;
 
+    @Override
     public EventApplicationModel save(EventApplicationModel eventApplicationModel) {
         EventApplicationEntity entity = eventApplicationMapper.toEntity(eventApplicationModel);
         EventApplicationEntity savedEntity = eventApplicationRepository.save(entity);
         return eventApplicationMapper.toModel(savedEntity);
+    }
+
+    @Override
+    public void changeStatusById(UUID id, EventApplicationStatus status) {
+        eventApplicationRepository.findById(id).ifPresent(entity -> {
+            entity.setStatus(status);
+            eventApplicationRepository.save(entity);
+        });
     }
 
     @Override
@@ -72,5 +85,15 @@ public class EventApplicationPersistenceAdapter implements LoadEventApplicationP
         };
 
         return eventApplicationRepository.findAll(spec, pageable).map(eventApplicationMapper::toModel);
+    }
+
+    @Override
+    public List<EventApplicationModel> findByUserId(UUID userId) {
+        return  eventApplicationRepository.findByUserId(userId).stream().map(eventApplicationMapper::toModel).toList();
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        eventApplicationRepository.deleteById(id);
     }
 }

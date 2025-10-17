@@ -13,6 +13,7 @@ import java.util.UUID;
 public interface LoadEventApplicationPort {
     Optional<EventApplicationModel> findById(UUID id);
     Page<EventApplicationModel> findWithFilters(EventApplicationFilter filter, Pageable pageable);
+    List<EventApplicationModel> findByUserId(UUID userId);
 
     record EventApplicationFilter(UUID userId, UUID eventId,
                                   LocalDate birthDateFromInclusive,

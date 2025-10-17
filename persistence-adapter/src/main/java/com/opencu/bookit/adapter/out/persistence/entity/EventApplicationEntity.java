@@ -1,6 +1,7 @@
 package com.opencu.bookit.adapter.out.persistence.entity;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.opencu.bookit.domain.model.event.EventApplicationStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -40,4 +41,8 @@ public class EventApplicationEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "activity_details", columnDefinition = "jsonb", nullable = false)
     private JsonNode activityDetails;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private EventApplicationStatus status = EventApplicationStatus.PENDING;
 }
