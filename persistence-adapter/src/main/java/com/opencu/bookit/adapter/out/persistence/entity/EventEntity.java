@@ -93,4 +93,7 @@ public class EventEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "system_booking_id")
     private BookingEntity systemBooking;
+
+    @Column(name = "requires_application", nullable = false)
+    private boolean requiresApplication;
 }

@@ -21,4 +21,5 @@ public class EventApplicationModel {
     private String cityOfResidence;
     private LocalDate dateOfBirth;
     private JsonNode activityDetails;
+    private EventApplicationStatus status = EventApplicationStatus.PENDING;
 }

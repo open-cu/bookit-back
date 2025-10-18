@@ -32,7 +32,8 @@ public class EventResponseMapperV1 {
                 event.getStartTime(),
                 event.getEndTime(),
                 event.getAvailable_places(),
-                event.getAreaModel().getId()
+                event.getAreaModel().getId(),
+                event.isRequiresApplication()
         );
     }
 

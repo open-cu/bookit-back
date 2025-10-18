@@ -4,6 +4,7 @@ import com.opencu.bookit.domain.model.area.AreaModel;
 import com.opencu.bookit.domain.model.booking.BookingModel;
 import com.opencu.bookit.domain.model.contentcategory.*;
 import com.opencu.bookit.domain.model.user.UserModel;
+import com.opencu.bookit.domain.model.user.UserStatus;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
@@ -37,4 +38,5 @@ public class EventModel {
     private Set<UserModel> userModels = new HashSet<>();
     private AreaModel areaModel;
     private BookingModel systemBooking;
+    private boolean requiresApplication;
 }

@@ -89,7 +89,12 @@ public class EventApplicationPersistenceAdapter implements LoadEventApplicationP
 
     @Override
     public List<EventApplicationModel> findByUserId(UUID userId) {
-        return  eventApplicationRepository.findByUserId(userId).stream().map(eventApplicationMapper::toModel).toList();
+        return  eventApplicationRepository.findByUser_Id(userId).stream().map(eventApplicationMapper::toModel).toList();
+    }
+
+    @Override
+    public Optional<EventApplicationModel> findByUserIdAndEventId(UUID userId, UUID eventId) {
+        return eventApplicationRepository.findByUser_IdAndEvent_Id(userId, eventId).map(eventApplicationMapper::toModel);
     }
 
     @Override

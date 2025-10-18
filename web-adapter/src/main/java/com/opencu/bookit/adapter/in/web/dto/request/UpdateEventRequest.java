@@ -29,5 +29,7 @@ public record UpdateEventRequest(
         @PositiveOrZero
         int available_places,
         @NotNull
-        UUID areaId
+        UUID areaId,
+        @NotNull
+        boolean requiresApplication
 ) {}

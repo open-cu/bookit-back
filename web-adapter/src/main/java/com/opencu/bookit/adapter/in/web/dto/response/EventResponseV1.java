@@ -2,6 +2,7 @@ package com.opencu.bookit.adapter.in.web.dto.response;
 
 import com.opencu.bookit.domain.model.contentcategory.*;
 import com.opencu.bookit.domain.model.image.ImageModel;
+import com.opencu.bookit.domain.model.user.UserStatus;
 import org.springframework.lang.Nullable;
 
 import java.time.LocalDateTime;
@@ -25,5 +26,6 @@ public record EventResponseV1(
         LocalDateTime startTime,
         LocalDateTime endTime,
         int availablePlaces,
-        UUID areaId
+        UUID areaId,
+        boolean requiresApplication
 ) {}

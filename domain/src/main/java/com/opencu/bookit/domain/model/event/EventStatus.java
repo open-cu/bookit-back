@@ -4,5 +4,7 @@ public enum EventStatus {
     REGISTERED,
     FULL,
     AVAILABLE,
+    AVAILABLE_FOR_APPLICATION,
+    APPLICATION_SENT,
     COMPLETED
 }

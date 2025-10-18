@@ -3,6 +3,7 @@ package com.opencu.bookit.application.service.event;
 import com.opencu.bookit.application.port.in.booking.CRUDBookingUseCase;
 import com.opencu.bookit.application.port.out.area.LoadAreaPort;
 import com.opencu.bookit.application.port.out.event.DeleteEventPort;
+import com.opencu.bookit.application.port.out.event.LoadEventApplicationPort;
 import com.opencu.bookit.application.port.out.event.LoadEventPort;
 import com.opencu.bookit.application.port.out.event.SaveEventPort;
 import com.opencu.bookit.application.port.out.user.LoadAuthorizationInfoPort;
@@ -11,9 +12,7 @@ import com.opencu.bookit.application.service.booking.BookingService;
 import com.opencu.bookit.application.service.nofication.NotificationService;
 import com.opencu.bookit.domain.model.booking.ValidationRule;
 import com.opencu.bookit.domain.model.contentcategory.*;
-import com.opencu.bookit.domain.model.event.EventModel;
-import com.opencu.bookit.domain.model.event.EventNotification;
-import com.opencu.bookit.domain.model.event.EventStatus;
+import com.opencu.bookit.domain.model.event.*;
 import com.opencu.bookit.domain.model.user.UserModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -35,8 +34,8 @@ public class EventService {
     private final DeleteEventPort deleteEventPort;
     private final NotificationService notificationService;
     private final BookingService bookingService;
-    private final LoadAuthorizationInfoPort loadAuthorizationInfoPort;
     private final LoadAreaPort loadAreaPort;
+    private final LoadEventApplicationPort loadEventApplicationPort;
 
     @Value("${booking.zone-id}")
     private ZoneId zoneId;
@@ -46,15 +45,17 @@ public class EventService {
 
     public EventService(LoadEventPort loadEventPort, SaveEventPort saveEventPort,
                         LoadUserPort loadUserPort, DeleteEventPort deleteEventPort, LoadAreaPort loadAreaPort,
-                        NotificationService notificationService, BookingService bookingService, LoadAuthorizationInfoPort loadAuthorizationInfoPort) {
+                        NotificationService notificationService, BookingService bookingService,
+                        LoadAuthorizationInfoPort loadAuthorizationInfoPort, LoadEventApplicationPort loadEventApplicationPort,
+                        LoadEventApplicationPort loadEventApplicationPort1) {
         this.loadEventPort = loadEventPort;
         this.saveEventPort = saveEventPort;
         this.loadUserPort = loadUserPort;
         this.deleteEventPort = deleteEventPort;
         this.notificationService = notificationService;
         this.bookingService = bookingService;
-        this.loadAuthorizationInfoPort = loadAuthorizationInfoPort;
         this.loadAreaPort = loadAreaPort;
+        this.loadEventApplicationPort = loadEventApplicationPort1;
     }
 
     public Optional<EventModel> findById(UUID eventId) {
@@ -74,14 +75,30 @@ public class EventService {
             return EventStatus.COMPLETED;
         } else if (isUserPresent(userId, eventModel)) {
             return EventStatus.REGISTERED;
-        } else if (eventModel.getAvailable_places() > 0) {
-            return EventStatus.AVAILABLE;
-        } else {
+        } else if (eventModel.getAvailable_places() <= 0) {
             return EventStatus.FULL;
+        } else if (eventModel.isRequiresApplication()) {
+            Optional<EventApplicationModel> application = loadEventApplicationPort.findByUserIdAndEventId(userId, eventModel.getId());
+            return application.map(eventApplicationModel -> eventApplicationModel.getStatus() == EventApplicationStatus.APPROVED ?
+                    EventStatus.AVAILABLE : EventStatus.APPLICATION_SENT).orElse(EventStatus.AVAILABLE_FOR_APPLICATION);
+        } else {
+            return EventStatus.AVAILABLE;
         }
     }
 
     public void addUser(UUID userId, EventModel eventModel) {
+        if (eventModel.isRequiresApplication()) {
+            Optional<EventApplicationModel> application = loadEventApplicationPort.findByUserIdAndEventId(userId, eventModel.getId());
+
+            if (application.isEmpty()) {
+                throw new IllegalArgumentException("User " + userId + " has already submitted an application for this event");
+            }
+
+            if (application.get().getStatus() != EventApplicationStatus.APPROVED) {
+                throw new IllegalArgumentException("User " + userId + " application for this event is not approved");
+            }
+        }
+
         UserModel userModel = loadUserPort.findById(userId).orElseThrow(() -> new NoSuchElementException("User " + userId + " not found"));
         if (eventModel.getUserModels().contains(userModel)) {
             throw new IllegalArgumentException("User " + userModel.getId() + " is already registered for this event");
@@ -125,7 +142,6 @@ public class EventService {
             notificationService.scheduleEventNotification(eventNotification,
                     eventModel.getStartTime().minusDays(defaultTimeBeforeEventInDays));
         }
-
     }
 
     public boolean isUserPresent(UUID userId, EventModel eventModel) {

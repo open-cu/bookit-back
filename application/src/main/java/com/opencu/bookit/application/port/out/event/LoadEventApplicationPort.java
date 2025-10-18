@@ -14,6 +14,7 @@ public interface LoadEventApplicationPort {
     Optional<EventApplicationModel> findById(UUID id);
     Page<EventApplicationModel> findWithFilters(EventApplicationFilter filter, Pageable pageable);
     List<EventApplicationModel> findByUserId(UUID userId);
+    Optional<EventApplicationModel> findByUserIdAndEventId(UUID userId, UUID eventId);
 
     record EventApplicationFilter(UUID userId, UUID eventId,
                                   LocalDate birthDateFromInclusive,
