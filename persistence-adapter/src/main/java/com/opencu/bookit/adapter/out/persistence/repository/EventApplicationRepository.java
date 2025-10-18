@@ -14,5 +14,5 @@ import java.util.UUID;
 public interface EventApplicationRepository extends JpaRepository<EventApplicationEntity, UUID> {
     Page<EventApplicationEntity> findAll(Specification<EventApplicationEntity> spec, Pageable pageable);
     List<EventApplicationEntity> findByUser_Id(UUID userId);
-    Optional<EventApplicationEntity> findByUser_IdAndEvent_Id(UUID userId, UUID eventId);
+    Optional<EventApplicationEntity> findByUserIdAndEventId(UUID userId, UUID eventId);
 }

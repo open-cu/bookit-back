@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -22,4 +23,5 @@ public class EventApplicationModel {
     private LocalDate dateOfBirth;
     private JsonNode activityDetails;
     private EventApplicationStatus status = EventApplicationStatus.PENDING;
+    private LocalDateTime createdAt;
 }
