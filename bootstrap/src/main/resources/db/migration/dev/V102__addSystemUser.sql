@@ -32,6 +32,6 @@ INSERT INTO "PUBLIC"."USERS" (
 
 -- Добавление ролей пользователя
 INSERT INTO "PUBLIC"."USER_ROLES" ("USER_ID", "ROLES") VALUES
-                                                           (UUID '00000000-0000-0000-0000-000000000001', 'ROLE_SYSTEM_USER'),
-                                                           (UUID '00000000-0000-0000-0000-000000000001', 'ROLE_ADMIN'),
-                                                           (UUID '00000000-0000-0000-0000-000000000001', 'ROLE_SUPERADMIN');
+       (UUID '00000000-0000-0000-0000-000000000001', 'ROLE_SYSTEM_USER'),
+       (UUID '00000000-0000-0000-0000-000000000001', 'ROLE_ADMIN'),
+       (UUID '00000000-0000-0000-0000-000000000001', 'ROLE_SUPERADMIN');
