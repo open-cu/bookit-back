@@ -16,6 +16,7 @@ import java.time.ZoneId;
 import java.util.*;
 
 @Service
+@Transactional(readOnly = true)
 public class NewsService {
     private final LoadNewsPort loadNewsPort;
     private final SaveNewsPort saveNewsPort;
@@ -33,15 +34,20 @@ public class NewsService {
         return loadNewsPort.findAll();
     }
 
+
     @Transactional(readOnly = true)
     public List<NewsModel> findByTags(Set<ThemeTags> tags){
         return loadNewsPort.findByTags(tags);
     }
 
+
+    @Transactional(readOnly = true)
     public Page<NewsModel> findWithFilters(Set<ThemeTags> tags, String search, Pageable pageable) {
         return loadNewsPort.findWithFilters(tags, search, pageable);
     }
 
+
+    @Transactional(readOnly = true)
     public NewsModel findById(UUID newsId) {
         Optional<NewsModel> newsOpt = loadNewsPort.findById(newsId);
         if (newsOpt.isEmpty()) {
@@ -50,11 +56,13 @@ public class NewsService {
         return newsOpt.get();
     }
 
+    @Transactional
     public void delete(UUID newsId) {
         deleteNewsPort.delete(newsId);
     }
 
-    public NewsModel udpateNews(
+    @Transactional
+    public NewsModel updateNews(
             UUID newsId,
             String title,
             String shortDescription,

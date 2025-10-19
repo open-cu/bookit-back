@@ -114,7 +114,7 @@ public class AdminNewsControllerV1 {
         try {
             List<String> keys = null;
             keys = photoService.upload(photos);
-            NewsModel news = newsService.udpateNews(
+            NewsModel news = newsService.updateNews(
                     newsId,
                     newsUpdateRequest.title(),
                     newsUpdateRequest.shortDescription(),
