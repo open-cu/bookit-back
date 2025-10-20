@@ -9,6 +9,7 @@ import com.opencu.bookit.application.port.out.event.SaveEventApplicationPort;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.domain.model.event.EventApplicationModel;
 import com.opencu.bookit.domain.model.event.EventModel;
+import com.opencu.bookit.domain.model.event.EventApplicationStatus;
 import com.opencu.bookit.domain.model.user.UserModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,6 +30,7 @@ public class EventApplicationService implements CreateEventApplicationUseCase {
     private final LoadUserPort loadUserPort;
     private final LoadEventPort loadEventPort;
     private final ObjectMapper objectMapper;
+    private final com.opencu.bookit.application.port.out.event.DeleteEventApplicationPort deleteEventApplicationPort;
 
     public Page<EventApplicationModel> findWithFilters(
             UUID userId,
@@ -37,6 +39,7 @@ public class EventApplicationService implements CreateEventApplicationUseCase {
             LocalDate birthDateTo,
             String city,
             String details,
+            EventApplicationStatus status,
             Pageable pageable
     ) {
         JsonNode detailsJson = null;
@@ -49,7 +52,7 @@ public class EventApplicationService implements CreateEventApplicationUseCase {
         }
 
         LoadEventApplicationPort.EventApplicationFilter filter = new LoadEventApplicationPort.EventApplicationFilter(
-                userId, eventId, birthDateFrom, birthDateTo, city, detailsJson
+                userId, eventId, birthDateFrom, birthDateTo, city, detailsJson, status
         );
 
         return loadEventApplicationPort.findWithFilters(filter, pageable);
@@ -75,5 +78,19 @@ public class EventApplicationService implements CreateEventApplicationUseCase {
         newApplication.setActivityDetails(activityDetails);
 
         return saveEventApplicationPort.save(newApplication);
+    }
+
+    public void deleteByUser(UUID applicationId, UUID currentUserId) {
+        EventApplicationModel application = loadEventApplicationPort.findById(applicationId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event application not found with id: " + applicationId));
+
+        if (application.getUserModel() == null || application.getUserModel().getId() == null) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Event application has no associated user");
+        }
+        if (!application.getUserModel().getId().equals(currentUserId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can delete only your own event application");
+        }
+
+        deleteEventApplicationPort.deleteById(applicationId);
     }
 }

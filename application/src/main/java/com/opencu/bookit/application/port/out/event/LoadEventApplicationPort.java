@@ -2,6 +2,7 @@ package com.opencu.bookit.application.port.out.event;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.opencu.bookit.domain.model.event.EventApplicationModel;
+import com.opencu.bookit.domain.model.event.EventApplicationStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -20,5 +21,6 @@ public interface LoadEventApplicationPort {
                                   LocalDate birthDateFromInclusive,
                                   LocalDate birthDateToInclusive,
                                   String cityOfResidence,
-                                  JsonNode detailsFilter) {}
+                                  JsonNode detailsFilter,
+                                  EventApplicationStatus status) {}
 }

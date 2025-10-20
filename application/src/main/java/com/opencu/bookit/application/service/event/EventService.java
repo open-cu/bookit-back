@@ -66,7 +66,7 @@ public class EventService {
         return loadEventPort.findAll();
     }
 
-    public List<EventModel> findByTags(Set<ThemeTags> tags){
+    public List<EventModel> findByTags(Set<ThemeTags> tags) {
         return loadEventPort.findByTags(tags);
     }
 

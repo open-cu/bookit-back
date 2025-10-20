@@ -6,6 +6,7 @@ import com.opencu.bookit.adapter.in.web.mapper.EventApplicationResponseMapper;
 import com.opencu.bookit.application.port.in.CreateEventApplicationUseCase;
 import com.opencu.bookit.application.service.eventapplication.EventApplicationService;
 import com.opencu.bookit.domain.model.user.UserStatus;
+import com.opencu.bookit.domain.model.event.EventApplicationStatus;
 import com.opencu.bookit.adapter.out.security.spring.service.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,7 @@ public class EventApplicationController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate birthDateTo,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String details,
+            @RequestParam(required = false) EventApplicationStatus status,
             @RequestParam(defaultValue = "${pagination.default-page}") int page,
             @RequestParam(defaultValue = "${pagination.default-size}") int size,
             @RequestParam(defaultValue = "createdAt,asc") String sort
@@ -53,7 +55,7 @@ public class EventApplicationController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortParams[0]));
 
         Page<EventApplicationResponse> responsePage = eventApplicationService.findWithFilters(
-                userId, eventId, birthDateFrom, birthDateTo, city, details, pageable).map(responseMapper::toResponse);
+                userId, eventId, birthDateFrom, birthDateTo, city, details, status, pageable).map(responseMapper::toResponse);
 
         return ResponseEntity.ok(responsePage);
     }
@@ -81,4 +83,44 @@ public class EventApplicationController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseMapper.toResponse(newApplication));
     }
+
+    @Operation(summary = "Delete own event application")
+    @DeleteMapping("/{applicationId}")
+    public ResponseEntity<?> deleteOwnApplication(
+            @PathVariable UUID applicationId
+    ) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl currentUser = (UserDetailsImpl) authentication.getPrincipal();
+
+        if (currentUser.getStatus() != UserStatus.VERIFIED) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        eventApplicationService.deleteByUser(applicationId, currentUser.getId());
+        return ResponseEntity.ok("Event application deleted successfully");
+    }
+
+    @Operation(summary = "Get current user's event applications with optional status filter")
+    @GetMapping("/my")
+    public ResponseEntity<Page<EventApplicationResponse>> getMyEventApplications(
+            @RequestParam(required = false) EventApplicationStatus status,
+            @RequestParam(defaultValue = "${pagination.default-page}") int page,
+            @RequestParam(defaultValue = "${pagination.default-size}") int size,
+            @RequestParam(defaultValue = "createdAt,asc") String sort
+    ) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl currentUser = (UserDetailsImpl) authentication.getPrincipal();
+
+        String[] sortParams = sort.split(",");
+        Sort.Direction direction = sortParams.length > 1 && sortParams[1].equalsIgnoreCase("desc")
+                ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortParams[0]));
+
+        Page<EventApplicationResponse> responsePage = eventApplicationService.findWithFilters(
+                currentUser.getId(), null, null, null, null, null, status, pageable
+        ).map(responseMapper::toResponse);
+
+        return ResponseEntity.ok(responsePage);
+    }
+
 }

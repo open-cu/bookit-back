@@ -81,6 +81,10 @@ public class EventApplicationPersistenceAdapter implements LoadEventApplicationP
                 )));
             }
 
+            if (filter.status() != null) {
+                predicate = cb.and(predicate, cb.equal(root.get("status"), filter.status()));
+            }
+
             return predicate;
         };
 
