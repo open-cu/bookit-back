@@ -54,6 +54,7 @@ booking:
   end-work: 21
   hall-max-capacity: 4
   zone-id: Europe/Moscow
+  booking-slot-duration: 3600000
 
 messaging:
   enabled: ${MESSAGING_ENABLED:false}
