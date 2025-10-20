@@ -37,8 +37,8 @@ jobs:
           cd ./bookit-back &&
           git checkout main &&
           git pull &&
-          export COMPOSE_HTTP_TIMEOUT=300 &&
-          docker-compose -f docker-dev.yaml down -v &&
-          docker-compose -f docker-dev.yaml up --build -d
+          docker-compose -f docker-devpg.yaml down -v &&
+          docker-compose -f docker-devpg.yaml up --build -d
           "
+          
 

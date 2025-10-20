@@ -54,6 +54,7 @@ booking:
   end-work: 21
   hall-max-capacity: 4
   zone-id: Europe/Moscow
+  booking-slot-duration: 3600000
 
 messaging:
   enabled: ${MESSAGING_ENABLED:false}
@@ -68,6 +69,12 @@ yandex-cloud:
   region: ${REGION}
   s3-endpoint: ${S3_ENDPOINT}
   bucket: ${BUCKET}
+
+
+app:
+  database:
+    metadata:
+      enabled: ${METADATA_ENABLED:true}
 
 yandex-gpt:
   authorization: ${AUTH:null}
