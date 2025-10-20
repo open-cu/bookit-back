@@ -1,8 +1,23 @@
-
 FROM maven:3.9.9-eclipse-temurin-21-jammy AS builder
 WORKDIR /app
+
 COPY .mvn/ .mvn
 COPY mvnw pom.xml settings.xml ./
+COPY application/pom.xml ./application/
+COPY bootstrap/pom.xml ./bootstrap/
+COPY domain/pom.xml ./domain/
+COPY persistence-adapter/pom.xml ./persistence-adapter/
+COPY qrcode-adapter/pom.xml ./qrcode-adapter/
+COPY security-adapter/pom.xml ./security-adapter/
+COPY email-notification-adapter/pom.xml ./email-notification-adapter/
+COPY notification-queue-adapter/pom.xml ./notification-queue-adapter/
+COPY ai-agent-adapter/pom.xml ./ai-agent-adapter/
+COPY s3-adapter/pom.xml ./s3-adapter/
+COPY web-adapter/pom.xml ./web-adapter/
+COPY telegram-bot-notification-adapter/pom.xml ./telegram-bot-notification-adapter/
+
+RUN mvn dependency:go-offline -B
+
 COPY application ./application
 COPY bootstrap ./bootstrap
 COPY domain ./domain
@@ -15,8 +30,8 @@ COPY ai-agent-adapter ./ai-agent-adapter
 COPY s3-adapter ./s3-adapter
 COPY web-adapter ./web-adapter
 COPY telegram-bot-notification-adapter ./telegram-bot-notification-adapter
-RUN  mvn clean package  -DskipTests
 
+RUN mvn clean package
 
 FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
