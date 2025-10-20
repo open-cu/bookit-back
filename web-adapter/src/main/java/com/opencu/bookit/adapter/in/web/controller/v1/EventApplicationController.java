@@ -42,8 +42,8 @@ public class EventApplicationController {
             @RequestParam(required = false) UUID eventId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate birthDateFrom,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate birthDateTo,
-            @RequestParam(required = false) String city,
-            @RequestParam(required = false) String details,
+            @RequestParam(required = false) String cityOfResidence,
+            @RequestParam(required = false) String activityDetails,
             @RequestParam(required = false) EventApplicationStatus status,
             @RequestParam(defaultValue = "${pagination.default-page}") int page,
             @RequestParam(defaultValue = "${pagination.default-size}") int size,
@@ -55,7 +55,7 @@ public class EventApplicationController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortParams[0]));
 
         Page<EventApplicationResponse> responsePage = eventApplicationService.findWithFilters(
-                userId, eventId, birthDateFrom, birthDateTo, city, details, status, pageable).map(responseMapper::toResponse);
+                userId, eventId, birthDateFrom, birthDateTo, cityOfResidence, activityDetails, status, pageable).map(responseMapper::toResponse);
 
         return ResponseEntity.ok(responsePage);
     }

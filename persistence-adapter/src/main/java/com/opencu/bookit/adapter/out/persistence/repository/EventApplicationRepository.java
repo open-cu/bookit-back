@@ -1,7 +1,6 @@
 package com.opencu.bookit.adapter.out.persistence.repository;
 
 import com.opencu.bookit.adapter.out.persistence.entity.EventApplicationEntity;
-import com.opencu.bookit.domain.model.event.EventApplicationModel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -14,5 +13,5 @@ import java.util.UUID;
 public interface EventApplicationRepository extends JpaRepository<EventApplicationEntity, UUID> {
     Page<EventApplicationEntity> findAll(Specification<EventApplicationEntity> spec, Pageable pageable);
     List<EventApplicationEntity> findByUser_Id(UUID userId);
-    Optional<EventApplicationEntity> findByUserIdAndEventId(UUID userId, UUID eventId);
+    Optional<EventApplicationEntity> findByUser_IdAndEvent_Id(UUID userId, UUID eventId);
 }

@@ -9,10 +9,7 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EventApplicationResponseMapper {
     @Mapping(source = "userModel.id", target = "userId")
-    @Mapping(source = "userModel.firstName", target = "userFirstName")
-    @Mapping(source = "userModel.lastName", target = "userLastName")
     @Mapping(source = "eventModel.id", target = "eventId")
-    @Mapping(source = "eventModel.name", target = "eventName")
     EventApplicationResponse toResponse(EventApplicationModel model);
 }
 

@@ -12,10 +12,7 @@ import java.util.UUID;
 public class EventApplicationResponse {
     private UUID id;
     private UUID userId;
-    private String userFirstName;
-    private String userLastName;
     private UUID eventId;
-    private String eventName;
     private String cityOfResidence;
     private LocalDate dateOfBirth;
     private JsonNode activityDetails;

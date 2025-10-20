@@ -70,6 +70,10 @@ public class EventApplicationService implements CreateEventApplicationUseCase {
         EventModel event = loadEventPort.findById(eventId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found with id: " + eventId));
 
+        if (!event.isRequiresApplication()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Event does not require applications.");
+        }
+
         EventApplicationModel newApplication = new EventApplicationModel();
         newApplication.setUserModel(user);
         newApplication.setEventModel(event);

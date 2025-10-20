@@ -98,7 +98,7 @@ public class EventApplicationPersistenceAdapter implements LoadEventApplicationP
 
     @Override
     public Optional<EventApplicationModel> findByUserIdAndEventId(UUID userId, UUID eventId) {
-        return eventApplicationRepository.findByUserIdAndEventId(userId, eventId).map(eventApplicationMapper::toModel);
+        return eventApplicationRepository.findByUser_IdAndEvent_Id(userId, eventId).map(eventApplicationMapper::toModel);
     }
 
     @Override
