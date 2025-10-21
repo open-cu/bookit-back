@@ -31,5 +31,7 @@ public record UpdateEventRequest(
         @NotNull
         UUID areaId,
         @NotNull
-        boolean requiresApplication
+        Boolean requiresApplication,
+        @Nullable
+        LocalDateTime registrationDeadline
 ) {}

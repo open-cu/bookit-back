@@ -21,6 +21,7 @@ public interface EventMapper {
     @Mapping(target = "systemBooking", source = "systemBooking")
     @Mapping(target = "fullDescription", source = "full_description")
     @Mapping(target = "shortDescription", source = "short_description")
+    @Mapping(target = "registrationDeadline", source = "registrationDeadline")
     EventModel toModel(EventEntity entity);
 
     @Mapping(target = "users", source = "userModels")
@@ -31,6 +32,7 @@ public interface EventMapper {
     @Mapping(target = "systemBooking", source = "systemBooking")
     @Mapping(target = "full_description", source = "fullDescription")
     @Mapping(target = "short_description", source = "shortDescription")
+    @Mapping(target = "registrationDeadline", source = "registrationDeadline")
     EventEntity toEntity(EventModel model);
 
     List<EventModel> toModelList(List<EventEntity> entities);

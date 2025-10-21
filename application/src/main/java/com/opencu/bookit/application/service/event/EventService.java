@@ -68,45 +68,48 @@ public class EventService {
         return loadEventPort.findByTags(tags);
     }
 
-    public EventStatus findStatusById(UUID userId, EventModel eventModel){
+    public EventStatus getStatus(UUID userId, EventModel eventModel) {
         if (eventModel.getEndTime().isBefore(LocalDateTime.now(zoneId))) {
             return EventStatus.COMPLETED;
-        } else if (isUserPresent(userId, eventModel)) {
-            return EventStatus.REGISTERED;
-        } else if (eventModel.getAvailable_places() <= 0) {
-            return EventStatus.FULL;
-        } else if (eventModel.isRequiresApplication()) {
-            Optional<EventApplicationModel> application = loadEventApplicationPort.findByUserIdAndEventId(userId, eventModel.getId());
-            return application.map(eventApplicationModel -> eventApplicationModel.getStatus() == EventApplicationStatus.APPROVED ?
-                    EventStatus.AVAILABLE : EventStatus.APPLICATION_SENT).orElse(EventStatus.AVAILABLE_FOR_APPLICATION);
-        } else {
-            return EventStatus.AVAILABLE;
         }
+
+        if (isUserPresent(userId, eventModel)) {
+            return EventStatus.REGISTERED;
+        }
+
+        Optional<EventApplicationModel> application = loadEventApplicationPort.findByUserIdAndEventId(userId, eventModel.getId());
+        boolean isRegistrationClosed = eventModel.getRegistrationDeadline() != null && eventModel.getRegistrationDeadline().isBefore(LocalDateTime.now(zoneId));
+
+        if (eventModel.isRequiresApplication()) {
+            if (application.isPresent()) {
+                if (application.get().getStatus() == EventApplicationStatus.APPROVED) {
+                    return EventStatus.AVAILABLE;
+                }
+                return EventStatus.APPLICATION_SENT;
+            }
+            else {
+                if (isRegistrationClosed) {
+                    return EventStatus.REGISTRATION_CLOSED;
+                }
+                return EventStatus.AVAILABLE_FOR_APPLICATION;
+            }
+        }
+
+        if (isRegistrationClosed) {
+            return EventStatus.REGISTRATION_CLOSED;
+        }
+
+        return eventModel.getAvailable_places() <= 0 ? EventStatus.FULL : EventStatus.AVAILABLE;
     }
 
     public void addUser(UUID userId, EventModel eventModel) {
-        if (eventModel.isRequiresApplication()) {
-            Optional<EventApplicationModel> application = loadEventApplicationPort.findByUserIdAndEventId(userId, eventModel.getId());
 
-            if (application.isEmpty()) {
-                throw new IllegalArgumentException("User " + userId + " has already submitted an application for this event");
-            }
-
-            if (application.get().getStatus() != EventApplicationStatus.APPROVED) {
-                throw new IllegalArgumentException("User " + userId + " application for this event is not approved");
-            }
+        if (getStatus(userId, eventModel) != EventStatus.AVAILABLE) {
+            throw new IllegalArgumentException("User " + userId + " cannot be added to event " + eventModel.getId());
         }
 
         UserModel userModel = loadUserPort.findById(userId).orElseThrow(() -> new NoSuchElementException("User " + userId + " not found"));
-        if (eventModel.getUserModels().contains(userModel)) {
-            throw new IllegalArgumentException("User " + userModel.getId() + " is already registered for this event");
-        }
-        if (eventModel.getAvailable_places() <= 0) {
-            throw new IllegalArgumentException("There are no available places for this event " + eventModel.getId());
-        }
-        if (eventModel.getStartTime().isBefore(LocalDateTime.now(zoneId))) {
-            throw new IllegalArgumentException("Cannot register for an event "  + eventModel.getId() + " that has already occurred");
-        }
+
         eventModel.getUserModels().add(userModel);
         eventModel.setAvailable_places(eventModel.getAvailable_places() - 1);
         saveEventPort.save(eventModel);
@@ -177,18 +180,26 @@ public class EventService {
             LocalDateTime startTime,
             LocalDateTime endTime,
             int availablePlaces,
-            UUID areaId
+            UUID areaId,
+            LocalDateTime applicationDeadline
     ) {
         Optional<EventModel> eventOpt = loadEventPort.findById(eventId);
         if (eventOpt.isEmpty()) {
             throw new NoSuchElementException("No such event " + eventId + " found");
         }
+
         EventModel eventModel = eventOpt.get();
+
+        if (!eventModel.isRequiresApplication() && applicationDeadline != null) {
+            throw new IllegalArgumentException("Event " + eventId + " does not require application, so application deadline cannot be set");
+        }
+
         setEventModelValues(name, shortDescription, fullDescription, tags, formats, times, participationFormats, targetAudiences, keys, startTime, eventModel);
         eventModel.setAvailable_places(availablePlaces);
         eventModel.setEndTime(endTime);
         eventModel.setAreaModel(loadAreaPort.findById(areaId)
                 .orElseThrow(() -> new NoSuchElementException("No such area " + areaId + " found")));
+        eventModel.setRegistrationDeadline(applicationDeadline);
 
         EventModel event = loadEventPort.findById(eventId)
                 .orElseThrow(() -> new NoSuchElementException("No such event " + eventId + " found"));
@@ -287,14 +298,17 @@ public class EventService {
             LocalDateTime startTime,
             LocalDateTime endTime,
             int availablePlaces,
-            UUID areaId
-    ) {
+            UUID areaId,
+            boolean requiresApplication,
+            LocalDateTime applicationDeadline) {
         EventModel eventModel = new EventModel();
         setEventModelValues(name, shortDescription, fullDescription, tags, formats, times, participationFormats, targetAudiences, keys, startTime, eventModel);
         eventModel.setEndTime(endTime);
         eventModel.setAvailable_places(availablePlaces);
         eventModel.setAreaModel(loadAreaPort.findById(areaId)
                 .orElseThrow(() -> new NoSuchElementException("No such area " + areaId + " found")));
+        eventModel.setRequiresApplication(requiresApplication);
+        eventModel.setRegistrationDeadline(applicationDeadline);
 
         CRUDBookingUseCase.CreateBookingCommand createBookingCommand = new CRUDBookingUseCase.CreateBookingCommand(
                 loadUserPort.getSystemUser().getId(),

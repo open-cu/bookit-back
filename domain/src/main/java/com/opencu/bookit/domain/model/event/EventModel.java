@@ -4,8 +4,6 @@ import com.opencu.bookit.domain.model.area.AreaModel;
 import com.opencu.bookit.domain.model.booking.BookingModel;
 import com.opencu.bookit.domain.model.contentcategory.*;
 import com.opencu.bookit.domain.model.user.UserModel;
-import com.opencu.bookit.domain.model.user.UserStatus;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -39,4 +37,5 @@ public class EventModel {
     private AreaModel areaModel;
     private BookingModel systemBooking;
     private boolean requiresApplication;
+    private LocalDateTime registrationDeadline;
 }

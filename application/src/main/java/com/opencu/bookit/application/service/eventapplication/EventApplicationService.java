@@ -9,10 +9,7 @@ import com.opencu.bookit.application.port.out.event.SaveEventApplicationPort;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.application.service.event.EventService;
 import com.opencu.bookit.application.service.nofication.NotificationService;
-import com.opencu.bookit.domain.model.event.EventApplicationModel;
-import com.opencu.bookit.domain.model.event.EventModel;
-import com.opencu.bookit.domain.model.event.EventApplicationStatus;
-import com.opencu.bookit.domain.model.event.EventNotification;
+import com.opencu.bookit.domain.model.event.*;
 import com.opencu.bookit.domain.model.user.UserModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -80,6 +77,10 @@ public class EventApplicationService implements CreateEventApplicationUseCase {
 
         EventModel event = loadEventPort.findById(eventId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found with id: " + eventId));
+
+        if (eventService.getStatus(userId, event) != EventStatus.AVAILABLE_FOR_APPLICATION) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User can not send application for this event.");
+        }
 
         UserModel user = loadUserPort.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with id: " + userId));

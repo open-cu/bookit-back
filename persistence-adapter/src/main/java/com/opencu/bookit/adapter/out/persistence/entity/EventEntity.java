@@ -96,4 +96,7 @@ public class EventEntity {
 
     @Column(name = "requires_application", nullable = false)
     private boolean requiresApplication;
+
+    @Column(name = "registration_deadline")
+    private LocalDateTime registrationDeadline;
 }
