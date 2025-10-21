@@ -42,10 +42,6 @@ public class EventApplicationService implements CreateEventApplicationUseCase {
             EventApplicationStatus status,
             Pageable pageable
     ) {
-        if (!loadEventPort.requiresApplication(eventId)) {
-            throw new IllegalArgumentException("Event with id " + eventId + " does not require application.");
-        }
-
         JsonNode detailsJson = null;
         if (details != null && !details.isEmpty()) {
             try {
@@ -72,15 +68,15 @@ public class EventApplicationService implements CreateEventApplicationUseCase {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Event application for this event by this user already exists.");
         });
 
-        UserModel user = loadUserPort.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with id: " + userId));
+        if (!loadEventPort.requiresApplication(eventId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Event does not require applications.");
+        }
 
         EventModel event = loadEventPort.findById(eventId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found with id: " + eventId));
 
-        if (!event.isRequiresApplication()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Event does not require applications.");
-        }
+        UserModel user = loadUserPort.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with id: " + userId));
 
         EventApplicationModel newApplication = new EventApplicationModel();
         newApplication.setUserModel(user);
