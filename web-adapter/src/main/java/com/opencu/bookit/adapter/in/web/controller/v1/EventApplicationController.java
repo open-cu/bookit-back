@@ -86,7 +86,7 @@ public class EventApplicationController {
 
     @Operation(summary = "Delete own event application")
     @DeleteMapping("/{applicationId}")
-    public ResponseEntity<?> deleteOwnApplication(
+    public ResponseEntity<String> deleteOwnApplication(
             @PathVariable UUID applicationId
     ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -123,4 +123,13 @@ public class EventApplicationController {
         return ResponseEntity.ok(responsePage);
     }
 
+    @Operation(summary = "Update status of an event application (FOR ADMINS ONLY!)")
+    @PreAuthorize("not @securityService.isProd() or @securityService.hasRequiredRole(@securityService.getAdmin())")
+    @PatchMapping("/{applicationId}/status")
+    public ResponseEntity<EventApplicationResponse> updateApplicationStatus(
+            @PathVariable UUID applicationId,
+            @RequestParam EventApplicationStatus status) {
+        eventApplicationService.updateStatus(applicationId, status);
+        return ResponseEntity.ok().build();
+    }
 }

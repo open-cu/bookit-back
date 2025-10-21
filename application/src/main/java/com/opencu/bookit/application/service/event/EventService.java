@@ -6,7 +6,6 @@ import com.opencu.bookit.application.port.out.event.DeleteEventPort;
 import com.opencu.bookit.application.port.out.event.LoadEventApplicationPort;
 import com.opencu.bookit.application.port.out.event.LoadEventPort;
 import com.opencu.bookit.application.port.out.event.SaveEventPort;
-import com.opencu.bookit.application.port.out.user.LoadAuthorizationInfoPort;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.application.service.booking.BookingService;
 import com.opencu.bookit.application.service.nofication.NotificationService;
@@ -46,7 +45,6 @@ public class EventService {
     public EventService(LoadEventPort loadEventPort, SaveEventPort saveEventPort,
                         LoadUserPort loadUserPort, DeleteEventPort deleteEventPort, LoadAreaPort loadAreaPort,
                         NotificationService notificationService, BookingService bookingService,
-                        LoadAuthorizationInfoPort loadAuthorizationInfoPort, LoadEventApplicationPort loadEventApplicationPort,
                         LoadEventApplicationPort loadEventApplicationPort1) {
         this.loadEventPort = loadEventPort;
         this.saveEventPort = saveEventPort;

@@ -7,15 +7,19 @@ import com.opencu.bookit.application.port.out.event.LoadEventApplicationPort;
 import com.opencu.bookit.application.port.out.event.LoadEventPort;
 import com.opencu.bookit.application.port.out.event.SaveEventApplicationPort;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
+import com.opencu.bookit.application.service.event.EventService;
+import com.opencu.bookit.application.service.nofication.NotificationService;
 import com.opencu.bookit.domain.model.event.EventApplicationModel;
 import com.opencu.bookit.domain.model.event.EventModel;
 import com.opencu.bookit.domain.model.event.EventApplicationStatus;
+import com.opencu.bookit.domain.model.event.EventNotification;
 import com.opencu.bookit.domain.model.user.UserModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
@@ -31,6 +35,8 @@ public class EventApplicationService implements CreateEventApplicationUseCase {
     private final LoadEventPort loadEventPort;
     private final ObjectMapper objectMapper;
     private final com.opencu.bookit.application.port.out.event.DeleteEventApplicationPort deleteEventApplicationPort;
+    private final EventService eventService;
+    private final NotificationService notificationService;
 
     public Page<EventApplicationModel> findWithFilters(
             UUID userId,
@@ -98,7 +104,42 @@ public class EventApplicationService implements CreateEventApplicationUseCase {
         if (!application.getUserModel().getId().equals(currentUserId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can delete only your own event application");
         }
+        if (application.getStatus() != EventApplicationStatus.PENDING) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only pending event applications can be deleted");
+        }
 
         deleteEventApplicationPort.deleteById(applicationId);
+    }
+
+    @Transactional
+    public void updateStatus(UUID applicationId, EventApplicationStatus status) {
+        EventApplicationModel application = loadEventApplicationPort.findById(applicationId).orElseThrow(
+                () -> new IllegalArgumentException("Event application not found with id: " + applicationId)
+        );
+
+        saveEventApplicationPort.changeStatusById(applicationId, status);
+
+        final UserModel user = application.getUserModel();
+        final EventModel event = application.getEventModel();
+        switch (status) {
+            case PENDING -> throw new IllegalArgumentException("Cannot change, status to PENDING.");
+            case APPROVED -> eventService.addUser(user.getId(), event);
+            case REJECTED -> {
+                eventService.removeUser(user.getId(), event);
+                EventNotification eventNotification = new EventNotification(
+                        UUID.randomUUID(),
+                        user.getId(),
+                        user.getEmail(),
+                        user.getTgId(),
+                        event.getId(),
+                        event.getName(),
+                        event.getStartTime(),
+                        "Ваша заявка на мероприятие: " + event.getName() + " была отклонена."
+                );
+
+                notificationService.sendEventNotificationNow(eventNotification);
+            }
+            default -> throw new IllegalArgumentException("Invalid status: " + status);
+        }
     }
 }
