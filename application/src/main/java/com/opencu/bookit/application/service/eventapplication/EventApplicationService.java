@@ -42,6 +42,10 @@ public class EventApplicationService implements CreateEventApplicationUseCase {
             EventApplicationStatus status,
             Pageable pageable
     ) {
+        if (!loadEventPort.requiresApplication(eventId)) {
+            throw new IllegalArgumentException("Event with id " + eventId + " does not require application.");
+        }
+
         JsonNode detailsJson = null;
         if (details != null && !details.isEmpty()) {
             try {
@@ -49,6 +53,10 @@ public class EventApplicationService implements CreateEventApplicationUseCase {
             } catch (IOException e) {
                 throw new IllegalArgumentException("Invalid JSON format for 'details' parameter.", e);
             }
+        }
+
+        if (birthDateFrom != null && birthDateTo != null && birthDateFrom.isAfter(birthDateTo)) {
+            throw new IllegalArgumentException("'birthDateFrom' cannot be after 'birthDateTo'.");
         }
 
         LoadEventApplicationPort.EventApplicationFilter filter = new LoadEventApplicationPort.EventApplicationFilter(
