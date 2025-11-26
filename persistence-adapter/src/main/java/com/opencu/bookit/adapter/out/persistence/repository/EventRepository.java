@@ -36,4 +36,7 @@ public interface EventRepository extends JpaRepository<EventEntity, UUID>, JpaSp
 
     @Query("SELECT e FROM EventEntity e WHERE e.name = :name")
     Optional<EventEntity> findByName(@Param("name") String name);
+
+    @Query("SELECT e.requiresApplication FROM EventEntity e WHERE e.id = :eventId")
+    Boolean requiresApplication(@Param("eventId") UUID eventId);
 }

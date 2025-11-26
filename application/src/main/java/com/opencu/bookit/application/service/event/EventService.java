@@ -3,17 +3,15 @@ package com.opencu.bookit.application.service.event;
 import com.opencu.bookit.application.port.in.booking.CRUDBookingUseCase;
 import com.opencu.bookit.application.port.out.area.LoadAreaPort;
 import com.opencu.bookit.application.port.out.event.DeleteEventPort;
+import com.opencu.bookit.application.port.out.event.LoadEventApplicationPort;
 import com.opencu.bookit.application.port.out.event.LoadEventPort;
 import com.opencu.bookit.application.port.out.event.SaveEventPort;
-import com.opencu.bookit.application.port.out.user.LoadAuthorizationInfoPort;
 import com.opencu.bookit.application.port.out.user.LoadUserPort;
 import com.opencu.bookit.application.service.booking.BookingService;
 import com.opencu.bookit.application.service.nofication.NotificationService;
 import com.opencu.bookit.domain.model.booking.ValidationRule;
 import com.opencu.bookit.domain.model.contentcategory.*;
-import com.opencu.bookit.domain.model.event.EventModel;
-import com.opencu.bookit.domain.model.event.EventNotification;
-import com.opencu.bookit.domain.model.event.EventStatus;
+import com.opencu.bookit.domain.model.event.*;
 import com.opencu.bookit.domain.model.user.UserModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -35,8 +33,8 @@ public class EventService {
     private final DeleteEventPort deleteEventPort;
     private final NotificationService notificationService;
     private final BookingService bookingService;
-    private final LoadAuthorizationInfoPort loadAuthorizationInfoPort;
     private final LoadAreaPort loadAreaPort;
+    private final LoadEventApplicationPort loadEventApplicationPort;
 
     @Value("${booking.zone-id}")
     private ZoneId zoneId;
@@ -46,15 +44,16 @@ public class EventService {
 
     public EventService(LoadEventPort loadEventPort, SaveEventPort saveEventPort,
                         LoadUserPort loadUserPort, DeleteEventPort deleteEventPort, LoadAreaPort loadAreaPort,
-                        NotificationService notificationService, BookingService bookingService, LoadAuthorizationInfoPort loadAuthorizationInfoPort) {
+                        NotificationService notificationService, BookingService bookingService,
+                        LoadEventApplicationPort loadEventApplicationPort1) {
         this.loadEventPort = loadEventPort;
         this.saveEventPort = saveEventPort;
         this.loadUserPort = loadUserPort;
         this.deleteEventPort = deleteEventPort;
         this.notificationService = notificationService;
         this.bookingService = bookingService;
-        this.loadAuthorizationInfoPort = loadAuthorizationInfoPort;
         this.loadAreaPort = loadAreaPort;
+        this.loadEventApplicationPort = loadEventApplicationPort1;
     }
 
     public Optional<EventModel> findById(UUID eventId) {
@@ -65,33 +64,52 @@ public class EventService {
         return loadEventPort.findAll();
     }
 
-    public List<EventModel> findByTags(Set<ThemeTags> tags){
+    public List<EventModel> findByTags(Set<ThemeTags> tags) {
         return loadEventPort.findByTags(tags);
     }
 
-    public EventStatus findStatusById(UUID userId, EventModel eventModel){
+    public EventStatus getStatus(UUID userId, EventModel eventModel) {
         if (eventModel.getEndTime().isBefore(LocalDateTime.now(zoneId))) {
             return EventStatus.COMPLETED;
-        } else if (isUserPresent(userId, eventModel)) {
-            return EventStatus.REGISTERED;
-        } else if (eventModel.getAvailable_places() > 0) {
-            return EventStatus.AVAILABLE;
-        } else {
-            return EventStatus.FULL;
         }
+
+        if (isUserPresent(userId, eventModel)) {
+            return EventStatus.REGISTERED;
+        }
+
+        Optional<EventApplicationModel> application = loadEventApplicationPort.findByUserIdAndEventId(userId, eventModel.getId());
+        boolean isRegistrationClosed = eventModel.getRegistrationDeadline() != null && eventModel.getRegistrationDeadline().isBefore(LocalDateTime.now(zoneId));
+
+        if (eventModel.isRequiresApplication()) {
+            if (application.isPresent()) {
+                if (application.get().getStatus() == EventApplicationStatus.APPROVED) {
+                    return EventStatus.AVAILABLE;
+                }
+                return EventStatus.APPLICATION_SENT;
+            }
+            else {
+                if (isRegistrationClosed) {
+                    return EventStatus.REGISTRATION_CLOSED;
+                }
+                return EventStatus.AVAILABLE_FOR_APPLICATION;
+            }
+        }
+
+        if (isRegistrationClosed) {
+            return EventStatus.REGISTRATION_CLOSED;
+        }
+
+        return eventModel.getAvailable_places() <= 0 ? EventStatus.FULL : EventStatus.AVAILABLE;
     }
 
     public void addUser(UUID userId, EventModel eventModel) {
+
+        if (getStatus(userId, eventModel) != EventStatus.AVAILABLE) {
+            throw new IllegalArgumentException("User " + userId + " cannot be added to event " + eventModel.getId());
+        }
+
         UserModel userModel = loadUserPort.findById(userId).orElseThrow(() -> new NoSuchElementException("User " + userId + " not found"));
-        if (eventModel.getUserModels().contains(userModel)) {
-            throw new IllegalArgumentException("User " + userModel.getId() + " is already registered for this event");
-        }
-        if (eventModel.getAvailable_places() <= 0) {
-            throw new IllegalArgumentException("There are no available places for this event " + eventModel.getId());
-        }
-        if (eventModel.getStartTime().isBefore(LocalDateTime.now(zoneId))) {
-            throw new IllegalArgumentException("Cannot register for an event "  + eventModel.getId() + " that has already occurred");
-        }
+
         eventModel.getUserModels().add(userModel);
         eventModel.setAvailable_places(eventModel.getAvailable_places() - 1);
         saveEventPort.save(eventModel);
@@ -125,7 +143,6 @@ public class EventService {
             notificationService.scheduleEventNotification(eventNotification,
                     eventModel.getStartTime().minusDays(defaultTimeBeforeEventInDays));
         }
-
     }
 
     public boolean isUserPresent(UUID userId, EventModel eventModel) {
@@ -163,18 +180,26 @@ public class EventService {
             LocalDateTime startTime,
             LocalDateTime endTime,
             int availablePlaces,
-            UUID areaId
+            UUID areaId,
+            LocalDateTime applicationDeadline
     ) {
         Optional<EventModel> eventOpt = loadEventPort.findById(eventId);
         if (eventOpt.isEmpty()) {
             throw new NoSuchElementException("No such event " + eventId + " found");
         }
+
         EventModel eventModel = eventOpt.get();
+
+        if (!eventModel.isRequiresApplication() && applicationDeadline != null) {
+            throw new IllegalArgumentException("Event " + eventId + " does not require application, so application deadline cannot be set");
+        }
+
         setEventModelValues(name, shortDescription, fullDescription, tags, formats, times, participationFormats, targetAudiences, keys, startTime, eventModel);
         eventModel.setAvailable_places(availablePlaces);
         eventModel.setEndTime(endTime);
         eventModel.setAreaModel(loadAreaPort.findById(areaId)
                 .orElseThrow(() -> new NoSuchElementException("No such area " + areaId + " found")));
+        eventModel.setRegistrationDeadline(applicationDeadline);
 
         EventModel event = loadEventPort.findById(eventId)
                 .orElseThrow(() -> new NoSuchElementException("No such event " + eventId + " found"));
@@ -273,14 +298,17 @@ public class EventService {
             LocalDateTime startTime,
             LocalDateTime endTime,
             int availablePlaces,
-            UUID areaId
-    ) {
+            UUID areaId,
+            boolean requiresApplication,
+            LocalDateTime applicationDeadline) {
         EventModel eventModel = new EventModel();
         setEventModelValues(name, shortDescription, fullDescription, tags, formats, times, participationFormats, targetAudiences, keys, startTime, eventModel);
         eventModel.setEndTime(endTime);
         eventModel.setAvailable_places(availablePlaces);
         eventModel.setAreaModel(loadAreaPort.findById(areaId)
                 .orElseThrow(() -> new NoSuchElementException("No such area " + areaId + " found")));
+        eventModel.setRequiresApplication(requiresApplication);
+        eventModel.setRegistrationDeadline(applicationDeadline);
 
         CRUDBookingUseCase.CreateBookingCommand createBookingCommand = new CRUDBookingUseCase.CreateBookingCommand(
                 loadUserPort.getSystemUser().getId(),

@@ -61,8 +61,7 @@ public class EventControllerV1 {
             @RequestParam(defaultValue = "true") Boolean sendPhotos,
             @RequestParam(defaultValue = "${pagination.default-page}") int page,
             @RequestParam(defaultValue = "${pagination.default-size}") int size,
-            @RequestParam(defaultValue = "startTime,asc") String sort
-                                                           ) {
+            @RequestParam(defaultValue = "startTime,asc") String sort) {
         String[] sortParams = sort.split(",");
         Sort.Direction direction = sortParams.length > 1 && sortParams[1].equalsIgnoreCase("desc")
                 ? Sort.Direction.DESC : Sort.Direction.ASC;
@@ -102,7 +101,7 @@ public class EventControllerV1 {
         EventModel event = eventService.findById(eventId)
                                        .orElseThrow(() -> new ResourceNotFoundException("Event " + eventId + " not found"));
 
-        return ResponseEntity.ok(eventService.findStatusById(currentUser.getId(), event));
+        return ResponseEntity.ok(eventService.getStatus(currentUser.getId(), event));
     }
 
     @Operation(summary = "Register current user for the event")
@@ -200,7 +199,8 @@ public class EventControllerV1 {
                     updateEventRequest.startTime(),
                     updateEventRequest.endTime(),
                     updateEventRequest.available_places(),
-                    updateEventRequest.areaId()
+                    updateEventRequest.areaId(),
+                    updateEventRequest.registrationDeadline()
             );
                 return ResponseEntity.ok(eventResponseMapper.toEventResponse(eventModel, sendPhotos));
             } catch (IOException e) {
@@ -222,7 +222,7 @@ public class EventControllerV1 {
             @RequestPart("updateEventRequest") UpdateEventRequest updateEventRequest,
             @RequestPart("photos") List<MultipartFile> photos
     ) {
-        List<String> keys = null;
+        List<String> keys;
         try {
             keys = photoService.upload(photos);
             EventModel eventModel = eventService.createEvent(
@@ -238,8 +238,9 @@ public class EventControllerV1 {
                 updateEventRequest.startTime(),
                 updateEventRequest.endTime(),
                 updateEventRequest.available_places(),
-                updateEventRequest.areaId()
-        );
+                updateEventRequest.areaId(),
+                updateEventRequest.requiresApplication(),
+                updateEventRequest.registrationDeadline());
             return ResponseEntity.status(HttpStatus.CREATED).body(eventResponseMapper.toEventResponse(eventModel, sendPhotos));
         } catch (IOException e) {
             return ResponseEntity.badRequest().build();

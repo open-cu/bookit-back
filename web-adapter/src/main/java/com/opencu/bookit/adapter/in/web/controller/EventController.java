@@ -67,7 +67,7 @@ public class EventController {
     public ResponseEntity<EventStatus> getStatusById(@PathVariable UUID eventId, @PathVariable UUID userId){
         EventModel event = eventService.findById(eventId).orElseThrow(
                 () -> new ResourceNotFoundException("Event not found"));
-        return ResponseEntity.ok(eventService.findStatusById(userId, event));
+        return ResponseEntity.ok(eventService.getStatus(userId, event));
     }
 
     @Operation(description = "Registers (by entering the guest list of the event) the user for this event")
@@ -85,7 +85,7 @@ public class EventController {
         EventModel event = eventService.findById(eventId).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
 
-        EventStatus status = eventService.findStatusById(userDetails.getId(), event);
+        EventStatus status = eventService.getStatus(userDetails.getId(), event);
         if (status != EventStatus.AVAILABLE && !eventService.isUserPresent(userDetails.getId(), event)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }

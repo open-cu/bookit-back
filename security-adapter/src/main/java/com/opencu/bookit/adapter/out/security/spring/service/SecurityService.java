@@ -18,6 +18,9 @@ public class SecurityService {
     public boolean isDev() {
         return PROFILE_DEV.equalsIgnoreCase(activeProfile);
     }
+    public boolean isProd() {
+        return activeProfile.equalsIgnoreCase("prod");
+    }
 
     public static String getAdmin() {
         return ADMIN;

@@ -29,5 +29,6 @@ public interface LoadEventPort {
             UUID currentUserId
     );
     boolean existsById(UUID eventId);
+    boolean requiresApplication(UUID eventId);
     Optional<EventModel> findByName(String name);
 }

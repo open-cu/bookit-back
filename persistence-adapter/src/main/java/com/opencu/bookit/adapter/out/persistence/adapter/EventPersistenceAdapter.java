@@ -86,6 +86,11 @@ public class EventPersistenceAdapter implements LoadEventPort,
     }
 
     @Override
+    public boolean requiresApplication(UUID eventId) {
+        return eventRepository.requiresApplication(eventId);
+    }
+
+    @Override
     public EventModel save(EventModel eventModel) {
         EventEntity entity = eventMapper.toEntity(eventModel);
         EventEntity savedEntity = eventRepository.save(eventMapper.toEntity(eventModel));
